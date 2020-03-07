@@ -1,0 +1,3 @@
+displayName = Terraria Science Mod
+author = absoluteAquarian
+version = 0.0.1
