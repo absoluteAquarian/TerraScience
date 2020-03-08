@@ -6,9 +6,7 @@ namespace TerraScience.Dusts{
 	public class ElementGasDust : ModDust{
 		public override Color? GetAlpha(Dust dust, Color lightColor){
 			//If we've stored data, use it
-			if(dust.customData is Color color)
-				return color;
-			return null;
+			return dust.customData is Color color ? (Color?)color : null;
 		}
 
 		public override void OnSpawn(Dust dust){

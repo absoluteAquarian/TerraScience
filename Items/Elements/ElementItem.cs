@@ -23,11 +23,16 @@ namespace TerraScience.Items.Elements{
 		//Stored data, used during other sections of loading/autoloading
 		private readonly string displayName = null;
 		private readonly string description = null;
+
 		private Action<ModRecipe, ElementItem> ItemRecipe => TerraScience.CachedElementRecipes[Name];
 		private Action<Item> ItemDefaults => TerraScience.CachedElementDefaults[Name];
+
 		public ElementState BaseState{ get; private set; } = ElementState.Solid;
+
 		public Color GasColor{ get; private set; } = Color.White;
+
 		public ModLiquid LiquidForm { get; private set; } = null;
+
 		public float BoilingPoint { get; private set; } = 0f;
 		public float MeltingPoint { get; private set; } = 0f;
 
@@ -94,17 +99,20 @@ namespace TerraScience.Items.Elements{
 			if(CurrentState == ElementState.Gas && Main.rand.NextFloat() < 11f / 60f)
 				TerraScience.NewElementGasDust(item.position, item.width, item.height, GasColor);
 
-			UpdateState();
+			UpdateStates();
 		}
 
-		internal void UpdateState()
+		internal void UpdateStates()
 		{
+			//Changing states whilest temperature isnt implimented could cause issues.
+
+			/*
 			if (CurrentTemp >= BoilingPoint)
 				CurrentState = ElementState.Gas;
 			else if (CurrentTemp >= MeltingPoint)
 				CurrentState = ElementState.Liquid;
 			else if (CurrentTemp <= MeltingPoint)
-				CurrentState = ElementState.Solid;
+				CurrentState = ElementState.Solid;*/
 		}
 
 		public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI){
@@ -113,6 +121,7 @@ namespace TerraScience.Items.Elements{
 				return false;
 
 			//Otherwise, if it's a metal, draw it
+
 			// TODO:  fancy shit
 			return true;
 		}
