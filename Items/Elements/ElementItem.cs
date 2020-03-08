@@ -29,7 +29,7 @@ namespace TerraScience.Items.Elements{
 		public Color GasColor{ get; private set; } = Color.White;
 		public ModLiquid LiquidForm { get; private set; } = null;
 		public float BoilingPoint { get; private set; } = 0f;
-		public float FreezingPoint { get; private set; } = 0f;
+		public float MeltingPoint { get; private set; } = 0f;
 
 		/// <summary>
 		/// Whether this ElementItem is a placeable bar.
@@ -46,7 +46,7 @@ namespace TerraScience.Items.Elements{
 		/// <param name="internalName">The internal name (class name) for the item.  Used for autoloading the texture.</param>
 		/// <param name="displayName">The display name for the item.</param>
 		/// <param name="description">The tooltip for the item.</param>
-		public ElementItem(string displayName, string description, ElementState defaultState, Color gasColor, bool isPlaceableBar, ModLiquid liquid, float boilingPoint, float freezingPoint){
+		public ElementItem(string displayName, string description, ElementState defaultState, Color gasColor, bool isPlaceableBar, ModLiquid liquid, float boilingPoint, float meltingPoint){
 			this.displayName = displayName;
 			this.description = description;
 			BaseState = defaultState;
@@ -54,7 +54,7 @@ namespace TerraScience.Items.Elements{
 			IsPlaceableBar = isPlaceableBar;
 			LiquidForm = liquid;
 			BoilingPoint = boilingPoint;
-			FreezingPoint = freezingPoint;
+			MeltingPoint = meltingPoint;
 		}
 
 		public override void SetStaticDefaults(){
@@ -101,9 +101,9 @@ namespace TerraScience.Items.Elements{
 		{
 			if (CurrentTemp >= BoilingPoint)
 				CurrentState = ElementState.Gas;
-			else if (CurrentTemp >= FreezingPoint)
+			else if (CurrentTemp >= MeltingPoint)
 				CurrentState = ElementState.Liquid;
-			else if (CurrentTemp <= FreezingPoint)
+			else if (CurrentTemp <= MeltingPoint)
 				CurrentState = ElementState.Solid;
 		}
 

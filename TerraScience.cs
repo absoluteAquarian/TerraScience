@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using Terraria;
@@ -18,12 +18,11 @@ namespace TerraScience{
 		/// The cached Actions for each ElementItem defaults.
 		/// </summary>
 		public static Dictionary<string, Action<Item>> CachedElementDefaults { get; private set; }
+
 		/// <summary>
 		/// The cached Actions for each ElementItem recipe.  Assumes that only one recipe was added.
 		/// </summary>
 		public static Dictionary<string, Action<ModRecipe, ElementItem>> CachedElementRecipes { get; private set; }
-
-		public TerraScience(){ }
 
 		public override void Load(){
 			CachedElementDefaults = new Dictionary<string, Action<Item>>();
@@ -52,7 +51,12 @@ namespace TerraScience{
 					item.value = 1;
 				},
 				ElementState.Gas,
-				Color.Orange);
+				TemperatureSystem.CelsiusToKelvin(-252.9f),
+				TemperatureSystem.CelsiusToKelvin(-259.14f),
+				Color.Orange,
+				null //The Hydrogen modliquid when we add liquids
+			);
+
 			RegisterElement("ElementHelium",
 				"Helium",
 				"Element #2\nFloaty, floaty!\nInert, not very reactive",
@@ -67,7 +71,12 @@ namespace TerraScience{
 					item.value = 1;
 				},
 				ElementState.Gas,
-				Color.Wheat);
+				TemperatureSystem.CelsiusToKelvin(-268.9f),
+				TemperatureSystem.CelsiusToKelvin(-272.2f),
+				Color.Wheat,
+				null
+			);
+
 			RegisterElement("ElementLithium",
 				"Lithium",
 				"Element #3\nVERY reactive!\n[c/bb3300:WARNING:] exposure to water may cause spontaneous combustion!",
@@ -81,7 +90,10 @@ namespace TerraScience{
 					item.value = 20;
 				},
 				ElementState.Solid,
-				isPlaceableBar: true);
+				TemperatureSystem.CelsiusToKelvin(1330f),
+				TemperatureSystem.CelsiusToKelvin(180.5f),
+				isPlaceableBar: true
+			);
 		}
 
 		/// <summary>
@@ -96,12 +108,16 @@ namespace TerraScience{
 		/// <param name="state">The default ElementState for this element.</param>
 		/// <param name="gasColor">Optional.  Determines the colour for the gas drawn for this element when in the world.</param>
 		/// <param name="isPlaceableBar">Optional.  Determines if this metal element is a placeable bar.</param>
-		private void RegisterElement(string internalName, string displayName, string description, Action<ModRecipe> recipe, int stackCrafted, Action<Item> defaults, ElementState state, Color? gasColor = null, bool isPlaceableBar = false){
+		private void RegisterElement(string internalName, string displayName, string description, Action<ModRecipe> recipe, int stackCrafted, Action<Item> defaults, ElementState state, float boilingPoint, float meltingPoint, Color? gasColor = null, ModLiquid liquid = null, bool isPlaceableBar = false){
 			ElementItem item = new ElementItem(displayName,
 				description,
 				state,
 				gasColor ?? Color.White,
-				isPlaceableBar);
+				isPlaceableBar,
+				liquid,
+				boilingPoint,
+				meltingPoint
+				);
 			AddItem(internalName, item);
 
 			//Add the corresponding bar tile if it should exist
