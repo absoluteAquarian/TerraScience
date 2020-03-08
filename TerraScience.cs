@@ -1,11 +1,9 @@
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
-using Terraria.UI;
-using Terraria.Utilities;
 using TerraScience.Dusts;
 using TerraScience.Items.Elements;
 using TerraScience.Tiles;
@@ -20,12 +18,11 @@ namespace TerraScience{
 		/// The cached Actions for each ElementItem defaults.
 		/// </summary>
 		public static Dictionary<string, Action<Item>> CachedElementDefaults { get; private set; }
+
 		/// <summary>
 		/// The cached Actions for each ElementItem recipe.  Assumes that only one recipe was added.
 		/// </summary>
 		public static Dictionary<string, Action<ModRecipe, ElementItem>> CachedElementRecipes { get; private set; }
-
-		public TerraScience(){ }
 
 		public override void Load(){
 			CachedElementDefaults = new Dictionary<string, Action<Item>>();
@@ -54,8 +51,12 @@ namespace TerraScience{
 					item.value = 1;
 				},
 				ElementState.Gas,
+				TemperatureSystem.CelsiusToKelvin(-252.9f),
+				TemperatureSystem.CelsiusToKelvin(-259.14f),
 				ElementFamily.None,
-				Color.Orange);
+				Color.Orange,
+				null //The Hydrogen modliquid when we add liquids
+			);
 			RegisterElement("ElementHelium",
 				Element.Helium,
 				"Element #2\nFloaty, floaty!\nInert, not very reactive",
@@ -70,8 +71,11 @@ namespace TerraScience{
 					item.value = 1;
 				},
 				ElementState.Gas,
-				ElementFamily.NobleGases,
-				Color.Wheat);
+				TemperatureSystem.CelsiusToKelvin(-268.9f),
+				TemperatureSystem.CelsiusToKelvin(-272.2f),
+        ElementFamily.NobleGases,
+				Color.Wheat
+			);
 			RegisterElement("ElementLithium",
 				Element.Lithium,
 				$"Element #3\nVERY reactive!\n{WarningWaterExplode}",
@@ -85,8 +89,10 @@ namespace TerraScience{
 					item.value = 20;
 				},
 				ElementState.Solid,
-				ElementFamily.AlkaliMetals,
-				isPlaceableBar: true);
+				TemperatureSystem.CelsiusToKelvin(1330f),
+				TemperatureSystem.CelsiusToKelvin(180.5f),
+				isPlaceableBar: true
+			);
 			RegisterElement("ElementBeryllium",
 				Element.Beryllium,
 				$"Element #4\nFairly reactive\n{WarningWaterExplode}",
@@ -100,6 +106,8 @@ namespace TerraScience{
 					item.value = 20;
 				},
 				ElementState.Solid,
+        TemperatureSystem.CelsiusToKelvin(2970f),
+        TemperatureSystem.CelsiusToKelvin(1287f),
 				ElementFamily.AlkalineEarthMetals,
 				isPlaceableBar: true);
 		}
@@ -116,13 +124,17 @@ namespace TerraScience{
 		/// <param name="state">The default ElementState for this element.</param>
 		/// <param name="gasColor">Optional.  Determines the colour for the gas drawn for this element when in the world.</param>
 		/// <param name="isPlaceableBar">Optional.  Determines if this metal element is a placeable bar.</param>
-		private void RegisterElement(string internalName, Element name, string description, Action<ModRecipe> recipe, int stackCrafted, Action<Item> defaults, ElementState state, ElementFamily family, Color? gasColor = null, bool isPlaceableBar = false){
+		private void RegisterElement(string internalName, string displayName, string description, Action<ModRecipe> recipe, int stackCrafted, Action<Item> defaults, ElementState state, float boilingPoint, float meltingPoint, Color? gasColor = null, ModLiquid liquid = null, bool isPlaceableBar = false){
 			ElementItem item = new ElementItem(name,
 				description,
 				state,
 				family,
 				gasColor ?? Color.White,
-				isPlaceableBar);
+				isPlaceableBar,
+				liquid,
+				boilingPoint,
+				meltingPoint
+				);
 			AddItem(internalName, item);
 
 			//Add the corresponding bar tile if it should exist

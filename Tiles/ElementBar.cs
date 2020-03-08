@@ -8,10 +8,8 @@ using TerraScience.Items.Elements;
 
 namespace TerraScience.Tiles{
 	public class ElementBar : ModTile{
-		//We don't want this item to be autoloaded, since it's just a template
-		// for the other Element bar tiles
-		public override bool Autoload(ref string name, ref string texture)
-			=> false;
+		//We don't want this item to be autoloaded, since it's just a template for the other Element bar tiles
+		public override bool Autoload(ref string name, ref string texture) => false;
 
 		public ElementBar(){ }
 
