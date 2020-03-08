@@ -51,9 +51,9 @@ namespace TerraScience{
 					item.value = 1;
 				},
 				ElementState.Gas,
+				ElementFamily.None,
 				TemperatureSystem.CelsiusToKelvin(-252.9f),
 				TemperatureSystem.CelsiusToKelvin(-259.14f),
-				ElementFamily.None,
 				Color.Orange,
 				null //The Hydrogen modliquid when we add liquids
 			);
@@ -71,9 +71,9 @@ namespace TerraScience{
 					item.value = 1;
 				},
 				ElementState.Gas,
+				ElementFamily.NobleGases,
 				TemperatureSystem.CelsiusToKelvin(-268.9f),
 				TemperatureSystem.CelsiusToKelvin(-272.2f),
-        ElementFamily.NobleGases,
 				Color.Wheat
 			);
 			RegisterElement("ElementLithium",
@@ -89,6 +89,7 @@ namespace TerraScience{
 					item.value = 20;
 				},
 				ElementState.Solid,
+				ElementFamily.AlkaliMetals,
 				TemperatureSystem.CelsiusToKelvin(1330f),
 				TemperatureSystem.CelsiusToKelvin(180.5f),
 				isPlaceableBar: true
@@ -106,9 +107,9 @@ namespace TerraScience{
 					item.value = 20;
 				},
 				ElementState.Solid,
-        TemperatureSystem.CelsiusToKelvin(2970f),
-        TemperatureSystem.CelsiusToKelvin(1287f),
 				ElementFamily.AlkalineEarthMetals,
+				TemperatureSystem.CelsiusToKelvin(2970f),
+				TemperatureSystem.CelsiusToKelvin(1287f),
 				isPlaceableBar: true);
 		}
 
@@ -124,7 +125,7 @@ namespace TerraScience{
 		/// <param name="state">The default ElementState for this element.</param>
 		/// <param name="gasColor">Optional.  Determines the colour for the gas drawn for this element when in the world.</param>
 		/// <param name="isPlaceableBar">Optional.  Determines if this metal element is a placeable bar.</param>
-		private void RegisterElement(string internalName, string displayName, string description, Action<ModRecipe> recipe, int stackCrafted, Action<Item> defaults, ElementState state, float boilingPoint, float meltingPoint, Color? gasColor = null, ModLiquid liquid = null, bool isPlaceableBar = false){
+		private void RegisterElement(string internalName, Element name, string description, Action<ModRecipe> recipe, int stackCrafted, Action<Item> defaults, ElementState state, ElementFamily family, float boilingPoint, float meltingPoint, Color? gasColor = null, ModLiquid liquid = null, bool isPlaceableBar = false){
 			ElementItem item = new ElementItem(name,
 				description,
 				state,

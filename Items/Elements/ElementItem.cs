@@ -57,11 +57,12 @@ namespace TerraScience.Items.Elements{
 		/// <param name="internalName">The internal name (class name) for the item.  Used for autoloading the texture.</param>
 		/// <param name="displayName">The display name for the item.</param>
 		/// <param name="description">The tooltip for the item.</param>
-		public ElementItem(Element name, string description, ElementState defaultState, Color gasColor, bool isPlaceableBar, ModLiquid liquid, float boilingPoint, float freezingPoint){
-      ElementName = name;
+		public ElementItem(Element name, string description, ElementState defaultState, ElementFamily family, Color gasColor, bool isPlaceableBar, ModLiquid liquid, float boilingPoint, float meltingPoint){
+			ElementName = name;
 			this.displayName = TerraScience.ElementName(name);
 			this.description = description;
 			BaseState = defaultState;
+			Family = family;
 			GasColor = gasColor;
 			IsPlaceableBar = isPlaceableBar;
 			LiquidForm = liquid;
@@ -191,7 +192,8 @@ namespace TerraScience.Items.Elements{
 					ReactionTimer = 0;
 				// TODO:  make reaction happen slower if it's in the air?
 			}
-      UpdateState();
+
+			UpdateStates();
 		}
 
 		public override bool OnPickup(Player player){
