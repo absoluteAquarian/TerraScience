@@ -24,12 +24,19 @@ namespace TerraScience.Items.Elements{
 		private Action<ModRecipe, ElementItem> ItemRecipe => TerraScience.CachedElementRecipes[Name];
 		private Action<Item> ItemDefaults => TerraScience.CachedElementDefaults[Name];
 		public ElementState BaseState{ get; private set; } = ElementState.Solid;
+		public ElementFamily Family{ get; private set; } = ElementFamily.None;
+		public Element ElementName{ get; private set; } = Element.Hydrogen;
 		public Color GasColor{ get; private set; } = Color.White;
 		/// <summary>
 		/// Whether this ElementItem is a placeable bar.
 		/// The internal name for the tile must match this item's internal name.
 		/// </summary>
 		public readonly bool IsPlaceableBar;
+
+		/// <summary>
+		/// A timer used for various tasks.
+		/// </summary>
+		public int ReactionTimer{ get; private set; } = 0;
 
 		//Useless, but it's required for the mod to load.
 		public ElementItem(){ }
@@ -40,10 +47,12 @@ namespace TerraScience.Items.Elements{
 		/// <param name="internalName">The internal name (class name) for the item.  Used for autoloading the texture.</param>
 		/// <param name="displayName">The display name for the item.</param>
 		/// <param name="description">The tooltip for the item.</param>
-		public ElementItem(string displayName, string description, ElementState state, Color gasColor, bool isPlaceableBar){
-			this.displayName = displayName;
+		public ElementItem(Element name, string description, ElementState state, ElementFamily family, Color gasColor, bool isPlaceableBar){
+			ElementName = name;
+			this.displayName = TerraScience.ElementName(name);
 			this.description = description;
 			BaseState = state;
+			Family = family;
 			GasColor = gasColor;
 			IsPlaceableBar = isPlaceableBar;
 		}
@@ -81,6 +90,99 @@ namespace TerraScience.Items.Elements{
 			//If this element is a gas, occasionally spawn some of the custom dust
 			if(BaseState == ElementState.Gas && Main.rand.NextFloat() < 11f / 60f)
 				TerraScience.NewElementGasDust(item.position, item.width, item.height, GasColor);
+
+			//If the element is a gas, make it rise above water if it's submerged
+			if(BaseState == ElementState.Gas){
+				if(item.wet)
+					item.velocity.Y = -3f * 16 / 60;	//3 tiles per second upwards
+				else
+					item.velocity.Y = 0;
+			}
+
+			//If the element is an AlkakiMetal or AlkalineEarthMetal and is in water, make it explode after some random amount of time
+			if(Family == ElementFamily.AlkaliMetals || Family == ElementFamily.AlkalineEarthMetals){
+				//Gotta be wet
+				if(item.wet){
+					ReactionTimer += Main.rand.Next(3);
+
+					//Get the minimum time needed to explode
+					//Remove "Element" from the name
+					int threshold;
+					switch(ElementName){
+						//Alkali metals
+						case Element.Lithium:
+							threshold = 8 * 60;
+							break;
+						case Element.Sodium:
+							threshold = 5 * 60;
+							break;
+						case Element.Potassium:
+							threshold = 4 * 60;
+							break;
+						case Element.Rubidium:
+							threshold = 3 * 60;
+							break;
+						case Element.Caesium:
+							threshold = 2 * 60;
+							break;
+						case Element.Francium:
+							threshold = 45;
+							break;
+						//Alkaline Earth metals
+						case Element.Beryllium:
+							threshold = 11 * 60;
+							break;
+						case Element.Magnesium:
+							threshold = 9 * 60;
+							break;
+						case Element.Calcium:
+							threshold = 6 * 60;
+							break;
+						case Element.Strontium:
+							threshold = 5 * 60;
+							break;
+						case Element.Barium:
+							threshold = 4 * 60;
+							break;
+						case Element.Radium:
+							threshold = 3 * 60;
+							break;
+						default:
+							throw new InvalidFamilyException(displayName, Family);
+					}
+
+					//Spawn some "gas" bubbles
+					if(Main.rand.NextFloat() < (ReactionTimer / (float)threshold) * 0.75f)
+						TerraScience.NewElementGasDust(item.position, item.width, item.height, Color.White, new Vector2(0, -3));
+
+					//The threshold has been met.  Cause an explosion!
+					if(ReactionTimer >= threshold){
+						if(item.stack > 1){
+							//If there's more than one item in this stack, reduce the stack and the timer
+							int oldStack = item.stack;
+							item.stack--;
+							ReactionTimer = (int)(ReactionTimer * (float)item.stack / oldStack);
+						}else{
+							//Otherwise, make the item despawn (and make its stack to 0 for good measure)
+							item.stack = 0;
+							item.active = false;
+						}
+
+						Projectile p = Projectile.NewProjectileDirect(item.Center, Vector2.Zero, ProjectileID.Grenade, (int)(300 / (float)threshold * 120), 8f, Main.myPlayer);
+						//Force the explosion from the grenade to happen NOW
+						p.timeLeft = 3;
+					}
+				}else
+					ReactionTimer = 0;
+				// TODO:  make reaction happen slower if it's in the air?
+			}
+		}
+
+		public override bool OnPickup(Player player){
+			//Reset the reaction timer
+			ReactionTimer = 0;
+
+			return true;
 		}
 
 		public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI){
