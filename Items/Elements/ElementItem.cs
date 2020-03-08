@@ -46,10 +46,10 @@ namespace TerraScience.Items.Elements{
 		/// <param name="internalName">The internal name (class name) for the item.  Used for autoloading the texture.</param>
 		/// <param name="displayName">The display name for the item.</param>
 		/// <param name="description">The tooltip for the item.</param>
-		public ElementItem(string displayName, string description, ElementState state, Color gasColor, bool isPlaceableBar, ModLiquid liquid, float boilingPoint, float freezingPoint){
+		public ElementItem(string displayName, string description, ElementState defaultState, Color gasColor, bool isPlaceableBar, ModLiquid liquid, float boilingPoint, float freezingPoint){
 			this.displayName = displayName;
 			this.description = description;
-			BaseState = state;
+			BaseState = defaultState;
 			GasColor = gasColor;
 			IsPlaceableBar = isPlaceableBar;
 			LiquidForm = liquid;
@@ -91,7 +91,7 @@ namespace TerraScience.Items.Elements{
 
 		public override void PostUpdate(){
 			//If this element is a gas, occasionally spawn some of the custom dust
-			if(BaseState == ElementState.Gas && Main.rand.NextFloat() < 11f / 60f)
+			if(CurrentState == ElementState.Gas && Main.rand.NextFloat() < 11f / 60f)
 				TerraScience.NewElementGasDust(item.position, item.width, item.height, GasColor);
 
 			UpdateState();
@@ -109,7 +109,7 @@ namespace TerraScience.Items.Elements{
 
 		public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI){
 			//We don't want the texture to draw when in the world if it's a gas
-			if(BaseState == ElementState.Gas)
+			if(CurrentState == ElementState.Gas)
 				return false;
 
 			//Otherwise, if it's a metal, draw it
