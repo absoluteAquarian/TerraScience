@@ -4,27 +4,36 @@ using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.UI;
+using Terraria.Utilities;
 using TerraScience.Dusts;
 using TerraScience.Items.Elements;
+using TerraScience.Tiles;
 
 namespace TerraScience{
 	public class TerraScience : Mod{
 		public readonly Action<ModRecipe> NoRecipe = r => { };
 
-		public static Dictionary<string, Action<Item>> CachedDefaults { get; private set; }
-		public static Dictionary<string, Action<ModRecipe, BaseElementItem>> CachedElementRecipes { get; private set; }
+		/// <summary>
+		/// The cached Actions for each ElementItem defaults.
+		/// </summary>
+		public static Dictionary<string, Action<Item>> CachedElementDefaults { get; private set; }
+		/// <summary>
+		/// The cached Actions for each ElementItem recipe.  Assumes that only one recipe was added.
+		/// </summary>
+		public static Dictionary<string, Action<ModRecipe, ElementItem>> CachedElementRecipes { get; private set; }
 
 		public TerraScience(){ }
 
 		public override void Load(){
-			CachedDefaults = new Dictionary<string, Action<Item>>();
-			CachedElementRecipes = new Dictionary<string, Action<ModRecipe, BaseElementItem>>();
+			CachedElementDefaults = new Dictionary<string, Action<Item>>();
+			CachedElementRecipes = new Dictionary<string, Action<ModRecipe, ElementItem>>();
 
 			AddElements();
 		}
 
 		public override void Unload(){
-			CachedDefaults = null;
+			CachedElementDefaults = null;
 			CachedElementRecipes = null;
 		}
 
@@ -40,6 +49,7 @@ namespace TerraScience{
 					item.scale = 0.5f;
 					item.rare = ItemRarityID.Blue;
 					item.maxStack = 999;
+					item.value = 1;
 				},
 				ElementState.Gas,
 				Color.Orange);
@@ -54,9 +64,24 @@ namespace TerraScience{
 					item.scale = 0.5f;
 					item.rare = ItemRarityID.Blue;
 					item.maxStack = 999;
+					item.value = 1;
 				},
 				ElementState.Gas,
 				Color.Wheat);
+			RegisterElement("ElementLithium",
+				"Lithium",
+				"Element #3\nVERY reactive!\n[c/bb3300:WARNING:] exposure to water may cause spontaneous combustion!",
+				NoRecipe,
+				1,
+				item => {
+					item.width = 30;
+					item.height = 24;
+					item.rare = ItemRarityID.Blue;
+					item.maxStack = 999;
+					item.value = 20;
+				},
+				ElementState.Solid,
+				isPlaceableBar: true);
 		}
 
 		/// <summary>
@@ -70,16 +95,21 @@ namespace TerraScience{
 		/// <param name="defaults">The defaults set for this item's <seealso cref="Item"/> item field.</param>
 		/// <param name="state">The default ElementState for this element.</param>
 		/// <param name="gasColor">Optional.  Determines the colour for the gas drawn for this element when in the world.</param>
-		private void RegisterElement(string internalName, string displayName, string description, Action<ModRecipe> recipe, int stackCrafted, Action<Item> defaults, ElementState state, Color? gasColor = null){
-			BaseElementItem item = new BaseElementItem(internalName,
-				displayName,
+		/// <param name="isPlaceableBar">Optional.  Determines if this metal element is a placeable bar.</param>
+		private void RegisterElement(string internalName, string displayName, string description, Action<ModRecipe> recipe, int stackCrafted, Action<Item> defaults, ElementState state, Color? gasColor = null, bool isPlaceableBar = false){
+			ElementItem item = new ElementItem(displayName,
 				description,
 				state,
-				gasColor ?? Color.White);
+				gasColor ?? Color.White,
+				isPlaceableBar);
 			AddItem(internalName, item);
 
+			//Add the corresponding bar tile if it should exist
+			if(isPlaceableBar)
+				AddTile(internalName, new ElementBar(), $"TerraScience/Tiles/{internalName}");
+
 			//Cache the defaults and recipe so we can use it anytime
-			CachedDefaults.Add(internalName, defaults);
+			CachedElementDefaults.Add(internalName, defaults);
 			CachedElementRecipes.Add(internalName,
 				(r, e) => {
 					recipe(r);
@@ -95,11 +125,41 @@ namespace TerraScience{
 			dust.customData = gasColor;
 			return dust;
 		}
+
+		/// <summary>
+		/// Wraps the vanilla Item.NewItem() method to drop an ElementItem instance.
+		/// </summary>
+		/// <param name="x">The tile X-position to spawn the item at.</param>
+		/// <param name="y">The tile Y-position to spawn the item at.</param>
+		/// <param name="width">The rectangle width to spawn the item in.</param>
+		/// <param name="height">The rectangle height to spawn the item in.</param>
+		/// <param name="itemName">The name of the ElementItem to drop.</param>
+		/// <param name="stack">How many of the item to drop.</param>
+		/// <param name="noBroadcast"></param>
+		/// <param name="noGrabDelay"></param>
+		/// <param name="reverseLookup"></param>
+		/// <returns></returns>
+		public static int SpawnElementItem(int x, int y, int width, int height, string itemName, int stack = 1, bool noBroadcast = false, bool noGrabDelay = false, bool reverseLookup = false){
+			return Item.NewItem(x, y, width, height, ModContent.GetInstance<TerraScience>().ItemType(itemName), stack, noBroadcast, 0, noGrabDelay, reverseLookup);
+		}
 	}
 
 	public enum ElementState{
 		Solid,
 		Liquid,
 		Gas
+	}
+
+	public enum ElementFamily{
+		None,
+		AlkaliMetals,
+		AlkaliEarthMetals,
+		TransitionMetals,
+		Boron,
+		Carbon,
+		Nitrogen,
+		Oxygen,
+		Halogens,
+		NobleGases
 	}
 }

@@ -1,14 +1,15 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
-using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
 namespace TerraScience.Items.Elements{
-	public class BaseElementItem : ModItem{
-		public override string Texture => $"TerraScience/Items/Elements/{internalName}";
+	public class ElementItem : ModItem{
+		public override string Texture => $"TerraScience/Items/Elements/{Name}";
 
 		public override bool CloneNewInstances => true;
 
@@ -18,17 +19,20 @@ namespace TerraScience.Items.Elements{
 			=> false;
 
 		//Stored data, used during other sections of loading/autoloading
-		private readonly string internalName;
-		public string InternalName => Name ?? internalName;
 		private readonly string displayName = null;
 		private readonly string description = null;
-		private Action<ModRecipe, BaseElementItem> ItemRecipe => TerraScience.CachedElementRecipes[InternalName];
-		private Action<Item> ItemDefaults => TerraScience.CachedDefaults[InternalName];
-		public readonly ElementState BaseState = ElementState.Solid;
-		public readonly Color GasColor = Color.White;
+		private Action<ModRecipe, ElementItem> ItemRecipe => TerraScience.CachedElementRecipes[Name];
+		private Action<Item> ItemDefaults => TerraScience.CachedElementDefaults[Name];
+		public ElementState BaseState{ get; private set; } = ElementState.Solid;
+		public Color GasColor{ get; private set; } = Color.White;
+		/// <summary>
+		/// Whether this ElementItem is a placeable bar.
+		/// The internal name for the tile must match this item's internal name.
+		/// </summary>
+		public readonly bool IsPlaceableBar;
 
 		//Useless, but it's required for the mod to load.
-		public BaseElementItem(){ }
+		public ElementItem(){ }
 
 		/// <summary>
 		/// Creates a new element item.
@@ -36,16 +40,12 @@ namespace TerraScience.Items.Elements{
 		/// <param name="internalName">The internal name (class name) for the item.  Used for autoloading the texture.</param>
 		/// <param name="displayName">The display name for the item.</param>
 		/// <param name="description">The tooltip for the item.</param>
-		/// <param name="recipe">What happens during this item's AddRecipes() hook.</param>
-		/// <param name="defaults">What happens during this item's SetDefaults() hook.</param>
-		public BaseElementItem(string internalName, string displayName, string description, ElementState state, Color gasColor){
+		public ElementItem(string displayName, string description, ElementState state, Color gasColor, bool isPlaceableBar){
 			this.displayName = displayName;
 			this.description = description;
 			BaseState = state;
 			GasColor = gasColor;
-
-			//This constructor gets called before Mod.SetupContent(), so we can set the texture name here
-			this.internalName = internalName;
+			IsPlaceableBar = isPlaceableBar;
 		}
 
 		public override void SetStaticDefaults(){
@@ -59,6 +59,17 @@ namespace TerraScience.Items.Elements{
 
 		public override void SetDefaults(){
 			ItemDefaults(item);
+			//If the item is a placeable bar, register the tile type (tile name is guaranteed to be the same)
+			if(IsPlaceableBar){
+				item.createTile = mod.TileType(Name);
+				item.useStyle = 1;
+				item.useTurn = true;
+				item.useAnimation = 15;
+				item.useTime = 10;
+				item.autoReuse = true;
+				item.consumable = true;
+				item.placeStyle = 0;
+			}
 		}
 
 		public override void AddRecipes(){
@@ -72,8 +83,14 @@ namespace TerraScience.Items.Elements{
 				TerraScience.NewElementGasDust(item.position, item.width, item.height, GasColor);
 		}
 
-		//We don't want the texture to draw when in the world
-		public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
-			=> false;
+		public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI){
+			//We don't want the texture to draw when in the world if it's a gas
+			if(BaseState == ElementState.Gas)
+				return false;
+
+			//Otherwise, if it's a metal, draw it
+			// TODO:  fancy shit
+			return true;
+		}
 	}
 }
