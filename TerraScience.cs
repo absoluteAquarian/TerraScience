@@ -12,6 +12,8 @@ namespace TerraScience{
 	public class TerraScience : Mod{
 		public readonly Action<ModRecipe> NoRecipe = r => { };
 
+		public readonly string WarningWaterExplode = "[c/bb3300:WARNING:] exposure to water may cause spontaneous combustion!";
+
 		/// <summary>
 		/// The cached Actions for each ElementItem defaults.
 		/// </summary>
@@ -36,7 +38,7 @@ namespace TerraScience{
 
 		private void AddElements(){
 			RegisterElement("ElementHydrogen",
-				"Hydrogen",
+				Element.Hydrogen,
 				"Element #1\nVery flammable.",
 				NoRecipe,
 				1,
@@ -51,12 +53,12 @@ namespace TerraScience{
 				ElementState.Gas,
 				TemperatureSystem.CelsiusToKelvin(-252.9f),
 				TemperatureSystem.CelsiusToKelvin(-259.14f),
+				ElementFamily.None,
 				Color.Orange,
 				null //The Hydrogen modliquid when we add liquids
 			);
-
 			RegisterElement("ElementHelium",
-				"Helium",
+				Element.Helium,
 				"Element #2\nFloaty, floaty!\nInert, not very reactive",
 				NoRecipe,
 				1,
@@ -71,13 +73,12 @@ namespace TerraScience{
 				ElementState.Gas,
 				TemperatureSystem.CelsiusToKelvin(-268.9f),
 				TemperatureSystem.CelsiusToKelvin(-272.2f),
-				Color.Wheat,
-				null
+        ElementFamily.NobleGases,
+				Color.Wheat
 			);
-
 			RegisterElement("ElementLithium",
-				"Lithium",
-				"Element #3\nVERY reactive!\n[c/bb3300:WARNING:] exposure to water may cause spontaneous combustion!",
+				Element.Lithium,
+				$"Element #3\nVERY reactive!\n{WarningWaterExplode}",
 				NoRecipe,
 				1,
 				item => {
@@ -92,6 +93,23 @@ namespace TerraScience{
 				TemperatureSystem.CelsiusToKelvin(180.5f),
 				isPlaceableBar: true
 			);
+			RegisterElement("ElementBeryllium",
+				Element.Beryllium,
+				$"Element #4\nFairly reactive\n{WarningWaterExplode}",
+				NoRecipe,
+				1,
+				item => {
+					item.width = 30;
+					item.height = 24;
+					item.rare = ItemRarityID.Blue;
+					item.maxStack = 999;
+					item.value = 20;
+				},
+				ElementState.Solid,
+        TemperatureSystem.CelsiusToKelvin(2970f),
+        TemperatureSystem.CelsiusToKelvin(1287f),
+				ElementFamily.AlkalineEarthMetals,
+				isPlaceableBar: true);
 		}
 
 		/// <summary>
@@ -107,9 +125,10 @@ namespace TerraScience{
 		/// <param name="gasColor">Optional.  Determines the colour for the gas drawn for this element when in the world.</param>
 		/// <param name="isPlaceableBar">Optional.  Determines if this metal element is a placeable bar.</param>
 		private void RegisterElement(string internalName, string displayName, string description, Action<ModRecipe> recipe, int stackCrafted, Action<Item> defaults, ElementState state, float boilingPoint, float meltingPoint, Color? gasColor = null, ModLiquid liquid = null, bool isPlaceableBar = false){
-			ElementItem item = new ElementItem(displayName,
+			ElementItem item = new ElementItem(name,
 				description,
 				state,
+				family,
 				gasColor ?? Color.White,
 				isPlaceableBar,
 				liquid,
@@ -135,8 +154,9 @@ namespace TerraScience{
 		/// Creates an <seealso cref="ElementGasDust"/> dust and returns it.
 		/// </summary>
 		public static Dust NewElementGasDust(Vector2 position, int width, int height, Color gasColor, Vector2? speed = null){
-			Dust dust = Dust.NewDustDirect(position, width, height, ModContent.DustType<ElementGasDust>(), speed?.X ?? 0, speed?.Y ?? 0);
+			Dust dust = Dust.NewDustDirect(position, width, height, ModContent.DustType<ElementGasDust>());
 			dust.customData = gasColor;
+			dust.velocity = speed ?? Vector2.Zero;
 			return dust;
 		}
 
@@ -156,6 +176,9 @@ namespace TerraScience{
 		public static int SpawnElementItem(int x, int y, int width, int height, string itemName, int stack = 1, bool noBroadcast = false, bool noGrabDelay = false, bool reverseLookup = false){
 			return Item.NewItem(x, y, width, height, ModContent.GetInstance<TerraScience>().ItemType(itemName), stack, noBroadcast, 0, noGrabDelay, reverseLookup);
 		}
+
+		public static string ElementName(Element name)
+			=> Enum.GetName(typeof(Element), name);
 	}
 
 	public enum ElementState{
@@ -167,7 +190,7 @@ namespace TerraScience{
 	public enum ElementFamily{
 		None,
 		AlkaliMetals,
-		AlkaliEarthMetals,
+		AlkalineEarthMetals,
 		TransitionMetals,
 		Boron,
 		Carbon,
@@ -175,5 +198,33 @@ namespace TerraScience{
 		Oxygen,
 		Halogens,
 		NobleGases
+	}
+
+	public enum Element{
+		Hydrogen = 1,
+		Helium,
+		Lithium,
+		Beryllium,
+		Boron,
+		Carbon,
+		Nitrogen,
+		Oxygen,
+		Fluorine,
+		Neon,
+		Sodium,
+		Magnesium,
+		//Add rest of period
+		Potassium,
+		Calcium,
+		//Add rest of period
+		Rubidium,
+		Strontium,
+		//Add rest of period
+		Caesium,
+		Barium,
+		//Add rest of period
+		Francium,
+		Radium,
+		//Add rest of period
 	}
 }

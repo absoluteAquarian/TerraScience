@@ -12,7 +12,6 @@ namespace TerraScience.Dusts{
 		public override void OnSpawn(Dust dust){
 			dust.fadeIn = 1f;
 			dust.noGravity = true;
-			dust.velocity = Vector2.Zero;
 			dust.frame = new Rectangle(0, 0, 7, 7);
 		}
 	}
