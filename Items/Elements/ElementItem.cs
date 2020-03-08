@@ -59,9 +59,10 @@ namespace TerraScience.Items.Elements{
 		/// <param name="description">The tooltip for the item.</param>
 		public ElementItem(Element name, string description, ElementState defaultState, ElementFamily family, Color gasColor, bool isPlaceableBar, ModLiquid liquid, float boilingPoint, float meltingPoint){
 			ElementName = name;
-			this.displayName = TerraScience.ElementName(name);
+			displayName = TerraScience.ElementName(name);
 			this.description = description;
 			BaseState = defaultState;
+			CurrentState = BaseState;
 			Family = family;
 			GasColor = gasColor;
 			IsPlaceableBar = isPlaceableBar;
@@ -108,7 +109,7 @@ namespace TerraScience.Items.Elements{
 				TerraScience.NewElementGasDust(item.position, item.width, item.height, GasColor);
 
 			//If the element is a gas, make it rise above water if it's submerged
-			if(BaseState == ElementState.Gas){
+			if(CurrentState == ElementState.Gas){
 				if(item.wet)
 					item.velocity.Y = -3f * 16 / 60;	//3 tiles per second upwards
 				else
