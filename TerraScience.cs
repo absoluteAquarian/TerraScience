@@ -4,8 +4,6 @@ using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
-using Terraria.UI;
-using Terraria.Utilities;
 using TerraScience.Dusts;
 using TerraScience.Items.Elements;
 using TerraScience.Tiles;
