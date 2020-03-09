@@ -7,11 +7,11 @@ using Terraria.ObjectData;
 using TerraScience.Items.Elements;
 
 namespace TerraScience.Tiles{
-	public class ElementBar : ModTile{
+	public class ScienceBar : ModTile{
 		//We don't want this item to be autoloaded, since it's just a template for the other Element bar tiles
 		public override bool Autoload(ref string name, ref string texture) => false;
 
-		public ElementBar(){ }
+		public ScienceBar(){ }
 
 		public override void SetDefaults(){
 			//Copied from ExampleBar in ExampleMod
@@ -29,7 +29,7 @@ namespace TerraScience.Tiles{
 		}
 
 		public override bool Drop(int i, int j){
-			TerraScience.SpawnElementItem(i * 16, j * 16, 16, 16, Name);
+			TerraScience.SpawnScienceItem(i * 16, j * 16, 16, 16, Name);
 			return true;
 		}
 	}
