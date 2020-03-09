@@ -4,9 +4,8 @@ using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ObjectData;
-using TerraScience.Items.Elements;
 
-namespace TerraScience.Tiles{
+namespace TerraScience.Content.Tiles{
 	public class ScienceBar : ModTile{
 		//We don't want this item to be autoloaded, since it's just a template for the other Element bar tiles
 		public override bool Autoload(ref string name, ref string texture) => false;
