@@ -6,7 +6,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using TerraScience.Dusts;
-using TerraScience.Items.Compounds;
+using TerraScience.Items;
 using TerraScience.Items.Elements;
 using TerraScience.Tiles;
 
