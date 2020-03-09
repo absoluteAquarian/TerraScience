@@ -1,13 +1,12 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using System;
-using System.Linq;
-using System.Reflection;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using TerraScience.API;
+using TerraScience.Utilities;
 
-namespace TerraScience.Items{
+namespace TerraScience.Content.Items{
 	public class ElementItem : ScienceItem{
 		private Action<ModRecipe, ElementItem> ItemRecipe => TerraScience.CachedElementRecipes[Name];
 		private Action<Item> ItemDefaults => TerraScience.CachedElementDefaults[Name];
@@ -23,7 +22,7 @@ namespace TerraScience.Items{
 		/// </summary>
 		public ElementItem(Element name, string description, ElementState defaultState, ElementFamily family, Color gasColor, bool isPlaceableBar, ModLiquid liquid, float boilingPoint, float meltingPoint) : base(description, defaultState, gasColor, isPlaceableBar, liquid, boilingPoint, meltingPoint){
 			ElementName = name;
-			displayName = TerraScience.ElementName(name, false);
+			displayName = ElementUtils.ElementName(name, false);
 			Family = family;
 		}
 
@@ -51,7 +50,7 @@ namespace TerraScience.Items{
 		public override void PostUpdate(){
 			//If this element is a gas, occasionally spawn some of the custom dust
 			if(CurrentState == ElementState.Gas && Main.rand.NextFloat() < 11f / 60f)
-				TerraScience.NewElementGasDust(item.position, item.width, item.height, GasColor);
+				ElementUtils.NewElementGasDust(item.position, item.width, item.height, GasColor);
 
 			//If the element is a gas, make it rise above water if it's submerged
 			if(CurrentState == ElementState.Gas){
@@ -113,11 +112,11 @@ namespace TerraScience.Items{
 
 					//Spawn some "gas" bubbles
 					if(Main.rand.NextFloat() < ReactionTimer / (float)reactionTimerMax * 0.75f)
-						TerraScience.NewElementGasDust(item.position, item.width, item.height, Color.White, new Vector2(0, -3));
+						ElementUtils.NewElementGasDust(item.position, item.width, item.height, Color.White, new Vector2(0, -3));
 
 					//The threshold has been met.  Cause an explosion!
 					if(ReactionTimer >= reactionTimerMax){
-						TerraScience.HandleWaterReaction(this);
+						ElementUtils.HandleWaterReaction(this);
 
 						Projectile p = Projectile.NewProjectileDirect(item.Center, Vector2.Zero, ProjectileID.Grenade, (int)(300 / (float)reactionTimerMax * 120), 8f, Main.myPlayer);
 						//Force the explosion from the grenade to happen NOW
@@ -174,16 +173,18 @@ namespace TerraScience.Items{
 
 					//Spawn some "gas" bubbles
 					if(Main.rand.NextFloat() < ReactionTimer / (float)reactionTimerMax * 0.75f)
-						TerraScience.NewElementGasDust(item.position, item.width, item.height, Color.White);
+						ElementUtils.NewElementGasDust(item.position, item.width, item.height, Color.White);
 
 					if(ReactionTimer >= reactionTimerMax){
 						//Handle the air reaction
-						TerraScience.HandleAirReaction(this);
+						ElementUtils.HandleAirReaction(this);
 					}
 				}
 			}
 
-			base.UpdateStates();
+			UpdateStates();
 		}
+
+		public override string ToString() => $"Element{Enum.GetName(typeof(Element), ElementName)}";
 	}
 }

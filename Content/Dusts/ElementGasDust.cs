@@ -2,7 +2,7 @@
 using Terraria;
 using Terraria.ModLoader;
 
-namespace TerraScience.Dusts{
+namespace TerraScience.Content.Dusts{
 	public class ElementGasDust : ModDust{
 		public override Color? GetAlpha(Dust dust, Color lightColor){
 			//If we've stored data, use it

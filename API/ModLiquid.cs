@@ -1,7 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using Terraria;
 
-namespace TerraScience
+namespace TerraScience.API
 {
 	public class ModLiquid
 	{
