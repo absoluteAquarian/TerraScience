@@ -3,10 +3,11 @@ using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
-using TerraScience.Items.Compounds;
-using TerraScience.Items.Elements;
+using TerraScience.API;
+using TerraScience.Systems;
+using TerraScience.Utilities;
 
-namespace TerraScience.Items{
+namespace TerraScience.Content.Items{
 	/// <summary>
 	/// The base class for ElementItem and CompoundItem.
 	/// </summary>
@@ -139,7 +140,7 @@ namespace TerraScience.Items{
 			//Otherwise, if it's a metal, draw it
 			//Oxide reaction:
 			if(this is ElementItem eItem && (eItem.Family == ElementFamily.AlkaliMetals || eItem.Family == ElementFamily.AlkalineEarthMetals) && !item.wet){
-				Color drawColor = TerraScience.FadeBetween(lightColor, Color.Gray, (float)ReactionTimer / reactionTimerMax);
+				Color drawColor = MiscUtils.FadeBetween(lightColor, Color.Gray, (float)ReactionTimer / reactionTimerMax);
 				Texture2D texture = Main.itemTexture[item.type];
 				spriteBatch.Draw(texture, item.Center - Main.screenPosition, null, drawColor, rotation, texture.Size() / 2f, scale, SpriteEffects.None, 0);
 				return false;

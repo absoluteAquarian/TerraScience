@@ -2,12 +2,14 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
-using TerraScience.Items.Elements;
+using TerraScience.API;
+using TerraScience.Utilities;
 
-namespace TerraScience.Items{
+namespace TerraScience.Content.Items{
 	public class CompoundItem : ScienceItem{
 		//Prevent CompoundItem from autoloading
 		public override bool Autoload(ref string name) 
@@ -32,7 +34,7 @@ namespace TerraScience.Items{
 		public CompoundItem(Compound name, string description, ElementState defaultState, CompoundClassification classification, Color gasColor, bool isPlaceableBar, ModLiquid liquid, float boilingPoint, float meltingPoint, Action<CompoundItem> elementsToAdd) : base(description, defaultState, gasColor, isPlaceableBar, liquid, boilingPoint, meltingPoint){
 			CompoundName = name;
 			Classification = classification;
-			displayName = TerraScience.CompoundName(name);
+			displayName = CompoundUtils.CompoundName(name);
 			elementsToAdd(this);
 		}
 
@@ -63,7 +65,7 @@ namespace TerraScience.Items{
 		public override void PostUpdate(){
 			//If this compound is a gas, occasionally spawn some of the custom dust
 			if(CurrentState == ElementState.Gas && Main.rand.NextFloat() < 11f / 60f)
-				TerraScience.NewElementGasDust(item.position, item.width, item.height, GasColor);
+				ElementUtils.NewElementGasDust(item.position, item.width, item.height, GasColor);
 
 			//If the element is a gas, make it rise above water if it's submerged
 			if(CurrentState == ElementState.Gas){
@@ -74,6 +76,12 @@ namespace TerraScience.Items{
 			}
 
 			base.PostUpdate();
+		}
+
+		public override string ToString() {
+			return string.Concat(Enum.GetName(typeof(Compound), CompoundName)
+					.Select(x => char.IsUpper(x) ? " " + x : x.ToString()))
+					.TrimStart(' ');
 		}
 	}
 }
