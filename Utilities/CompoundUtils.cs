@@ -51,7 +51,7 @@ namespace TerraScience.Utilities {
 			//Add the corresponding bar tile if it should exist
 			// TODO: make a ScienceBar for compounds
 			if (isPlaceableBar)
-				mod.AddTile(internalName, new ScienceBar(), $"TerraScience/Tiles/{internalName}");
+				mod.AddTile(internalName, new ScienceBar(), $"TerraScience/Content/Tiles/{internalName}");
 
 			//Cache the defaults and recipe so we can use it anytime
 			TerraScience.CachedCompoundDefaults.Add(internalName, defaults);
