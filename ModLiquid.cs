@@ -5,9 +5,11 @@ namespace TerraScience
 {
 	public class ModLiquid
 	{
-		public virtual string DisplayName { get; set; } = string.Empty;
+		public string InternalName { get; private set; } = string.Empty;
+ 		public virtual string DisplayName { get; set; } = string.Empty;
 
 		public ModLiquid() {
+			InternalName = GetType().ToString();
 			DisplayName = ToString();
 		}
 
