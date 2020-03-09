@@ -8,76 +8,23 @@ using Terraria.ID;
 using Terraria.ModLoader;
 
 namespace TerraScience.Items.Elements{
-	public class ElementItem : ModItem{
-		public override string Texture => $"TerraScience/Items/Elements/{Name}";
-
-		public override bool CloneNewInstances => true;
-
-		//Currents
-		public float CurrentTemp => TemperatureSystem.CurrentTemperature(item);
-		public ElementState CurrentState { get; private set; } = ElementState.Solid;
-
-		//We don't want this item to be autoloaded, since it's just a template for the other Element items
-		public override bool Autoload(ref string name) => false;
-
-		//Stored data, used during other sections of loading/autoloading
-		private readonly string displayName = null;
-		private readonly string description = null;
-
+	public class ElementItem : ScienceItem{
 		private Action<ModRecipe, ElementItem> ItemRecipe => TerraScience.CachedElementRecipes[Name];
 		private Action<Item> ItemDefaults => TerraScience.CachedElementDefaults[Name];
 
-		public ElementState BaseState{ get; private set; } = ElementState.Solid;
 		public ElementFamily Family{ get; private set; } = ElementFamily.None;
 		public Element ElementName{ get; private set; } = Element.Hydrogen;
-		public Color GasColor{ get; private set; } = Color.White;
-
-		public ModLiquid LiquidForm { get; private set; } = null;
-
-		public float BoilingPoint { get; private set; } = 0f;
-		public float MeltingPoint { get; private set; } = 0f;
-
-		/// <summary>
-		/// Whether this ElementItem is a placeable bar.
-		/// The internal name for the tile must match this item's internal name.
-		/// </summary>
-		public readonly bool IsPlaceableBar;
-
-		/// <summary>
-		/// A timer used for various tasks.
-		/// </summary>
-		public int ReactionTimer{ get; private set; } = 0;
 
 		//Useless, but it's required for the mod to load.
-		public ElementItem(){ }
+		public ElementItem() : base(){ }
 
 		/// <summary>
 		/// Creates a new element item.
 		/// </summary>
-		/// <param name="internalName">The internal name (class name) for the item.  Used for autoloading the texture.</param>
-		/// <param name="displayName">The display name for the item.</param>
-		/// <param name="description">The tooltip for the item.</param>
-		public ElementItem(Element name, string description, ElementState defaultState, ElementFamily family, Color gasColor, bool isPlaceableBar, ModLiquid liquid, float boilingPoint, float meltingPoint){
+		public ElementItem(Element name, string description, ElementState defaultState, ElementFamily family, Color gasColor, bool isPlaceableBar, ModLiquid liquid, float boilingPoint, float meltingPoint) : base(description, defaultState, gasColor, isPlaceableBar, liquid, boilingPoint, meltingPoint){
 			ElementName = name;
-			displayName = TerraScience.ElementName(name);
-			this.description = description;
-			BaseState = defaultState;
-			CurrentState = BaseState;
+			displayName = TerraScience.ElementName(name, false);
 			Family = family;
-			GasColor = gasColor;
-			IsPlaceableBar = isPlaceableBar;
-			LiquidForm = liquid;
-			BoilingPoint = boilingPoint;
-			MeltingPoint = meltingPoint;
-		}
-
-		public override void SetStaticDefaults(){
-			DisplayName.SetDefault(displayName);
-			Tooltip.SetDefault(description);
-			
-			//1If this element is normally a Gas, make it float when dropped
-			if(BaseState == ElementState.Gas)
-				ItemID.Sets.ItemNoGravity[item.type] = true;
 		}
 
 		public override void SetDefaults(){
@@ -94,8 +41,6 @@ namespace TerraScience.Items.Elements{
 				item.consumable = true;
 				item.placeStyle = 0;
 			}
-
-			CurrentState = BaseState;
 		}
 
 		public override void AddRecipes(){
@@ -123,109 +68,122 @@ namespace TerraScience.Items.Elements{
 					ReactionTimer += Main.rand.Next(3);
 
 					//Get the minimum time needed to explode
-					//Remove "Element" from the name
-					int threshold;
 					switch(ElementName){
 						//Alkali metals
 						case Element.Lithium:
-							threshold = 8 * 60;
+							reactionTimerMax = 8 * 60;
 							break;
 						case Element.Sodium:
-							threshold = 5 * 60;
+							reactionTimerMax = 5 * 60;
 							break;
 						case Element.Potassium:
-							threshold = 4 * 60;
+							reactionTimerMax = 4 * 60;
 							break;
 						case Element.Rubidium:
-							threshold = 3 * 60;
+							reactionTimerMax = 3 * 60;
 							break;
 						case Element.Caesium:
-							threshold = 2 * 60;
+							reactionTimerMax = 2 * 60;
 							break;
 						case Element.Francium:
-							threshold = 45;
+							reactionTimerMax = 45;
 							break;
 						//Alkaline Earth metals
 						case Element.Beryllium:
-							threshold = 11 * 60;
+							reactionTimerMax = 11 * 60;
 							break;
 						case Element.Magnesium:
-							threshold = 9 * 60;
+							reactionTimerMax = 9 * 60;
 							break;
 						case Element.Calcium:
-							threshold = 6 * 60;
+							reactionTimerMax = 6 * 60;
 							break;
 						case Element.Strontium:
-							threshold = 5 * 60;
+							reactionTimerMax = 5 * 60;
 							break;
 						case Element.Barium:
-							threshold = 4 * 60;
+							reactionTimerMax = 4 * 60;
 							break;
 						case Element.Radium:
-							threshold = 3 * 60;
+							reactionTimerMax = 3 * 60;
 							break;
 						default:
 							throw new InvalidFamilyException(displayName, Family);
 					}
 
 					//Spawn some "gas" bubbles
-					if(Main.rand.NextFloat() < (ReactionTimer / (float)threshold) * 0.75f)
+					if(Main.rand.NextFloat() < ReactionTimer / (float)reactionTimerMax * 0.75f)
 						TerraScience.NewElementGasDust(item.position, item.width, item.height, Color.White, new Vector2(0, -3));
 
 					//The threshold has been met.  Cause an explosion!
-					if(ReactionTimer >= threshold){
-						if(item.stack > 1){
-							//If there's more than one item in this stack, reduce the stack and the timer
-							int oldStack = item.stack;
-							item.stack--;
-							ReactionTimer = (int)(ReactionTimer * (float)item.stack / oldStack);
-						}else{
-							//Otherwise, make the item despawn (and make its stack to 0 for good measure)
-							item.stack = 0;
-							item.active = false;
-						}
+					if(ReactionTimer >= reactionTimerMax){
+						TerraScience.HandleWaterReaction(this);
 
-						Projectile p = Projectile.NewProjectileDirect(item.Center, Vector2.Zero, ProjectileID.Grenade, (int)(300 / (float)threshold * 120), 8f, Main.myPlayer);
+						Projectile p = Projectile.NewProjectileDirect(item.Center, Vector2.Zero, ProjectileID.Grenade, (int)(300 / (float)reactionTimerMax * 120), 8f, Main.myPlayer);
 						//Force the explosion from the grenade to happen NOW
 						p.timeLeft = 3;
 					}
-				}else
-					ReactionTimer = 0;
-				// TODO:  make reaction happen slower if it's in the air?
+				}else{
+					//We aren't moist.  Instead, make the oxides
+					//Reaction takes longer and the effect is different
+					ReactionTimer += Main.rand.Next(4);
+
+					//Get the minimum time needed to react
+					switch(ElementName){
+						//Alkali metals
+						case Element.Lithium:
+							reactionTimerMax = 12 * 60;
+							break;
+						case Element.Sodium:
+							reactionTimerMax = 11 * 60;
+							break;
+						case Element.Potassium:
+							reactionTimerMax = 9 * 60;
+							break;
+						case Element.Rubidium:
+							reactionTimerMax = 8 * 60;
+							break;
+						case Element.Caesium:
+							reactionTimerMax = 7 * 60;
+							break;
+						case Element.Francium:
+							reactionTimerMax = 5 * 60;
+							break;
+						//Alkaline Earth metals
+						case Element.Beryllium:
+							reactionTimerMax = 14 * 60;
+							break;
+						case Element.Magnesium:
+							reactionTimerMax = 13 * 60;
+							break;
+						case Element.Calcium:
+							reactionTimerMax = 11 * 60;
+							break;
+						case Element.Strontium:
+							reactionTimerMax = 9 * 60;
+							break;
+						case Element.Barium:
+							reactionTimerMax = 8 * 60;
+							break;
+						case Element.Radium:
+							reactionTimerMax = 6 * 60;
+							break;
+						default:
+							throw new InvalidFamilyException(displayName, Family);
+					}
+
+					//Spawn some "gas" bubbles
+					if(Main.rand.NextFloat() < ReactionTimer / (float)reactionTimerMax * 0.75f)
+						TerraScience.NewElementGasDust(item.position, item.width, item.height, Color.White);
+
+					if(ReactionTimer >= reactionTimerMax){
+						//Handle the air reaction
+						TerraScience.HandleAirReaction(this);
+					}
+				}
 			}
 
-			UpdateStates();
-		}
-
-		public override bool OnPickup(Player player){
-			//Reset the reaction timer
-			ReactionTimer = 0;
-
-			return true;
-		}
-
-		internal void UpdateStates()
-		{
-			//Changing states whilest temperature isnt implimented could cause issues.
-
-			/*
-			if (CurrentTemp >= BoilingPoint)
-				CurrentState = ElementState.Gas;
-			else if (CurrentTemp >= MeltingPoint)
-				CurrentState = ElementState.Liquid;
-			else if (CurrentTemp <= MeltingPoint)
-				CurrentState = ElementState.Solid;*/
-		}
-
-		public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI){
-			//We don't want the texture to draw when in the world if it's a gas
-			if(CurrentState == ElementState.Gas)
-				return false;
-
-			//Otherwise, if it's a metal, draw it
-
-			// TODO:  fancy shit
-			return true;
+			base.UpdateStates();
 		}
 	}
 }
