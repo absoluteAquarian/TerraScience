@@ -8,6 +8,8 @@ using TerraScience.Utilities;
 
 namespace TerraScience.Content.Items{
 	public class ElementItem : ScienceItem{
+		public override string Texture => $"TerraScience/Content/Items/Elements/{ElementUtils.ElementName(ElementName, true)}";
+
 		private Action<ModRecipe, ElementItem> ItemRecipe => TerraScience.CachedElementRecipes[Name];
 		private Action<Item> ItemDefaults => TerraScience.CachedElementDefaults[Name];
 

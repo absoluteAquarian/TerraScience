@@ -11,6 +11,8 @@ using TerraScience.Utilities;
 
 namespace TerraScience.Content.Items{
 	public class CompoundItem : ScienceItem{
+		public override string Texture => $"TerraScience/Content/Items/Compounds/{CompoundUtils.CompoundName(CompoundName, false)}";
+
 		//Prevent CompoundItem from autoloading
 		public override bool Autoload(ref string name) 
 			=> false;
