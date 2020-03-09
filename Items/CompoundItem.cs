@@ -7,7 +7,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using TerraScience.Items.Elements;
 
-namespace TerraScience.Items.Compounds{
+namespace TerraScience.Items{
 	public class CompoundItem : ScienceItem{
 		//Prevent CompoundItem from autoloading
 		public override bool Autoload(ref string name) 

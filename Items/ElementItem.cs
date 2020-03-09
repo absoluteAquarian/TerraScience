@@ -7,7 +7,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace TerraScience.Items.Elements{
+namespace TerraScience.Items{
 	public class ElementItem : ScienceItem{
 		private Action<ModRecipe, ElementItem> ItemRecipe => TerraScience.CachedElementRecipes[Name];
 		private Action<Item> ItemDefaults => TerraScience.CachedElementDefaults[Name];
