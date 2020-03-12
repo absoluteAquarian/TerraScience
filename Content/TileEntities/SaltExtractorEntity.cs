@@ -9,17 +9,21 @@ namespace TerraScience.Content.TileEntities{
 		/// How much water is stored in the Salt Extractor in Liters.
 		/// </summary>
 		public float StoredWater = 0f;
+
 		/// <summary>
 		/// How much salt is stored in the Salt Extractor.
 		/// Once this reaches 1f, a Sodium Chloride item and H2O gas is spawned.
 		/// Conversion rate is 2L of water per Sodium Chloride generated.
 		/// </summary>
 		public float StoredSalt = 0f;
+
 		public static readonly float MaxWater = 10f;
+
 		/// <summary>
 		/// How quickly the water is evaporated and salt is created.
 		/// </summary>
 		public float ReactionSpeed = 1f;
+
 		/// <summary>
 		/// The progress for the current reaction.
 		/// Range: [0, 1]
@@ -38,8 +42,7 @@ namespace TerraScience.Content.TileEntities{
 			};
 
 		//The spawn and despawn code is handled elsewhere, so just return true
-		public override bool ValidTile(int i, int j)
-			=> true;
+		public override bool ValidTile(int i, int j) => true;
 
 		public override void Update(){
 			if(ReactionInProgress){

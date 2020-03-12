@@ -28,7 +28,7 @@ namespace TerraScience.Content.Tiles.Multitiles{
 			TileObjectData.addTile(Type);
 
 			ModTranslation name = CreateMapEntryName();
-			name.SetDefault("Electrolyzer");
+			name.SetDefault("Salt Extractor");
 			AddMapEntry(new Color(0xd1, 0x89, 0x32), name);
 		}
 
@@ -36,6 +36,7 @@ namespace TerraScience.Content.Tiles.Multitiles{
 			Tile tile = Main.tile[i, j];
 			Point16 pos = new Point16(i - tile.frameX / 18, j - tile.frameY / 18);
 			bool interactionHappened = false;
+
 			if(Main.LocalPlayer.HeldItemCanPlaceWater() && MiscUtils.TryGetTileEntity(pos, out SaltExtractorEntity se)){
 				se.StoredWater++;
 
@@ -51,6 +52,11 @@ namespace TerraScience.Content.Tiles.Multitiles{
 					//Something happened
 					interactionHappened = true;
 				}
+			}
+
+			// If not holding a water bucket
+			if (MiscUtils.TryGetTileEntity(pos, out SaltExtractorEntity entity) && Main.LocalPlayer.HeldItem.type != ItemID.WaterBucket) {
+				ModContent.GetInstance<TerraScience>().saltExtracterLoader.ShowUI(ModContent.GetInstance<TerraScience>().saltExtracterLoader.saltExtractorUI);
 			}
 
 			return interactionHappened;

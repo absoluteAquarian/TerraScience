@@ -2,9 +2,12 @@
 using System;
 using System.Collections.Generic;
 using Terraria;
+using Terraria.GameInput;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.UI;
 using TerraScience.Content.Items;
+using TerraScience.Content.UI;
 using TerraScience.Systems;
 using TerraScience.Utilities;
 
@@ -12,6 +15,10 @@ namespace TerraScience {
 	public class TerraScience : Mod {
 		public static readonly Action<ModRecipe> NoRecipe = r => { };
 		public static readonly Action<ModRecipe> OnlyWorkBench = r => { r.AddTile(TileID.WorkBenches); };
+
+		internal SaltExtractorLoader saltExtracterLoader;
+
+		public static ModHotKey DebugHotkey;
 
 		public const string WarningWaterExplode = "[c/bb3300:WARNING:] exposure to water may cause spontaneous combustion!";
 
@@ -36,23 +43,40 @@ namespace TerraScience {
 		public static Dictionary<string, Action<ModRecipe, CompoundItem>> CachedCompoundRecipes { get; private set; }
 
 		public override void Load() {
+			saltExtracterLoader = new SaltExtractorLoader();
+
 			CachedElementDefaults = new Dictionary<string, Action<Item>>();
 			CachedElementRecipes = new Dictionary<string, Action<ModRecipe, ElementItem>>();
 			CachedCompoundDefaults = new Dictionary<string, Action<Item>>();
 			CachedCompoundRecipes = new Dictionary<string, Action<ModRecipe, CompoundItem>>();
 
+			DebugHotkey = RegisterHotKey("Debuging", "J");
+
 			RegisterElements();
 			RegisterCompounds();
+
+			saltExtracterLoader.Load();
 		}
 
 		public override void Unload() {
 			CachedElementDefaults = null;
 			CachedElementRecipes = null;
+			DebugHotkey = null;
+
 			TileUtils.Structures.Unload();
+			saltExtracterLoader.Unload();
 		}
 
 		public override void PostSetupContent(){
 			TileUtils.Structures.SetupStructures();
+		}
+
+		public override void UpdateUI(GameTime gameTime) {
+			saltExtracterLoader.UpdateUI(gameTime);
+		}
+
+		public override void ModifyInterfaceLayers(List<GameInterfaceLayer> layers) {
+			saltExtracterLoader.ModifyInterfaceLayers(layers);
 		}
 
 		private void RegisterElements() {
@@ -362,5 +386,13 @@ namespace TerraScience {
 
 	public enum CompoundClassification{
 		Oxide, Hydroxide, Peroxide, Superoxide, Hydride
+	}
+
+	public class TerraSciencePlayer : ModPlayer {
+		public override void ProcessTriggers(TriggersSet triggersSet) {
+			if (TerraScience.DebugHotkey.JustPressed) {
+				ModContent.GetInstance<TerraScience>().saltExtracterLoader.ShowUI(ModContent.GetInstance<TerraScience>().saltExtracterLoader.saltExtractorUI);
+			}
+		}
 	}
 }
