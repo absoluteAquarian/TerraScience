@@ -127,6 +127,9 @@ namespace TerraScience.Utilities {
 			TerraScience.CachedElementDefaults.Add(internalName, defaults);
 			TerraScience.CachedElementRecipes.Add(internalName,
 				(r, e) => {
+					if(recipe == TerraScience.NoRecipe)
+						return;
+
 					recipe(r);
 					r.SetResult(e, stackCrafted);
 					r.AddRecipe();

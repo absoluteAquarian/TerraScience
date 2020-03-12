@@ -10,8 +10,8 @@ using TerraScience.Utilities;
 
 namespace TerraScience {
 	public class TerraScience : Mod {
-		public readonly Action<ModRecipe> NoRecipe = r => { };
-		public readonly Action<ModRecipe> OnlyWorkBench = r => { r.AddTile(TileID.WorkBenches); };
+		public static readonly Action<ModRecipe> NoRecipe = r => { };
+		public static readonly Action<ModRecipe> OnlyWorkBench = r => { r.AddTile(TileID.WorkBenches); };
 
 		public const string WarningWaterExplode = "[c/bb3300:WARNING:] exposure to water may cause spontaneous combustion!";
 
@@ -48,6 +48,11 @@ namespace TerraScience {
 		public override void Unload() {
 			CachedElementDefaults = null;
 			CachedElementRecipes = null;
+			TileUtils.Structures.Unload();
+		}
+
+		public override void PostSetupContent(){
+			TileUtils.Structures.SetupStructures();
 		}
 
 		private void RegisterElements() {
@@ -271,6 +276,28 @@ namespace TerraScience {
 					c.AddElement(Element.Lithium, 1);
 					c.AddElement(Element.Oxygen, 2);
 				});
+			//OTHER
+			CompoundUtils.RegisterCompound(Compound.Water,
+				"H2O\nGood ol' dihydrogen monoxide",
+				NoRecipe,
+				1,
+				item => {
+					item.width = 32;
+					item.height = 32;
+					item.scale = 0.5f;
+					item.rare = ItemRarityID.Blue;
+					item.maxStack = 999;
+					item.value = 3;
+				},
+				ElementState.Gas,
+				CompoundClassification.Hydroxide,
+				TemperatureSystem.CelsiusToKelvin(100),
+				TemperatureSystem.CelsiusToKelvin(0),
+				c => {
+					c.AddElement(Element.Hydrogen, 2);
+					c.AddElement(Element.Oxygen, 1);
+				},
+				Color.White);
 		}
 
 		/// <summary>

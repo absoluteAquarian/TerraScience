@@ -57,6 +57,9 @@ namespace TerraScience.Utilities {
 			TerraScience.CachedCompoundDefaults.Add(internalName, defaults);
 			TerraScience.CachedCompoundRecipes.Add(internalName,
 				(r, e) => {
+					if(recipe == TerraScience.NoRecipe)
+						return;
+
 					recipe(r);
 
 					for (int i = 0; i < item.Elements.Count; i++) {

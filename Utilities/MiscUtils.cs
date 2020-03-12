@@ -1,6 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
+using System.Linq;
 using Terraria;
+using Terraria.DataStructures;
+using Terraria.ID;
 using Terraria.ModLoader;
 
 namespace TerraScience.Utilities {
@@ -24,5 +27,15 @@ namespace TerraScience.Utilities {
 
 		public static T ParseToEnum<T>(string name) where T : Enum
 			=> (T)Enum.Parse(typeof(T), name);
+
+		public static bool TryGetTileEntity<T>(Point16 position, out T tileEntity) where T : TileEntity{
+			tileEntity = null;
+			if(TileEntity.ByPosition.ContainsKey(position))
+				tileEntity = TileEntity.ByPosition[position] as T;	//'as' will make 'tileEntity' null if the TileEntity at the position isn't the same type
+			return tileEntity != null;
+		}
+
+		public static bool HeldItemCanPlaceWater(this Player player)
+			=> player.HeldItem.type == ItemID.WaterBucket || player.HeldItem.type == ItemID.BottomlessBucket;
 	}
 }
