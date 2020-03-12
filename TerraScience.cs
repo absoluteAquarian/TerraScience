@@ -65,8 +65,8 @@ namespace TerraScience {
 				},
 				ElementState.Gas,
 				ElementFamily.None,
-				TemperatureSystem.CelsiusToKelvin(-252.9f),
-				TemperatureSystem.CelsiusToKelvin(-259.14f),
+				TemperatureUtils.CelsiusToKelvin(-252.9f),
+				TemperatureUtils.CelsiusToKelvin(-259.14f),
 				Color.Orange,
 				null //The Hydrogen modliquid when we add liquids
 			);
@@ -85,8 +85,8 @@ namespace TerraScience {
 				},
 				ElementState.Gas,
 				ElementFamily.NobleGases,
-				TemperatureSystem.CelsiusToKelvin(-268.9f),
-				TemperatureSystem.CelsiusToKelvin(-272.2f),
+				TemperatureUtils.CelsiusToKelvin(-268.9f),
+				TemperatureUtils.CelsiusToKelvin(-272.2f),
 				Color.Wheat
 			);
 
@@ -103,8 +103,8 @@ namespace TerraScience {
 				},
 				ElementState.Solid,
 				ElementFamily.AlkaliMetals,
-				TemperatureSystem.CelsiusToKelvin(1330f),
-				TemperatureSystem.CelsiusToKelvin(180.5f),
+				TemperatureUtils.CelsiusToKelvin(1330f),
+				TemperatureUtils.CelsiusToKelvin(180.5f),
 				isPlaceableBar: true
 			);
 
@@ -121,8 +121,8 @@ namespace TerraScience {
 				},
 				ElementState.Solid,
 				ElementFamily.AlkalineEarthMetals,
-				TemperatureSystem.CelsiusToKelvin(2970f),
-				TemperatureSystem.CelsiusToKelvin(1287f),
+				TemperatureUtils.CelsiusToKelvin(2970f),
+				TemperatureUtils.CelsiusToKelvin(1287f),
 				isPlaceableBar: true
 			);
 
@@ -144,8 +144,8 @@ namespace TerraScience {
 				},
 				ElementState.Gas,
 				ElementFamily.Oxygen,
-				TemperatureSystem.CelsiusToKelvin(-182.962f),
-				TemperatureSystem.CelsiusToKelvin(-218.79f),
+				TemperatureUtils.CelsiusToKelvin(-182.962f),
+				TemperatureUtils.CelsiusToKelvin(-218.79f),
 				Color.CornflowerBlue
 			);
 		}
@@ -165,8 +165,8 @@ namespace TerraScience {
 				},
 				ElementState.Solid,
 				CompoundClassification.Hydroxide,
-				TemperatureSystem.CelsiusToKelvin(924),
-				TemperatureSystem.CelsiusToKelvin(462),
+				TemperatureUtils.CelsiusToKelvin(924),
+				TemperatureUtils.CelsiusToKelvin(462),
 				c => {
 					c.AddElement(Element.Lithium, 1);
 					c.AddElement(Element.Oxygen, 1);
@@ -206,8 +206,8 @@ namespace TerraScience {
 				},
 				ElementState.Solid,
 				CompoundClassification.Oxide,
-				TemperatureSystem.CelsiusToKelvin(2600),
-				TemperatureSystem.CelsiusToKelvin(1438),
+				TemperatureUtils.CelsiusToKelvin(2600),
+				TemperatureUtils.CelsiusToKelvin(1438),
 				c => {
 					c.AddElement(Element.Lithium, 2);
 					c.AddElement(Element.Oxygen, 1);
@@ -225,8 +225,8 @@ namespace TerraScience {
 				},
 				ElementState.Solid,
 				CompoundClassification.Oxide,
-				TemperatureSystem.CelsiusToKelvin(3900),
-				TemperatureSystem.CelsiusToKelvin(2507),
+				TemperatureUtils.CelsiusToKelvin(3900),
+				TemperatureUtils.CelsiusToKelvin(2507),
 				c => {
 					c.AddElement(Element.Beryllium, 1);
 					c.AddElement(Element.Oxygen, 1);
@@ -246,7 +246,7 @@ namespace TerraScience {
 				ElementState.Solid,
 				CompoundClassification.Peroxide,
 				-1f,
-				TemperatureSystem.CelsiusToKelvin(340),  //Decomposes to Li2O
+				TemperatureUtils.CelsiusToKelvin(340),  //Decomposes to Li2O
 				c => {
 					c.AddElement(Element.Lithium, 2);
 					c.AddElement(Element.Oxygen, 2);
