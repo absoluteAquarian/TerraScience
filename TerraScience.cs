@@ -387,12 +387,4 @@ namespace TerraScience {
 	public enum CompoundClassification{
 		Oxide, Hydroxide, Peroxide, Superoxide, Hydride
 	}
-
-	public class TerraSciencePlayer : ModPlayer {
-		public override void ProcessTriggers(TriggersSet triggersSet) {
-			if (TerraScience.DebugHotkey.JustPressed) {
-				ModContent.GetInstance<TerraScience>().saltExtracterLoader.ShowUI(ModContent.GetInstance<TerraScience>().saltExtracterLoader.saltExtractorUI);
-			}
-		}
-	}
 }
