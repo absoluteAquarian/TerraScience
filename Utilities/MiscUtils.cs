@@ -37,5 +37,8 @@ namespace TerraScience.Utilities {
 
 		public static bool HeldItemCanPlaceWater(this Player player)
 			=> player.HeldItem.type == ItemID.WaterBucket || player.HeldItem.type == ItemID.BottomlessBucket;
+
+		public static Vector2 ScreenCenter()
+			=> new Vector2(Main.screenWidth, Main.screenHeight) / 2f;
 	}
 }

@@ -76,7 +76,7 @@ namespace TerraScience.Content.Items.Tools{
 						//Spawn the tile entity
 						SaltExtractorEntity se = ModContent.GetInstance<SaltExtractorEntity>();
 						if(se.Find(location.X, location.Y) < 0)
-							se.Place(location.Y, location.X);
+							se.Place(location.X, location.Y);
 					}//else{
 					//	Main.NewText("Structure wasn't valid.", Color.Orange);
 					//}

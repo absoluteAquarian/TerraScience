@@ -322,6 +322,25 @@ namespace TerraScience {
 					c.AddElement(Element.Oxygen, 1);
 				},
 				Color.White);
+			CompoundUtils.RegisterCompound(Compound.SodiumChloride,
+				"NaCl\nSaltier than your average sailor",
+				NoRecipe,
+				1,
+				item => {
+					item.width = 28;
+					item.height = 22;
+					item.rare = ItemRarityID.Blue;
+					item.maxStack = 999;
+					item.value = 15;
+				},
+				ElementState.Solid,
+				CompoundClassification.Chloride,
+				TemperatureSystem.CelsiusToKelvin(1465),
+				TemperatureSystem.CelsiusToKelvin(801),
+				c => {
+					c.AddElement(Element.Sodium, 1);
+					c.AddElement(Element.Chlorine, 1);
+				});
 		}
 
 		/// <summary>
@@ -335,10 +354,15 @@ namespace TerraScience {
 		/// <param name="stack">How many of the item to drop.</param>
 		/// <returns></returns>
 		public static int SpawnScienceItem(int x, int y, int width, int height, string itemName, int stack = 1, Vector2? initialVelocity = null) {
-			int index = Item.NewItem(x, y, width, height, ModContent.GetInstance<TerraScience>().ItemType(itemName), stack);
-			Item item = Main.item[index];
-			item.velocity = initialVelocity ?? Vector2.Zero;
-			return index;
+			int type = ModContent.GetInstance<TerraScience>().ItemType(itemName);
+			if(type > 0){
+				int index = Item.NewItem(x, y, width, height, type, stack);
+				Item item = Main.item[index];
+				item.velocity = initialVelocity ?? Vector2.Zero;
+				return index;
+			}
+			//Invalid type
+			return Main.maxItems;
 		}
 	}
 
@@ -364,7 +388,7 @@ namespace TerraScience {
 	public enum Element{
 		Hydrogen = 1, Helium,
 		Lithium, Beryllium, Boron, Carbon, Nitrogen, Oxygen, Fluorine, Neon,
-		Sodium, Magnesium, //Add rest of period
+		Sodium, Magnesium, Aluminum, Silicon, Phosphorus, Sulfur, Chlorine, Argon,
 		Potassium, Calcium, //Add rest of period
 		Rubidium, Strontium, //Add rest of period
 		Caesium, Barium, //Add rest of period
@@ -381,10 +405,12 @@ namespace TerraScience {
 		//Alikali metal peroxides
 		LithiumPeroxide, SodiumPeroxide, PotassiumPeroxide, RubidiumPeroxide, CaesiumPeroxide, FranciumPeroxide,
 		//Alkali metal superoxides
-		LithiumSuperoxide, SodiumSuperoxide, PotassiumSuperoxide, RubidiumSuperoxide, CaesiumSuperoxide, FranciumSuperoxide
+		LithiumSuperoxide, SodiumSuperoxide, PotassiumSuperoxide, RubidiumSuperoxide, CaesiumSuperoxide, FranciumSuperoxide,
+		//Chloride compounds
+		SodiumChloride
 	}
 
 	public enum CompoundClassification{
-		Oxide, Hydroxide, Peroxide, Superoxide, Hydride
+		Oxide, Hydroxide, Peroxide, Superoxide, Hydride, Chloride
 	}
 }

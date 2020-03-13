@@ -6,6 +6,7 @@ using Terraria.Enums;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ObjectData;
+using Terraria.UI.Chat;
 using TerraScience.Content.TileEntities;
 using TerraScience.Utilities;
 
@@ -49,6 +50,8 @@ namespace TerraScience.Content.Tiles.Multitiles{
 						Main.LocalPlayer.QuickSpawnItem(ItemID.EmptyBucket);
 					}
 
+					se.ReactionInProgress = true;
+
 					//Something happened
 					interactionHappened = true;
 				}
@@ -63,33 +66,42 @@ namespace TerraScience.Content.Tiles.Multitiles{
 			return interactionHappened;
 		}
 
-		public override void MouseOver(int i, int j){
-			Tile tile = Main.tile[i, j];
-			Point16 pos = new Point16(i - tile.frameX / 18, j - tile.frameY / 18);
-			if(MiscUtils.TryGetTileEntity(pos, out SaltExtractorEntity se)){
-				Main.hoverItemName = $"Water: {se.StoredWater :N3}L/{SaltExtractorEntity.MaxWater :N3}L" +
-					$"\nProgress: {(int)(se.ReactionProgress * 100) :N3}%";
-			}
-		}
-
 		public override bool PreDraw(int i, int j, SpriteBatch spriteBatch){
 			//Draw the water in the side vials
-			Point16 pos = new Point16(i, j) - Main.tile[i, j].TileCoord();
+			Point16 frame = Main.tile[i, j].TileCoord();
+			Point16 pos = new Point16(i, j);
+
+			//Only draw extra stuff when this tile is the upper-left one
+			if(frame.X != 0 || frame.Y != 0)
+				return true;
 
 			int maxWaterDrawDiff = 34;
 			if(MiscUtils.TryGetTileEntity(pos, out SaltExtractorEntity se)){
+				//Draw some text if the mouse is hovering over the multitile
+				Rectangle multitile = new Rectangle(i * 16, j * 16, TileUtils.Structures.SaltExtractor.GetLength(1) * 16, TileUtils.Structures.SaltExtractor.GetLength(0) * 16);
+				if(multitile.Contains(Main.MouseWorld.ToPoint())){
+					Vector2 size = ChatManager.GetStringSize(Main.fontMouseText, "l", new Vector2(1f));
+					float scale = 0.75f;
+
+					ChatManager.DrawColorCodedString(Main.spriteBatch, Main.fontMouseText, $"Water: {se.StoredWater :N3}L/{SaltExtractorEntity.MaxWater :N3}L", Main.MouseScreen, Color.White, 0f, Vector2.Zero, new Vector2(scale));
+					ChatManager.DrawColorCodedString(Main.spriteBatch, Main.fontMouseText, $"Salt: {se.StoredSalt :N3}g", Main.MouseScreen + scale * new Vector2(0, size.Y), Color.White, 0f, Vector2.Zero, new Vector2(scale));
+					ChatManager.DrawColorCodedString(Main.spriteBatch, Main.fontMouseText, $"Progress: {(int)(se.ReactionProgress * 100) :N3}%", Main.MouseScreen + scale * 2 * new Vector2(0, size.Y), Color.White, 0f, Vector2.Zero, new Vector2(scale));
+					ChatManager.DrawColorCodedString(Main.spriteBatch, Main.fontMouseText, $"Reaction Speed: {se.ReactionSpeed :N3}x", Main.MouseScreen + scale * 3 * new Vector2(0, size.Y), Color.White, 0f, Vector2.Zero, new Vector2(scale));
+				}
+
+				//Do the rest of the things
 				float curWaterRatio = se.StoredWater / SaltExtractorEntity.MaxWater;
-				float invRatio = se.StoredWater > 0 ? 1f / curWaterRatio : 0f;
-				Vector2 offset = new Vector2(2, 46 - maxWaterDrawDiff * curWaterRatio);
-				Point drawPos = (pos.ToVector2() * 16 - Main.screenPosition + offset).ToPoint();
+				float invRatio = 1f - curWaterRatio;
+				Vector2 offset = new Vector2(2, 46 - maxWaterDrawDiff * invRatio);
+				Point drawPos = (pos.ToVector2() * 16 - Main.screenPosition + MiscUtils.ScreenCenter() + offset).ToPoint();
 
 				//Draw the first water bar
-				spriteBatch.Draw(Main.magicPixel, new Rectangle(drawPos.X, drawPos.Y, 8, (int)(invRatio * maxWaterDrawDiff)), null, Color.CornflowerBlue, 0f, Vector2.Zero, SpriteEffects.None, 0);
+				spriteBatch.Draw(Main.magicPixel, new Rectangle(drawPos.X, drawPos.Y, 8, (int)(curWaterRatio * maxWaterDrawDiff)), null, Color.CornflowerBlue, 0f, Vector2.Zero, SpriteEffects.None, 0);
 
 				drawPos.X += 52;
 
 				//Draw the second water bar
-				spriteBatch.Draw(Main.magicPixel, new Rectangle(drawPos.X, drawPos.Y, 8, (int)(invRatio * maxWaterDrawDiff)), null, Color.CornflowerBlue, 0f, Vector2.Zero, SpriteEffects.None, 0);
+				spriteBatch.Draw(Main.magicPixel, new Rectangle(drawPos.X, drawPos.Y, 8, (int)(curWaterRatio * maxWaterDrawDiff)), null, Color.CornflowerBlue, 0f, Vector2.Zero, SpriteEffects.None, 0);
 			}
 
 			return true;
@@ -146,7 +158,7 @@ namespace TerraScience.Content.Tiles.Multitiles{
 			}
 
 			//Only run this code on the last tile in the structure
-			if(tileX == columns - 1 && tileY == rows - 1){
+	//		if(tileX == columns - 1 && tileY == rows - 1){
 				//Update the frames for the tiles
 				int minX = i - tileX - 2;
 				int minY = j - tileY - 2;
@@ -156,12 +168,15 @@ namespace TerraScience.Content.Tiles.Multitiles{
 				//...and send a net message
 				if(Main.netMode == NetmodeID.MultiplayerClient)
 					NetMessage.SendTileRange(-1, minX, minY, sizeX, sizeY);
+	//		}
 
+			//Only run this code on the top-left tile
+	//		if(tileX == 0 && tileY == 0){
 				//If there's a SaltExtractorEntity present, kill it
 				SaltExtractorEntity se = ModContent.GetInstance<SaltExtractorEntity>();
-				if(se.Find(i - tileX, j - tileY) >= 0)
-					se.Kill(i - tileX, j - tileY);
-			}
+				if(se.Find(i, j) >= 0)
+					se.Kill(i, j);
+	//		}
 		}
 	}
 }
