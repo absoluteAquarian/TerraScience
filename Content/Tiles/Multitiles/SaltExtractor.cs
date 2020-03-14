@@ -116,7 +116,7 @@ namespace TerraScience.Content.Tiles.Multitiles{
 			//This is just for debug purposes, so I don't need it anymore
 			return;
 
-#pragma warning disable CS0162 // Unreachable code detected
+			/*
 			Point16 pos = new Point16(i, j) - Main.tile[i, j].TileCoord();
 			if(MiscUtils.TryGetTileEntity(pos, out SaltExtractorEntity se)){
 				Player player = Main.LocalPlayer;
@@ -127,8 +127,7 @@ namespace TerraScience.Content.Tiles.Multitiles{
 				player.noThrow = 2;
 				player.showItemIcon = true;
 				player.showItemIcon2 = ModContent.ItemType<BlankItemForMachineText>();
-#pragma warning restore CS0162 // Unreachable code detected
-			}
+			}*/
 		}
 
 		public override void KillTile(int i, int j, ref bool fail, ref bool effectOnly, ref bool noItem){

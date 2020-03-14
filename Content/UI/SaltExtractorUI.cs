@@ -68,7 +68,7 @@ namespace TerraScience.Content.UI {
 
 		public void ShowUI(UIState state, SaltExtractorEntity entity) {
 			Main.PlaySound(SoundID.MenuOpen);
-			saltExtractorInterface.SetState(state); saltExtractorInterface.CurrentState. = true;
+			saltExtractorInterface.SetState(state);
 			saltExtractorUI.SaltExtractor = entity;
 		}
 
@@ -139,18 +139,14 @@ namespace TerraScience.Content.UI {
 		public override void Update(GameTime gameTime) {
 			Main.playerInventory = true;
 
-			// Get the multitiles ceter position
-			Point16 topLeft = SaltExtractor.Position;
-			Point16 size = new Point16(TileUtils.Structures.SaltExtractor.GetLength(1), TileUtils.Structures.SaltExtractor.GetLength(0));
-			Vector2 worldTopLeft = topLeft.ToVector2() * 16;
-			Vector2 middle = worldTopLeft + size.ToVector2() * 8;  // * 16 / 2
-
-			//check if the inventory key was pressed or if the player is 5 blocks away from the tile. if so close UI
-			// 5 is the amount of tiles
-			if (Main.LocalPlayer.GetModPlayer<TerraSciencePlayer>().InventoryKeyPressed || Vector2.Distance(Main.LocalPlayer.Center, middle) > 5 * 16)
-				ModContent.GetInstance<TerraScience>().saltExtracterLoader.HideUI();
-
 			if (SaltExtractor != null) {
+				// Get the salt extractor's ceter position
+				Vector2 middle = TileUtils.TileEntityCenter(SaltExtractor, TileUtils.Structures.SaltExtractor);
+
+				// check if the inventory key was pressed or if the player is 5 blocks away from the tile. if so close UI
+				if (Main.LocalPlayer.GetModPlayer<TerraSciencePlayer>().InventoryKeyPressed || Vector2.Distance(Main.LocalPlayer.Center, middle) > 5 * 16)
+					ModContent.GetInstance<TerraScience>().saltExtracterLoader.HideUI();
+
 				waterValues.SetText($"Water: {string.Format("{0:G29}", decimal.Parse($"{SaltExtractor.StoredWater:N2}"))}L / {Math.Round(SaltExtractorEntity.MaxWater)}L");
 				progress.SetText($"Progress: {Math.Round(SaltExtractor.ReactionProgress)}%");
 				reactionSpeed.SetText($"Speed Multiplier: {string.Format("{0:G29}", decimal.Parse($"{SaltExtractor.ReactionSpeed:N2}"))}x");

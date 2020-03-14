@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using Microsoft.Xna.Framework;
+using System.Linq;
 using Terraria;
 using Terraria.DataStructures;
 using static Terraria.ID.TileID;
@@ -26,9 +27,17 @@ namespace TerraScience.Utilities{
 			}
 		}
 
+		public static Vector2 TileEntityCenter(TileEntity entity, Tile[,] structure) {
+			Point16 topLeft = entity.Position;
+			Point16 size = new Point16(structure.GetLength(1), structure.GetLength(0));
+			Vector2 worldTopLeft = topLeft.ToVector2() * 16;
+			return worldTopLeft + size.ToVector2() * 8; // * 16 / 2
+		}
+
 		public static Tile MakeTileInstance(ushort type, TileSlopeVariant slope = TileSlopeVariant.Solid){
 			//Slopes are at   x000 xxxx xxxx xxxx in the sTileHeader
 			//Halfbrick is at xxxx x0xx xxxx xxxx in the sTileHeader
+
 			Tile tile = new Tile();
 			if(slope == TileSlopeVariant.HalfBrick)
 				tile.halfBrick(true);
@@ -40,6 +49,7 @@ namespace TerraScience.Utilities{
 
 		public static bool TileIsViable(int x, int y){
 			Tile tile = Framing.GetTileSafely(x, y);
+
 			//Return if the tile actually existed and its type is in the StructureIDs array
 			return tile.nactive() && StructureTileIDs.Contains(tile.type);
 		}
@@ -93,7 +103,7 @@ namespace TerraScience.Utilities{
 			}
 
 			//If we've gotten here, then there wasn't a structure or it was invalid
-invalidStructure:
+			invalidStructure:
 			topLeftTileLocation = new Point16(-1, -1);
 			return false;
 		}
