@@ -5,8 +5,8 @@ using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using TerraScience.Content.Tiles.Multitiles;
 
-namespace TerraScience.Content.TileEntities{
-	public class SaltExtractorEntity : ModTileEntity, TagSerializable{
+namespace TerraScience.Content.TileEntities {
+	public class SaltExtractorEntity : ModTileEntity, TagSerializable {
 		public static readonly Func<TagCompound, SaltExtractorEntity> DESERIALIZER = Load;
 
 		/// <summary>
@@ -38,7 +38,7 @@ namespace TerraScience.Content.TileEntities{
 
 		//'new' is required to get rid of the "member hides inherited member" warning
 		public static new SaltExtractorEntity Load(TagCompound tag)
-			=> new SaltExtractorEntity(){
+			=> new SaltExtractorEntity() {
 				StoredWater = tag.GetFloat("water"),
 				StoredSalt = tag.GetFloat("salt"),
 				ReactionSpeed = tag.GetFloat("speed"),
@@ -47,7 +47,7 @@ namespace TerraScience.Content.TileEntities{
 			};
 
 		public TagCompound SerializeData()
-			=> new TagCompound(){
+			=> new TagCompound() {
 				["water"] = StoredWater,
 				["salt"] = StoredSalt,
 				["speed"] = ReactionSpeed,
@@ -56,13 +56,13 @@ namespace TerraScience.Content.TileEntities{
 			};
 
 		//The spawn and despawn code is handled elsewhere, so just return true
-		public override bool ValidTile(int i, int j){
+		public override bool ValidTile(int i, int j) {
 			Tile tile = Main.tile[i, j];
 			return tile != null && tile.active() && tile.type == ModContent.TileType<SaltExtractor>() && tile.frameX == 0 && tile.frameY == 0;
 		}
 
-		public override void Update(){
-			if(ReactionInProgress){
+		public override void Update() {
+			if (ReactionInProgress) {
 				float litersLostPerSecond = 0.05f;
 				float reaction = ReactionSpeed * litersLostPerSecond / 60f;
 				StoredWater -= reaction;
@@ -70,28 +70,36 @@ namespace TerraScience.Content.TileEntities{
 
 				ReactionProgress = 1f - (StoredWater - (int)(StoredWater / 2f) * 2) / 2f;
 
-				if(StoredSalt >= 1f){
+				if (StoredSalt >= 1f) {
 					StoredSalt--;
 
-					TerraScience.SpawnScienceItem(Position.X * 16 + 32, Position.Y * 16 + 24, 16, 16, "SodiumChloride");
-					TerraScience.SpawnScienceItem(Position.X * 16 + 48, Position.Y * 16 + 8, 16, 16, "Water", 1, new Vector2(Main.rand.NextFloat(-1.5f, 1.5f), Main.rand.NextFloat(-2.25f, -4f)));
+					Item storedItem = ModContent.GetInstance<TerraScience>().saltExtracterLoader.saltExtractorUI.itemSlot.storedItem;
+
+					if (storedItem.type != mod.ItemType("SodiumChloride"))
+						storedItem.SetDefaults(mod.ItemType("SodiumChloride"));
+					else if(storedItem.stack < 100)
+						storedItem.stack++;
+
+					//TerraScience.SpawnScienceItem(Position.X * 16 + 32, Position.Y * 16 + 24, 16, 16, "SodiumChloride");
+					//TerraScience.SpawnScienceItem(Position.X * 16 + 48, Position.Y * 16 + 8, 16, 16, "Water", 1, new Vector2(Main.rand.NextFloat(-1.5f, 1.5f), Main.rand.NextFloat(-2.25f, -4f)));
 				}
 
 				//Reaction happens faster and faster as it "heats up", but cools down very quickly
 				ReactionSpeed *= 1f + 0.0892f / 60f;
 
 				//Reaction speed caps at 2x speed
-				if(ReactionSpeed > 2f)
+				if (ReactionSpeed > 2f)
 					ReactionSpeed = 2f;
-			}else{
+			}
+			else {
 				ReactionSpeed *= 1f - 0.1743f / 60f;
 
-				if(ReactionSpeed < 1f)
+				if (ReactionSpeed < 1f)
 					ReactionSpeed = 1f;
 			}
 
 			//If there isn't any water left, pause the reaction
-			if(StoredWater <= 0f && ReactionInProgress){
+			if (StoredWater <= 0f && ReactionInProgress) {
 				ReactionInProgress = false;
 				StoredWater = 0f;
 				ReactionProgress = 0f;
