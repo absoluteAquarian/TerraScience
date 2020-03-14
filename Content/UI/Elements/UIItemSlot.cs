@@ -15,10 +15,12 @@ namespace TerraScience.Content.UI.Elements {
 
 		public float Scale { get; private set; }
 
-		public Item storedItem;
+		public Item StoredItem { get => storedItem ?? null; }
+
+		private Item storedItem;
 
 		public Func<Item, bool> ValidItemFunc;
-		
+
 		public UIItemSlot(int context = ItemSlot.Context.BankItem, float scale = 1f) {
 			Context = context;
 			Scale = scale;
@@ -49,5 +51,12 @@ namespace TerraScience.Content.UI.Elements {
 
 			Main.inventoryScale = oldScale;
 		}
+
+		public void SetItem(Item item, int stack = 1) {
+			storedItem.SetDefaults(item.type);
+			storedItem.stack = stack;
+		}
+
+		public void SetItem(int itemType) => storedItem.SetDefaults(itemType);
 	}
 }

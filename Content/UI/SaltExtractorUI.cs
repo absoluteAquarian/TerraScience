@@ -107,7 +107,7 @@ namespace TerraScience.Content.UI {
 				HAlign = 0.5f
 			};
 
-			header.Top.Set(15, 0);
+			header.Top.Set(10, 0);
 			panel.Append(header);
 
 			waterValues = new UIText("Water: 0L / 0L", 1.3f) {
@@ -160,9 +160,9 @@ namespace TerraScience.Content.UI {
 				ModContent.GetInstance<TerraScience>().saltExtracterLoader.HideUI();
 
 			if (SaltExtractor != null) {
-				waterValues.SetText($"Water: {SaltExtractor.StoredWater:N3}L / {SaltExtractorEntity.MaxWater:N3}L");
-				progress.SetText($"Progress: {SaltExtractor.ReactionProgress:N3}%");
-				reactionSpeed.SetText($"Reaction Speed: {SaltExtractor.ReactionSpeed:N3}x");
+				waterValues.SetText($"Water: {string.Format("{0:G29}", decimal.Parse($"{SaltExtractor.StoredWater:N2}"))}L / {Math.Round(SaltExtractorEntity.MaxWater)}L");
+				progress.SetText($"Progress: {Math.Round(SaltExtractor.ReactionProgress)}%");
+				reactionSpeed.SetText($"Speed Multiplier: {string.Format("{0:G29}", decimal.Parse($"{SaltExtractor.ReactionSpeed:N2}"))}x");
 			}
 
 			base.Update(gameTime);

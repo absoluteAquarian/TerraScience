@@ -4,6 +4,7 @@ using Terraria;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using TerraScience.Content.Tiles.Multitiles;
+using TerraScience.Content.UI.Elements;
 
 namespace TerraScience.Content.TileEntities{
 	public class SaltExtractorEntity : ModTileEntity{
@@ -75,12 +76,12 @@ namespace TerraScience.Content.TileEntities{
 				if(StoredSalt >= 1f){
 					StoredSalt--;
 
-					Item storedItem = ModContent.GetInstance<TerraScience>().saltExtracterLoader.saltExtractorUI.itemSlot.storedItem;
+					UIItemSlot itemSlot = ModContent.GetInstance<TerraScience>().saltExtracterLoader.saltExtractorUI.itemSlot;
 
-					if (storedItem.type != mod.ItemType("SodiumChloride"))
-						storedItem.SetDefaults(mod.ItemType("SodiumChloride"));
-					else if(storedItem.stack < 100)
-						storedItem.stack++;
+					if (itemSlot.StoredItem.type != mod.ItemType("SodiumChloride"))
+						itemSlot.SetItem(mod.ItemType("SodiumChloride"));
+					else if(itemSlot.StoredItem.stack < 100)
+						itemSlot.StoredItem.stack++;
 
 					//TerraScience.SpawnScienceItem(Position.X * 16 + 32, Position.Y * 16 + 24, 16, 16, Compound.SodiumChloride);
 					//TerraScience.SpawnScienceItem(Position.X * 16 + 48, Position.Y * 16 + 8, 16, 16, Compound.Water, 1, new Vector2(Main.rand.NextFloat(-1.5f, 1.5f), Main.rand.NextFloat(-2.25f, -4f)));

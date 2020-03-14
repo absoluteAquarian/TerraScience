@@ -96,7 +96,7 @@ namespace TerraScience.Content.Tiles.Multitiles{
 				float invRatio = 1f - curWaterRatio;
 				Vector2 offset = new Vector2(2, 12 + maxWaterDrawDiff * invRatio);
 				//This added offset is needed to draw the bars at the right positions.  Not sure why
-				offset += new Vector2(12) * 16;
+				//offset += new Vector2(12) * 16;
 				Point drawPos = (se.Position.ToVector2() * 16 - Main.screenPosition + offset).ToPoint();
 
 				//Draw the first water bar
