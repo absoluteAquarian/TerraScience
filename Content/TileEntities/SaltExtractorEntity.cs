@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 using Terraria;
+using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using TerraScience.Content.Tiles.Multitiles;
@@ -83,7 +84,8 @@ namespace TerraScience.Content.TileEntities{
 					else if(itemSlot.StoredItem.stack < 100)
 						itemSlot.StoredItem.stack++;
 
-					//TerraScience.SpawnScienceItem(Position.X * 16 + 32, Position.Y * 16 + 24, 16, 16, Compound.SodiumChloride);
+					Main.PlaySound(SoundID.Grab);
+
 					//TerraScience.SpawnScienceItem(Position.X * 16 + 48, Position.Y * 16 + 8, 16, 16, Compound.Water, 1, new Vector2(Main.rand.NextFloat(-1.5f, 1.5f), Main.rand.NextFloat(-2.25f, -4f)));
 				}
 

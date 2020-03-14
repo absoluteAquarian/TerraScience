@@ -1,12 +1,11 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Terraria;
+using Terraria.Audio;
 using Terraria.DataStructures;
 using Terraria.GameContent.UI.Elements;
+using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.UI;
 using TerraScience.Content.TileEntities;
@@ -73,11 +72,13 @@ namespace TerraScience.Content.UI {
 		}
 
 		public void ShowUI(UIState state, SaltExtractorEntity entity) {
+			Main.PlaySound(SoundID.MenuOpen);
 			userInterface.SetState(state);
 			saltExtractorUI.SaltExtractor = entity;
 		}
 
 		public void HideUI() {
+			Main.PlaySound(SoundID.MenuClose);
 			userInterface.SetState(null);
 		}
 	}
@@ -155,9 +156,10 @@ namespace TerraScience.Content.UI {
 
 			//check if the inventory key was pressed or if the player is too far away from the tile according to its blockRange. 
 			//if so close UI
-
-			if (Main.LocalPlayer.GetModPlayer<TerraSciencePlayer>().InventoryKeyPressed || Vector2.Distance(Main.LocalPlayer.Center, middle) > 5 * 16) //5 is the amount of tiles
+			// 5 is the amount of tiles 
+			if (Main.LocalPlayer.GetModPlayer<TerraSciencePlayer>().InventoryKeyPressed || Vector2.Distance(Main.LocalPlayer.Center, middle) > 5 * 16) {
 				ModContent.GetInstance<TerraScience>().saltExtracterLoader.HideUI();
+			}
 
 			if (SaltExtractor != null) {
 				waterValues.SetText($"Water: {string.Format("{0:G29}", decimal.Parse($"{SaltExtractor.StoredWater:N2}"))}L / {Math.Round(SaltExtractorEntity.MaxWater)}L");

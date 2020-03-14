@@ -52,9 +52,10 @@ namespace TerraScience.Content.Tiles.Multitiles{
 			if(Main.LocalPlayer.HeldItemCanPlaceWater() && MiscUtils.TryGetTileEntity(pos, out SaltExtractorEntity se) && se.WaterPlaceDelay == 0 && se.StoredWater < SaltExtractorEntity.MaxWater - 1){
 				se.WaterPlaceDelay = SaltExtractorEntity.MaxPlaceDelay;
 				se.StoredWater++;
+				Main.PlaySound(SoundID.Splash);
 
 				//Only mess with the player items if the Salt Extractor isn't full
-				if(se.StoredWater > SaltExtractorEntity.MaxWater)
+				if (se.StoredWater > SaltExtractorEntity.MaxWater)
 					se.StoredWater = SaltExtractorEntity.MaxWater;
 				else{
 					if(Main.LocalPlayer.HeldItem.type == ItemID.WaterBucket){
