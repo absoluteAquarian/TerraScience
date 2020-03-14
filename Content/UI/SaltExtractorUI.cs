@@ -161,7 +161,7 @@ namespace TerraScience.Content.UI {
 
 			if (SaltExtractor != null) {
 				waterValues.SetText($"Water: {SaltExtractor.StoredWater:N3}L / {SaltExtractorEntity.MaxWater:N3}L");
-				progress.SetText($"Progress: {(int)(SaltExtractor.ReactionProgress * 100)}%");
+				progress.SetText($"Progress: {SaltExtractor.ReactionProgress:N3}%");
 				reactionSpeed.SetText($"Reaction Speed: {SaltExtractor.ReactionSpeed:N3}x");
 			}
 

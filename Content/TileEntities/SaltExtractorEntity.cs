@@ -28,7 +28,7 @@ namespace TerraScience.Content.TileEntities{
 
 		/// <summary>
 		/// The progress for the current reaction.
-		/// Range: [0, 1]
+		/// Range: [0, 100]
 		/// </summary>
 		public float ReactionProgress = 0f;
 
@@ -75,8 +75,15 @@ namespace TerraScience.Content.TileEntities{
 				if(StoredSalt >= 1f){
 					StoredSalt--;
 
-				//	TerraScience.SpawnScienceItem(Position.X * 16 + 32, Position.Y * 16 + 24, 16, 16, Compound.SodiumChloride);
-				//	TerraScience.SpawnScienceItem(Position.X * 16 + 48, Position.Y * 16 + 8, 16, 16, Compound.Water, 1, new Vector2(Main.rand.NextFloat(-1.5f, 1.5f), Main.rand.NextFloat(-2.25f, -4f)));
+					Item storedItem = ModContent.GetInstance<TerraScience>().saltExtracterLoader.saltExtractorUI.itemSlot.storedItem;
+
+					if (storedItem.type != mod.ItemType("SodiumChloride"))
+						storedItem.SetDefaults(mod.ItemType("SodiumChloride"));
+					else if(storedItem.stack < 100)
+						storedItem.stack++;
+
+					//TerraScience.SpawnScienceItem(Position.X * 16 + 32, Position.Y * 16 + 24, 16, 16, Compound.SodiumChloride);
+					//TerraScience.SpawnScienceItem(Position.X * 16 + 48, Position.Y * 16 + 8, 16, 16, Compound.Water, 1, new Vector2(Main.rand.NextFloat(-1.5f, 1.5f), Main.rand.NextFloat(-2.25f, -4f)));
 				}
 
 				//Reaction happens faster and faster as it "heats up", but cools down very quickly
