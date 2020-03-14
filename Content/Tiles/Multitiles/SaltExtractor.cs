@@ -1,5 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
+using System.Linq;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.Enums;
@@ -33,12 +35,22 @@ namespace TerraScience.Content.Tiles.Multitiles{
 			AddMapEntry(new Color(0xd1, 0x89, 0x32), name);
 		}
 
+		public override void DrawEffects(int i, int j, SpriteBatch spriteBatch, ref Color drawColor, ref int nextSpecialDrawIndex){
+			Tile tile = Main.tile[i, j];
+			Point16 pos = new Point16(i, j);
+			Point16 topLeft = pos - tile.TileCoord();
+			if(tile.frameX == 2 && tile.frameY == 0 && MiscUtils.TryGetTileEntity(topLeft, out SaltExtractorEntity se) && se.ReactionInProgress && Main.rand.NextFloat() < 7f / 60f){
+				ElementUtils.NewElementGasDust(pos.ToVector2() * 16 + new Vector2(12) * 16 + new Vector2(4), 8, 8, Color.White, new Vector2(3, -3));
+			}
+		}
+
 		public override bool NewRightClick(int i, int j){
 			Tile tile = Main.tile[i, j];
-			Point16 pos = new Point16(i - tile.frameX / 18, j - tile.frameY / 18);
+			Point16 pos = new Point16(i, j) - tile.TileCoord();
 			bool interactionHappened = false;
 
-			if(Main.LocalPlayer.HeldItemCanPlaceWater() && MiscUtils.TryGetTileEntity(pos, out SaltExtractorEntity se)){
+			if(Main.LocalPlayer.HeldItemCanPlaceWater() && MiscUtils.TryGetTileEntity(pos, out SaltExtractorEntity se) && se.WaterPlaceDelay == 0 && se.StoredWater < SaltExtractorEntity.MaxWater - 1){
+				se.WaterPlaceDelay = SaltExtractorEntity.MaxPlaceDelay;
 				se.StoredWater++;
 
 				//Only mess with the player items if the Salt Extractor isn't full
@@ -77,34 +89,43 @@ namespace TerraScience.Content.Tiles.Multitiles{
 
 			int maxWaterDrawDiff = 34;
 			if(MiscUtils.TryGetTileEntity(pos, out SaltExtractorEntity se)){
-				//Draw some text if the mouse is hovering over the multitile
-				Rectangle multitile = new Rectangle(i * 16, j * 16, TileUtils.Structures.SaltExtractor.GetLength(1) * 16, TileUtils.Structures.SaltExtractor.GetLength(0) * 16);
-				if(multitile.Contains(Main.MouseWorld.ToPoint())){
-					Vector2 size = ChatManager.GetStringSize(Main.fontMouseText, "l", new Vector2(1f));
-					float scale = 0.75f;
-
-					ChatManager.DrawColorCodedString(Main.spriteBatch, Main.fontMouseText, $"Water: {se.StoredWater :N3}L/{SaltExtractorEntity.MaxWater :N3}L", Main.MouseScreen, Color.White, 0f, Vector2.Zero, new Vector2(scale));
-					ChatManager.DrawColorCodedString(Main.spriteBatch, Main.fontMouseText, $"Salt: {se.StoredSalt :N3}g", Main.MouseScreen + scale * new Vector2(0, size.Y), Color.White, 0f, Vector2.Zero, new Vector2(scale));
-					ChatManager.DrawColorCodedString(Main.spriteBatch, Main.fontMouseText, $"Progress: {(int)(se.ReactionProgress * 100) :N3}%", Main.MouseScreen + scale * 2 * new Vector2(0, size.Y), Color.White, 0f, Vector2.Zero, new Vector2(scale));
-					ChatManager.DrawColorCodedString(Main.spriteBatch, Main.fontMouseText, $"Reaction Speed: {se.ReactionSpeed :N3}x", Main.MouseScreen + scale * 3 * new Vector2(0, size.Y), Color.White, 0f, Vector2.Zero, new Vector2(scale));
-				}
-
 				//Do the rest of the things
 				float curWaterRatio = se.StoredWater / SaltExtractorEntity.MaxWater;
 				float invRatio = 1f - curWaterRatio;
-				Vector2 offset = new Vector2(2, 46 - maxWaterDrawDiff * invRatio);
-				Point drawPos = (pos.ToVector2() * 16 - Main.screenPosition + MiscUtils.ScreenCenter() + offset).ToPoint();
+				Vector2 offset = new Vector2(2, 12 + maxWaterDrawDiff * invRatio);
+				//This added offset is needed to draw the bars at the right positions.  Not sure why
+				offset += new Vector2(12) * 16;
+				Point drawPos = (se.Position.ToVector2() * 16 - Main.screenPosition + offset).ToPoint();
 
 				//Draw the first water bar
-				spriteBatch.Draw(Main.magicPixel, new Rectangle(drawPos.X, drawPos.Y, 8, (int)(curWaterRatio * maxWaterDrawDiff)), null, Color.CornflowerBlue, 0f, Vector2.Zero, SpriteEffects.None, 0);
+				spriteBatch.Draw(Main.magicPixel, new Rectangle(drawPos.X, drawPos.Y, 8, (int)(curWaterRatio * maxWaterDrawDiff)), null, Color.DeepSkyBlue, 0f, Vector2.Zero, SpriteEffects.None, 0);
 
 				drawPos.X += 52;
 
 				//Draw the second water bar
-				spriteBatch.Draw(Main.magicPixel, new Rectangle(drawPos.X, drawPos.Y, 8, (int)(curWaterRatio * maxWaterDrawDiff)), null, Color.CornflowerBlue, 0f, Vector2.Zero, SpriteEffects.None, 0);
+				spriteBatch.Draw(Main.magicPixel, new Rectangle(drawPos.X, drawPos.Y, 8, (int)(curWaterRatio * maxWaterDrawDiff)), null, Color.DeepSkyBlue, 0f, Vector2.Zero, SpriteEffects.None, 0);
 			}
 
 			return true;
+		}
+
+		public override void MouseOver(int i, int j){
+			//This is just for debug purposes, so I don't need it anymore
+			return;
+
+#pragma warning disable CS0162 // Unreachable code detected
+			Point16 pos = new Point16(i, j) - Main.tile[i, j].TileCoord();
+			if(MiscUtils.TryGetTileEntity(pos, out SaltExtractorEntity se)){
+				Player player = Main.LocalPlayer;
+				player.showItemIconText = $"Water: {se.StoredWater :N3}L/{SaltExtractorEntity.MaxWater :N3}L" +
+					$"\nProgress: {(int)se.ReactionProgress}%" +
+					$"\nReaction Speed: {se.ReactionSpeed :N3}x";
+				player.mouseInterface = true;
+				player.noThrow = 2;
+				player.showItemIcon = true;
+				player.showItemIcon2 = ModContent.ItemType<BlankItemForMachineText>();
+#pragma warning restore CS0162 // Unreachable code detected
+			}
 		}
 
 		public override void KillTile(int i, int j, ref bool fail, ref bool effectOnly, ref bool noItem){
@@ -153,30 +174,27 @@ namespace TerraScience.Content.Tiles.Multitiles{
 							newTile.CopyFrom(TileUtils.Structures.SaltExtractor[r, c]);
 							newTile.active(true);
 						}
+
+						//If there's a SaltExtractorEntity present, kill it
+						SaltExtractorEntity se = ModContent.GetInstance<SaltExtractorEntity>();
+						if(se.Find(i - tileX + c, j - tileY + r) >= 0)
+							se.Kill(i - tileX + c, j - tileY + r);
+
+						//Only run this code on the last tile in the structure
+						if(c == columns - 1 && r == rows - 1){
+							//Update the frames for the tiles
+							int minX = i - tileX - columns;
+							int minY = j - tileY - rows;
+							int sizeX = 2 * tileX;
+							int sizeY = 2 * tileY;
+							WorldGen.RangeFrame(minX, minY, sizeX, sizeY);
+							//...and send a net message
+							if(Main.netMode == NetmodeID.MultiplayerClient)
+								NetMessage.SendTileRange(-1, minX, minY, sizeX, sizeY);
+						}
 					}
 				}
 			}
-
-			//Only run this code on the last tile in the structure
-	//		if(tileX == columns - 1 && tileY == rows - 1){
-				//Update the frames for the tiles
-				int minX = i - tileX - 2;
-				int minY = j - tileY - 2;
-				int sizeX = tileX + 4;
-				int sizeY = tileY + 4;
-				WorldGen.RangeFrame(minX, minY, sizeX, sizeY);
-				//...and send a net message
-				if(Main.netMode == NetmodeID.MultiplayerClient)
-					NetMessage.SendTileRange(-1, minX, minY, sizeX, sizeY);
-	//		}
-
-			//Only run this code on the top-left tile
-	//		if(tileX == 0 && tileY == 0){
-				//If there's a SaltExtractorEntity present, kill it
-				SaltExtractorEntity se = ModContent.GetInstance<SaltExtractorEntity>();
-				if(se.Find(i, j) >= 0)
-					se.Kill(i, j);
-	//		}
 		}
 	}
 }

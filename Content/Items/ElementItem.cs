@@ -50,18 +50,6 @@ namespace TerraScience.Content.Items{
 		}
 
 		public override void PostUpdate(){
-			//If this element is a gas, occasionally spawn some of the custom dust
-			if(CurrentState == ElementState.Gas && Main.rand.NextFloat() < 11f / 60f)
-				ElementUtils.NewElementGasDust(item.position, item.width, item.height, GasColor);
-
-			//If the element is a gas, make it rise above water if it's submerged
-			if(CurrentState == ElementState.Gas){
-				if(item.wet)
-					item.velocity.Y = -3f * 16 / 60;	//3 tiles per second upwards
-				else
-					item.velocity.Y = 0;
-			}
-
 			//If the element is an AlkakiMetal or AlkalineEarthMetal and is in water, make it explode after some random amount of time
 			if(Family == ElementFamily.AlkaliMetals || Family == ElementFamily.AlkalineEarthMetals){
 				//Gotta be wet
@@ -184,7 +172,7 @@ namespace TerraScience.Content.Items{
 				}
 			}
 
-			UpdateStates();
+			base.PostUpdate();
 		}
 
 		public override string ToString() => $"Element{Enum.GetName(typeof(Element), ElementName)}";

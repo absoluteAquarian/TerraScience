@@ -1,9 +1,11 @@
 ﻿using Microsoft.Xna.Framework;
+using System;
 using Terraria;
 using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ObjectData;
+using TerraScience.Utilities;
 
 namespace TerraScience.Content.Tiles{
 	public class ScienceBar : ModTile{
@@ -28,7 +30,8 @@ namespace TerraScience.Content.Tiles{
 		}
 
 		public override bool Drop(int i, int j){
-			TerraScience.SpawnScienceItem(i * 16, j * 16, 16, 16, Name);
+			if(MiscUtils.TryParseUnknownName(Name, out Enum value))
+				TerraScience.SpawnScienceItem(i * 16, j * 16, 16, 16, value);
 			return true;
 		}
 	}

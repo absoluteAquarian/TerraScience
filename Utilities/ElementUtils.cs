@@ -36,8 +36,8 @@ namespace TerraScience.Utilities {
 
 		public static void SpawnItemsFromReaction(ElementItem elementItem, Compound compound, int hydrogensSpawned, int compoundsSpawned) {
 			//Give a chance to spawn Hydrogen item(s) as well as the corresponding CompoundItem
-			TerraScience.SpawnScienceItem((int)elementItem.item.position.X, (int)elementItem.item.position.Y, 16, 16, ElementName(Element.Hydrogen), hydrogensSpawned, new Vector2(Main.rand.NextFloat(-1, 1), -4.2f));
-			TerraScience.SpawnScienceItem((int)elementItem.item.position.X, (int)elementItem.item.position.Y, 16, 16, CompoundUtils.CompoundName(compound, false), compoundsSpawned, new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -2.1f));
+			TerraScience.SpawnScienceItem((int)elementItem.item.position.X, (int)elementItem.item.position.Y, 16, 16, Element.Hydrogen, hydrogensSpawned, new Vector2(Main.rand.NextFloat(-1, 1), -4.2f));
+			TerraScience.SpawnScienceItem((int)elementItem.item.position.X, (int)elementItem.item.position.Y, 16, 16, compound, compoundsSpawned, new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -2.1f));
 
 			if (elementItem.item.stack > compoundsSpawned) {
 				//If there's more than one item in this stack, reduce the stack and the timer

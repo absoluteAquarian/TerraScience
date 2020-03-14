@@ -353,7 +353,11 @@ namespace TerraScience {
 		/// <param name="itemName">The name of the ElementItem to drop.</param>
 		/// <param name="stack">How many of the item to drop.</param>
 		/// <returns></returns>
-		public static int SpawnScienceItem(int x, int y, int width, int height, string itemName, int stack = 1, Vector2? initialVelocity = null) {
+		public static int SpawnScienceItem<T>(int x, int y, int width, int height, T enumName, int stack = 1, Vector2? initialVelocity = null) where T : Enum{
+			if(typeof(T) != typeof(Element) && typeof(T) != typeof(Compound))
+				throw new ArgumentException("Generic argument must either be a \"TerraScience.Element\" or \"TerraScience.Compound\".", "enumName");
+
+			string itemName = Enum.GetName(typeof(T), enumName);
 			int type = ModContent.GetInstance<TerraScience>().ItemType(itemName);
 			if(type > 0){
 				int index = Item.NewItem(x, y, width, height, type, stack);

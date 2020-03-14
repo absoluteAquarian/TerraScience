@@ -64,22 +64,6 @@ namespace TerraScience.Content.Items{
 			ItemRecipe(r, this);
 		}
 
-		public override void PostUpdate(){
-			//If this compound is a gas, occasionally spawn some of the custom dust
-			if(CurrentState == ElementState.Gas && Main.rand.NextFloat() < 11f / 60f)
-				ElementUtils.NewElementGasDust(item.position, item.width, item.height, GasColor);
-
-			//If the element is a gas, make it rise above water if it's submerged
-			if(CurrentState == ElementState.Gas){
-				if(item.wet)
-					item.velocity.Y = -3f * 16 / 60;	//3 tiles per second upwards
-				else
-					item.velocity.Y = 0;
-			}
-
-			base.PostUpdate();
-		}
-
 		public override string ToString() {
 			return string.Concat(Enum.GetName(typeof(Compound), CompoundName)
 					.Select(x => char.IsUpper(x) ? " " + x : x.ToString()))

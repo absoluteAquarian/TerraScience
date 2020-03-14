@@ -98,14 +98,29 @@ namespace TerraScience.Content.Items{
 			return true;
 		}
 
+		public override void Update(ref float gravity, ref float maxFallSpeed){
+			//If the item is a gas, make it rise above water if it's submerged
+			if(CurrentState == ElementState.Gas){
+				if(item.wet)
+					item.velocity.Y = -3f * 16 / 60;	//3 tiles per second upwards
+			}
+		}
+
 		public override void PostUpdate(){
 			UpdateStates();
 
+			//If this item is a gas, occasionally spawn some of the custom dust
+			if(CurrentState == ElementState.Gas && Main.rand.NextFloat() < 11f / 60f)
+				ElementUtils.NewElementGasDust(item.position, item.width, item.height, GasColor);
+
 			//Merge any nearby Gas items as to not create lag
 			for(int i = 0; i < Main.maxItems; i++){
+				if(i == item.whoAmI)
+					continue;
+
 				Item otherItem = Main.item[i];
 				ScienceItem otherScience = otherItem.modItem as ScienceItem;
-				if(i != item.whoAmI && CurrentState == ElementState.Gas && this.Equals(otherScience) && item.Hitbox.Intersects(otherItem.Hitbox) && otherItem.stack != otherItem.maxStack){
+				if(otherItem.active && CurrentState == ElementState.Gas && this.Equals(otherScience) && item.Hitbox.Intersects(otherItem.Hitbox) && otherItem.stack != otherItem.maxStack){
 					if(item.stack + otherItem.stack < item.maxStack){
 						item.stack += otherItem.stack;
 						otherItem.stack = 0;

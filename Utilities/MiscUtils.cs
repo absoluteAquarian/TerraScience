@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Terraria;
 using Terraria.DataStructures;
@@ -40,5 +41,20 @@ namespace TerraScience.Utilities {
 
 		public static Vector2 ScreenCenter()
 			=> new Vector2(Main.screenWidth, Main.screenHeight) / 2f;
+
+		/// <summary>
+		/// Parses an Element or Compound name to its Enum value.
+		/// </summary>
+		/// <param name="name">The name.</param>
+		/// <param name="value">The value returned.  Defaults to 'null' if the name couldn't be found.</param>
+		/// <returns></returns>
+		public static bool TryParseUnknownName(string name, out Enum value){
+			value = null;
+			if(Enum.GetNames(typeof(Element)).Contains(name))
+				value = ParseToEnum<Element>(name);
+			else if(Enum.GetNames(typeof(Compound)).Contains(name))
+				value = ParseToEnum<Compound>(name);
+			return value != null;
+		}
 	}
 }

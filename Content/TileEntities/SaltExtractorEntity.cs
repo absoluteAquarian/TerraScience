@@ -6,9 +6,7 @@ using Terraria.ModLoader.IO;
 using TerraScience.Content.Tiles.Multitiles;
 
 namespace TerraScience.Content.TileEntities{
-	public class SaltExtractorEntity : ModTileEntity, TagSerializable{
-		public static readonly Func<TagCompound, SaltExtractorEntity> DESERIALIZER = Load;
-
+	public class SaltExtractorEntity : ModTileEntity{
 		/// <summary>
 		/// How much water is stored in the Salt Extractor in Liters.
 		/// </summary>
@@ -36,23 +34,27 @@ namespace TerraScience.Content.TileEntities{
 
 		public bool ReactionInProgress = false;
 
-		//'new' is required to get rid of the "member hides inherited member" warning
-		public static new SaltExtractorEntity Load(TagCompound tag)
-			=> new SaltExtractorEntity(){
-				StoredWater = tag.GetFloat("water"),
-				StoredSalt = tag.GetFloat("salt"),
-				ReactionSpeed = tag.GetFloat("speed"),
-				ReactionProgress = tag.GetFloat("progress"),
-				ReactionInProgress = tag.GetBool("doReaction")
-			};
+		/// <summary>
+		/// The max delay between water placements into the machine.
+		/// </summary>
+		public const int MaxPlaceDelay = 12;
+		public int WaterPlaceDelay = 0;
 
-		public TagCompound SerializeData()
+		public override void Load(TagCompound tag){
+			StoredWater = tag.GetFloat(nameof(StoredWater));
+			StoredSalt = tag.GetFloat(nameof(StoredSalt));
+			ReactionSpeed = tag.GetFloat(nameof(ReactionSpeed));
+			ReactionProgress = tag.GetFloat(nameof(ReactionProgress));
+			ReactionInProgress = tag.GetBool(nameof(ReactionInProgress));
+		}
+
+		public override TagCompound Save()
 			=> new TagCompound(){
-				["water"] = StoredWater,
-				["salt"] = StoredSalt,
-				["speed"] = ReactionSpeed,
-				["progress"] = ReactionProgress,
-				["doReaction"] = ReactionInProgress
+				[nameof(StoredWater)] = StoredWater,
+				[nameof(StoredSalt)] = StoredSalt,
+				[nameof(ReactionSpeed)] = ReactionSpeed,
+				[nameof(ReactionProgress)] = ReactionProgress,
+				[nameof(ReactionInProgress)] = ReactionInProgress
 			};
 
 		//The spawn and despawn code is handled elsewhere, so just return true
@@ -68,23 +70,23 @@ namespace TerraScience.Content.TileEntities{
 				StoredWater -= reaction;
 				StoredSalt += reaction / 2f;
 
-				ReactionProgress = 1f - (StoredWater - (int)(StoredWater / 2f) * 2) / 2f;
+				ReactionProgress = StoredSalt * 100;
 
 				if(StoredSalt >= 1f){
 					StoredSalt--;
 
-					TerraScience.SpawnScienceItem(Position.X * 16 + 32, Position.Y * 16 + 24, 16, 16, "SodiumChloride");
-					TerraScience.SpawnScienceItem(Position.X * 16 + 48, Position.Y * 16 + 8, 16, 16, "Water", 1, new Vector2(Main.rand.NextFloat(-1.5f, 1.5f), Main.rand.NextFloat(-2.25f, -4f)));
+				//	TerraScience.SpawnScienceItem(Position.X * 16 + 32, Position.Y * 16 + 24, 16, 16, Compound.SodiumChloride);
+				//	TerraScience.SpawnScienceItem(Position.X * 16 + 48, Position.Y * 16 + 8, 16, 16, Compound.Water, 1, new Vector2(Main.rand.NextFloat(-1.5f, 1.5f), Main.rand.NextFloat(-2.25f, -4f)));
 				}
 
 				//Reaction happens faster and faster as it "heats up", but cools down very quickly
-				ReactionSpeed *= 1f + 0.0892f / 60f;
+				ReactionSpeed *= 1f + 0.0392f / 60f;
 
 				//Reaction speed caps at 2x speed
 				if(ReactionSpeed > 2f)
 					ReactionSpeed = 2f;
 			}else{
-				ReactionSpeed *= 1f - 0.1743f / 60f;
+				ReactionSpeed *= 1f - 0.0943f / 60f;
 
 				if(ReactionSpeed < 1f)
 					ReactionSpeed = 1f;
@@ -96,6 +98,10 @@ namespace TerraScience.Content.TileEntities{
 				StoredWater = 0f;
 				ReactionProgress = 0f;
 			}
+
+			//Update the delay timer
+			if(WaterPlaceDelay > 0)
+				WaterPlaceDelay--;
 		}
 	}
 }
