@@ -13,10 +13,10 @@ using TerraScience.Content.UI.Elements;
 using TerraScience.Utilities;
 
 namespace TerraScience.Content.UI {
-	public class SaltExtractorLoader {
-		internal UserInterface userInterface;
+	public class SaltExtractorUILoader {
+		public UserInterface saltExtractorInterface;
 
-		internal SaltExtractorUI saltExtractorUI;
+		public SaltExtractorUI saltExtractorUI;
 
 		private GameTime lastUpdateUIGameTime;
 
@@ -25,7 +25,7 @@ namespace TerraScience.Content.UI {
 		/// </summary>
 		internal void Load() {
 			if (!Main.dedServ) {
-				userInterface = new UserInterface();
+				saltExtractorInterface = new UserInterface();
 				saltExtractorUI = new SaltExtractorUI();
 
 				// Activate calls Initialize() on the UIState if not initialized, then calls OnActivate and then calls Activate on every child element
@@ -39,9 +39,8 @@ namespace TerraScience.Content.UI {
 		internal void UpdateUI(GameTime gameTime) {
 			lastUpdateUIGameTime = gameTime;
 
-			if (userInterface?.CurrentState != null) {
-				userInterface.Update(gameTime);
-			}
+			if (saltExtractorInterface?.CurrentState != null)
+				saltExtractorInterface.Update(gameTime);
 		}
 
 		/// <summary>
@@ -54,9 +53,8 @@ namespace TerraScience.Content.UI {
 				layers.Insert(mouseTextIndex, new LegacyGameInterfaceLayer(
 					"TerraScience: SaltExtractorInterface",
 					delegate {
-						if (lastUpdateUIGameTime != null && userInterface?.CurrentState != null) {
-							userInterface.Draw(Main.spriteBatch, lastUpdateUIGameTime);
-						}
+						if (lastUpdateUIGameTime != null && saltExtractorInterface?.CurrentState != null)
+							saltExtractorInterface.Draw(Main.spriteBatch, lastUpdateUIGameTime);
 
 						return true;
 					}, InterfaceScaleType.UI));
@@ -66,20 +64,17 @@ namespace TerraScience.Content.UI {
 		/// <summary>
 		/// Called on Mod.Unload
 		/// </summary>
-		internal void Unload() {
-			saltExtractorUI?.Unload();
-			saltExtractorUI = null;
-		}
+		internal void Unload() => saltExtractorUI = null;
 
 		public void ShowUI(UIState state, SaltExtractorEntity entity) {
 			Main.PlaySound(SoundID.MenuOpen);
-			userInterface.SetState(state);
+			saltExtractorInterface.SetState(state); saltExtractorInterface.CurrentState. = true;
 			saltExtractorUI.SaltExtractor = entity;
 		}
 
 		public void HideUI() {
 			Main.PlaySound(SoundID.MenuClose);
-			userInterface.SetState(null);
+			saltExtractorInterface.SetState(null);
 		}
 	}
 
@@ -111,7 +106,7 @@ namespace TerraScience.Content.UI {
 			header.Top.Set(10, 0);
 			panel.Append(header);
 
-			waterValues = new UIText("Water: 0L / 0L", 1.3f) {
+			waterValues = new UIText("Water: 0L / 10L", 1.3f) {
 				HAlign = 0.5f
 			};
 
@@ -125,7 +120,7 @@ namespace TerraScience.Content.UI {
 			progress.Top.Set(87, 0);
 			panel.Append(progress);
 
-			reactionSpeed = new UIText("Reaction Speed: 0x", 1.3f) {
+			reactionSpeed = new UIText("Reaction Speed: 1x", 1.3f) {
 				HAlign = 0.5f
 			};
 
@@ -141,10 +136,6 @@ namespace TerraScience.Content.UI {
 			panel.Append(itemSlot);
 		}
 
-		internal void Unload() {
-			// Anything that needs to be unloaded before getting set to null, for example, static fields.
-		}
-
 		public override void Update(GameTime gameTime) {
 			Main.playerInventory = true;
 
@@ -154,12 +145,10 @@ namespace TerraScience.Content.UI {
 			Vector2 worldTopLeft = topLeft.ToVector2() * 16;
 			Vector2 middle = worldTopLeft + size.ToVector2() * 8;  // * 16 / 2
 
-			//check if the inventory key was pressed or if the player is too far away from the tile according to its blockRange. 
-			//if so close UI
-			// 5 is the amount of tiles 
-			if (Main.LocalPlayer.GetModPlayer<TerraSciencePlayer>().InventoryKeyPressed || Vector2.Distance(Main.LocalPlayer.Center, middle) > 5 * 16) {
+			//check if the inventory key was pressed or if the player is 5 blocks away from the tile. if so close UI
+			// 5 is the amount of tiles
+			if (Main.LocalPlayer.GetModPlayer<TerraSciencePlayer>().InventoryKeyPressed || Vector2.Distance(Main.LocalPlayer.Center, middle) > 5 * 16)
 				ModContent.GetInstance<TerraScience>().saltExtracterLoader.HideUI();
-			}
 
 			if (SaltExtractor != null) {
 				waterValues.SetText($"Water: {string.Format("{0:G29}", decimal.Parse($"{SaltExtractor.StoredWater:N2}"))}L / {Math.Round(SaltExtractorEntity.MaxWater)}L");

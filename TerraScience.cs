@@ -2,11 +2,12 @@
 using System;
 using System.Collections.Generic;
 using Terraria;
-using Terraria.GameInput;
+using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.UI;
 using TerraScience.Content.Items;
+using TerraScience.Content.TileEntities;
 using TerraScience.Content.UI;
 using TerraScience.Systems;
 using TerraScience.Utilities;
@@ -16,7 +17,7 @@ namespace TerraScience {
 		public static readonly Action<ModRecipe> NoRecipe = r => { };
 		public static readonly Action<ModRecipe> OnlyWorkBench = r => { r.AddTile(TileID.WorkBenches); };
 
-		internal SaltExtractorLoader saltExtracterLoader;
+		internal SaltExtractorUILoader saltExtracterLoader;
 
 		public static ModHotKey DebugHotkey;
 
@@ -43,7 +44,7 @@ namespace TerraScience {
 		public static Dictionary<string, Action<ModRecipe, CompoundItem>> CachedCompoundRecipes { get; private set; }
 
 		public override void Load() {
-			saltExtracterLoader = new SaltExtractorLoader();
+			saltExtracterLoader = new SaltExtractorUILoader();
 
 			CachedElementDefaults = new Dictionary<string, Action<Item>>();
 			CachedElementRecipes = new Dictionary<string, Action<ModRecipe, ElementItem>>();
@@ -67,7 +68,7 @@ namespace TerraScience {
 			saltExtracterLoader.Unload();
 		}
 
-		public override void PostSetupContent(){
+		public override void PostSetupContent() {
 			TileUtils.Structures.SetupStructures();
 		}
 
@@ -79,6 +80,30 @@ namespace TerraScience {
 			saltExtracterLoader.ModifyInterfaceLayers(layers);
 		}
 
+		// -- Types --
+		// Call("Salt Extractor UI Visible") - returns true if the ui is visible, false if its not.
+		// Call("Salt Extractor UI") - returns the SaltExtractorUI object
+		// Call("Salt Extractor Interface") - returns the UserInterface of the salt extractor
+		// Call("Salt Extractor UI Loader") - returns the SaltExtractorUILoader object
+		// Call("Salt Extractor Entity", new Point16(x, y)) - returns the SaltExtractorEntity TileEntity if there is one at the position provided
+		public override object Call(params object[] args) {
+			string callType = args[0].ToString().ToLower().Trim().Replace(" ", "");
+
+			if (callType == "saltextractoruivisible")
+				return saltExtracterLoader.saltExtractorInterface.CurrentState != null;
+			else if (callType == "saltextractorui")
+				return saltExtracterLoader.saltExtractorUI;
+			else if (callType == "saltextractorinterface")
+				return saltExtracterLoader.saltExtractorInterface;
+			else if (callType == "saltextractoruiloader")
+				return saltExtracterLoader;
+			else if (callType == "saltextractorentity") {
+				MiscUtils.TryGetTileEntity((Point16)args[1], out SaltExtractorEntity entity);
+				return entity;
+			}
+
+			return base.Call(args);
+		}
 		private void RegisterElements() {
 			ElementUtils.RegisterElement(Element.Hydrogen,
 				"Element #1\nVery flammable.",
@@ -353,30 +378,32 @@ namespace TerraScience {
 		/// <param name="itemName">The name of the ElementItem to drop.</param>
 		/// <param name="stack">How many of the item to drop.</param>
 		/// <returns></returns>
-		public static int SpawnScienceItem<T>(int x, int y, int width, int height, T enumName, int stack = 1, Vector2? initialVelocity = null) where T : Enum{
-			if(typeof(T) != typeof(Element) && typeof(T) != typeof(Compound))
+		public static int SpawnScienceItem<T>(int x, int y, int width, int height, T enumName, int stack = 1, Vector2? initialVelocity = null) where T : Enum {
+			if (typeof(T) != typeof(Element) && typeof(T) != typeof(Compound))
 				throw new ArgumentException("Generic argument must either be a \"TerraScience.Element\" or \"TerraScience.Compound\".", "enumName");
 
 			string itemName = Enum.GetName(typeof(T), enumName);
 			int type = ModContent.GetInstance<TerraScience>().ItemType(itemName);
-			if(type > 0){
+
+			if (type > 0) {
 				int index = Item.NewItem(x, y, width, height, type, stack);
 				Item item = Main.item[index];
 				item.velocity = initialVelocity ?? Vector2.Zero;
 				return index;
 			}
+
 			//Invalid type
 			return Main.maxItems;
 		}
 	}
 
-	public enum ElementState{
+	public enum ElementState {
 		Solid,
 		Liquid,
 		Gas
 	}
 
-	public enum ElementFamily{
+	public enum ElementFamily {
 		None,
 		AlkaliMetals,
 		AlkalineEarthMetals,
@@ -389,7 +416,7 @@ namespace TerraScience {
 		NobleGases
 	}
 
-	public enum Element{
+	public enum Element {
 		Hydrogen = 1, Helium,
 		Lithium, Beryllium, Boron, Carbon, Nitrogen, Oxygen, Fluorine, Neon,
 		Sodium, Magnesium, Aluminum, Silicon, Phosphorus, Sulfur, Chlorine, Argon,
@@ -399,7 +426,7 @@ namespace TerraScience {
 		Francium, Radium //Add rest of period
 	}
 
-	public enum Compound{
+	public enum Compound {
 		//Hydrogen compounds
 		Water, HydrogenPeroxide, Hydroxide,
 		//Alkali/Earth metal hydroxides
@@ -414,7 +441,7 @@ namespace TerraScience {
 		SodiumChloride
 	}
 
-	public enum CompoundClassification{
+	public enum CompoundClassification {
 		Oxide, Hydroxide, Peroxide, Superoxide, Hydride, Chloride
 	}
 }
