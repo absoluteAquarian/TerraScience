@@ -88,7 +88,7 @@ namespace TerraScience {
 			Main.OnTick -= OnUpdate;
 
 			TileUtils.Structures.Unload();
-			saltExtracterLoader.Unload();
+			saltExtracterLoader?.Unload();
 		}
 
 		public override void PostSetupContent() {

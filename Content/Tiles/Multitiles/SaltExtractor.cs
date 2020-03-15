@@ -73,6 +73,8 @@ namespace TerraScience.Content.Tiles.Multitiles{
 			// If not holding a water bucket
 			if (MiscUtils.TryGetTileEntity(pos, out SaltExtractorEntity entity) && !Main.LocalPlayer.HeldItemCanPlaceWater()) {
 				var terra = ModContent.GetInstance<TerraScience>();
+
+				//Show the ui
 				terra.saltExtracterLoader.ShowUI(terra.saltExtracterLoader.saltExtractorUI, entity);
 
 				interactionHappened = true;
