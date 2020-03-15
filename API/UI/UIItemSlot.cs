@@ -1,10 +1,6 @@
-﻿using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Terraria;
 using Terraria.GameInput;
 using Terraria.UI;
@@ -26,7 +22,7 @@ namespace TerraScience.Content.API.UI {
 			Scale = scale;
 
 			storedItem = new Item();
-			storedItem.SetDefaults(0);
+			storedItem.SetDefaults();
 
 			Width.Set(Main.inventoryBack9Texture.Width * scale, 0f);
 			Height.Set(Main.inventoryBack9Texture.Height * scale, 0f);

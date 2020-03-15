@@ -56,7 +56,7 @@ namespace TerraScience.API.UI {
 				Recalculate();
 			}
 
-			// Here we check if the DragableUIPanel is outside the Parent UIElement rectangle. 
+			// Here we check if the UIDragablePanel is outside the Parent UIElement rectangle. 
 			// By doing this and some simple math, we can snap the panel back on screen if the user resizes his window or otherwise changes resolution.
 			var parentSpace = Parent.GetDimensions().ToRectangle();
 
