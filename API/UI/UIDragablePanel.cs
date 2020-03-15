@@ -3,7 +3,7 @@ using Terraria;
 using Terraria.GameContent.UI.Elements;
 using Terraria.UI;
 
-namespace TerraScience.Content.UI.Elements {
+namespace TerraScience.API.UI {
 	public class UIDragablePanel : UIPanel {
 		// Stores the offset from the top left of the UIPanel while dragging.
 		private Vector2 Offset { get; set; }

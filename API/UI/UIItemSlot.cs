@@ -9,7 +9,7 @@ using Terraria;
 using Terraria.GameInput;
 using Terraria.UI;
 
-namespace TerraScience.Content.UI.Elements {
+namespace TerraScience.Content.API.UI {
 	public class UIItemSlot : UIElement {
 		private int Context { get; set; }
 

@@ -8,8 +8,9 @@ using Terraria.GameContent.UI.Elements;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.UI;
+using TerraScience.API.UI;
+using TerraScience.Content.API.UI;
 using TerraScience.Content.TileEntities;
-using TerraScience.Content.UI.Elements;
 using TerraScience.Utilities;
 
 namespace TerraScience.Content.UI {

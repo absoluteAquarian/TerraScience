@@ -1,11 +1,9 @@
-﻿using Microsoft.Xna.Framework;
-using System;
-using Terraria;
+﻿using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
+using TerraScience.Content.API.UI;
 using TerraScience.Content.Tiles.Multitiles;
-using TerraScience.Content.UI.Elements;
 
 namespace TerraScience.Content.TileEntities{
 	public class SaltExtractorEntity : ModTileEntity{
