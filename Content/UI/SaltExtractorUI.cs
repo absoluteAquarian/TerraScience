@@ -129,7 +129,7 @@ namespace TerraScience.Content.UI {
 
 			itemSlot = new UIItemSlot {
 				HAlign = 0.5f,
-				ValidItemFunc = item => item.IsAir || !item.IsAir && item.type == ModContent.GetInstance<TerraScience>().ItemType("SodiumChloride")
+				ValidItemFunc = item => item.IsAir //|| !item.IsAir && item.type == ModContent.GetInstance<TerraScience>().ItemType("SodiumChloride") //this following commented code makes the player able to place salt in the slot
 			};
 
 			itemSlot.Top.Set(152, 0);
