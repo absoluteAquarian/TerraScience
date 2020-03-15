@@ -4,7 +4,9 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using TerraScience.API;
+using TerraScience.API.Classes.ModLiquid;
 using TerraScience.Systems;
+using TerraScience.Systems.TemperatureSystem;
 using TerraScience.Utilities;
 
 namespace TerraScience.Content.Items{
@@ -15,7 +17,7 @@ namespace TerraScience.Content.Items{
 		public override bool CloneNewInstances => true;
 
 		//Currents
-		public float CurrentTemp => TemperatureSystem.CurrentTemperature(item);
+		public float CurrentTemp => TemperatureSystem.CalculateItemTemp(item);
 		public ElementState CurrentState { get; internal set; } = ElementState.Solid;
 
 		//We don't want this item to be autoloaded, since it's just a template for the other Element items

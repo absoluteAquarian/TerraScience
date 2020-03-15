@@ -7,6 +7,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using TerraScience.API;
+using TerraScience.API.Classes.ModLiquid;
 using TerraScience.Utilities;
 
 namespace TerraScience.Content.Items{

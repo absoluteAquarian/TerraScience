@@ -6,10 +6,11 @@ using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.UI;
+using TerraScience.API.Classes.ModLiquid;
 using TerraScience.Content.Items;
 using TerraScience.Content.TileEntities;
 using TerraScience.Content.UI;
-using TerraScience.Systems;
+using TerraScience.Systems.TemperatureSystem;
 using TerraScience.Utilities;
 
 namespace TerraScience {
@@ -18,6 +19,12 @@ namespace TerraScience {
 		public static readonly Action<ModRecipe> OnlyWorkBench = r => { r.AddTile(TileID.WorkBenches); };
 
 		internal SaltExtractorUILoader saltExtracterLoader;
+
+		internal ModLiquidLoader LiquidLoader { get; private set; }
+
+		internal ModLiquidFactory LiquidFactory { get; private set; }
+
+		internal TemperatureSystem temperatureSystem;
 
 		public static ModHotKey DebugHotkey;
 
@@ -44,7 +51,10 @@ namespace TerraScience {
 		public static Dictionary<string, Action<ModRecipe, CompoundItem>> CachedCompoundRecipes { get; private set; }
 
 		public override void Load() {
+			LiquidLoader = new ModLiquidLoader();
+			LiquidFactory = new ModLiquidFactory();
 			saltExtracterLoader = new SaltExtractorUILoader();
+			temperatureSystem = new TemperatureSystem();
 
 			CachedElementDefaults = new Dictionary<string, Action<Item>>();
 			CachedElementRecipes = new Dictionary<string, Action<ModRecipe, ElementItem>>();
@@ -56,13 +66,26 @@ namespace TerraScience {
 			RegisterElements();
 			RegisterCompounds();
 
+			Main.OnTick += OnUpdate;
+
+			LiquidLoader.LoadLiquids(LiquidFactory);
 			saltExtracterLoader.Load();
+		}
+
+		private void OnUpdate() {
+			if (LiquidFactory.Liquids != null) {
+				foreach (var liquid in LiquidFactory.Liquids) {
+					liquid.Value.Update();
+				}
+			}
 		}
 
 		public override void Unload() {
 			CachedElementDefaults = null;
 			CachedElementRecipes = null;
 			DebugHotkey = null;
+
+			Main.OnTick -= OnUpdate;
 
 			TileUtils.Structures.Unload();
 			saltExtracterLoader.Unload();

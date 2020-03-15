@@ -4,6 +4,7 @@ using System.Linq;
 using Terraria;
 using Terraria.ModLoader;
 using TerraScience.API;
+using TerraScience.API.Classes.ModLiquid;
 using TerraScience.Content.Items;
 using TerraScience.Content.Tiles;
 

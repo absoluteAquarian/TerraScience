@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Terraria;
-using TerraScience.Systems;
+﻿using Terraria;
+using TerraScience.Systems.TemperatureSystem;
 
 namespace TerraScience.API.Extensions {
 	internal static class TemperatureExtensions {
