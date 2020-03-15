@@ -4,11 +4,11 @@ using Terraria.DataStructures;
 using Terraria.ModLoader;
 using TerraScience.Content.TileEntities;
 
-namespace TerraScience.API.Commands{
+namespace TerraScience.Content.Commands{
 	public class TileEntityButcherer : ModCommand{
 		public override string Command => "tsbutcher";
 
-		public override string Description => "Butchers all TerraScience tile entities.  Please only use for debugging purposes.";
+		public override string Description => "Butchers all TerraScience tile entities. Please only use for debugging purposes.";
 
 		public override string Usage => "/tsbutcher <type|all>";
 
@@ -31,7 +31,7 @@ namespace TerraScience.API.Commands{
 						se.Kill(te.Key.X, te.Key.Y);
 				}
 
-				caller.Reply("Success!  All TerraScience tile entities were killed.", Color.Green);
+				caller.Reply("Success! All TerraScience tile entities were killed.", Color.Green);
 				return;
 			}else{
 				var entityType = mod.GetTileEntity(args[0]);
@@ -49,7 +49,7 @@ namespace TerraScience.API.Commands{
 						(te.Value as ModTileEntity).Kill(te.Key.X, te.Key.Y);
 				}
 
-				caller.Reply($"Success!  All TerraScience tile entities with the name {args[0]} were killed.", Color.Green);
+				caller.Reply($"Success! All TerraScience tile entities with the name {args[0]} were killed.", Color.Green);
 			}
 		}
 	}
