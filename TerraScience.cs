@@ -55,6 +55,7 @@ namespace TerraScience {
 			LiquidFactory = new ModLiquidFactory();
 			saltExtracterLoader = new SaltExtractorUILoader();
 			temperatureSystem = new TemperatureSystem();
+			ModLiquidRenderer.Instance = new ModLiquidRenderer();
 
 			CachedElementDefaults = new Dictionary<string, Action<Item>>();
 			CachedElementRecipes = new Dictionary<string, Action<ModRecipe, ElementItem>>();
@@ -66,7 +67,11 @@ namespace TerraScience {
 			RegisterElements();
 			RegisterCompounds();
 
+			ContentInstance.Register(new ModLiquidLoader());
+
 			Main.OnTick += OnUpdate;
+			On.Terraria.Main.DrawWater += ModLiquidManager.SwapDrawWater;
+			//IL.Terraria.Main.drawWaters += ModLiquidManager.EditDrawWaters;
 
 			LiquidLoader.LoadLiquids(LiquidFactory);
 			saltExtracterLoader.Load();
@@ -97,6 +102,10 @@ namespace TerraScience {
 
 		public override void UpdateUI(GameTime gameTime) {
 			saltExtracterLoader.UpdateUI(gameTime);
+
+			if (!Main.dedServ) {
+				ModLiquidRenderer.Instance.Update(gameTime);
+			}
 		}
 
 		public override void ModifyInterfaceLayers(List<GameInterfaceLayer> layers) {

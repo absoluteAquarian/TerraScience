@@ -10,7 +10,7 @@ using TerraScience.Content.Tiles;
 
 namespace TerraScience.Utilities {
 	public static class ElementUtils {
-		private static readonly Mod mod = ModContent.GetInstance<TerraScience>();
+		private static Mod mod => ModContent.GetInstance<TerraScience>();
 
 		public static string ElementName(Element name, bool includeElement = true)
 			=> $"{(includeElement ? "Element" : "")}{Enum.GetName(typeof(Element), name)}";

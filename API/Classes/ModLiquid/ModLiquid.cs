@@ -1,6 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 using Terraria;
+using Terraria.ID;
+using Terraria.ModLoader;
 using TerraScience.Systems.TemperatureSystem;
 
 namespace TerraScience.API.Classes.ModLiquid {
@@ -9,16 +12,34 @@ namespace TerraScience.API.Classes.ModLiquid {
 
 		public string InternalName { get; private set; } = string.Empty;
 
+		public int Type { get; private set; }
+
 		public string DisplayName { get; set; } = string.Empty;
 
-		public Rectangle GetRectangle { get; private set; }
+		public Rectangle GetRectangle { get; private set; } //Is vanilla UseItem in Main??
 
 		public float CurrentTemperature => TemperatureSystem.CalculateLiquidTemp(this);
 
-		public ModLiquid(string internalName, string displayName, DefaultTemperature defaultTemp) {
+		public Texture2D Texture { get; private set; }
+
+		public ModLiquid(string internalName, string displayName, string texturePath, DefaultTemperature defaultTemp) {
 			InternalName = internalName;
 			DisplayName = displayName;
 			DefaultTemp = defaultTemp;
+			Texture = ModContent.GetInstance<TerraScience>().GetTexture(texturePath);
+			Type = ModLiquidManager.LastAddedLiquidID;
+		}
+
+		public void SpawnLiquid(int i, int j, byte liquidAmount) {
+			Tile tile = Main.tile[i, j];
+
+			//tile.liquidType(Type); // Type is the liquid type. 0 is water. 1 is lava. 2 is honey.
+			tile.liquid = liquidAmount;
+
+			WorldGen.SquareTileFrame(i, j);
+
+			if (Main.netMode == NetmodeID.MultiplayerClient)
+				NetMessage.sendWater(i, j);
 		}
 
 		public event OnUpdateEventHandler OnUpdate;
@@ -34,6 +55,8 @@ namespace TerraScience.API.Classes.ModLiquid {
 			handler?.Invoke();
 
 			ModLiquidManager.RunInLiquidEvent(GetRectangle, InLiquid);
+
+			//GetRectangle = 
 		}
 
 		public override string ToString() => InternalName;
