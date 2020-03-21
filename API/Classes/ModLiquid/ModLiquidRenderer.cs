@@ -336,26 +336,32 @@ namespace TerraScience.API.Classes.ModLiquid {
 					}
 				}
 				ptr2 = ptr;
+
 				for (int num25 = rectangle.X; num25 < rectangle.X + rectangle.Width; num25++) {
 					for (int num26 = rectangle.Y; num26 < rectangle.Y + rectangle.Height; num26++) {
 						if (ptr2->VisibleType == 1 && ptr2->HasVisibleLiquid && Dust.lavaBubbles < 200) {
-							if (random.Next(700) == 0) {
+							if (random.Next(700) == 0)
 								Dust.NewDust(new Vector2(num25 * 16, num26 * 16), 16, 16, 35, 0f, 0f, 0, Color.White, 1f);
-							}
+							
 							if (random.Next(350) == 0) {
 								int num27 = Dust.NewDust(new Vector2(num25 * 16, num26 * 16), 16, 8, 35, 0f, 0f, 50, Color.White, 1.5f);
 								Main.dust[num27].velocity *= 0.8f;
+
 								Dust expr_1205_cp_0 = Main.dust[num27];
 								expr_1205_cp_0.velocity.X *= 2f;
+
 								Dust expr_1223_cp_0 = Main.dust[num27];
 								expr_1223_cp_0.velocity.Y -= random.Next(1, 7) * 0.1f;
+
 								if (random.Next(10) == 0) {
 									Dust expr_125F_cp_0 = Main.dust[num27];
 									expr_125F_cp_0.velocity.Y *= random.Next(2, 5);
 								}
+
 								Main.dust[num27].noGravity = true;
 							}
 						}
+
 						ptr2++;
 					}
 				}
@@ -364,100 +370,105 @@ namespace TerraScience.API.Classes.ModLiquid {
 			WaveFilters?.Invoke(waveMask, GetCachedDrawArea());
 		}
 
-		// Token: 0x06002188 RID: 8584 RVA: 0x00467F5C File Offset: 0x0046615C
 		private unsafe void InternalDraw(SpriteBatch spriteBatch, Vector2 drawOffset, int waterStyle, float globalAlpha, bool isBackgroundDraw) {
 			Rectangle drawArea = _drawArea;
+
 			Main.tileBatch.Begin();
+
 			fixed (LiquidDrawCache* ptr3 = &_drawCache[0]) {
 				LiquidDrawCache* ptr2 = ptr3;
+
 				for (int i = drawArea.X; i < drawArea.X + drawArea.Width; i++) {
 					for (int j = drawArea.Y; j < drawArea.Y + drawArea.Height; j++) {
 						if (ptr2->IsVisible) {
 							Rectangle sourceRectangle = ptr2->SourceRectangle;
-							if (ptr2->IsSurfaceLiquid) {
+
+							if (ptr2->IsSurfaceLiquid)
 								sourceRectangle.Y = 1280;
-							}
-							else {
+							else
 								sourceRectangle.Y += animationFrame * 80;
-							}
+							
 							Vector2 liquidOffset = ptr2->LiquidOffset;
 							float num = ptr2->Opacity * (isBackgroundDraw ? 1f : DEFAULT_OPACITY[ptr2->Type]);
 							int num2 = ptr2->Type;
+
 							if (num2 == 0) {
 								num2 = waterStyle;
-								num *= (isBackgroundDraw ? 1f : globalAlpha);
+								num *= isBackgroundDraw ? 1f : globalAlpha;
 							}
-							else if (num2 == 2) {
+							else if (num2 == 2)
 								num2 = 11;
-							}
+							
 							num = Math.Min(1f, num);
 
 							Lighting.GetColor4Slice_New(i, j, out VertexColors colors, 1f);
+
 							colors.BottomLeftColor *= num;
 							colors.BottomRightColor *= num;
 							colors.TopLeftColor *= num;
 							colors.TopRightColor *= num;
+
 							Main.tileBatch.Draw(textures[num2], new Vector2(i << 4, j << 4) + drawOffset + liquidOffset, new Rectangle?(sourceRectangle), colors, Vector2.Zero, 1f, SpriteEffects.None);
 						}
+
 						ptr2++;
 					}
 				}
 			}
+
 			Main.tileBatch.End();
 		}
 
-		// Token: 0x06002189 RID: 8585 RVA: 0x00468140 File Offset: 0x00466340
 		public bool HasFullWater(int x, int y) {
 			x -= _drawArea.X;
 			y -= _drawArea.Y;
+
 			int num = x * _drawArea.Height + y;
+
 			return num < 0 || num >= _drawCache.Length || (_drawCache[num].IsVisible && !_drawCache[num].IsSurfaceLiquid);
 		}
 
-		// Token: 0x0600218A RID: 8586 RVA: 0x004681B8 File Offset: 0x004663B8
 		public float GetVisibleLiquid(int x, int y) {
 			x -= _drawArea.X;
 			y -= _drawArea.Y;
-			if (x < 0 || x >= _drawArea.Width || y < 0 || y >= _drawArea.Height) {
+
+			if (x < 0 || x >= _drawArea.Width || y < 0 || y >= _drawArea.Height)
 				return 0f;
-			}
+
 			int num = (x + 2) * (_drawArea.Height + 4) + y + 2;
-			if (!_cache[num].HasVisibleLiquid) {
+
+			if (!_cache[num].HasVisibleLiquid)
 				return 0f;
-			}
+
 			return _cache[num].VisibleLiquidLevel;
 		}
 
-		// Token: 0x0600218B RID: 8587 RVA: 0x00468250 File Offset: 0x00466450
 		public void Update(GameTime gameTime) {
-			if (Main.gamePaused || !Main.hasFocus) {
+			if (Main.gamePaused || !Main.hasFocus)
 				return;
-			}
-			float num = Main.windSpeed * 80f;
-			num = MathHelper.Clamp(num, -20f, 20f);
-			if (num < 0f) {
+			
+			float num = MathHelper.Clamp(Main.windSpeed * 80f, -20f, 20f);
+
+			if (num < 0f)
 				num = Math.Min(-10f, num);
-			}
-			else {
+			else
 				num = Math.Max(10f, num);
-			}
+			
 			frameState += num * (float)gameTime.ElapsedGameTime.TotalSeconds;
-			if (frameState < 0f) {
+
+			if (frameState < 0f)
 				frameState += 16f;
-			}
+
 			frameState %= 16f;
 			animationFrame = (int)frameState;
 		}
 
-		// Token: 0x0600218C RID: 8588 RVA: 0x00468307 File Offset: 0x00466507
-		public void PrepareDraw(Rectangle drawArea) {
-			InternalPrepareDraw(drawArea);
-		}
+		public void PrepareDraw(Rectangle drawArea) => InternalPrepareDraw(drawArea);
 
-		// Token: 0x0600218D RID: 8589 RVA: 0x00468310 File Offset: 0x00466510
 		public void SetWaveMaskData(ref Texture2D texture) {
 			if (texture == null || texture.Width < _drawArea.Height || texture.Height < _drawArea.Width) {
 				Console.WriteLine("WaveMaskData texture recreated. {0}x{1}", _drawArea.Height, _drawArea.Width);
+
 				if (texture != null) {
 					try {
 						texture.Dispose();
@@ -466,15 +477,14 @@ namespace TerraScience.API.Classes.ModLiquid {
 						ModContent.GetInstance<TerraScience>().Logger.Error(e);
 					}
 				}
+
 				texture = new Texture2D(Main.instance.GraphicsDevice, _drawArea.Height, _drawArea.Width, false, SurfaceFormat.Color);
 			}
+
 			texture.SetData(0, new Rectangle?(new Rectangle(0, 0, _drawArea.Height, _drawArea.Width)), waveMask, 0, _drawArea.Width * _drawArea.Height);
 		}
 
-		// Token: 0x0600218E RID: 8590 RVA: 0x00468404 File Offset: 0x00466604
-		public Rectangle GetCachedDrawArea() {
-			return _drawArea;
-		}
+		public Rectangle GetCachedDrawArea() => _drawArea;
 
 		// Token: 0x0600218F RID: 8591 RVA: 0x0046840C File Offset: 0x0046660C
 		public void Draw(SpriteBatch spriteBatch, Vector2 drawOffset, int waterStyle, float alpha, bool isBackgroundDraw) {
