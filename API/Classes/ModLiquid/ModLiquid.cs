@@ -33,7 +33,7 @@ namespace TerraScience.API.Classes.ModLiquid {
 		public void SpawnLiquid(int i, int j, byte liquidAmount) {
 			Tile tile = Main.tile[i, j];
 
-			//tile.liquidType(Type); // Type is the liquid type. 0 is water. 1 is lava. 2 is honey.
+			tile.NewLiquidType(); // Type is the liquid type. 0 is water. 1 is lava. 2 is honey.
 			tile.liquid = liquidAmount;
 
 			WorldGen.SquareTileFrame(i, j);
@@ -50,14 +50,14 @@ namespace TerraScience.API.Classes.ModLiquid {
 
 		public delegate void InLiquidEventHandler(Player player);
 
-		internal void Update() {
-			OnUpdateEventHandler handler = OnUpdate;
-			handler?.Invoke();
+        internal void Update() {
+            OnUpdateEventHandler handler = OnUpdate;
+            handler?.Invoke();
 
-			ModLiquidManager.RunInLiquidEvent(GetRectangle, InLiquid);
+            ModLiquidManager.RunInLiquidEvent(InLiquid);
 
-			//GetRectangle = 
-		}
+            //GetRectangle = 
+        }
 
 		public override string ToString() => InternalName;
 

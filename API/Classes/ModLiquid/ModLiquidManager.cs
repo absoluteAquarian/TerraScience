@@ -8,14 +8,14 @@ using Terraria;
 using Terraria.GameContent.Liquid;
 
 namespace TerraScience.API.Classes.ModLiquid {
-	public static class ModLiquidManager {
-        internal static int LastAddedLiquidID = 3;
+	internal static class ModLiquidManager {
+		internal static int LastAddedLiquidID = 4;
 
-		internal static void RunInLiquidEvent(Rectangle liquidRect, ModLiquid.InLiquidEventHandler inLiquidEvent) {
+		internal static void RunInLiquidEvent(ModLiquid.InLiquidEventHandler inLiquidEvent) {
 			for (int i = 0; i < Main.maxPlayers; i++) {
 				Player player = Main.player[i];
 
-				if (player.getRect().Intersects(liquidRect)) {
+				if (Collision.WetCollision(player.position, player.width, player.height)) {
 					ModLiquid.InLiquidEventHandler handler = inLiquidEvent;
 					handler?.Invoke(player);
 				}
@@ -48,10 +48,47 @@ namespace TerraScience.API.Classes.ModLiquid {
 
 			if (c.TryGotoNext(i => i.MatchCallvirt(type.GetMethod(nameof(LiquidRenderer.PrepareDraw))))) {
 				c.Index++; // move next
-				c.Emit(OpCodes.Ldsfld, urtype.GetField("Instance")); // load ur field
+				c.Emit(OpCodes.Ldsfld, urtype.GetField(nameof(LiquidRenderer.Instance))); // load ur field
 				c.Emit(OpCodes.Ldloc, 5); // load local field
-				c.Emit(OpCodes.Callvirt, urtype.GetMethod("PrepareDraw")); // ur method call
+				c.Emit(OpCodes.Callvirt, urtype.GetMethod(nameof(LiquidRenderer.PrepareDraw))); // ur method call
 			}
+		}
+
+		/// <summary>
+		/// 0 is water, 1 is lava, 2 is honey
+		/// </summary>
+		/// <param name="tile"></param>
+		/// <returns></returns>
+		internal static int NewLiquidType(this Tile tile) => tile.NewLiquidType(out _);
+
+		/// <summary>
+		/// 0 is water, 1 is lava, 2 is honey
+		/// </summary>
+		/// <param name="tile"></param>
+		/// <returns></returns>
+		internal static int NewLiquidType(this Tile tile, out string internalName) {
+			internalName = string.Empty;
+
+			if (tile.liquidType() == 0) {
+				internalName = "Water";
+				return 0;
+			}
+			else if (tile.liquidType() == 1) {
+				internalName = "Lava";
+				return 1;
+			}
+			else if (tile.liquidType() == 2) {
+				internalName = "Honey";
+				return 2;
+			}
+
+			return 0; //The logic for getting a tile type
+		}
+
+		internal static int NewLiquidType(this Tile tile, int tileType) {
+			//Set tiles liquid type and render it based on vanilla code.
+
+			return tileType;
 		}
 	}
 }
