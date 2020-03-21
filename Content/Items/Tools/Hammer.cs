@@ -59,6 +59,7 @@ namespace TerraScience.Content.Items.Tools{
 						for(int r = 0; r < height; r++){
 							for(int c = 0; c < width; c++){
 								Tile tile = Main.tile[location.X + c, location.Y + r];
+								tile.halfBrick(false);
 								tile.type = (ushort)ModContent.TileType<SaltExtractor>();
 								tile.active(true);
 								tile.inActive(false);
