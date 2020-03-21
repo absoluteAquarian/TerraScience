@@ -543,7 +543,7 @@ namespace TerraScience.API.Classes.ModLiquid {
 		private Rectangle _drawArea = new Rectangle(0, 0, 1, 1);
 
 		// Token: 0x04003A17 RID: 14871
-		private UnifiedRandom _random = new UnifiedRandom();
+		private readonly UnifiedRandom _random = new UnifiedRandom();
 
 		// Token: 0x04003A18 RID: 14872
 		private Color[] _waveMask = new Color[1];
