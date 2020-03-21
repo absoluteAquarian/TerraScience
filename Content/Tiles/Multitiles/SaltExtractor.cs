@@ -88,11 +88,12 @@ namespace TerraScience.Content.Tiles.Multitiles{
 			Point16 frame = Main.tile[i, j].TileCoord();
 			Point16 pos = new Point16(i, j);
 
-			//Only draw extra stuff when this tile is the upper-left one
+			//Only draw extra stuff when this tile is the upper-left one. We do this to only draw once, not 16 times.
 			if(frame.X != 0 || frame.Y != 0)
 				return true;
 
 			int maxWaterDrawDiff = 34;
+
 			if(MiscUtils.TryGetTileEntity(pos, out SaltExtractorEntity se)){
 				//Do the rest of the things
 				float curWaterRatio = se.StoredWater / SaltExtractorEntity.MaxWater;
@@ -106,13 +107,13 @@ namespace TerraScience.Content.Tiles.Multitiles{
 				Point drawPos = (se.Position.ToVector2() * 16 - Main.screenPosition + offset).ToPoint();
 
 				//Draw the first water bar
-				spriteBatch.Draw(Main.magicPixel, new Rectangle(drawPos.X, drawPos.Y, 8, (int)(curWaterRatio * maxWaterDrawDiff)), null, Color.DeepSkyBlue, 0f, Vector2.Zero, SpriteEffects.None, 0);
+				spriteBatch.Draw(Main.magicPixel, new Rectangle(drawPos.X, drawPos.Y, 8, (int)(curWaterRatio * maxWaterDrawDiff)), Color.DeepSkyBlue);
 
 				//Move the x position over a bit to where the other bar should be
 				drawPos.X += 52;
-
+				 
 				//Draw the second water bar
-				spriteBatch.Draw(Main.magicPixel, new Rectangle(drawPos.X, drawPos.Y, 8, (int)(curWaterRatio * maxWaterDrawDiff)), null, Color.DeepSkyBlue, 0f, Vector2.Zero, SpriteEffects.None, 0);
+				spriteBatch.Draw(Main.magicPixel, new Rectangle(drawPos.X, drawPos.Y, 8, (int)(curWaterRatio * maxWaterDrawDiff)), Color.DeepSkyBlue);
 			}
 
 			return true;
