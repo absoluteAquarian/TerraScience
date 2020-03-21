@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using Terraria;
 using Terraria.Graphics;
+using Terraria.ModLoader;
 using Terraria.Utilities;
 
 namespace TerraScience.API.Classes.ModLiquid {
@@ -20,8 +21,8 @@ namespace TerraScience.API.Classes.ModLiquid {
 			if (_drawCache.Length < drawArea.Width * drawArea.Height + 1) {
 				_drawCache = new LiquidDrawCache[drawArea.Width * drawArea.Height + 1];
 			}
-			if (_waveMask.Length < drawArea.Width * drawArea.Height) {
-				_waveMask = new Color[drawArea.Width * drawArea.Height];
+			if (waveMask.Length < drawArea.Width * drawArea.Height) {
+				waveMask = new Color[drawArea.Width * drawArea.Height];
 			}
 			fixed (LiquidCache* ptr7 = &_cache[1]) {
 				LiquidCache* ptr = ptr7;
@@ -284,7 +285,7 @@ namespace TerraScience.API.Classes.ModLiquid {
 				ptr2 += num;
 				fixed (LiquidDrawCache* ptr8 = &_drawCache[0]) {
 					LiquidDrawCache* ptr3 = ptr8;
-					fixed (Color* ptr9 = &_waveMask[0]) {
+					fixed (Color* ptr9 = &waveMask[0]) {
 						Color* ptr10 = ptr9;
 						LiquidDrawCache* ptr4 = ptr3;
 						Color* ptr5 = ptr10;
@@ -338,19 +339,19 @@ namespace TerraScience.API.Classes.ModLiquid {
 				for (int num25 = rectangle.X; num25 < rectangle.X + rectangle.Width; num25++) {
 					for (int num26 = rectangle.Y; num26 < rectangle.Y + rectangle.Height; num26++) {
 						if (ptr2->VisibleType == 1 && ptr2->HasVisibleLiquid && Dust.lavaBubbles < 200) {
-							if (_random.Next(700) == 0) {
+							if (random.Next(700) == 0) {
 								Dust.NewDust(new Vector2(num25 * 16, num26 * 16), 16, 16, 35, 0f, 0f, 0, Color.White, 1f);
 							}
-							if (_random.Next(350) == 0) {
+							if (random.Next(350) == 0) {
 								int num27 = Dust.NewDust(new Vector2(num25 * 16, num26 * 16), 16, 8, 35, 0f, 0f, 50, Color.White, 1.5f);
 								Main.dust[num27].velocity *= 0.8f;
 								Dust expr_1205_cp_0 = Main.dust[num27];
 								expr_1205_cp_0.velocity.X *= 2f;
 								Dust expr_1223_cp_0 = Main.dust[num27];
-								expr_1223_cp_0.velocity.Y -= _random.Next(1, 7) * 0.1f;
-								if (_random.Next(10) == 0) {
+								expr_1223_cp_0.velocity.Y -= random.Next(1, 7) * 0.1f;
+								if (random.Next(10) == 0) {
 									Dust expr_125F_cp_0 = Main.dust[num27];
-									expr_125F_cp_0.velocity.Y *= _random.Next(2, 5);
+									expr_125F_cp_0.velocity.Y *= random.Next(2, 5);
 								}
 								Main.dust[num27].noGravity = true;
 							}
@@ -360,7 +361,7 @@ namespace TerraScience.API.Classes.ModLiquid {
 				}
 			}
 
-			WaveFilters?.Invoke(_waveMask, GetCachedDrawArea());
+			WaveFilters?.Invoke(waveMask, GetCachedDrawArea());
 		}
 
 		// Token: 0x06002188 RID: 8584 RVA: 0x00467F5C File Offset: 0x0046615C
@@ -377,7 +378,7 @@ namespace TerraScience.API.Classes.ModLiquid {
 								sourceRectangle.Y = 1280;
 							}
 							else {
-								sourceRectangle.Y += _animationFrame * 80;
+								sourceRectangle.Y += animationFrame * 80;
 							}
 							Vector2 liquidOffset = ptr2->LiquidOffset;
 							float num = ptr2->Opacity * (isBackgroundDraw ? 1f : DEFAULT_OPACITY[ptr2->Type]);
@@ -440,12 +441,12 @@ namespace TerraScience.API.Classes.ModLiquid {
 			else {
 				num = Math.Max(10f, num);
 			}
-			_frameState += num * (float)gameTime.ElapsedGameTime.TotalSeconds;
-			if (_frameState < 0f) {
-				_frameState += 16f;
+			frameState += num * (float)gameTime.ElapsedGameTime.TotalSeconds;
+			if (frameState < 0f) {
+				frameState += 16f;
 			}
-			_frameState %= 16f;
-			_animationFrame = (int)_frameState;
+			frameState %= 16f;
+			animationFrame = (int)frameState;
 		}
 
 		// Token: 0x0600218C RID: 8588 RVA: 0x00468307 File Offset: 0x00466507
@@ -461,12 +462,13 @@ namespace TerraScience.API.Classes.ModLiquid {
 					try {
 						texture.Dispose();
 					}
-					catch {
+					catch (ObjectDisposedException e) {
+						ModContent.GetInstance<TerraScience>().Logger.Error(e);
 					}
 				}
 				texture = new Texture2D(Main.instance.GraphicsDevice, _drawArea.Height, _drawArea.Width, false, SurfaceFormat.Color);
 			}
-			texture.SetData(0, new Rectangle?(new Rectangle(0, 0, _drawArea.Height, _drawArea.Width)), _waveMask, 0, _drawArea.Width * _drawArea.Height);
+			texture.SetData(0, new Rectangle?(new Rectangle(0, 0, _drawArea.Height, _drawArea.Width)), waveMask, 0, _drawArea.Width * _drawArea.Height);
 		}
 
 		// Token: 0x0600218E RID: 8590 RVA: 0x00468404 File Offset: 0x00466604
@@ -536,20 +538,15 @@ namespace TerraScience.API.Classes.ModLiquid {
 		// Token: 0x04003A14 RID: 14868
 		private LiquidDrawCache[] _drawCache = new LiquidDrawCache[1];
 
-		// Token: 0x04003A15 RID: 14869
-		private int _animationFrame;
+		private int animationFrame;
 
-		// Token: 0x04003A16 RID: 14870
 		private Rectangle _drawArea = new Rectangle(0, 0, 1, 1);
 
-		// Token: 0x04003A17 RID: 14871
-		private readonly UnifiedRandom _random = new UnifiedRandom();
+		private readonly UnifiedRandom random = new UnifiedRandom();
 
-		// Token: 0x04003A18 RID: 14872
-		private Color[] _waveMask = new Color[1];
+		private Color[] waveMask = new Color[1];
 
-		// Token: 0x04003A19 RID: 14873
-		private float _frameState;
+		private float frameState;
 
 		// Token: 0x0200055C RID: 1372
 		private struct LiquidCache {
