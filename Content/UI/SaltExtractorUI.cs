@@ -71,6 +71,14 @@ namespace TerraScience.Content.UI {
 			Main.PlaySound(SoundID.MenuOpen);
 			saltExtractorInterface.SetState(state);
 			saltExtractorUI.SaltExtractor = entity;
+
+			if(!saltExtractorUI.CheckedForSavedItemCount){
+				saltExtractorUI.CheckedForSavedItemCount = true;
+				if(entity.StoredSaltItems > 0){
+					saltExtractorUI.itemSlot.StoredItem.SetDefaults(ModContent.GetInstance<TerraScience>().ItemType(CompoundUtils.CompoundName(Compound.SodiumChloride, false)));
+					saltExtractorUI.itemSlot.StoredItem.stack = entity.StoredSaltItems;
+				}
+			}
 		}
 
 		public void HideUI() {
@@ -84,6 +92,8 @@ namespace TerraScience.Content.UI {
 		/// The Salt Extractor tile entity. Set when UI is shown.
 		/// </summary>
 		public SaltExtractorEntity SaltExtractor { get; internal set; } = null;
+
+		public bool CheckedForSavedItemCount = false;
 
 		private UIText waterValues;
 
@@ -151,6 +161,10 @@ namespace TerraScience.Content.UI {
 				waterValues.SetText($"Water: {string.Format("{0:G29}", decimal.Parse($"{SaltExtractor.StoredWater:N2}"))}L / {Math.Round(SaltExtractorEntity.MaxWater)}L");
 				progress.SetText($"Progress: {Math.Round(SaltExtractor.ReactionProgress)}%");
 				reactionSpeed.SetText($"Speed Multiplier: {string.Format("{0:G29}", decimal.Parse($"{SaltExtractor.ReactionSpeed:N2}"))}x");
+
+				//Possible if items were removed
+				if(SaltExtractor.StoredSaltItems > itemSlot.StoredItem.stack)
+					SaltExtractor.StoredSaltItems = itemSlot.StoredItem.stack;
 			}
 
 			base.Update(gameTime);

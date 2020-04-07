@@ -35,7 +35,7 @@ namespace TerraScience.Content.Items{
 			//If the item is a placeable bar, register the tile type (tile name is guaranteed to be the same)
 			if(IsPlaceableBar){
 				item.createTile = mod.TileType(Name);
-				item.useStyle = 1;
+				item.useStyle = ItemUseStyleID.SwingThrow;
 				item.useTurn = true;
 				item.useAnimation = 15;
 				item.useTime = 10;

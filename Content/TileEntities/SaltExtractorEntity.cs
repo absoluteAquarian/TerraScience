@@ -4,6 +4,7 @@ using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using TerraScience.Content.API.UI;
 using TerraScience.Content.Tiles.Multitiles;
+using TerraScience.Utilities;
 
 namespace TerraScience.Content.TileEntities{
 	public class SaltExtractorEntity : ModTileEntity{
@@ -18,6 +19,11 @@ namespace TerraScience.Content.TileEntities{
 		/// Conversion rate is 2L of water per Sodium Chloride generated.
 		/// </summary>
 		public float StoredSalt = 0f;
+
+		/// <summary>
+		/// How many salt items are stored in the extractor.
+		/// </summary>
+		public int StoredSaltItems = 0;
 
 		public static readonly float MaxWater = 10f;
 
@@ -46,6 +52,7 @@ namespace TerraScience.Content.TileEntities{
 			ReactionSpeed = tag.GetFloat(nameof(ReactionSpeed));
 			ReactionProgress = tag.GetFloat(nameof(ReactionProgress));
 			ReactionInProgress = tag.GetBool(nameof(ReactionInProgress));
+			StoredSaltItems = tag.GetInt(nameof(StoredSaltItems));
 		}
 
 		public override TagCompound Save()
@@ -54,7 +61,8 @@ namespace TerraScience.Content.TileEntities{
 				[nameof(StoredSalt)] = StoredSalt,
 				[nameof(ReactionSpeed)] = ReactionSpeed,
 				[nameof(ReactionProgress)] = ReactionProgress,
-				[nameof(ReactionInProgress)] = ReactionInProgress
+				[nameof(ReactionInProgress)] = ReactionInProgress,
+				[nameof(StoredSaltItems)] = StoredSaltItems
 			};
 
 		//The spawn and despawn code is handled elsewhere, so just return true
@@ -64,6 +72,8 @@ namespace TerraScience.Content.TileEntities{
 		}
 
 		public override void Update(){
+			UIItemSlot itemSlot = ModContent.GetInstance<TerraScience>().saltExtracterLoader.saltExtractorUI.itemSlot;
+
 			if(ReactionInProgress){
 				float litersLostPerSecond = 0.05f;
 				float reaction = ReactionSpeed * litersLostPerSecond / 60f;
@@ -75,12 +85,12 @@ namespace TerraScience.Content.TileEntities{
 				if(StoredSalt >= 1f){
 					StoredSalt--;
 
-					UIItemSlot itemSlot = ModContent.GetInstance<TerraScience>().saltExtracterLoader.saltExtractorUI.itemSlot;
-
-					if (itemSlot.StoredItem.type != mod.ItemType("SodiumChloride"))
-						itemSlot.SetItem(mod.ItemType("SodiumChloride"));
+					if (itemSlot.StoredItem.type != mod.ItemType(CompoundUtils.CompoundName(Compound.SodiumChloride, false)))
+						itemSlot.SetItem(mod.ItemType(CompoundUtils.CompoundName(Compound.SodiumChloride, false)));
 					else if(itemSlot.StoredItem.stack < 100)
 						itemSlot.StoredItem.stack++;
+
+					StoredSaltItems++;
 
 					Main.PlaySound(SoundID.Grab);
 
@@ -104,7 +114,11 @@ namespace TerraScience.Content.TileEntities{
 			if(StoredWater <= 0f && ReactionInProgress){
 				ReactionInProgress = false;
 				StoredWater = 0f;
-				ReactionProgress = 0f;
+			}
+
+			//Stop the reaction if more than 99 salt is stored
+			if(itemSlot.StoredItem.stack >= 100){
+				ReactionInProgress = false;
 			}
 
 			//Update the delay timer

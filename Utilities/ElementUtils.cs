@@ -10,7 +10,7 @@ using TerraScience.Content.Tiles;
 
 namespace TerraScience.Utilities {
 	public static class ElementUtils {
-		private static readonly Mod mod = ModContent.GetInstance<TerraScience>();
+		private static Mod ModInstance => ModContent.GetInstance<TerraScience>();
 
 		public static string ElementName(Element name, bool includeElement = true)
 			=> $"{(includeElement ? "Element" : "")}{Enum.GetName(typeof(Element), name)}";
@@ -36,17 +36,21 @@ namespace TerraScience.Utilities {
 		}
 
 		public static void SpawnItemsFromReaction(ElementItem elementItem, Compound compound, int hydrogensSpawned, int compoundsSpawned) {
-			//Give a chance to spawn Hydrogen item(s) as well as the corresponding CompoundItem
+			if(compoundsSpawned > elementItem.item.stack){
+				hydrogensSpawned -= compoundsSpawned - elementItem.item.stack;
+				compoundsSpawned = elementItem.item.stack;
+			}
+
+			//Spawn Hydrogens as well as the CompountItem
 			TerraScience.SpawnScienceItem((int)elementItem.item.position.X, (int)elementItem.item.position.Y, 16, 16, Element.Hydrogen, hydrogensSpawned, new Vector2(Main.rand.NextFloat(-1, 1), -4.2f));
 			TerraScience.SpawnScienceItem((int)elementItem.item.position.X, (int)elementItem.item.position.Y, 16, 16, compound, compoundsSpawned, new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -2.1f));
 
-			if (elementItem.item.stack > compoundsSpawned) {
+			if(elementItem.item.stack > compoundsSpawned){
 				//If there's more than one item in this stack, reduce the stack and the timer
 				int oldStack = elementItem.item.stack;
 				elementItem.item.stack -= compoundsSpawned;
 				elementItem.ReactionTimer = (int)(elementItem.ReactionTimer * (float)elementItem.item.stack / oldStack * Main.rand.NextFloat(0.7f, 0.95f));
-			}
-			else {
+			}else{
 				//Otherwise, make the item despawn (and make its stack to 0 for good measure)
 				elementItem.item.stack = 0;
 				elementItem.item.active = false;
@@ -56,15 +60,13 @@ namespace TerraScience.Utilities {
 		public static void DetermineAlikaliAirReactionCompound(ElementItem element, out Compound compound, out int hydrogensSpawned, out int compoundsSpawned) {
 			float rand = Main.rand.NextFloat();
 
-			if (rand < 0.65f || element.Family == ElementFamily.AlkalineEarthMetals) {
+			if(rand < 0.65f || element.Family == ElementFamily.AlkalineEarthMetals){
 				//Oxides
 				compound = MiscUtils.ParseToEnum<Compound>(ElementName(element.ElementName, false) + "Oxide");
-			}
-			else if (rand < 0.65f + 0.22f) {
+			}else if(rand < 0.65f + 0.22f){
 				//Peroxides
 				compound = MiscUtils.ParseToEnum<Compound>(ElementName(element.ElementName, false) + "Peroxide");
-			}
-			else {
+			}else{
 				//Superoxides
 				compound = MiscUtils.ParseToEnum<Compound>(ElementName(element.ElementName, false) + "Superoxide");
 			}
@@ -76,9 +78,9 @@ namespace TerraScience.Utilities {
 
 		public static void DetermineAlkaliWaterReactionCompound(ElementItem element, out Compound compound, out int hydrogensSpawned, out int compoundsSpawned) {
 			//Setting a variable here for future use (TODO)
-			float rand = Main.rand.NextFloat();
+		//	float rand = Main.rand.NextFloat();
 
-			if ((element.Family == ElementFamily.AlkaliMetals || element.Family == ElementFamily.AlkalineEarthMetals) && rand < 0.95f) {
+			if (element.Family == ElementFamily.AlkaliMetals || element.Family == ElementFamily.AlkalineEarthMetals) {
 				//Hydroxide is viable
 				hydrogensSpawned = 2;
 				compoundsSpawned = element.Family == ElementFamily.AlkaliMetals ? 2 : 1;
@@ -118,11 +120,11 @@ namespace TerraScience.Utilities {
 				boilingPoint,
 				meltingPoint
 				);
-			mod.AddItem(internalName, item);
+			ModInstance.AddItem(internalName, item);
 
 			//Add the corresponding bar tile if it should exist
 			if (isPlaceableBar)
-				mod.AddTile(internalName, new ScienceBar(), $"TerraScience/Content/Tiles/{internalName}");
+				ModInstance.AddTile(internalName, new ScienceBar(), $"TerraScience/Content/Tiles/{internalName}");
 
 			//Cache the defaults and recipe so we can use it anytime
 			TerraScience.CachedElementDefaults.Add(internalName, defaults);

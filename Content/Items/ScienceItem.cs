@@ -81,7 +81,7 @@ namespace TerraScience.Content.Items{
 			//If the item is a placeable bar, register the tile type (tile name is guaranteed to be the same)
 			if(IsPlaceableBar){
 				item.createTile = mod.TileType(Name);
-				item.useStyle = 1;
+				item.useStyle = ItemUseStyleID.SwingThrow;
 				item.useTurn = true;
 				item.useAnimation = 15;
 				item.useTime = 10;
@@ -122,7 +122,7 @@ namespace TerraScience.Content.Items{
 
 				Item otherItem = Main.item[i];
 				ScienceItem otherScience = otherItem.modItem as ScienceItem;
-				if(otherItem.active && CurrentState == ElementState.Gas && this.Equals(otherScience) && item.Hitbox.Intersects(otherItem.Hitbox) && otherItem.stack != otherItem.maxStack){
+				if(this.Equals(otherScience) && otherItem.active && item.Hitbox.Intersects(otherItem.Hitbox) && otherItem.stack != otherItem.maxStack){
 					if(item.stack + otherItem.stack < item.maxStack){
 						item.stack += otherItem.stack;
 						otherItem.stack = 0;

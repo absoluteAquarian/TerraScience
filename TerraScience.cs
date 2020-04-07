@@ -88,7 +88,7 @@ namespace TerraScience {
 			Main.OnTick -= OnUpdate;
 
 			TileUtils.Structures.Unload();
-			saltExtracterLoader.Unload();
+			saltExtracterLoader?.Unload();
 		}
 
 		public override void PostSetupContent() {
@@ -405,7 +405,7 @@ namespace TerraScience {
 			if (typeof(T) != typeof(Element) && typeof(T) != typeof(Compound))
 				throw new ArgumentException("Generic argument must either be a \"TerraScience.Element\" or \"TerraScience.Compound\".", "enumName");
 
-			string itemName = Enum.GetName(typeof(T), enumName);
+			string itemName = ((enumName is Element) ? "Element" : "") + Enum.GetName(typeof(T), enumName);
 			int type = ModContent.GetInstance<TerraScience>().ItemType(itemName);
 
 			if (type > 0) {

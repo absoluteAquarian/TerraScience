@@ -10,7 +10,7 @@ using TerraScience.Content.Tiles;
 
 namespace TerraScience.Utilities {
 	public static class CompoundUtils {
-		private static readonly Mod mod = ModContent.GetInstance<TerraScience>();
+		private static Mod ModInstance => ModContent.GetInstance<TerraScience>();
 
 		//Get the name, make it "proper case" then trim the starting space
 		public static string CompoundName(Compound name, bool doMakeProper = true)
@@ -47,12 +47,12 @@ namespace TerraScience.Utilities {
 				boilingPoint,
 				meltingPoint,
 				elements);
-			mod.AddItem(internalName, item);
+			ModInstance.AddItem(internalName, item);
 
 			//Add the corresponding bar tile if it should exist
 			// TODO: make a ScienceBar for compounds
 			if (isPlaceableBar)
-				mod.AddTile(internalName, new ScienceBar(), $"TerraScience/Content/Tiles/{internalName}");
+				ModInstance.AddTile(internalName, new ScienceBar(), $"TerraScience/Content/Tiles/{internalName}");
 
 			//Cache the defaults and recipe so we can use it anytime
 			TerraScience.CachedCompoundDefaults.Add(internalName, defaults);
@@ -65,7 +65,7 @@ namespace TerraScience.Utilities {
 
 					for (int i = 0; i < item.Elements.Count; i++) {
 						Tuple<Element, int> pair = item.Elements[i];
-						r.AddIngredient(mod.ItemType(ElementUtils.ElementName(pair.Item1)), pair.Item2);
+						r.AddIngredient(ModInstance.ItemType(ElementUtils.ElementName(pair.Item1)), pair.Item2);
 					}
 
 					r.SetResult(e, stackCrafted);
