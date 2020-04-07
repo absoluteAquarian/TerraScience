@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 using Terraria;
-using Terraria.Audio;
-using Terraria.DataStructures;
 using Terraria.GameContent.UI.Elements;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -148,6 +146,8 @@ namespace TerraScience.Content.UI {
 		}
 
 		public override void Update(GameTime gameTime) {
+			base.Update(gameTime);
+
 			Main.playerInventory = true;
 
 			if (SaltExtractor != null) {
@@ -155,8 +155,10 @@ namespace TerraScience.Content.UI {
 				Vector2 middle = TileUtils.TileEntityCenter(SaltExtractor, TileUtils.Structures.SaltExtractor);
 
 				// check if the inventory key was pressed or if the player is 5 blocks away from the tile. if so close UI
-				if (Main.LocalPlayer.GetModPlayer<TerraSciencePlayer>().InventoryKeyPressed || Vector2.Distance(Main.LocalPlayer.Center, middle) > 5 * 16)
+				if (Main.LocalPlayer.GetModPlayer<TerraSciencePlayer>().InventoryKeyPressed || Vector2.Distance(Main.LocalPlayer.Center, middle) > 5 * 16) {
 					ModContent.GetInstance<TerraScience>().saltExtracterLoader.HideUI();
+					Main.playerInventory = false;
+				}
 
 				waterValues.SetText($"Water: {string.Format("{0:G29}", decimal.Parse($"{SaltExtractor.StoredWater:N2}"))}L / {Math.Round(SaltExtractorEntity.MaxWater)}L");
 				progress.SetText($"Progress: {Math.Round(SaltExtractor.ReactionProgress)}%");
@@ -166,8 +168,6 @@ namespace TerraScience.Content.UI {
 				if(SaltExtractor.StoredSaltItems > itemSlot.StoredItem.stack)
 					SaltExtractor.StoredSaltItems = itemSlot.StoredItem.stack;
 			}
-
-			base.Update(gameTime);
 		}
 	}
 }
