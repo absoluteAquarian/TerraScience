@@ -29,6 +29,7 @@ namespace TerraScience.Utilities {
 		/// <param name="stackCrafted">How much of this item is crafted per recipe.</param>
 		/// <param name="defaults">The defaults set for this item's <seealso cref="Item"/> item field.</param>
 		/// <param name="state">The default ElementState for this compound.</param>
+		/// <param name="classification">The default CompoundClassification for this compound.</param>
 		/// <param name="boilingPoint">The boiling point for this compound in Kelvin. Set to -1 for "unstable".</param>
 		/// <param name="meltingPoint">The melting point for this compound in Kelvin. Set to -1 for "unstable".</param>
 		/// <param name="elements">The Action for adding elements to this compound's recipe.</param>
