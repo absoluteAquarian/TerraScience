@@ -18,7 +18,7 @@ namespace TerraScience.Content.Items{
 		public override bool Autoload(ref string name) 
 			=> false;
 
-		private Action<ModRecipe, CompoundItem> ItemRecipe => TerraScience.CachedCompoundRecipes[Name];
+		private Action<ScienceRecipe, CompoundItem> ItemRecipe => TerraScience.CachedCompoundRecipes[Name];
 		private Action<Item> ItemDefaults => TerraScience.CachedCompoundDefaults[Name];
 
 		public Compound CompoundName{ get; private set; } = Compound.LithiumHydroxide;
@@ -61,7 +61,7 @@ namespace TerraScience.Content.Items{
 		}
 
 		public override void AddRecipes(){
-			ModRecipe r = new ModRecipe(mod);
+			ScienceRecipe r = new ScienceRecipe(mod);
 			ItemRecipe(r, this);
 		}
 

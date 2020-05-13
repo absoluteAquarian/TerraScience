@@ -24,15 +24,13 @@ namespace TerraScience.Content.Commands{
 			//...and that parameter must either be the class name of a ModTileEntity in this mod or "all", specifying
 			// that ALL TerraScience entities are to be killed.
 			if(args[0] == "all"){
-				// TODO: refactor code to use a generic ModTileEntity instead of specific class(es)
 				for(int i = 0; i < TileEntity.ByPosition.Count; i++){
 					var te = TileEntity.ByPosition.ElementAt(i);
-					if(te.Value is SaltExtractorEntity se)
-						se.Kill(te.Key.X, te.Key.Y);
+					if(te.Value is MachineEntity me)
+						me.Kill(te.Key.X, te.Key.Y);
 				}
 
 				caller.Reply("Success! All TerraScience tile entities were killed.", Color.Green);
-				return;
 			}else{
 				var entityType = mod.GetTileEntity(args[0]);
 

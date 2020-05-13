@@ -2,11 +2,13 @@
 using System;
 using System.Linq;
 using Terraria;
+using Terraria.ID;
 using Terraria.ModLoader;
 using TerraScience.API;
 using TerraScience.API.Classes.ModLiquid;
 using TerraScience.Content.Items;
 using TerraScience.Content.Tiles;
+using TerraScience.Content.Tiles.Multitiles;
 
 namespace TerraScience.Utilities {
 	public static class CompoundUtils {
@@ -19,6 +21,9 @@ namespace TerraScience.Utilities {
 					.Select(x => char.IsUpper(x) ? " " + x : x.ToString()))
 					.TrimStart(' ')
 				: Enum.GetName(typeof(Compound), name);
+
+		public static int CompoundType(Compound name)
+			=> ModInstance.ItemType(CompoundName(name, false));
 
 		/// <summary>
 		/// Registers a new CompoundItem.
@@ -59,17 +64,22 @@ namespace TerraScience.Utilities {
 			TerraScience.CachedCompoundDefaults.Add(internalName, defaults);
 			TerraScience.CachedCompoundRecipes.Add(internalName,
 				(r, e) => {
-					if(recipe == TerraScience.NoRecipe)
-						return;
-
-					recipe(r);
-
+					if(recipe != TerraScience.NoRecipe){
+						//Crafing recipe
+						recipe(r);
+						r.SetResult(e, stackCrafted);
+						r.AddRecipe();
+					}
+					
+					//Science Workbench recipe
+					r = new ScienceRecipe(e.mod);
 					for (int i = 0; i < item.Elements.Count; i++) {
 						Tuple<Element, int> pair = item.Elements[i];
-						r.AddIngredient(ModInstance.ItemType(ElementUtils.ElementName(pair.Item1)), pair.Item2);
+						r.AddIngredient(ElementUtils.ElementType(pair.Item1), pair.Item2);
 					}
 
-					r.SetResult(e, stackCrafted);
+					r.AddTile(ModContent.TileType<ScienceWorkbench>());
+					r.SetResult(e);
 					r.AddRecipe();
 				});
 		}

@@ -4,6 +4,7 @@ using System;
 using Terraria;
 using Terraria.GameInput;
 using Terraria.UI;
+using TerraScience.API.UI;
 
 namespace TerraScience.Content.API.UI {
 	public class UIItemSlot : UIElement {
@@ -11,9 +12,13 @@ namespace TerraScience.Content.API.UI {
 
 		public float Scale { get; private set; }
 
-		public Item StoredItem { get => storedItem ?? null; }
+		public Item StoredItem => storedItem;
 
 		private Item storedItem;
+
+		private Item storedItemBeforeHandle;
+
+		public bool ItemChanged => StoredItem != null && storedItemBeforeHandle != null && StoredItem.IsNotTheSameAs(storedItemBeforeHandle);
 
 		public Func<Item, bool> ValidItemFunc;
 
@@ -36,8 +41,12 @@ namespace TerraScience.Content.API.UI {
 			if (ContainsPoint(Main.MouseScreen) && !PlayerInput.IgnoreMouseInterface) {
 				Main.LocalPlayer.mouseInterface = true;
 
+				if(Parent is UIDragablePanel panel)
+					panel.Dragging = false;
+
 				if (ValidItemFunc == null || ValidItemFunc(Main.mouseItem)) {
 					// Handle handles all the click and hover actions based on the context.
+					storedItemBeforeHandle = StoredItem.Clone();
 					ItemSlot.Handle(ref storedItem, Context);
 				}
 			}

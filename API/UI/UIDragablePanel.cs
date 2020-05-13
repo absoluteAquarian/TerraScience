@@ -8,7 +8,7 @@ namespace TerraScience.API.UI {
 		// Stores the offset from the top left of the UIPanel while dragging.
 		private Vector2 Offset { get; set; }
 
-		public bool Dragging { get; private set; }
+		public bool Dragging { get; set; }
 
 		public bool StopItemUse { get; private set; }
 

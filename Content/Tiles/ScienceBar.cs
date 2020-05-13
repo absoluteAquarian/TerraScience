@@ -30,7 +30,8 @@ namespace TerraScience.Content.Tiles{
 		}
 
 		public override bool Drop(int i, int j){
-			if(MiscUtils.TryParseUnknownName(Name, out Enum value))
+			//'Name' might have the word "Element" in it.  Remove it if that's the case
+			if(MiscUtils.TryParseUnknownName(Name.Replace("Element", ""), out Enum value))
 				TerraScience.SpawnScienceItem(i * 16, j * 16, 16, 16, value);
 			return true;
 		}

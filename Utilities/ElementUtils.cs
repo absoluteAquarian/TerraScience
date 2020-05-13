@@ -1,6 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 using Terraria;
+using Terraria.ID;
+using Terraria.Localization;
 using Terraria.ModLoader;
 using TerraScience.API;
 using TerraScience.API.Classes.ModLiquid;
@@ -14,6 +16,9 @@ namespace TerraScience.Utilities {
 
 		public static string ElementName(Element name, bool includeElement = true)
 			=> $"{(includeElement ? "Element" : "")}{Enum.GetName(typeof(Element), name)}";
+
+		public static int ElementType(Element name)
+			=> ModInstance.ItemType(ElementName(name));
 
 		public static void HandleWaterReaction(ElementItem elementItem) {
 			DetermineAlkaliWaterReactionCompound(elementItem, out Compound compound, out int hydrogensSpawned, out int compoundsSpawned);
@@ -36,11 +41,6 @@ namespace TerraScience.Utilities {
 		}
 
 		public static void SpawnItemsFromReaction(ElementItem elementItem, Compound compound, int hydrogensSpawned, int compoundsSpawned) {
-			if(compoundsSpawned > elementItem.item.stack){
-				hydrogensSpawned -= compoundsSpawned - elementItem.item.stack;
-				compoundsSpawned = elementItem.item.stack;
-			}
-
 			//Spawn Hydrogens as well as the CompountItem
 			TerraScience.SpawnScienceItem((int)elementItem.item.position.X, (int)elementItem.item.position.Y, 16, 16, Element.Hydrogen, hydrogensSpawned, new Vector2(Main.rand.NextFloat(-1, 1), -4.2f));
 			TerraScience.SpawnScienceItem((int)elementItem.item.position.X, (int)elementItem.item.position.Y, 16, 16, compound, compoundsSpawned, new Vector2(Main.rand.NextFloat(-0.5f, 0.5f), -2.1f));
@@ -51,9 +51,8 @@ namespace TerraScience.Utilities {
 				elementItem.item.stack -= compoundsSpawned;
 				elementItem.ReactionTimer = (int)(elementItem.ReactionTimer * (float)elementItem.item.stack / oldStack * Main.rand.NextFloat(0.7f, 0.95f));
 			}else{
-				//Otherwise, make the item despawn (and make its stack to 0 for good measure)
-				elementItem.item.stack = 0;
-				elementItem.item.active = false;
+				//Otherwise, make the item despawn
+				elementItem.item.TurnToAir();
 			}
 		}
 
@@ -76,17 +75,16 @@ namespace TerraScience.Utilities {
 			compoundsSpawned = 1;
 		}
 
-		public static void DetermineAlkaliWaterReactionCompound(ElementItem element, out Compound compound, out int hydrogensSpawned, out int compoundsSpawned) {
+		public static void DetermineAlkaliWaterReactionCompound(ElementItem element, out Compound compound, out int hydrogensSpawned, out int compoundsSpawned){
 			//Setting a variable here for future use (TODO)
 		//	float rand = Main.rand.NextFloat();
 
-			if (element.Family == ElementFamily.AlkaliMetals || element.Family == ElementFamily.AlkalineEarthMetals) {
+			if (element.Family == ElementFamily.AlkaliMetals || element.Family == ElementFamily.AlkalineEarthMetals){
 				//Hydroxide is viable
 				hydrogensSpawned = 2;
 				compoundsSpawned = element.Family == ElementFamily.AlkaliMetals ? 2 : 1;
 				compound = MiscUtils.ParseToEnum<Compound>(ElementName(element.ElementName, false) + "Hydroxide");
-			}
-			else {
+			}else{
 				compound = Compound.Water;
 				hydrogensSpawned = 0;
 				compoundsSpawned = 0;
@@ -118,8 +116,7 @@ namespace TerraScience.Utilities {
 				isPlaceableBar,
 				liquid,
 				boilingPoint,
-				meltingPoint
-				);
+				meltingPoint);
 			ModInstance.AddItem(internalName, item);
 
 			//Add the corresponding bar tile if it should exist

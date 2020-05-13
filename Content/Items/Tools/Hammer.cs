@@ -50,7 +50,7 @@ namespace TerraScience.Content.Items.Tools{
 				int maxReach = player.lastTileRangeY * 16;
 				if(TileUtils.TileIsViable(tilePos.X, tilePos.Y) && Vector2.DistanceSquared(player.Center, Main.MouseWorld) < maxReach * maxReach){
 					//The tile is valid.  Call the utils method and then replace the tiles if the structure is there
-					if(TileUtils.TryReplaceStructure(tilePos.X, tilePos.Y, out Point16 location, out Tile[,] structure)){
+					if(TileUtils.TryReplaceStructure(tilePos.X, tilePos.Y, out Point16 location, out Tile[,] structure, out int type)){
 						//Main.NewText($"Structure at mouse position ({location.X}, {location.Y}) is valid!", Color.Orange);
 
 						//Replace the tiles with the multitile
@@ -60,7 +60,8 @@ namespace TerraScience.Content.Items.Tools{
 							for(int c = 0; c < width; c++){
 								Tile tile = Main.tile[location.X + c, location.Y + r];
 								tile.halfBrick(false);
-								tile.type = (ushort)ModContent.TileType<SaltExtractor>();
+								tile.slope(0);
+								tile.type = (ushort)type;
 								tile.active(true);
 								tile.inActive(false);
 								tile.frameX = (short)(c * 18);
@@ -75,9 +76,15 @@ namespace TerraScience.Content.Items.Tools{
 							NetMessage.SendTileRange(-1, location.X, location.Y, width, height);
 
 						//Spawn the tile entity
-						SaltExtractorEntity se = ModContent.GetInstance<SaltExtractorEntity>();
-						if(se.Find(location.X, location.Y) < 0)
-							se.Place(location.X, location.Y);
+						MachineEntity ent = null;
+
+						if(type == ModContent.TileType<SaltExtractor>())
+							ent = ModContent.GetInstance<SaltExtractorEntity>();
+						else if(type == ModContent.TileType<ScienceWorkbench>())
+							ent = ModContent.GetInstance<ScienceWorkbenchEntity>();
+
+						if(ent?.Find(location.X, location.Y) < 0)
+							ent.Place(location.X, location.Y);
 					}//else{
 					//	Main.NewText("Structure wasn't valid.", Color.Orange);
 					//}

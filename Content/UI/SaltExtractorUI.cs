@@ -1,172 +1,87 @@
-﻿using Microsoft.Xna.Framework;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Terraria;
 using Terraria.GameContent.UI.Elements;
-using Terraria.ID;
-using Terraria.ModLoader;
-using Terraria.UI;
-using TerraScience.API.UI;
 using TerraScience.Content.API.UI;
 using TerraScience.Content.TileEntities;
 using TerraScience.Utilities;
 
-namespace TerraScience.Content.UI {
-	public class SaltExtractorUILoader {
-		public UserInterface saltExtractorInterface;
+namespace TerraScience.Content.UI{
+	public class SaltExtractorUI : MachineUI{
+		public UIItemSlot ItemSlot_Salt => GetSlot(0);
+		public UIItemSlot ItemSlot_Water => GetSlot(1);
 
-		public SaltExtractorUI saltExtractorUI;
+		public override string GetHeader() => "Salt Extractor";
 
-		private GameTime lastUpdateUIGameTime;
+		public override Tile[,] GetStructure() => TileUtils.Structures.SaltExtractor;
 
-		/// <summary>
-		/// Called on Mod.Load
-		/// </summary>
-		internal void Load() {
-			if (!Main.dedServ) {
-				saltExtractorInterface = new UserInterface();
-				saltExtractorUI = new SaltExtractorUI();
-
-				// Activate calls Initialize() on the UIState if not initialized, then calls OnActivate and then calls Activate on every child element
-				saltExtractorUI.Activate();
-			}
+		internal override void PanelSize(out int width, out int height){
+			width = 300;
+			height = 230;
 		}
 
-		/// <summary>
-		/// Called on Mod.UpdateUI
-		/// </summary>
-		internal void UpdateUI(GameTime gameTime) {
-			lastUpdateUIGameTime = gameTime;
-
-			if (saltExtractorInterface?.CurrentState != null)
-				saltExtractorInterface.Update(gameTime);
-		}
-
-		/// <summary>
-		/// Called on Mod.ModifyInterfaceLayers
-		/// </summary>
-		internal void ModifyInterfaceLayers(List<GameInterfaceLayer> layers) {
-			int mouseTextIndex = layers.FindIndex(layer => layer.Name.Equals("Vanilla: Mouse Text"));
-
-			if (mouseTextIndex != -1) {
-				layers.Insert(mouseTextIndex, new LegacyGameInterfaceLayer(
-					"TerraScience: SaltExtractorInterface",
-					delegate {
-						if (lastUpdateUIGameTime != null && saltExtractorInterface?.CurrentState != null)
-							saltExtractorInterface.Draw(Main.spriteBatch, lastUpdateUIGameTime);
-
-						return true;
-					}, InterfaceScaleType.UI));
-			}
-		}
-
-		/// <summary>
-		/// Called on Mod.Unload
-		/// </summary>
-		internal void Unload() => saltExtractorUI = null;
-
-		public void ShowUI(UIState state, SaltExtractorEntity entity) {
-			Main.PlaySound(SoundID.MenuOpen);
-			saltExtractorInterface.SetState(state);
-			saltExtractorUI.SaltExtractor = entity;
-
-			if(!saltExtractorUI.CheckedForSavedItemCount){
-				saltExtractorUI.CheckedForSavedItemCount = true;
-				if(entity.StoredSaltItems > 0){
-					saltExtractorUI.itemSlot.StoredItem.SetDefaults(ModContent.GetInstance<TerraScience>().ItemType(CompoundUtils.CompoundName(Compound.SodiumChloride, false)));
-					saltExtractorUI.itemSlot.StoredItem.stack = entity.StoredSaltItems;
-				}
-			}
-		}
-
-		public void HideUI() {
-			Main.PlaySound(SoundID.MenuClose);
-			saltExtractorInterface.SetState(null);
-		}
-	}
-
-	public class SaltExtractorUI : UIState {
-		/// <summary>
-		/// The Salt Extractor tile entity. Set when UI is shown.
-		/// </summary>
-		public SaltExtractorEntity SaltExtractor { get; internal set; } = null;
-
-		public bool CheckedForSavedItemCount = false;
-
-		private UIText waterValues;
-
-		private UIText progress;
-
-		private UIText reactionSpeed;
-
-		internal UIItemSlot itemSlot;
-
-		public override void OnInitialize() {
-			UIDragablePanel panel = new UIDragablePanel();
-			panel.Width.Set(300, 0);
-			panel.Height.Set(230, 0);
-			panel.HAlign = panel.VAlign = 0.5f;
-			Append(panel);
-
-			UIText header = new UIText("Salt Extractor", 1, true) {
+		internal override void InitializeText(List<UIText> text){
+			UIText waterValues = new UIText("0L / 10L", 1.3f) {
 				HAlign = 0.5f
 			};
-
-			header.Top.Set(10, 0);
-			panel.Append(header);
-
-			waterValues = new UIText("Water: 0L / 10L", 1.3f) {
-				HAlign = 0.5f
-			};
-
 			waterValues.Top.Set(58, 0);
-			panel.Append(waterValues);
+			text.Add(waterValues);
 
-			progress = new UIText("Progress: 0%", 1.3f) {
+			UIText progress = new UIText("Processing: None", 1.3f) {
 				HAlign = 0.5f
 			};
-
 			progress.Top.Set(87, 0);
-			panel.Append(progress);
+			text.Add(progress);
 
-			reactionSpeed = new UIText("Reaction Speed: 1x", 1.3f) {
+			UIText reactionSpeed = new UIText("Reaction Speed: 1x", 1.3f) {
 				HAlign = 0.5f
 			};
-
 			reactionSpeed.Top.Set(116, 0);
-			panel.Append(reactionSpeed);
-
-			itemSlot = new UIItemSlot {
-				HAlign = 0.5f,
-				ValidItemFunc = item => item.IsAir //|| !item.IsAir && item.type == ModContent.GetInstance<TerraScience>().ItemType("SodiumChloride") //this following commented code makes the player able to place salt in the slot
-			};
-
-			itemSlot.Top.Set(152, 0);
-			panel.Append(itemSlot);
+			text.Add(reactionSpeed);
 		}
 
-		public override void Update(GameTime gameTime) {
-			base.Update(gameTime);
+		internal override void InitializeSlots(List<UIItemSlot> slots){
+			UIItemSlot itemSlot_Salt = new UIItemSlot {
+				HAlign = 0.3333f,
+				ValidItemFunc = item => item.IsAir
+			};
+			itemSlot_Salt.Top.Set(152, 0);
+			slots.Add(itemSlot_Salt);
 
-			Main.playerInventory = true;
+			UIItemSlot itemSlot_Water = new UIItemSlot{
+				HAlign = 0.6667f,
+				ValidItemFunc = item => item.IsAir
+			};
+			itemSlot_Water.Top.Set(152, 0);
+			slots.Add(itemSlot_Water);
+		}
 
-			if (SaltExtractor != null) {
-				// Get the salt extractor's ceter position
-				Vector2 middle = TileUtils.TileEntityCenter(SaltExtractor, TileUtils.Structures.SaltExtractor);
+		internal override void UpdateText(List<UIText> text){
+			SaltExtractorEntity se = UIEntity as SaltExtractorEntity;
 
-				// check if the inventory key was pressed or if the player is 5 blocks away from the tile. if so close UI
-				if (Main.LocalPlayer.GetModPlayer<TerraSciencePlayer>().InventoryKeyPressed || Vector2.Distance(Main.LocalPlayer.Center, middle) > 5 * 16) {
-					ModContent.GetInstance<TerraScience>().saltExtracterLoader.HideUI();
-					Main.playerInventory = false;
-				}
+			text[0].SetText($"{string.Format("{0:G29}", decimal.Parse($"{se.StoredLiquid:N2}"))}L / {Math.Round(SaltExtractorEntity.MaxLiquid)}L");
+			text[1].SetText($"Processing: {Enum.GetName(typeof(SaltExtractorEntity.SE_LiquidType), se.LiquidType)}");
+			text[2].SetText($"Speed Multiplier: {string.Format("{0:G29}", decimal.Parse($"{se.ReactionSpeed:N2}"))}x");
+		}
 
-				waterValues.SetText($"Water: {string.Format("{0:G29}", decimal.Parse($"{SaltExtractor.StoredWater:N2}"))}L / {Math.Round(SaltExtractorEntity.MaxWater)}L");
-				progress.SetText($"Progress: {Math.Round(SaltExtractor.ReactionProgress)}%");
-				reactionSpeed.SetText($"Speed Multiplier: {string.Format("{0:G29}", decimal.Parse($"{SaltExtractor.ReactionSpeed:N2}"))}x");
+		internal override void UpdateEntity(){
+			SaltExtractorEntity se = UIEntity as SaltExtractorEntity;
 
-				//Possible if items were removed
-				if(SaltExtractor.StoredSaltItems > itemSlot.StoredItem.stack)
-					SaltExtractor.StoredSaltItems = itemSlot.StoredItem.stack;
+			//Possible if items were removed
+			if(se.StoredSaltItems > ItemSlot_Salt.StoredItem.stack)
+				se.StoredSaltItems = ItemSlot_Salt.StoredItem.stack;
+			if(se.StoredWaterItems > ItemSlot_Water.StoredItem.stack)
+				se.StoredWaterItems = ItemSlot_Water.StoredItem.stack;
+		}
+
+		public override void DoSavedItemsCheck(){
+			SaltExtractorEntity entity = UIEntity as SaltExtractorEntity;
+
+			if(entity.StoredSaltItems > 0){
+				ItemSlot_Salt.StoredItem.SetDefaults(CompoundUtils.CompoundType(Compound.SodiumChloride));
+				ItemSlot_Salt.StoredItem.stack = entity.StoredSaltItems;
+				ItemSlot_Water.StoredItem.SetDefaults(CompoundUtils.CompoundType(Compound.Water));
+				ItemSlot_Water.StoredItem.stack = entity.StoredWaterItems;
 			}
 		}
 	}

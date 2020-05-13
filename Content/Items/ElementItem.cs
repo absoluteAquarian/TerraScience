@@ -11,7 +11,7 @@ namespace TerraScience.Content.Items{
 	public class ElementItem : ScienceItem{
 		public override string Texture => $"TerraScience/Content/Items/Elements/{ElementUtils.ElementName(ElementName, true)}";
 
-		private Action<ModRecipe, ElementItem> ItemRecipe => TerraScience.CachedElementRecipes[Name];
+		private Action<ScienceRecipe, ElementItem> ItemRecipe => TerraScience.CachedElementRecipes[Name];
 		private Action<Item> ItemDefaults => TerraScience.CachedElementDefaults[Name];
 
 		public ElementFamily Family{ get; private set; } = ElementFamily.None;
@@ -46,7 +46,7 @@ namespace TerraScience.Content.Items{
 		}
 
 		public override void AddRecipes(){
-			ModRecipe r = new ModRecipe(mod);
+			ScienceRecipe r = new ScienceRecipe(mod);
 			ItemRecipe(r, this);
 		}
 

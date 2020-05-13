@@ -6,6 +6,11 @@ using Terraria;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.ModLoader.IO;
+using TerraScience.Content.API.UI;
+using TerraScience.Content.Items.Materials;
+using TerraScience.Content.TileEntities;
+using static TerraScience.Content.TileEntities.SaltExtractorEntity;
 
 namespace TerraScience.Utilities {
 	public static class MiscUtils {
@@ -36,8 +41,36 @@ namespace TerraScience.Utilities {
 			return tileEntity != null;
 		}
 
-		public static bool HeldItemCanPlaceWater(this Player player)
-			=> player.HeldItem.type == ItemID.WaterBucket || player.HeldItem.type == ItemID.BottomlessBucket;
+		public static bool HeldItemIsViableForSaltExtractor(this Player player, Point16 pos){
+			if(!TryGetTileEntity(pos, out SaltExtractorEntity se))
+				return false;
+
+			int[] types = new int[]{
+				ItemID.WaterBucket,
+				ItemID.BottomlessBucket,
+				ModContent.ItemType<Vial_Water>(),
+				ModContent.ItemType<Vial_Saltwater>()
+			};
+
+			if(!types.Contains(player.HeldItem.type))
+				return false;
+
+			//Liquid: none
+			if(se.LiquidType == SE_LiquidType.None)
+				return true;
+
+			//Liquid: water
+			if((player.HeldItem.type == ItemID.WaterBucket || player.HeldItem.type == ItemID.BottomlessBucket || player.HeldItem.type == ModContent.ItemType<Vial_Water>())
+				&& se.LiquidType == SE_LiquidType.Water)
+				return true;
+
+			//Liquid: saltwater
+			if(player.HeldItem.type == ModContent.ItemType<Vial_Saltwater>() && se.LiquidType == SE_LiquidType.Saltwater)
+				return true;
+
+			//Bad
+			return false;
+		}
 
 		public static Vector2 ScreenCenter()
 			=> new Vector2(Main.screenWidth, Main.screenHeight) / 2f;
@@ -56,5 +89,15 @@ namespace TerraScience.Utilities {
 				value = ParseToEnum<Compound>(name);
 			return value != null;
 		}
+
+		public static T[] Create1DArray<T>(T value, uint length){
+			T[] arr = new T[length];
+			for(uint i = 0; i < length; i++)
+				arr[i] = value;
+			return arr;
+		}
+
+		//This added offset is needed to draw the bars at the right positions during different lighting modes
+		public static Vector2 GetLightingDrawOffset() => Lighting.NotRetro ? new Vector2(12) * 16 : Vector2.Zero;
 	}
 }

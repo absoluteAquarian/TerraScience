@@ -117,16 +117,16 @@ namespace TerraScience.Content.Items{
 
 			//Merge any nearby Gas items as to not create lag
 			for(int i = 0; i < Main.maxItems; i++){
-				if(i == item.whoAmI)
-					continue;
-
 				Item otherItem = Main.item[i];
 				ScienceItem otherScience = otherItem.modItem as ScienceItem;
-				if(this.Equals(otherScience) && otherItem.active && item.Hitbox.Intersects(otherItem.Hitbox) && otherItem.stack != otherItem.maxStack){
+
+				if(item == otherItem || !otherItem.active || otherItem.stack == 0)
+					continue;
+
+				if(this.Equals(otherScience) && item.Hitbox.Intersects(otherItem.Hitbox) && otherItem.stack != otherItem.maxStack){
 					if(item.stack + otherItem.stack < item.maxStack){
 						item.stack += otherItem.stack;
-						otherItem.stack = 0;
-						otherItem.active = false;
+						otherItem.TurnToAir();
 					}else{
 						int oldStack = item.stack;
 						item.stack = item.maxStack;

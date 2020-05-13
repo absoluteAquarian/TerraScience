@@ -1,4 +1,5 @@
 ﻿using Terraria;
+using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
@@ -7,11 +8,11 @@ using TerraScience.Content.Tiles.Multitiles;
 using TerraScience.Utilities;
 
 namespace TerraScience.Content.TileEntities{
-	public class SaltExtractorEntity : ModTileEntity{
+	public class SaltExtractorEntity : MachineEntity{
 		/// <summary>
-		/// How much water is stored in the Salt Extractor in Liters.
+		/// How much liquid is stored in the Salt Extractor in Liters.
 		/// </summary>
-		public float StoredWater = 0f;
+		public float StoredLiquid = 0f;
 
 		/// <summary>
 		/// How much salt is stored in the Salt Extractor.
@@ -25,20 +26,12 @@ namespace TerraScience.Content.TileEntities{
 		/// </summary>
 		public int StoredSaltItems = 0;
 
-		public static readonly float MaxWater = 10f;
-
 		/// <summary>
-		/// How quickly the water is evaporated and salt is created.
+		/// How many water (H20) items are stored in the extractor.
 		/// </summary>
-		public float ReactionSpeed = 1f;
+		public int StoredWaterItems = 0;
 
-		/// <summary>
-		/// The progress for the current reaction.
-		/// Range: [0, 100]
-		/// </summary>
-		public float ReactionProgress = 0f;
-
-		public bool ReactionInProgress = false;
+		public static readonly float MaxLiquid = 10f;
 
 		/// <summary>
 		/// The max delay between water placements into the machine.
@@ -46,64 +39,85 @@ namespace TerraScience.Content.TileEntities{
 		public const int MaxPlaceDelay = 12;
 		public int WaterPlaceDelay = 0;
 
-		public override void Load(TagCompound tag){
-			StoredWater = tag.GetFloat(nameof(StoredWater));
+		public SE_LiquidType LiquidType = SE_LiquidType.None;
+
+		public override void ExtraLoad(TagCompound tag){
+			StoredLiquid = tag.GetFloat(nameof(StoredLiquid));
 			StoredSalt = tag.GetFloat(nameof(StoredSalt));
-			ReactionSpeed = tag.GetFloat(nameof(ReactionSpeed));
-			ReactionProgress = tag.GetFloat(nameof(ReactionProgress));
-			ReactionInProgress = tag.GetBool(nameof(ReactionInProgress));
 			StoredSaltItems = tag.GetInt(nameof(StoredSaltItems));
+			StoredWaterItems = tag.GetInt(nameof(StoredWaterItems));
+			LiquidType = (SE_LiquidType)tag.GetInt(nameof(LiquidType));
 		}
 
-		public override TagCompound Save()
+		public override TagCompound ExtraSave()
 			=> new TagCompound(){
-				[nameof(StoredWater)] = StoredWater,
+				[nameof(StoredLiquid)] = StoredLiquid,
 				[nameof(StoredSalt)] = StoredSalt,
-				[nameof(ReactionSpeed)] = ReactionSpeed,
-				[nameof(ReactionProgress)] = ReactionProgress,
-				[nameof(ReactionInProgress)] = ReactionInProgress,
-				[nameof(StoredSaltItems)] = StoredSaltItems
+				[nameof(StoredSaltItems)] = StoredSaltItems,
+				[nameof(StoredWaterItems)] = StoredWaterItems,
+				[nameof(LiquidType)] = (int)LiquidType
 			};
 
-		//The spawn and despawn code is handled elsewhere, so just return true
-		public override bool ValidTile(int i, int j){
-			Tile tile = Main.tile[i, j];
-			return tile != null && tile.active() && tile.type == ModContent.TileType<SaltExtractor>() && tile.frameX == 0 && tile.frameY == 0;
+		public override int GetTileType() => ModContent.TileType<SaltExtractor>();
+
+		public override bool UpdateReaction(){
+			float litersLostPerSecond = 0f;
+			if(LiquidType == SE_LiquidType.Water)
+				litersLostPerSecond = 0.05f;
+			else if(LiquidType == SE_LiquidType.Saltwater)
+				litersLostPerSecond = 0.075f;
+
+			float reaction = ReactionSpeed * litersLostPerSecond / 60f;
+			StoredLiquid -= reaction;
+
+			if(LiquidType == SE_LiquidType.Water)
+				StoredSalt += reaction * 0.5f;
+			else if(LiquidType == SE_LiquidType.Saltwater)
+				StoredSalt += reaction * 1.5f;
+
+			ReactionProgress = StoredSalt * 100;
+
+			return true;
 		}
 
-		public override void Update(){
-			UIItemSlot itemSlot = ModContent.GetInstance<TerraScience>().saltExtracterLoader.saltExtractorUI.itemSlot;
+		public override void ReactionComplete(){
+			UIItemSlot itemSlot_Salt = ModContent.GetInstance<TerraScience>().machineLoader.SaltExtractorState.ItemSlot_Salt;
+			UIItemSlot itemSlot_Water = ModContent.GetInstance<TerraScience>().machineLoader.SaltExtractorState.ItemSlot_Water;
 
-			if(ReactionInProgress){
-				float litersLostPerSecond = 0.05f;
-				float reaction = ReactionSpeed * litersLostPerSecond / 60f;
-				StoredWater -= reaction;
-				StoredSalt += reaction / 2f;
+			StoredSalt--;
 
-				ReactionProgress = StoredSalt * 100;
+			int saltType = mod.ItemType(CompoundUtils.CompoundName(Compound.SodiumChloride, false));
+			int waterType = mod.ItemType(CompoundUtils.CompoundName(Compound.Water, false));
 
-				if(StoredSalt >= 1f){
-					StoredSalt--;
+			if (itemSlot_Salt.StoredItem.type != saltType)
+				itemSlot_Salt.SetItem(saltType);
+			else if(itemSlot_Salt.StoredItem.stack < 100)
+				itemSlot_Salt.StoredItem.stack++;
+			if(itemSlot_Water.StoredItem.type != waterType)
+				itemSlot_Water.SetItem(waterType);
+			else if(itemSlot_Water.StoredItem.stack < 100)
+				itemSlot_Water.StoredItem.stack++;
 
-					if (itemSlot.StoredItem.type != mod.ItemType(CompoundUtils.CompoundName(Compound.SodiumChloride, false)))
-						itemSlot.SetItem(mod.ItemType(CompoundUtils.CompoundName(Compound.SodiumChloride, false)));
-					else if(itemSlot.StoredItem.stack < 100)
-						itemSlot.StoredItem.stack++;
+			StoredSaltItems++;
+			StoredWaterItems++;
 
-					StoredSaltItems++;
+			Main.PlaySound(new LegacySoundStyle(SoundID.Grab, 0).WithVolume(0.5f), Position.ToWorldCoordinates());
+		}
 
-					Main.PlaySound(SoundID.Grab);
+		public override void PostUpdateReaction(){
+			//Reaction happens faster and faster as it "heats up", but cools down very quickly
+			ReactionSpeed *= 1f + 0.0392f / 60f;
 
-					//TerraScience.SpawnScienceItem(Position.X * 16 + 48, Position.Y * 16 + 8, 16, 16, Compound.Water, 1, new Vector2(Main.rand.NextFloat(-1.5f, 1.5f), Main.rand.NextFloat(-2.25f, -4f)));
-				}
+			//Reaction speed caps at 2x speed
+			if(ReactionSpeed > 2f)
+				ReactionSpeed = 2f;
+		}
 
-				//Reaction happens faster and faster as it "heats up", but cools down very quickly
-				ReactionSpeed *= 1f + 0.0392f / 60f;
+		public override void PostReaction(){
+			UIItemSlot itemSlot_Salt = ModContent.GetInstance<TerraScience>().machineLoader.SaltExtractorState.ItemSlot_Salt;
+			UIItemSlot itemSlot_Water = ModContent.GetInstance<TerraScience>().machineLoader.SaltExtractorState.ItemSlot_Water;
 
-				//Reaction speed caps at 2x speed
-				if(ReactionSpeed > 2f)
-					ReactionSpeed = 2f;
-			}else{
+			if(!ReactionInProgress){
 				ReactionSpeed *= 1f - 0.0943f / 60f;
 
 				if(ReactionSpeed < 1f)
@@ -111,19 +125,25 @@ namespace TerraScience.Content.TileEntities{
 			}
 
 			//If there isn't any water left, pause the reaction
-			if(StoredWater <= 0f && ReactionInProgress){
+			if(StoredLiquid <= 0f && ReactionInProgress){
 				ReactionInProgress = false;
-				StoredWater = 0f;
+				StoredLiquid = 0f;
+				LiquidType = SE_LiquidType.None;
 			}
 
-			//Stop the reaction if more than 99 salt is stored
-			if(itemSlot.StoredItem.stack >= 100){
+			//Stop the reaction if more than 99 salt or water items are stored
+			if(itemSlot_Salt.StoredItem.stack >= 100 || itemSlot_Water.StoredItem.stack >= 100)
 				ReactionInProgress = false;
-			}
 
 			//Update the delay timer
 			if(WaterPlaceDelay > 0)
 				WaterPlaceDelay--;
+		}
+
+		public enum SE_LiquidType{
+			None,
+			Water,
+			Saltwater
 		}
 	}
 }
