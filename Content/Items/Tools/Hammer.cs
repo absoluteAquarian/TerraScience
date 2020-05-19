@@ -78,10 +78,13 @@ namespace TerraScience.Content.Items.Tools{
 						//Spawn the tile entity
 						MachineEntity ent = null;
 
+						// TODO: Make this not an if-else chain
 						if(type == ModContent.TileType<SaltExtractor>())
 							ent = ModContent.GetInstance<SaltExtractorEntity>();
 						else if(type == ModContent.TileType<ScienceWorkbench>())
 							ent = ModContent.GetInstance<ScienceWorkbenchEntity>();
+						else if(type == ModContent.TileType<ReinforcedFurnace>())
+							ent = ModContent.GetInstance<ReinforcedFurnaceEntity>();
 
 						if(ent?.Find(location.X, location.Y) < 0)
 							ent.Place(location.X, location.Y);

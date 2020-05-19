@@ -4,6 +4,7 @@ using Terraria;
 using Terraria.GameContent.UI.Elements;
 using Terraria.ID;
 using Terraria.Localization;
+using Terraria.ModLoader;
 using TerraScience.Content.API.UI;
 using TerraScience.Content.Items;
 using TerraScience.Content.TileEntities;
@@ -19,9 +20,9 @@ namespace TerraScience.Content.UI{
 		public bool PromptForRecipes;
 		public bool UpdateSuccess;
 
-		public override string GetHeader() => "Science Workbench";
+		public override string Header => "Science Workbench";
 
-		public override Tile[,] GetStructure() => TileUtils.Structures.ScienceWorkbench;
+		public override Tile[,] Structure => TileUtils.Structures.ScienceWorkbench;
 
 		internal override void PanelSize(out int width, out int height){
 			width = 400;
@@ -171,16 +172,12 @@ namespace TerraScience.Content.UI{
 		}
 
 		public override void PreClose(){
-			ScienceWorkbenchEntity entity = UIEntity as ScienceWorkbenchEntity;
-			entity.SaveSlots();
-			ClearSlots();
 			PromptForRecipes = true;
 			UpdateSuccess = false;
 		}
 
 		public override void DoSavedItemsCheck(){
-			ScienceWorkbenchEntity entity = UIEntity as ScienceWorkbenchEntity;
-			entity.LoadSlots();
+			PromptForRecipes = true;
 		}
 	}
 }

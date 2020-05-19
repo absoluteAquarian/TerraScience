@@ -34,6 +34,10 @@ namespace TerraScience.API.UI {
 		}
 
 		private void DragEnd(UIMouseEvent evt) {
+			//A child element forced this to not move
+			if(!Dragging)
+				return;
+
 			Vector2 end = evt.MousePosition;
 			Dragging = false;
 

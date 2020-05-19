@@ -11,9 +11,9 @@ namespace TerraScience.Content.UI{
 		public UIItemSlot ItemSlot_Salt => GetSlot(0);
 		public UIItemSlot ItemSlot_Water => GetSlot(1);
 
-		public override string GetHeader() => "Salt Extractor";
+		public override string Header => "Salt Extractor";
 
-		public override Tile[,] GetStructure() => TileUtils.Structures.SaltExtractor;
+		public override Tile[,] Structure => TileUtils.Structures.SaltExtractor;
 
 		internal override void PanelSize(out int width, out int height){
 			width = 300;
@@ -33,7 +33,7 @@ namespace TerraScience.Content.UI{
 			progress.Top.Set(87, 0);
 			text.Add(progress);
 
-			UIText reactionSpeed = new UIText("Reaction Speed: 1x", 1.3f) {
+			UIText reactionSpeed = new UIText("Speed Multiplier: 1x", 1.3f) {
 				HAlign = 0.5f
 			};
 			reactionSpeed.Top.Set(116, 0);
@@ -59,9 +59,9 @@ namespace TerraScience.Content.UI{
 		internal override void UpdateText(List<UIText> text){
 			SaltExtractorEntity se = UIEntity as SaltExtractorEntity;
 
-			text[0].SetText($"{string.Format("{0:G29}", decimal.Parse($"{se.StoredLiquid:N2}"))}L / {Math.Round(SaltExtractorEntity.MaxLiquid)}L");
+			text[0].SetText($"{DecimalFormat(se.StoredLiquid)}L / {Math.Round(SaltExtractorEntity.MaxLiquid)}L");
 			text[1].SetText($"Processing: {Enum.GetName(typeof(SaltExtractorEntity.SE_LiquidType), se.LiquidType)}");
-			text[2].SetText($"Speed Multiplier: {string.Format("{0:G29}", decimal.Parse($"{se.ReactionSpeed:N2}"))}x");
+			text[2].SetText($"Speed Multiplier: {DecimalFormat(se.ReactionSpeed)}x");
 		}
 
 		internal override void UpdateEntity(){

@@ -11,7 +11,7 @@ namespace TerraScience.Content.Tiles.Multitiles{
 			height = 3;
 		}
 
-		public override Tile[,] GetStructure() => TileUtils.Structures.ScienceWorkbench;
+		public override Tile[,] Structure => TileUtils.Structures.ScienceWorkbench;
 
 		public override bool HandleMouse(Point16 pos)
 			=> TileUtils.HandleMouse<ScienceWorkbenchEntity>(pos, nameof(TileUtils.Structures.ScienceWorkbench), () => true);

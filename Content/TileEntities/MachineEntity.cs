@@ -1,10 +1,16 @@
-﻿using Terraria;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Terraria;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using TerraScience.Content.UI;
 
 namespace TerraScience.Content.TileEntities{
 	public abstract class MachineEntity : ModTileEntity{
+		private readonly List<Item> slots = new List<Item>();
+
+		public Item GetItem(int slot) => slots[slot];
+
 		/// <summary>
 		/// The multiplier for the reaction progress.
 		/// </summary>
@@ -20,11 +26,13 @@ namespace TerraScience.Content.TileEntities{
 
 		public MachineUI ParentState;
 
-		public abstract int GetTileType();
+		public string MachineName;
+
+		public abstract int MachineTile{ get; }
 
 		public sealed override bool ValidTile(int i, int j){
 			Tile tile = Framing.GetTileSafely(i, j);
-			return tile.active() && tile.type == GetTileType() && tile.frameX == 0 && tile.frameY == 0;
+			return tile.active() && tile.type == MachineTile && tile.frameX == 0 && tile.frameY == 0;
 		}
 
 		public virtual void PreUpdateReaction(){ }
@@ -52,7 +60,7 @@ namespace TerraScience.Content.TileEntities{
 		/// <summary>
 		/// If this machine must have its UI open in order to update.
 		/// </summary>
-		public virtual bool RequiresUI() => false;
+		public virtual bool RequiresUI => false;
 
 		public sealed override TagCompound Save()
 			=> new TagCompound(){
@@ -60,6 +68,10 @@ namespace TerraScience.Content.TileEntities{
 					[nameof(ReactionSpeed)] = ReactionSpeed,
 					[nameof(ReactionProgress)] = ReactionProgress,
 					[nameof(ReactionInProgress)] = ReactionInProgress
+				},
+				["slots"] = new TagCompound(){
+					["types"] = slots.Select(i => i.type).ToList(),
+					["stacks"] = slots.Select(i => i.stack).ToList()
 				},
 				["extra"] = ExtraSave()
 			};
@@ -72,6 +84,17 @@ namespace TerraScience.Content.TileEntities{
 			ReactionProgress = info.GetFloat(nameof(ReactionProgress));
 			ReactionInProgress = info.GetBool(nameof(ReactionInProgress));
 
+			TagCompound tagSlots = tag.GetCompound("slots");
+			if(tagSlots.GetList<int>("types") is List<int> types && tagSlots.GetList<int>("stacks") is List<int> stacks && types.Count == stacks.Count){
+				for(int i = 0; i < types.Count; i++){
+					Item item = new Item();
+					item.SetDefaults(types[i]);
+					item.stack = stacks[i];
+
+					slots.Add(item);
+				}
+			}
+
 			TagCompound extra = tag.GetCompound("extra");
 			if(extra != null)
 				ExtraLoad(extra);
@@ -80,7 +103,7 @@ namespace TerraScience.Content.TileEntities{
 		public virtual void ExtraLoad(TagCompound tag){ }
 
 		public sealed override void Update(){
-			if(RequiresUI() && !(ParentState?.Active ?? false))
+			if(RequiresUI && !(ParentState?.Active ?? false))
 				return;
 
 			PreUpdateReaction();
@@ -98,6 +121,25 @@ namespace TerraScience.Content.TileEntities{
 			}
 
 			PostReaction();
+		}
+
+		public void SaveSlots(){
+			slots.Clear();
+
+			for(int i = 0; i < ParentState.SlotsLength; i++){
+				int type = ParentState.GetSlot(i).StoredItem.type;
+				int stack = ParentState.GetSlot(i).StoredItem.stack;
+
+				Item item = new Item();
+				item.SetDefaults(type);
+				item.stack = stack;
+
+				slots.Add(item);
+			}
+		}
+
+		public void LoadSlots(){
+			ParentState.LoadToSlots(slots);
 		}
 	}
 }

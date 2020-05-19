@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Terraria;
 using Terraria.GameContent.UI.Elements;
+using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.UI;
 using TerraScience.API.UI;
@@ -11,6 +12,8 @@ using TerraScience.Utilities;
 
 namespace TerraScience.Content.UI{
 	public abstract class MachineUI : UIState{
+		public static string DecimalFormat(float value) =>string.Format("{0:G29}", decimal.Parse($"{value:N2}"));
+
 		public string MachineName;
 
 		public MachineEntity UIEntity;
@@ -19,13 +22,13 @@ namespace TerraScience.Content.UI{
 
 		public bool Active;
 
-		public abstract void DoSavedItemsCheck();
+		public virtual void DoSavedItemsCheck(){ }
 
 		private List<UIText> Text;
 
 		private List<UIItemSlot> ItemSlots;
 
-		public abstract string GetHeader();
+		public abstract string Header{ get; }
 		internal abstract void InitializeText(List<UIText> text);
 		internal abstract void InitializeSlots(List<UIItemSlot> slots);
 		internal abstract void PanelSize(out int width, out int height);
@@ -38,13 +41,14 @@ namespace TerraScience.Content.UI{
 
 		public virtual void PreClose(){ }
 
-		public virtual bool RequiresUI() => false;
-
 		internal UIItemSlot GetSlot(int index) => ItemSlots[index];
 
 		public int SlotsLength{ get; internal set; }
 
-		public abstract Tile[,] GetStructure();
+		public abstract Tile[,] Structure{ get; }
+
+		public virtual void PlayOpenSound() => Main.PlaySound(SoundID.MenuOpen);
+		public virtual void PlayCloseSound() => Main.PlaySound(SoundID.MenuClose);
 
 		internal void ClearSlots(){
 			foreach(var slot in ItemSlots)
@@ -72,7 +76,7 @@ namespace TerraScience.Content.UI{
 			Append(panel);
 
 			//Make the header text
-			UIText header = new UIText(GetHeader(), 1, true) {
+			UIText header = new UIText(Header, 1, true) {
 				HAlign = 0.5f
 			};
 			header.Top.Set(10, 0);
@@ -102,11 +106,11 @@ namespace TerraScience.Content.UI{
 
 			if (UIEntity != null) {
 				// Get the machine's center position
-				Vector2 middle = TileUtils.TileEntityCenter(UIEntity, GetStructure());
+				Vector2 middle = TileUtils.TileEntityCenter(UIEntity, Structure);
 
 				// Check if the inventory key was pressed or if the player is 5 blocks away from the tile.  If so, close the UI
 				if (Main.LocalPlayer.GetModPlayer<TerraSciencePlayer>().InventoryKeyPressed || Vector2.Distance(Main.LocalPlayer.Center, middle) > 5 * 16) {
-					ModContent.GetInstance<TerraScience>().machineLoader.HideUI(MachineName);
+					TerraScience.Instance.machineLoader.HideUI(MachineName);
 					Main.playerInventory = false;
 					return;
 				}

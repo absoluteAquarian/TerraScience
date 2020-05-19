@@ -8,14 +8,14 @@ namespace TerraScience.Content.Items.Icons{
 
 		public IconTemplate(){ }
 
-		private readonly string machineName;
+		public readonly string MachineName;
 
 		public IconTemplate(string machine){
-			machineName = string.Concat(machine.Select(x => char.IsUpper(x) ? " " + x : x.ToString())).TrimStart(' ');
+			MachineName = string.Concat(machine.Select(x => char.IsUpper(x) ? " " + x : x.ToString())).TrimStart(' ');
 		}
 
 		public override void SetStaticDefaults(){
-			DisplayName.SetDefault(machineName);
+			DisplayName.SetDefault(MachineName);
 		}
 
 		public override bool CanUseItem(Player player) => false;

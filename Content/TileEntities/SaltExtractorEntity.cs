@@ -58,7 +58,7 @@ namespace TerraScience.Content.TileEntities{
 				[nameof(LiquidType)] = (int)LiquidType
 			};
 
-		public override int GetTileType() => ModContent.TileType<SaltExtractor>();
+		public override int MachineTile => ModContent.TileType<SaltExtractor>();
 
 		public override bool UpdateReaction(){
 			float litersLostPerSecond = 0f;
@@ -81,8 +81,8 @@ namespace TerraScience.Content.TileEntities{
 		}
 
 		public override void ReactionComplete(){
-			UIItemSlot itemSlot_Salt = ModContent.GetInstance<TerraScience>().machineLoader.SaltExtractorState.ItemSlot_Salt;
-			UIItemSlot itemSlot_Water = ModContent.GetInstance<TerraScience>().machineLoader.SaltExtractorState.ItemSlot_Water;
+			UIItemSlot itemSlot_Salt = TerraScience.Instance.machineLoader.SaltExtractorState.ItemSlot_Salt;
+			UIItemSlot itemSlot_Water = TerraScience.Instance.machineLoader.SaltExtractorState.ItemSlot_Water;
 
 			StoredSalt--;
 
@@ -114,8 +114,8 @@ namespace TerraScience.Content.TileEntities{
 		}
 
 		public override void PostReaction(){
-			UIItemSlot itemSlot_Salt = ModContent.GetInstance<TerraScience>().machineLoader.SaltExtractorState.ItemSlot_Salt;
-			UIItemSlot itemSlot_Water = ModContent.GetInstance<TerraScience>().machineLoader.SaltExtractorState.ItemSlot_Water;
+			UIItemSlot itemSlot_Salt = TerraScience.Instance.machineLoader.SaltExtractorState.ItemSlot_Salt;
+			UIItemSlot itemSlot_Water = TerraScience.Instance.machineLoader.SaltExtractorState.ItemSlot_Water;
 
 			if(!ReactionInProgress){
 				ReactionSpeed *= 1f - 0.0943f / 60f;

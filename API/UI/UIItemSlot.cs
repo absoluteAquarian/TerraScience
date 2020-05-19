@@ -19,6 +19,7 @@ namespace TerraScience.Content.API.UI {
 		private Item storedItemBeforeHandle;
 
 		public bool ItemChanged => StoredItem != null && storedItemBeforeHandle != null && StoredItem.IsNotTheSameAs(storedItemBeforeHandle);
+		public bool ItemTypeChanged => (StoredItem?.type ?? -1) != (storedItemBeforeHandle?.type ?? -2);
 
 		public Func<Item, bool> ValidItemFunc;
 
@@ -62,6 +63,9 @@ namespace TerraScience.Content.API.UI {
 			storedItem.stack = stack;
 		}
 
-		public void SetItem(int itemType) => storedItem.SetDefaults(itemType);
+		public void SetItem(int itemType, int stack = 1){
+			storedItem.SetDefaults(itemType);
+			StoredItem.stack = stack;
+		}
 	}
 }

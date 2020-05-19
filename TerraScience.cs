@@ -19,6 +19,11 @@ using TerraScience.Utilities;
 
 namespace TerraScience {
 	public class TerraScience : Mod {
+		/// <summary>
+		/// For fast and easy access to this mod's instance when one doesn't exist already
+		/// </summary>
+		public static TerraScience Instance => ModContent.GetInstance<TerraScience>();
+
 		public static readonly Action<ModRecipe> NoRecipe = r => { };
 		public static readonly Action<ModRecipe> OnlyWorkBench = r => { r.AddTile(TileID.WorkBenches); };
 
@@ -157,24 +162,12 @@ namespace TerraScience {
 		}
 
 		// -- Types --
-		// Call("Salt Extractor UI Visible") - returns true if the ui is visible, false if its not.
-		// Call("Salt Extractor UI") - returns the SaltExtractorUI object
-		// Call("Salt Extractor Interface") - returns the UserInterface of the salt extractor
-		// Call("Salt Extractor UI Loader") - returns the SaltExtractorUILoader object
-		// Call("Salt Extractor Entity", new Point16(x, y)) - returns the SaltExtractorEntity TileEntity if there is one at the position provided
+		// Call("Get Machine Entity", new Point16(x, y)) - gets the MachineEntity at the tile position, if one exists there
 		public override object Call(params object[] args) {
-			string callType = args[0].ToString().ToLower().Trim().Replace(" ", "");
+			//People who don't use the exact call name are dumb.  We shouldn't have to make sure they typed the name correctly
 
-			if (callType == "saltextractoruivisible")
-				return machineLoader.SaltExtractorInterface.CurrentState != null;
-			else if (callType == "saltextractorui")
-				return machineLoader.SaltExtractorState;
-			else if (callType == "saltextractorinterface")
-				return machineLoader.SaltExtractorInterface;
-			else if (callType == "saltextractoruiloader")
-				return machineLoader;
-			else if (callType == "saltextractorentity") {
-				MiscUtils.TryGetTileEntity((Point16)args[1], out SaltExtractorEntity entity);
+			if ((string)args[0] == "Get Machine Entity") {
+				MiscUtils.TryGetTileEntity((Point16)args[1], out MachineEntity entity);
 				return entity;
 			}
 

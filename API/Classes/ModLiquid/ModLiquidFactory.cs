@@ -10,7 +10,7 @@ namespace TerraScience.API.Classes.ModLiquid {
 			var liquid = new ModLiquid(internalName, displayName, defaultTemp);
 			Liquids.Add(liquid.InternalName, liquid);
 
-			ModContent.GetInstance<TerraScience>().temperatureSystem.DefaultLiquidTemps.Add(liquid.InternalName, liquid.DefaultTemp);
+			TerraScience.Instance.temperatureSystem.DefaultLiquidTemps.Add(liquid.InternalName, liquid.DefaultTemp);
 
 			return liquid;
 		}

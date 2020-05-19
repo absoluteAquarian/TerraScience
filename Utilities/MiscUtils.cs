@@ -10,6 +10,7 @@ using Terraria.ModLoader.IO;
 using TerraScience.Content.API.UI;
 using TerraScience.Content.Items.Materials;
 using TerraScience.Content.TileEntities;
+using TerraScience.Content.UI;
 using static TerraScience.Content.TileEntities.SaltExtractorEntity;
 
 namespace TerraScience.Utilities {
@@ -99,5 +100,7 @@ namespace TerraScience.Utilities {
 
 		//This added offset is needed to draw the bars at the right positions during different lighting modes
 		public static Vector2 GetLightingDrawOffset() => Lighting.NotRetro ? new Vector2(12) * 16 : Vector2.Zero;
+
+		public static int GetIconType(this MachineUI ui) => TerraScience.Instance.ItemType($"{ui.MachineName}Icon");
 	}
 }

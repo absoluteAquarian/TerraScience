@@ -26,19 +26,32 @@ namespace TerraScience.Utilities{
 		public static class Structures{
 			public static Tile[,] SaltExtractor;
 			public static Tile[,] ScienceWorkbench;
+			public static Tile[,] ReinforcedFurncace;
+			public static Tile[,] AirIonizer;
 
 			public static void SetupStructures(){
-				StructureTileIDs = new int[]{ CopperPlating, TinPlating, GrayBrick, Glass, WoodBlock, SupportType };
+				StructureTileIDs = new int[]{ CopperPlating, TinPlating, GrayBrick, Glass, WoodBlock, SupportType, RedBrick };
 
 				SaltExtractor = new Tile[,]{
-					{ MakeTileInstance(Glass, TileSlopeVariant.HalfBrick), MakeTileInstance(CopperPlating), MakeTileInstance(CopperPlating), MakeTileInstance(Glass, TileSlopeVariant.HalfBrick) },
-					{ MakeTileInstance(Glass), MakeTileInstance(GrayBrick), MakeTileInstance(GrayBrick), MakeTileInstance(Glass) },
-					{ MakeTileInstance(Glass), MakeTileInstance(GrayBrick), MakeTileInstance(GrayBrick), MakeTileInstance(Glass) }
+					{ NewTile(Glass, TileSlopeVariant.HalfBrick), NewTile(CopperPlating), NewTile(CopperPlating), NewTile(Glass, TileSlopeVariant.HalfBrick) },
+					{ NewTile(Glass), NewTile(GrayBrick), NewTile(GrayBrick), NewTile(Glass) },
+					{ NewTile(Glass), NewTile(GrayBrick), NewTile(GrayBrick), NewTile(Glass) }
 				};
 				ScienceWorkbench = new Tile[,]{
-					{ MakeTileInstance(SupportType), MakeTileInstance(Glass, TileSlopeVariant.UpRight), MakeTileInstance(WoodBlock, TileSlopeVariant.DownLeft) },
-					{ MakeTileInstance(CopperPlating, TileSlopeVariant.HalfBrick), MakeTileInstance(CopperPlating, TileSlopeVariant.HalfBrick), MakeTileInstance(WoodBlock) },
-					{ MakeTileInstance(GrayBrick), MakeTileInstance(WoodBlock), MakeTileInstance(GrayBrick) }
+					{ NewTile(SupportType), NewTile(Glass, TileSlopeVariant.UpRight), NewTile(WoodBlock, TileSlopeVariant.DownLeft) },
+					{ NewTile(CopperPlating, TileSlopeVariant.HalfBrick), NewTile(CopperPlating, TileSlopeVariant.HalfBrick), NewTile(WoodBlock) },
+					{ NewTile(GrayBrick), NewTile(WoodBlock), NewTile(GrayBrick) }
+				};
+				ReinforcedFurncace = new Tile[,]{
+					{ NewTile(SupportType), NewTile(SupportType), NewTile(GrayBrick), NewTile(SupportType) },
+					{ NewTile(GrayBrick, TileSlopeVariant.DownRight), NewTile(RedBrick), NewTile(RedBrick), NewTile(GrayBrick, TileSlopeVariant.DownLeft) },
+					{ NewTile(RedBrick), NewTile(TinPlating, TileSlopeVariant.HalfBrick), NewTile(TinPlating, TileSlopeVariant.HalfBrick), NewTile(RedBrick) },
+					{ NewTile(GrayBrick), NewTile(RedBrick), NewTile(RedBrick), NewTile(GrayBrick) }
+				};
+				AirIonizer = new Tile[,]{
+					{ NewTile(TinPlating, TileSlopeVariant.DownRight), NewTile(Glass, TileSlopeVariant.HalfBrick), NewTile(TinPlating, TileSlopeVariant.DownLeft) },
+					{ NewTile(TinPlating, TileSlopeVariant.UpRight), NewTile(TinPlating), NewTile(TinPlating, TileSlopeVariant.UpLeft) },
+					{ NewTile(GrayBrick, TileSlopeVariant.DownRight), NewTile(GrayBrick), NewTile(GrayBrick, TileSlopeVariant.DownLeft) }
 				};
 			}
 
@@ -46,6 +59,8 @@ namespace TerraScience.Utilities{
 				StructureTileIDs = null;
 				SaltExtractor = null;
 				ScienceWorkbench = null;
+				ReinforcedFurncace = null;
+				AirIonizer = null;
 			}
 		}
 
@@ -56,7 +71,7 @@ namespace TerraScience.Utilities{
 			return worldTopLeft + size.ToVector2() * 8; // * 16 / 2
 		}
 
-		public static Tile MakeTileInstance(ushort type, TileSlopeVariant slope = TileSlopeVariant.Solid){
+		public static Tile NewTile(ushort type, TileSlopeVariant slope = TileSlopeVariant.Solid){
 			//Slopes are at   x000 xxxx xxxx xxxx in the sTileHeader
 			//Halfbrick is at xxxx x0xx xxxx xxxx in the sTileHeader
 
@@ -86,6 +101,10 @@ namespace TerraScience.Utilities{
 			}else if(TryFindStructure(x, y, Structures.ScienceWorkbench, out topLeftTileLocation)){
 				structure = Structures.ScienceWorkbench;
 				tileType = ModContent.TileType<ScienceWorkbench>();
+				return true;
+			}else if(TryFindStructure(x, y, Structures.ReinforcedFurncace, out topLeftTileLocation)){
+				structure = Structures.ReinforcedFurncace;
+				tileType = ModContent.TileType<ReinforcedFurnace>();
 				return true;
 			}else{
 				topLeftTileLocation = new Point16(-1, -1);
@@ -180,6 +199,9 @@ namespace TerraScience.Utilities{
 					case WoodBlock:
 						itemType = ItemID.Wood;
 						break;
+					case RedBrick:
+						itemType = ItemID.RedBrick;
+						break;
 				}
 
 				if(itemType == 0 && structureTile.type == SupportType)
@@ -250,13 +272,13 @@ namespace TerraScience.Utilities{
 
 			tile.mineResist = 3f;
 			//Metal sound
-			tile.soundType = 21;
+			tile.soundType = SoundID.Tink;
 			tile.soundStyle = 1;
 		}
 
 		public static bool HandleMouse<TEntity>(Point16 tilePos, string name, Func<bool> additionalCondition) where TEntity : MachineEntity{
 			if(MiscUtils.TryGetTileEntity(tilePos, out TEntity entity) && additionalCondition()){
-				TerraScience instance = ModContent.GetInstance<TerraScience>();
+				TerraScience instance = TerraScience.Instance;
 				UserInterface ui = instance.machineLoader.GetInterface(name);
 
 				//Force the current one to close if another one of the same type is going to be opened

@@ -31,7 +31,7 @@ namespace TerraScience.Content.Tiles.Multitiles{
 			}
 		}
 
-		public override Tile[,] GetStructure() => TileUtils.Structures.SaltExtractor;
+		public override Tile[,] Structure => TileUtils.Structures.SaltExtractor;
 
 		public override bool PreHandleMouse(Point16 pos){
 			if(MiscUtils.TryGetTileEntity(pos, out SaltExtractorEntity se) && Main.LocalPlayer.HeldItemIsViableForSaltExtractor(pos) && se.WaterPlaceDelay == 0 && se.StoredLiquid < SaltExtractorEntity.MaxLiquid - 1){
@@ -102,24 +102,6 @@ namespace TerraScience.Content.Tiles.Multitiles{
 				if(se.ReactionInProgress)
 					spriteBatch.Draw(this.GetEffectTexture("fire"), fireDraw, Color.White);
 			}
-		}
-
-		public override void MouseOver(int i, int j){
-			//This is just for debug purposes, so I don't need it anymore
-			return;
-
-			/*
-			Point16 pos = new Point16(i, j) - Main.tile[i, j].TileCoord();
-			if(MiscUtils.TryGetTileEntity(pos, out SaltExtractorEntity se)){
-				Player player = Main.LocalPlayer;
-				player.showItemIconText = $"Water: {se.StoredWater :N3}L/{SaltExtractorEntity.MaxWater :N3}L" +
-					$"\nProgress: {(int)se.ReactionProgress}%" +
-					$"\nReaction Speed: {se.ReactionSpeed :N3}x";
-				player.mouseInterface = true;
-				player.noThrow = 2;
-				player.showItemIcon = true;
-				player.showItemIcon2 = ModContent.ItemType<BlankItemForMachineText>();
-			}*/
 		}
 	}
 }

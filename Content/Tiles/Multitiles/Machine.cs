@@ -2,6 +2,8 @@
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.ModLoader;
+using TerraScience.Content.TileEntities;
+using TerraScience.Content.UI;
 using TerraScience.Utilities;
 
 namespace TerraScience.Content.Tiles.Multitiles{
@@ -29,9 +31,22 @@ namespace TerraScience.Content.Tiles.Multitiles{
 			return HandleMouse(pos);
 		}
 
-		public abstract Tile[,] GetStructure();
+		public abstract Tile[,] Structure{ get; }
 
 		public sealed override void KillTile(int i, int j, ref bool fail, ref bool effectOnly, ref bool noItem)
-			=> TileUtils.KillMachine(i, j, ref fail, ref noItem, GetStructure());
+			=> TileUtils.KillMachine(i, j, ref fail, ref noItem, Structure);
+
+		public sealed override void MouseOver(int i, int j){
+			Tile tile = Framing.GetTileSafely(i, j);
+			Point16 pos = new Point16(i, j) - tile.TileCoord();
+
+			if(MiscUtils.TryGetTileEntity(pos, out MachineEntity entity) && entity.MachineName != null){
+				Player player = Main.LocalPlayer;
+				player.mouseInterface = true;
+				player.noThrow = 2;
+				player.showItemIcon = true;
+				player.showItemIcon2 = TerraScience.Instance.machineLoader.GetState<MachineUI>(entity.MachineName).GetIconType();
+			}
+		}
 	}
 }
