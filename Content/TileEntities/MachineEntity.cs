@@ -11,6 +11,17 @@ namespace TerraScience.Content.TileEntities{
 
 		public Item GetItem(int slot) => slots[slot];
 
+		internal void ValidateSlots(int intendedLength){
+			//Possible if the multitile was just placed
+			if(slots.Count != intendedLength){
+				slots.Clear();
+				for(int i = 0; i < intendedLength; i++){
+					Item item = new Item();
+					slots.Add(item);
+				}
+			}
+		}
+
 		/// <summary>
 		/// The multiplier for the reaction progress.
 		/// </summary>

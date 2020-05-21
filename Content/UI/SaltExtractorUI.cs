@@ -8,9 +8,6 @@ using TerraScience.Utilities;
 
 namespace TerraScience.Content.UI{
 	public class SaltExtractorUI : MachineUI{
-		public UIItemSlot ItemSlot_Salt => GetSlot(0);
-		public UIItemSlot ItemSlot_Water => GetSlot(1);
-
 		public override string Header => "Salt Extractor";
 
 		public override Tile[,] Structure => TileUtils.Structures.SaltExtractor;
@@ -67,21 +64,26 @@ namespace TerraScience.Content.UI{
 		internal override void UpdateEntity(){
 			SaltExtractorEntity se = UIEntity as SaltExtractorEntity;
 
+			UIItemSlot salt = GetSlot(0);
+			UIItemSlot water = GetSlot(1);
+
 			//Possible if items were removed
-			if(se.StoredSaltItems > ItemSlot_Salt.StoredItem.stack)
-				se.StoredSaltItems = ItemSlot_Salt.StoredItem.stack;
-			if(se.StoredWaterItems > ItemSlot_Water.StoredItem.stack)
-				se.StoredWaterItems = ItemSlot_Water.StoredItem.stack;
+			if(se.StoredSaltItems > salt.StoredItem.stack)
+				se.StoredSaltItems = salt.StoredItem.stack;
+			if(se.StoredWaterItems > water.StoredItem.stack)
+				se.StoredWaterItems = water.StoredItem.stack;
 		}
 
 		public override void DoSavedItemsCheck(){
 			SaltExtractorEntity entity = UIEntity as SaltExtractorEntity;
+			UIItemSlot salt = GetSlot(0);
+			UIItemSlot water = GetSlot(1);
 
 			if(entity.StoredSaltItems > 0){
-				ItemSlot_Salt.StoredItem.SetDefaults(CompoundUtils.CompoundType(Compound.SodiumChloride));
-				ItemSlot_Salt.StoredItem.stack = entity.StoredSaltItems;
-				ItemSlot_Water.StoredItem.SetDefaults(CompoundUtils.CompoundType(Compound.Water));
-				ItemSlot_Water.StoredItem.stack = entity.StoredWaterItems;
+				salt.StoredItem.SetDefaults(CompoundUtils.CompoundType(Compound.SodiumChloride));
+				salt.StoredItem.stack = entity.StoredSaltItems;
+				water.StoredItem.SetDefaults(CompoundUtils.CompoundType(Compound.Water));
+				water.StoredItem.stack = entity.StoredWaterItems;
 			}
 		}
 	}

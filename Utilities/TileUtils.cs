@@ -106,6 +106,10 @@ namespace TerraScience.Utilities{
 				structure = Structures.ReinforcedFurncace;
 				tileType = ModContent.TileType<ReinforcedFurnace>();
 				return true;
+			}else if(TryFindStructure(x, y, Structures.AirIonizer, out topLeftTileLocation)){
+				structure = Structures.AirIonizer;
+				tileType = ModContent.TileType<AirIonizer>();
+				return true;
 			}else{
 				topLeftTileLocation = new Point16(-1, -1);
 				structure = null;
@@ -165,6 +169,8 @@ namespace TerraScience.Utilities{
 			=> ModContent.GetTexture($"TerraScience/Content/Tiles/Multitiles/Effect_{multitile.Name}_{effect}");
 
 		public static void KillMachine(int i, int j, ref bool fail, ref bool noItem, Tile[,] structure){
+			// TODO: Force UI for this machine to close
+
 			//Do things only when the tile is destroyed and its actually this tile
 			Point16 mouse = Main.MouseWorld.ToTileCoordinates16();
 			Tile tile = Main.tile[i, j];

@@ -10,6 +10,8 @@ Science Workbench - construct chemical compounds from their element components
 
 Reinforced Furnace - burn wooden items to produce Carbon (C)
 
+Air Ionizer - has a random chance to collect certain gaseous elements and compounds from the air
+
 
 TODO List:
 Add more machines

@@ -6,10 +6,10 @@ using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.UI;
+using Terraria.Utilities;
 using TerraScience.API.Classes.ModLiquid;
 using TerraScience.Content.Items;
 using TerraScience.Content.Items.Icons;
-using TerraScience.Content.Items.Materials;
 using TerraScience.Content.Items.Weapons;
 using TerraScience.Content.Projectiles;
 using TerraScience.Content.TileEntities;
@@ -23,6 +23,12 @@ namespace TerraScience {
 		/// For fast and easy access to this mod's instance when one doesn't exist already
 		/// </summary>
 		public static TerraScience Instance => ModContent.GetInstance<TerraScience>();
+
+		/// <summary>
+		/// A <seealso cref="WeightedRandom{(int, int)}"/> used by <seealso cref="AirIonizerEntity"/>.
+		/// Initialized during <seealso cref="Load"/>
+		/// </summary>
+		public static WeightedRandom<(int, int)> wRand;
 
 		public static readonly Action<ModRecipe> NoRecipe = r => { };
 		public static readonly Action<ModRecipe> OnlyWorkBench = r => { r.AddTile(TileID.WorkBenches); };
@@ -71,11 +77,28 @@ namespace TerraScience {
 		/// </summary>
 		public static Dictionary<string, Action<ScienceRecipe, CompoundItem>> CachedCompoundRecipes { get; private set; }
 
+		/// <summary>
+		/// Where the item defaults for items createdy other mods are stored.
+		/// </summary>
+		public static Dictionary<string, Action<Item>> CallDefaults { get; private set; }
+
+		/// <summary>
+		/// Where recipes for items created by other mods are stored.
+		/// </summary>
+		public static Dictionary<string, Action<ScienceRecipe, CompoundItem>> CallRecipes { get; private set; }
+
 		public override void Load() {
+			//Consistent randomness with Main
+			wRand = new WeightedRandom<(int, int)>(Main.rand);
+
+			Logger.DebugFormat("Loading Factories and system Loaders");
+
 			LiquidLoader = new ModLiquidLoader();
 			LiquidFactory = new ModLiquidFactory();
 			machineLoader = new MachineUILoader();
 			temperatureSystem = new TemperatureSystem();
+
+			Logger.DebugFormat("Initializing recipe and item Actions");
 
 			CachedElementDefaults = new Dictionary<string, Action<Item>>();
 			CachedElementRecipes = new Dictionary<string, Action<ScienceRecipe, ElementItem>>();
@@ -84,8 +107,15 @@ namespace TerraScience {
 
 			DebugHotkey = RegisterHotKey("Debuging", "J");
 
+			Logger.DebugFormat("Adding element items...");
+
 			RegisterElements();
+
+			Logger.DebugFormat("Adding compound items...");
+
 			RegisterCompounds();
+
+			Logger.DebugFormat("Adding other content...");
 
 			AddProjectile("PepperDust", new ShakerDust("Pepper Dust", new Color(){ PackedValue = 0xff2a2a2a }));
 			AddProjectile("SaltDust", new ShakerDust("Salt Dust", new Color(){ PackedValue = 0xffd5d5d5 }));
@@ -118,6 +148,27 @@ namespace TerraScience {
 
 			LiquidLoader.LoadLiquids(LiquidFactory);
 			machineLoader.Load();
+
+			//Set the Air Ionizer stuff
+			AirIonizerEntity.ResultTypes = new List<int>(){
+				ItemType(ElementUtils.ElementName(Element.Nitrogen)),
+				ItemType(ElementUtils.ElementName(Element.Oxygen)),
+				ItemType(ElementUtils.ElementName(Element.Argon)),
+				ItemType(CompoundUtils.CompoundName(Compound.CarbonDioxide)),
+				ItemType(ElementUtils.ElementName(Element.Neon)),
+				ItemType(ElementUtils.ElementName(Element.Helium)),
+				ItemType(CompoundUtils.CompoundName(Compound.Methane)),
+				ItemType(ElementUtils.ElementName(Element.Krypton)),
+				ItemType(ElementUtils.ElementName(Element.Hydrogen))
+			};
+
+			AirIonizerEntity.ResultWeights = new List<double>(){
+				78.084, 20.946, 0.9340, 0.0407, 0.001818, 0.000524, 0.00018, 0.000114, 0.000055
+			};
+
+			AirIonizerEntity.ResultStacks = new List<int>(){
+				2, 2, 2, 1, 2, 2, 1, 2, 2
+			};
 		}
 
 		private void OnUpdate() {
@@ -137,9 +188,14 @@ namespace TerraScience {
 
 			TileUtils.Structures.Unload();
 			machineLoader?.Unload();
+
+			AirIonizerEntity.ResultTypes = null;
+			AirIonizerEntity.ResultWeights = null;
 		}
 
 		public override void PostSetupContent() {
+			Logger.DebugFormat("Loading machine structures...");
+
 			TileUtils.Structures.SetupStructures();
 		}
 
@@ -162,13 +218,20 @@ namespace TerraScience {
 		}
 
 		// -- Types --
-		// Call("Get Machine Entity", new Point16(x, y)) - gets the MachineEntity at the tile position, if one exists there
+		// Call("Get Machine Entity", new Point16(x, y))
+		//	- gets the MachineEntity at the tile position, if one exists there
+		// Call("Add Compound")
+		//  - todo, does nothing
 		public override object Call(params object[] args) {
 			//People who don't use the exact call name are dumb.  We shouldn't have to make sure they typed the name correctly
 
-			if ((string)args[0] == "Get Machine Entity") {
-				MiscUtils.TryGetTileEntity((Point16)args[1], out MachineEntity entity);
-				return entity;
+			switch((string)args[0]){
+				case "Get Machine Entity":
+					MiscUtils.TryGetTileEntity((Point16)args[1], out MachineEntity entity);
+					return entity;
+				case "Add Compound":
+					// TODO: implement this
+					break;
 			}
 
 			return base.Call(args);
@@ -313,7 +376,77 @@ namespace TerraScience {
 				TemperatureSystem.CelsiusToKelvin(-218.79f),
 				Color.CornflowerBlue);
 
-			// TODO: register Fluorine
+			ElementUtils.RegisterElement(Element.Fluorine,
+				"Element #9\nSpelled with a \"uo\" not a \"ou\"",
+				NoRecipe,
+				1,
+				item => {
+					item.width = 32;
+					item.height = 32;
+					item.scale = 0.5f;
+					item.rare = ItemRarityID.Blue;
+					item.maxStack = 999;
+					item.value = 10;
+				},
+				ElementState.Gas,
+				ElementFamily.Halogens,
+				85.03f,
+				53.48f,
+				Color.Yellow);
+
+			ElementUtils.RegisterElement(Element.Neon,
+				"Element #10\nUsed in flashy Neon lighting\nInert, not very reactive",
+				NoRecipe,
+				1,
+				item => {
+					item.width = 32;
+					item.height = 32;
+					item.scale = 0.5f;
+					item.rare = ItemRarityID.Blue;
+					item.maxStack = 999;
+					item.value = 20;
+				},
+				ElementState.Gas,
+				ElementFamily.Halogens,
+				27.104f,
+				24.56f,
+				Color.OrangeRed);
+
+			ElementUtils.RegisterElement(Element.Argon,
+				"Element #18\nUseful for when plain air is too reactive\nInert, not very reactive",
+				NoRecipe,
+				1,
+				item => {
+					item.width = 32;
+					item.height = 32;
+					item.scale = 0.5f;
+					item.rare = ItemRarityID.Blue;
+					item.maxStack = 999;
+					item.value = 50;
+				},
+				ElementState.Gas,
+				ElementFamily.Halogens,
+				87.302f,
+				83.81f,
+				Color.Violet);
+
+			ElementUtils.RegisterElement(Element.Krypton,
+				"Element #36\nYou won't be killing any super men with this stuff\nInert, not very reactive",
+				NoRecipe,
+				1,
+				item => {
+					item.width = 32;
+					item.height = 32;
+					item.scale = 0.5f;
+					item.rare = ItemRarityID.Blue;
+					item.maxStack = 999;
+					item.value = 100;
+				},
+				ElementState.Gas,
+				ElementFamily.Halogens,
+				119.93f,
+				115.78f,
+				Color.LightBlue);
 		}
 
 		private void RegisterCompounds() {
@@ -503,6 +636,48 @@ namespace TerraScience {
 					c.AddElement(Element.Nitrogen, 1);
 					c.AddElement(Element.Oxygen, 3);
 				});
+			CompoundUtils.RegisterCompound(Compound.CarbonDioxide,
+				"CO₂\nPlants breathe in this stuff",
+				NoRecipe,
+				1,
+				item => {
+					item.width = 32;
+					item.height = 32;
+					item.scale = 0.5f;
+					item.rare = ItemRarityID.Blue;
+					item.maxStack = 999;
+					item.value = 2;
+				},
+				ElementState.Gas,
+				CompoundClassification.Oxide,
+				194.7f,  //sublimes
+				216.6f,  //requires pressure
+				c => {
+					c.AddElement(Element.Carbon, 1);
+					c.AddElement(Element.Oxygen, 2);
+				},
+				Color.White);
+			CompoundUtils.RegisterCompound(Compound.Methane,
+				"CH₄\nWait, this is produced by WHAT?",
+				NoRecipe,
+				1,
+				item => {
+					item.width = 32;
+					item.height = 32;
+					item.scale = 0.5f;
+					item.rare = ItemRarityID.Blue;
+					item.maxStack = 999;
+					item.value = 2;
+				},
+				ElementState.Gas,
+				CompoundClassification.Organic,
+				111.65f,
+				90.7f,
+				c => {
+					c.AddElement(Element.Carbon, 1);
+					c.AddElement(Element.Hydrogen, 4);
+				},
+				Color.Indigo);
 		}
 
 		private void AddIcon(string internalName){
@@ -560,7 +735,7 @@ namespace TerraScience {
 		Hydrogen = 1, Helium,
 		Lithium, Beryllium, Boron, Carbon, Nitrogen, Oxygen, Fluorine, Neon,
 		Sodium, Magnesium, Aluminum, Silicon, Phosphorus, Sulfur, Chlorine, Argon,
-		Potassium, Calcium, //Add rest of period
+		Potassium, Calcium, Scandium, Titanium, Vanadium, Chromium, Manganese, Iron, Cobalt, Nickel, Copper, Zinc, Gallium, Germanium, Arsenic, Selenium, Bromine, Krypton,
 		Rubidium, Strontium, //Add rest of period
 		Caesium, Barium, //Add rest of period
 		Francium, Radium //Add rest of period
@@ -580,7 +755,9 @@ namespace TerraScience {
 		//Chloride compounds
 		SodiumChloride,
 		//Organic compounds
-		Capsaicin
+		Capsaicin,
+		//Other Carbon-based compounds
+		CarbonDioxide, Methane
 	}
 
 	public enum CompoundClassification {

@@ -3,12 +3,7 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using Terraria;
-using Terraria.GameContent.UI.Elements;
-using Terraria.ID;
-using Terraria.ModLoader;
 using Terraria.UI;
-using TerraScience.API.UI;
-using TerraScience.Content.API.UI;
 using TerraScience.Content.TileEntities;
 using TerraScience.Utilities;
 
@@ -16,13 +11,6 @@ namespace TerraScience.Content.UI {
 	public class MachineUILoader {
 		private Dictionary<string, UserInterface> interfaces;
 		private Dictionary<string, MachineUI> states;
-
-		public UserInterface SaltExtractorInterface => GetInterface(nameof(TileUtils.Structures.SaltExtractor));
-		public SaltExtractorUI SaltExtractorState => GetState<SaltExtractorUI>(nameof(TileUtils.Structures.SaltExtractor));
-		public UserInterface ScienceWorkbenchInterface => GetInterface(nameof(TileUtils.Structures.ScienceWorkbench));
-		public ScienceWorkbenchUI ScienceWorkbenchState => GetState<ScienceWorkbenchUI>(nameof(TileUtils.Structures.ScienceWorkbench));
-		public UserInterface ReinforcedFurnaceInterface => GetInterface(nameof(TileUtils.Structures.ReinforcedFurncace));
-		public ReinforcedFurnaceUI ReinforcedFurnaceState => GetState<ReinforcedFurnaceUI>(nameof(TileUtils.Structures.ReinforcedFurncace));
 
 		public UserInterface GetInterface(string name) => interfaces[name];
 		public T GetState<T>(string name) where T : MachineUI => states[name] as T;
@@ -46,6 +34,7 @@ namespace TerraScience.Content.UI {
 				AddUI(nameof(TileUtils.Structures.SaltExtractor), new SaltExtractorUI());
 				AddUI(nameof(TileUtils.Structures.ScienceWorkbench), new ScienceWorkbenchUI());
 				AddUI(nameof(TileUtils.Structures.ReinforcedFurncace), new ReinforcedFurnaceUI());
+				AddUI(nameof(TileUtils.Structures.AirIonizer), new AirIonizerUI());
 
 				// Activate calls Initialize() on the UIState if not initialized, then calls OnActivate and then calls Activate on every child element
 				foreach(var state in states.Values)

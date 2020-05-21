@@ -5,6 +5,7 @@ using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using TerraScience.Content.API.UI;
 using TerraScience.Content.Tiles.Multitiles;
+using TerraScience.Content.UI;
 using TerraScience.Utilities;
 
 namespace TerraScience.Content.TileEntities{
@@ -81,8 +82,9 @@ namespace TerraScience.Content.TileEntities{
 		}
 
 		public override void ReactionComplete(){
-			UIItemSlot itemSlot_Salt = TerraScience.Instance.machineLoader.SaltExtractorState.ItemSlot_Salt;
-			UIItemSlot itemSlot_Water = TerraScience.Instance.machineLoader.SaltExtractorState.ItemSlot_Water;
+			SaltExtractorUI ui = ParentState as SaltExtractorUI;
+			UIItemSlot itemSlot_Salt = ui.GetSlot(0);
+			UIItemSlot itemSlot_Water = ui.GetSlot(1);
 
 			StoredSalt--;
 
@@ -114,8 +116,17 @@ namespace TerraScience.Content.TileEntities{
 		}
 
 		public override void PostReaction(){
-			UIItemSlot itemSlot_Salt = TerraScience.Instance.machineLoader.SaltExtractorState.ItemSlot_Salt;
-			UIItemSlot itemSlot_Water = TerraScience.Instance.machineLoader.SaltExtractorState.ItemSlot_Water;
+			Item salt;
+			Item water;
+
+			SaltExtractorUI ui = ParentState as SaltExtractorUI;
+			if(!(ui?.Active ?? false)){
+				salt = GetItem(0);
+				water = GetItem(1);
+			}else{
+				salt = ui.GetSlot(0).StoredItem;
+				water = ui.GetSlot(1).StoredItem;
+			}
 
 			if(!ReactionInProgress){
 				ReactionSpeed *= 1f - 0.0943f / 60f;
@@ -132,7 +143,7 @@ namespace TerraScience.Content.TileEntities{
 			}
 
 			//Stop the reaction if more than 99 salt or water items are stored
-			if(itemSlot_Salt.StoredItem.stack >= 100 || itemSlot_Water.StoredItem.stack >= 100)
+			if(salt.stack >= 100 || water.stack >= 100)
 				ReactionInProgress = false;
 
 			//Update the delay timer

@@ -73,7 +73,7 @@ namespace TerraScience.Content.Items.Tools{
 						WorldGen.RangeFrame(location.X, location.Y, location.X + width, location.X + height);
 						//...and send a net message
 						if(Main.netMode == NetmodeID.MultiplayerClient)
-							NetMessage.SendTileRange(-1, location.X, location.Y, width, height);
+							NetMessage.SendTileRange(player.whoAmI, location.X, location.Y, width, height);
 
 						//Spawn the tile entity
 						MachineEntity ent = null;
@@ -85,6 +85,8 @@ namespace TerraScience.Content.Items.Tools{
 							ent = ModContent.GetInstance<ScienceWorkbenchEntity>();
 						else if(type == ModContent.TileType<ReinforcedFurnace>())
 							ent = ModContent.GetInstance<ReinforcedFurnaceEntity>();
+						else if(type == ModContent.TileType<AirIonizer>())
+							ent = ModContent.GetInstance<AirIonizerEntity>();
 
 						if(ent?.Find(location.X, location.Y) < 0)
 							ent.Place(location.X, location.Y);
