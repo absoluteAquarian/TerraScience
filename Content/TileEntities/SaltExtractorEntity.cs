@@ -15,23 +15,6 @@ namespace TerraScience.Content.TileEntities{
 		/// </summary>
 		public float StoredLiquid = 0f;
 
-		/// <summary>
-		/// How much salt is stored in the Salt Extractor.
-		/// Once this reaches 1f, a Sodium Chloride item and H2O gas is spawned.
-		/// Conversion rate is 2L of water per Sodium Chloride generated.
-		/// </summary>
-		public float StoredSalt = 0f;
-
-		/// <summary>
-		/// How many salt items are stored in the extractor.
-		/// </summary>
-		public int StoredSaltItems = 0;
-
-		/// <summary>
-		/// How many water (H20) items are stored in the extractor.
-		/// </summary>
-		public int StoredWaterItems = 0;
-
 		public static readonly float MaxLiquid = 10f;
 
 		/// <summary>
@@ -42,20 +25,16 @@ namespace TerraScience.Content.TileEntities{
 
 		public SE_LiquidType LiquidType = SE_LiquidType.None;
 
+		public override int SlotsCount => 2;
+
 		public override void ExtraLoad(TagCompound tag){
 			StoredLiquid = tag.GetFloat(nameof(StoredLiquid));
-			StoredSalt = tag.GetFloat(nameof(StoredSalt));
-			StoredSaltItems = tag.GetInt(nameof(StoredSaltItems));
-			StoredWaterItems = tag.GetInt(nameof(StoredWaterItems));
 			LiquidType = (SE_LiquidType)tag.GetInt(nameof(LiquidType));
 		}
 
 		public override TagCompound ExtraSave()
 			=> new TagCompound(){
 				[nameof(StoredLiquid)] = StoredLiquid,
-				[nameof(StoredSalt)] = StoredSalt,
-				[nameof(StoredSaltItems)] = StoredSaltItems,
-				[nameof(StoredWaterItems)] = StoredWaterItems,
 				[nameof(LiquidType)] = (int)LiquidType
 			};
 
@@ -72,36 +51,28 @@ namespace TerraScience.Content.TileEntities{
 			StoredLiquid -= reaction;
 
 			if(LiquidType == SE_LiquidType.Water)
-				StoredSalt += reaction * 0.5f;
+				ReactionProgress += reaction * 0.5f * 100;
 			else if(LiquidType == SE_LiquidType.Saltwater)
-				StoredSalt += reaction * 1.5f;
-
-			ReactionProgress = StoredSalt * 100;
+				ReactionProgress += reaction * 1.5f * 100;
 
 			return true;
 		}
 
 		public override void ReactionComplete(){
-			SaltExtractorUI ui = ParentState as SaltExtractorUI;
-			UIItemSlot itemSlot_Salt = ui.GetSlot(0);
-			UIItemSlot itemSlot_Water = ui.GetSlot(1);
+			Item salt = this.RetrieveItem(0);
+			Item water = this.RetrieveItem(1);
 
-			StoredSalt--;
+			if(salt.IsAir){
+				salt.SetDefaults(CompoundUtils.CompoundType(Compound.SodiumChloride));
+				salt.stack = 0;
+			}
+			if(water.IsAir){
+				water.SetDefaults(CompoundUtils.CompoundType(Compound.Water));
+				water.stack = 0;
+			}
 
-			int saltType = mod.ItemType(CompoundUtils.CompoundName(Compound.SodiumChloride, false));
-			int waterType = mod.ItemType(CompoundUtils.CompoundName(Compound.Water, false));
-
-			if (itemSlot_Salt.StoredItem.type != saltType)
-				itemSlot_Salt.SetItem(saltType);
-			else if(itemSlot_Salt.StoredItem.stack < 100)
-				itemSlot_Salt.StoredItem.stack++;
-			if(itemSlot_Water.StoredItem.type != waterType)
-				itemSlot_Water.SetItem(waterType);
-			else if(itemSlot_Water.StoredItem.stack < 100)
-				itemSlot_Water.StoredItem.stack++;
-
-			StoredSaltItems++;
-			StoredWaterItems++;
+			salt.stack++;
+			water.stack++;
 
 			Main.PlaySound(new LegacySoundStyle(SoundID.Grab, 0).WithVolume(0.5f), Position.ToWorldCoordinates());
 		}
@@ -116,17 +87,8 @@ namespace TerraScience.Content.TileEntities{
 		}
 
 		public override void PostReaction(){
-			Item salt;
-			Item water;
-
-			SaltExtractorUI ui = ParentState as SaltExtractorUI;
-			if(!(ui?.Active ?? false)){
-				salt = GetItem(0);
-				water = GetItem(1);
-			}else{
-				salt = ui.GetSlot(0).StoredItem;
-				water = ui.GetSlot(1).StoredItem;
-			}
+			Item salt = this.RetrieveItem(0);
+			Item water = this.RetrieveItem(1);
 
 			if(!ReactionInProgress){
 				ReactionSpeed *= 1f - 0.0943f / 60f;

@@ -16,18 +16,15 @@ namespace TerraScience.Content.TileEntities{
 
 		public static List<int> ResultStacks;
 
-		public override void PreUpdateReaction(){
-			//If 'slots' is empty here, then the tile was just placed (since saving/loading would set the size properly)
-			ValidateSlots(10);
+		public override int SlotsCount => 11;
 
+		public float CurBatteryCharge = 0f;
+		public const float BatteryMax = 9f;
+
+		public override void PreUpdateReaction(){
 			//Always try to collect air, unless one of the slots would be full if another result stack was added to it
 			for(int i = 0; i < 10; i++){
-				Item item;
-
-				if(ParentState?.Active ?? false)
-					item = ParentState.GetSlot(i).StoredItem;
-				else
-					item = GetItem(i);
+				Item item = this.RetrieveItem(i);
 
 				if(item.IsAir)
 					continue;
@@ -39,13 +36,29 @@ namespace TerraScience.Content.TileEntities{
 					}
 				}
 			}
-			//If we're here, then no slots were too full
-			ReactionInProgress = true;
+
+			Item battery = this.RetrieveItem(SlotsCount - 1);
+
+			if(!battery.IsAir && CurBatteryCharge <= 0){
+				battery.stack--;
+
+				if(battery.stack <= 0){
+					battery.TurnToAir();
+					CurBatteryCharge = 0f;
+				}else
+					CurBatteryCharge = BatteryMax;
+			}
+
+			//If we're here, then no slots were too full.  Check if there's a battery active
+			ReactionInProgress = CurBatteryCharge > 0;
 		}
 
 		public override bool UpdateReaction(){
+			//Battery lasts for 30s
+			CurBatteryCharge -= BatteryMax / 30f / 60f;
+
 			//Small chance to get an item each tick
-			if(Main.rand.NextFloat() < 0.23f / 60f)
+			if(Main.rand.NextFloat() < 0.189f / 60f)
 				ReactionProgress = 100;
 			return ReactionProgress == 100;
 		}
@@ -70,12 +83,7 @@ namespace TerraScience.Content.TileEntities{
 			//Then try and either add to an existing stack or insert it into the first available slot
 			//Check for existing stacks first, then empty slots
 			for(int i = 0; i < 10; i++){
-				Item item;
-
-				if(ParentState?.Active ?? false)
-					item = ParentState.GetSlot(i).StoredItem;
-				else
-					item = GetItem(i);
+				Item item = this.RetrieveItem(i);
 
 				if(item.IsAir)
 					continue;
@@ -90,12 +98,7 @@ namespace TerraScience.Content.TileEntities{
 				}
 			}
 			for(int i = 0; i < 10; i++){
-				Item item;
-
-				if(ParentState?.Active ?? false)
-					item = ParentState.GetSlot(i).StoredItem;
-				else
-					item = GetItem(i);
+				Item item = this.RetrieveItem(i);
 
 				if(item.IsAir){
 					item.SetDefaults(type);

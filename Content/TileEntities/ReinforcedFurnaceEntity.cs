@@ -33,6 +33,8 @@ namespace TerraScience.Content.TileEntities{
 		//Used for sound stuff
 		private SoundEffectInstance burning;
 
+		public override int SlotsCount => 2;
+
 		public override TagCompound ExtraSave(){
 			//Save() is called when the world is exited, so stop the sound if it's playing
 			burning?.Stop();

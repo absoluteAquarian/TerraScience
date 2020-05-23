@@ -1,13 +1,10 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
-using Terraria.ModLoader.IO;
-using TerraScience.Content.API.UI;
 using TerraScience.Content.Items.Materials;
 using TerraScience.Content.TileEntities;
 using TerraScience.Content.UI;
@@ -40,6 +37,23 @@ namespace TerraScience.Utilities {
 			if(TileEntity.ByPosition.ContainsKey(position))
 				tileEntity = TileEntity.ByPosition[position] as T;	//'as' will make 'tileEntity' null if the TileEntity at the position isn't the same type
 			return tileEntity != null;
+		}
+
+		public static bool HeldItemIsViableForElectrolyzer(this Player player, Point16 pos){
+			//Near copy-pasta of HeldItemIsViableForSaltExtractor
+			// TODO: make this not a copy-pasta
+			if(!TryGetTileEntity(pos, out ElectrolyzerEntity _))
+				return false;
+
+			int[] types = new int[]{
+				ItemID.WaterBucket,
+				ItemID.BottomlessBucket,
+				ModContent.ItemType<Vial_Water>()
+			};
+
+			//Electrolyzer only accepts water atm
+			// TODO: support more liquid types
+			return types.Contains(player.HeldItem.type);
 		}
 
 		public static bool HeldItemIsViableForSaltExtractor(this Player player, Point16 pos){
@@ -102,5 +116,8 @@ namespace TerraScience.Utilities {
 		public static Vector2 GetLightingDrawOffset() => Lighting.NotRetro ? new Vector2(12) * 16 : Vector2.Zero;
 
 		public static int GetIconType(this MachineUI ui) => TerraScience.Instance.ItemType($"{ui.MachineName}Icon");
+
+		public static Item RetrieveItem(this MachineEntity entity, int slot)
+			=> !(entity.ParentState?.Active ?? false) ? entity.GetItem(slot) : entity.ParentState.GetSlot(slot).StoredItem;
 	}
 }

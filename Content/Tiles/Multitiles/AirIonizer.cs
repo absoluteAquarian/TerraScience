@@ -10,7 +10,7 @@ namespace TerraScience.Content.Tiles.Multitiles{
 		public override Tile[,] Structure => TileUtils.Structures.AirIonizer;
 
 		public override bool HandleMouse(Point16 pos)
-			=> TileUtils.HandleMouse<AirIonizerEntity>(pos, nameof(TileUtils.Structures.AirIonizer), () => true);
+			=> TileUtils.HandleMouse<AirIonizerEntity>(this, pos, () => true);
 
 		public override void GetDefaultParams(out string mapName, out uint width, out uint height){
 			mapName = "Air Ionizer";
@@ -37,8 +37,8 @@ namespace TerraScience.Content.Tiles.Multitiles{
 				//Draw the back texture
 				spriteBatch.Draw(this.GetEffectTexture("machineback"), draw, null, Lighting.GetColor(i, j));
 
-				//Random chance to draw either zappy 1 or zappy 2
-				if(Main.rand.NextFloat() < 0.35f){
+				//Random chance to draw either zappy 1 or zappy 2 if the charge is > 0
+				if(ions.CurBatteryCharge > 0 && Main.rand.NextFloat() < 0.35f){
 					if(Main.rand.NextBool())
 						spriteBatch.Draw(this.GetEffectTexture("zappyzappy"), draw, null, Color.White * 0.3f);
 					else

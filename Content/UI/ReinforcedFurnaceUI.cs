@@ -49,8 +49,8 @@ namespace TerraScience.Content.UI{
 		internal override void UpdateText(List<UIText> text){
 			ReinforcedFurnaceEntity entity = UIEntity as ReinforcedFurnaceEntity;
 
-			text[0].SetText($"Heat: {DecimalFormat(entity.Heat)}°C");
-			text[1].SetText($"Speed Multiplier: {DecimalFormat(entity.ReactionSpeed)}x");
+			text[0].SetText($"Heat: {UIDecimalFormat(entity.Heat)}°C");
+			text[1].SetText($"Speed Multiplier: {UIDecimalFormat(entity.ReactionSpeed)}x");
 			text[2].SetText($"Progress: {(int)entity.ReactionProgress}%");
 		}
 

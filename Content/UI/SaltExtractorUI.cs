@@ -56,35 +56,9 @@ namespace TerraScience.Content.UI{
 		internal override void UpdateText(List<UIText> text){
 			SaltExtractorEntity se = UIEntity as SaltExtractorEntity;
 
-			text[0].SetText($"{DecimalFormat(se.StoredLiquid)}L / {Math.Round(SaltExtractorEntity.MaxLiquid)}L");
+			text[0].SetText($"{UIDecimalFormat(se.StoredLiquid)}L / {Math.Round(SaltExtractorEntity.MaxLiquid)}L");
 			text[1].SetText($"Processing: {Enum.GetName(typeof(SaltExtractorEntity.SE_LiquidType), se.LiquidType)}");
-			text[2].SetText($"Speed Multiplier: {DecimalFormat(se.ReactionSpeed)}x");
-		}
-
-		internal override void UpdateEntity(){
-			SaltExtractorEntity se = UIEntity as SaltExtractorEntity;
-
-			UIItemSlot salt = GetSlot(0);
-			UIItemSlot water = GetSlot(1);
-
-			//Possible if items were removed
-			if(se.StoredSaltItems > salt.StoredItem.stack)
-				se.StoredSaltItems = salt.StoredItem.stack;
-			if(se.StoredWaterItems > water.StoredItem.stack)
-				se.StoredWaterItems = water.StoredItem.stack;
-		}
-
-		public override void DoSavedItemsCheck(){
-			SaltExtractorEntity entity = UIEntity as SaltExtractorEntity;
-			UIItemSlot salt = GetSlot(0);
-			UIItemSlot water = GetSlot(1);
-
-			if(entity.StoredSaltItems > 0){
-				salt.StoredItem.SetDefaults(CompoundUtils.CompoundType(Compound.SodiumChloride));
-				salt.StoredItem.stack = entity.StoredSaltItems;
-				water.StoredItem.SetDefaults(CompoundUtils.CompoundType(Compound.Water));
-				water.StoredItem.stack = entity.StoredWaterItems;
-			}
+			text[2].SetText($"Speed Multiplier: {UIDecimalFormat(se.ReactionSpeed)}x");
 		}
 	}
 }

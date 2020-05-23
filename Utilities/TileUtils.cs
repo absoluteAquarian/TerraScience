@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Terraria;
 using Terraria.DataStructures;
@@ -23,11 +24,18 @@ namespace TerraScience.Utilities{
 
 		public static ushort SupportType => (ushort)ModContent.TileType<MachineSupport>();
 
+		public static Dictionary<int, MachineEntity> tileToEntity;
+
+		public static Dictionary<int, Tile[,]> tileToStructure;
+
+		public static Dictionary<int, string> tileToStructureName;
+
 		public static class Structures{
 			public static Tile[,] SaltExtractor;
 			public static Tile[,] ScienceWorkbench;
 			public static Tile[,] ReinforcedFurncace;
 			public static Tile[,] AirIonizer;
+			public static Tile[,] Electrolyzer;
 
 			public static void SetupStructures(){
 				StructureTileIDs = new int[]{ CopperPlating, TinPlating, GrayBrick, Glass, WoodBlock, SupportType, RedBrick };
@@ -52,6 +60,20 @@ namespace TerraScience.Utilities{
 					{ NewTile(TinPlating, TileSlopeVariant.DownRight), NewTile(Glass, TileSlopeVariant.HalfBrick), NewTile(TinPlating, TileSlopeVariant.DownLeft) },
 					{ NewTile(TinPlating, TileSlopeVariant.UpRight), NewTile(TinPlating), NewTile(TinPlating, TileSlopeVariant.UpLeft) },
 					{ NewTile(GrayBrick, TileSlopeVariant.DownRight), NewTile(GrayBrick), NewTile(GrayBrick, TileSlopeVariant.DownLeft) }
+				};
+				Electrolyzer = new Tile[,]{
+					{ NewTile(Glass, TileSlopeVariant.DownRight), NewTile(Glass), NewTile(Glass), NewTile(Glass), NewTile(Glass, TileSlopeVariant.DownLeft) },
+					{ NewTile(Glass), NewTile(TinPlating), NewTile(SupportType), NewTile(CopperPlating), NewTile(Glass) },
+					{ NewTile(GrayBrick), NewTile(CopperPlating), NewTile(SupportType), NewTile(TinPlating), NewTile(GrayBrick) },
+					{ NewTile(GrayBrick), NewTile(GrayBrick), NewTile(GrayBrick), NewTile(GrayBrick), NewTile(GrayBrick) }
+				};
+
+				tileToStructureName = new Dictionary<int, string>(){
+					[ModContent.TileType<SaltExtractor>()] = nameof(SaltExtractor),
+					[ModContent.TileType<ScienceWorkbench>()] = nameof(ScienceWorkbench),
+					[ModContent.TileType<ReinforcedFurnace>()] = nameof(ReinforcedFurncace),
+					[ModContent.TileType<AirIonizer>()] = nameof(AirIonizer),
+					[ModContent.TileType<Electrolyzer>()] = nameof(Electrolyzer)
 				};
 			}
 
@@ -94,28 +116,19 @@ namespace TerraScience.Utilities{
 		public static bool TryReplaceStructure(int x, int y, out Point16 topLeftTileLocation, out Tile[,] structure, out int tileType){
 			//Check against each structure until we find a valid one
 			//If none are found, return false
-			if(TryFindStructure(x, y, Structures.SaltExtractor, out topLeftTileLocation)){
-				structure = Structures.SaltExtractor;
-				tileType = ModContent.TileType<SaltExtractor>();
-				return true;
-			}else if(TryFindStructure(x, y, Structures.ScienceWorkbench, out topLeftTileLocation)){
-				structure = Structures.ScienceWorkbench;
-				tileType = ModContent.TileType<ScienceWorkbench>();
-				return true;
-			}else if(TryFindStructure(x, y, Structures.ReinforcedFurncace, out topLeftTileLocation)){
-				structure = Structures.ReinforcedFurncace;
-				tileType = ModContent.TileType<ReinforcedFurnace>();
-				return true;
-			}else if(TryFindStructure(x, y, Structures.AirIonizer, out topLeftTileLocation)){
-				structure = Structures.AirIonizer;
-				tileType = ModContent.TileType<AirIonizer>();
-				return true;
-			}else{
-				topLeftTileLocation = new Point16(-1, -1);
-				structure = null;
-				tileType = -1;
-				return false;
+			foreach(var pair in tileToStructure){
+				if(TryFindStructure(x, y, pair.Value, out topLeftTileLocation)){
+					structure = pair.Value;
+					tileType = pair.Key;
+					return true;
+				}
 			}
+
+			//No structures found
+			topLeftTileLocation = new Point16(-1, -1);
+			structure = null;
+			tileType = -1;
+			return false;
 		}
 
 		private static bool TryFindStructure(int x, int y, Tile[,] structure, out Point16 topLeftTileLocation){
@@ -282,14 +295,16 @@ namespace TerraScience.Utilities{
 			tile.soundStyle = 1;
 		}
 
-		public static bool HandleMouse<TEntity>(Point16 tilePos, string name, Func<bool> additionalCondition) where TEntity : MachineEntity{
+		public static bool HandleMouse<TEntity>(Machine machine, Point16 tilePos, Func<bool> additionalCondition) where TEntity : MachineEntity{
 			if(MiscUtils.TryGetTileEntity(tilePos, out TEntity entity) && additionalCondition()){
 				TerraScience instance = TerraScience.Instance;
+				string name = tileToStructureName[instance.TileType(machine.Name)];
+
 				UserInterface ui = instance.machineLoader.GetInterface(name);
 
 				//Force the current one to close if another one of the same type is going to be opened
-				if(ui.CurrentState is MachineUI machine && machine.UIEntity.Position != tilePos)
-					instance.machineLoader.HideUI(machine.MachineName);
+				if(ui.CurrentState is MachineUI mui && mui.UIEntity.Position != tilePos)
+					instance.machineLoader.HideUI(mui.MachineName);
 
 				if(ui.CurrentState == null)
 					instance.machineLoader.ShowUI(name, entity);

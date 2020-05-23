@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Terraria;
+using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using TerraScience.Content.UI;
@@ -40,6 +42,8 @@ namespace TerraScience.Content.TileEntities{
 		public string MachineName;
 
 		public abstract int MachineTile{ get; }
+
+		public abstract int SlotsCount{ get; }
 
 		public sealed override bool ValidTile(int i, int j){
 			Tile tile = Framing.GetTileSafely(i, j);
@@ -81,8 +85,9 @@ namespace TerraScience.Content.TileEntities{
 					[nameof(ReactionInProgress)] = ReactionInProgress
 				},
 				["slots"] = new TagCompound(){
-					["types"] = slots.Select(i => i.type).ToList(),
-					["stacks"] = slots.Select(i => i.stack).ToList()
+					//Lots of unnecessary data is saved, but that's fine due to the small amount of extra bytes used
+					// TODO: refactor ItemIO.Save/ItemIO.Load to get rid of this extra info
+					["items"] = slots.Select(i => ItemIO.Save(i)).ToList()
 				},
 				["extra"] = ExtraSave()
 			};
@@ -96,15 +101,10 @@ namespace TerraScience.Content.TileEntities{
 			ReactionInProgress = info.GetBool(nameof(ReactionInProgress));
 
 			TagCompound tagSlots = tag.GetCompound("slots");
-			if(tagSlots.GetList<int>("types") is List<int> types && tagSlots.GetList<int>("stacks") is List<int> stacks && types.Count == stacks.Count){
-				for(int i = 0; i < types.Count; i++){
-					Item item = new Item();
-					item.SetDefaults(types[i]);
-					item.stack = stacks[i];
-
-					slots.Add(item);
-				}
-			}
+			List<TagCompound> items = tagSlots.GetList<TagCompound>("items") as List<TagCompound>;
+			
+			foreach(var c in items)
+				slots.Add(ItemIO.Load(c));
 
 			TagCompound extra = tag.GetCompound("extra");
 			if(extra != null)
@@ -116,6 +116,8 @@ namespace TerraScience.Content.TileEntities{
 		public sealed override void Update(){
 			if(RequiresUI && !(ParentState?.Active ?? false))
 				return;
+
+			ValidateSlots(SlotsCount);
 
 			PreUpdateReaction();
 
@@ -151,6 +153,12 @@ namespace TerraScience.Content.TileEntities{
 
 		public void LoadSlots(){
 			ParentState.LoadToSlots(slots);
+		}
+
+		public override void OnKill(){
+			//Force the UI to close if it's open
+			if(ParentState?.Active ?? false)
+				TerraScience.Instance.machineLoader.HideUI(MachineName);
 		}
 	}
 }

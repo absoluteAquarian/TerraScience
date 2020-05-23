@@ -21,6 +21,8 @@ namespace TerraScience.Content.TileEntities{
 
 		public override int MachineTile => ModContent.TileType<ScienceWorkbench>();
 
+		public override int SlotsCount => 11;
+
 		public override void PreUpdateReaction(){
 			//Force UpdateReaction() to execute, since this method will only run if the UI is visible
 			ReactionInProgress = true;

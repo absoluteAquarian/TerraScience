@@ -76,19 +76,9 @@ namespace TerraScience.Content.Items.Tools{
 							NetMessage.SendTileRange(player.whoAmI, location.X, location.Y, width, height);
 
 						//Spawn the tile entity
-						MachineEntity ent = null;
+						MachineEntity ent = TileUtils.tileToEntity[type];
 
-						// TODO: Make this not an if-else chain
-						if(type == ModContent.TileType<SaltExtractor>())
-							ent = ModContent.GetInstance<SaltExtractorEntity>();
-						else if(type == ModContent.TileType<ScienceWorkbench>())
-							ent = ModContent.GetInstance<ScienceWorkbenchEntity>();
-						else if(type == ModContent.TileType<ReinforcedFurnace>())
-							ent = ModContent.GetInstance<ReinforcedFurnaceEntity>();
-						else if(type == ModContent.TileType<AirIonizer>())
-							ent = ModContent.GetInstance<AirIonizerEntity>();
-
-						if(ent?.Find(location.X, location.Y) < 0)
+						if(ent.Find(location.X, location.Y) < 0)
 							ent.Place(location.X, location.Y);
 					}//else{
 					//	Main.NewText("Structure wasn't valid.", Color.Orange);

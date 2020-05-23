@@ -35,6 +35,7 @@ namespace TerraScience.Content.UI {
 				AddUI(nameof(TileUtils.Structures.ScienceWorkbench), new ScienceWorkbenchUI());
 				AddUI(nameof(TileUtils.Structures.ReinforcedFurncace), new ReinforcedFurnaceUI());
 				AddUI(nameof(TileUtils.Structures.AirIonizer), new AirIonizerUI());
+				AddUI(nameof(TileUtils.Structures.Electrolyzer), new ElectrolyzerUI());
 
 				// Activate calls Initialize() on the UIState if not initialized, then calls OnActivate and then calls Activate on every child element
 				foreach(var state in states.Values)

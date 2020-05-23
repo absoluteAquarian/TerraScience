@@ -71,7 +71,7 @@ namespace TerraScience.Content.Tiles.Multitiles{
 		}
 
 		public override bool HandleMouse(Point16 pos)
-			=> TileUtils.HandleMouse<SaltExtractorEntity>(pos, nameof(TileUtils.Structures.SaltExtractor), () => !Main.LocalPlayer.HeldItemIsViableForSaltExtractor(pos));
+			=> TileUtils.HandleMouse<SaltExtractorEntity>(this, pos, () => !Main.LocalPlayer.HeldItemIsViableForSaltExtractor(pos));
 
 		public override void PostDraw(int i, int j, SpriteBatch spriteBatch) {
 			//Draw the water in the side vials

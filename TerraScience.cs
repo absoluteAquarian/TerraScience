@@ -13,6 +13,7 @@ using TerraScience.Content.Items.Icons;
 using TerraScience.Content.Items.Weapons;
 using TerraScience.Content.Projectiles;
 using TerraScience.Content.TileEntities;
+using TerraScience.Content.Tiles.Multitiles;
 using TerraScience.Content.UI;
 using TerraScience.Systems.TemperatureSystem;
 using TerraScience.Utilities;
@@ -43,6 +44,7 @@ namespace TerraScience {
 			i.useAnimation = 10;
 			i.autoReuse = true;
 			i.useTurn = true;
+			i.noMelee = true;
 		};
 
 		internal MachineUILoader machineLoader;
@@ -78,7 +80,7 @@ namespace TerraScience {
 		public static Dictionary<string, Action<ScienceRecipe, CompoundItem>> CachedCompoundRecipes { get; private set; }
 
 		/// <summary>
-		/// Where the item defaults for items createdy other mods are stored.
+		/// Where the item defaults for items created by other mods are stored.
 		/// </summary>
 		public static Dictionary<string, Action<Item>> CallDefaults { get; private set; }
 
@@ -91,19 +93,21 @@ namespace TerraScience {
 			//Consistent randomness with Main
 			wRand = new WeightedRandom<(int, int)>(Main.rand);
 
-			Logger.DebugFormat("Loading Factories and system Loaders");
+			Logger.DebugFormat("Loading Factories and system Loaders...");
 
 			LiquidLoader = new ModLiquidLoader();
 			LiquidFactory = new ModLiquidFactory();
 			machineLoader = new MachineUILoader();
 			temperatureSystem = new TemperatureSystem();
 
-			Logger.DebugFormat("Initializing recipe and item Actions");
+			Logger.DebugFormat("Initializing dictionaries...");
 
 			CachedElementDefaults = new Dictionary<string, Action<Item>>();
 			CachedElementRecipes = new Dictionary<string, Action<ScienceRecipe, ElementItem>>();
 			CachedCompoundDefaults = new Dictionary<string, Action<Item>>();
 			CachedCompoundRecipes = new Dictionary<string, Action<ScienceRecipe, CompoundItem>>();
+			CallDefaults = new Dictionary<string, Action<Item>>();
+			CallRecipes = new Dictionary<string, Action<ScienceRecipe, CompoundItem>>();
 
 			DebugHotkey = RegisterHotKey("Debuging", "J");
 
@@ -180,11 +184,24 @@ namespace TerraScience {
 		}
 
 		public override void Unload() {
+			Logger.DebugFormat("Unloading dictionaries...");
+
 			CachedElementDefaults = null;
 			CachedElementRecipes = null;
+			CachedCompoundDefaults = null;
+			CachedCompoundRecipes = null;
+			CallDefaults = null;
+			CallRecipes = null;
+
+			TileUtils.tileToEntity = null;
+			TileUtils.tileToStructure = null;
+			TileUtils.tileToStructureName = null;
+
 			DebugHotkey = null;
 
 			Main.OnTick -= OnUpdate;
+
+			Logger.DebugFormat("Unloading machine structures...");
 
 			TileUtils.Structures.Unload();
 			machineLoader?.Unload();
@@ -194,9 +211,25 @@ namespace TerraScience {
 		}
 
 		public override void PostSetupContent() {
-			Logger.DebugFormat("Loading machine structures...");
+			Logger.DebugFormat("Loading tile data and machine structures...");
 
 			TileUtils.Structures.SetupStructures();
+
+			TileUtils.tileToEntity = new Dictionary<int, MachineEntity>(){
+				[ModContent.TileType<SaltExtractor>()] = ModContent.GetInstance<SaltExtractorEntity>(),
+				[ModContent.TileType<ScienceWorkbench>()] = ModContent.GetInstance<ScienceWorkbenchEntity>(),
+				[ModContent.TileType<ReinforcedFurnace>()] = ModContent.GetInstance<ReinforcedFurnaceEntity>(),
+				[ModContent.TileType<AirIonizer>()] = ModContent.GetInstance<AirIonizerEntity>(),
+				[ModContent.TileType<Electrolyzer>()] = ModContent.GetInstance<ElectrolyzerEntity>()
+			};
+
+			TileUtils.tileToStructure = new Dictionary<int, Tile[,]>(){
+				[ModContent.TileType<SaltExtractor>()] = TileUtils.Structures.SaltExtractor,
+				[ModContent.TileType<ScienceWorkbench>()] = TileUtils.Structures.ScienceWorkbench,
+				[ModContent.TileType<ReinforcedFurnace>()] = TileUtils.Structures.ReinforcedFurncace,
+				[ModContent.TileType<AirIonizer>()] = TileUtils.Structures.AirIonizer,
+				[ModContent.TileType<Electrolyzer>()] = TileUtils.Structures.Electrolyzer
+			};
 		}
 
 		public override void UpdateUI(GameTime gameTime) {

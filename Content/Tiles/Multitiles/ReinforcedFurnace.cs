@@ -16,7 +16,7 @@ namespace TerraScience.Content.Tiles.Multitiles{
 		}
 
 		public override bool HandleMouse(Point16 pos)
-			=> TileUtils.HandleMouse<ReinforcedFurnaceEntity>(pos, nameof(TileUtils.Structures.ReinforcedFurncace), () => true);
+			=> TileUtils.HandleMouse<ReinforcedFurnaceEntity>(this, pos, () => true);
 
 		public override void PostDraw(int i, int j, SpriteBatch spriteBatch){
 			Tile tile = Framing.GetTileSafely(i, j);

@@ -12,7 +12,7 @@ using TerraScience.Utilities;
 
 namespace TerraScience.Content.UI{
 	public abstract class MachineUI : UIState{
-		public static string DecimalFormat(float value) =>string.Format("{0:G29}", decimal.Parse($"{value:N2}"));
+		public static string UIDecimalFormat(float value) =>string.Format("{0:G29}", decimal.Parse($"{value:N2}"));
 
 		public string MachineName;
 
@@ -43,7 +43,7 @@ namespace TerraScience.Content.UI{
 
 		internal UIItemSlot GetSlot(int index) => ItemSlots[index];
 
-		public int SlotsLength{ get; internal set; }
+		public int SlotsLength => ItemSlots.Count;
 
 		public abstract Tile[,] Structure{ get; }
 
@@ -95,8 +95,6 @@ namespace TerraScience.Content.UI{
 				panel.Append(slot);
 
 			InitializeOther(panel);
-
-			SlotsLength = ItemSlots.Count;
 		}
 
 		public sealed override void Update(GameTime gameTime){
