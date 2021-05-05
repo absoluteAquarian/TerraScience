@@ -7,6 +7,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using TerraScience.Content.Items.Materials;
 using TerraScience.Content.TileEntities;
+using TerraScience.Content.TileEntities.Energy;
 using TerraScience.Content.UI;
 using static TerraScience.Content.TileEntities.SaltExtractorEntity;
 
@@ -90,21 +91,6 @@ namespace TerraScience.Utilities {
 		public static Vector2 ScreenCenter()
 			=> new Vector2(Main.screenWidth, Main.screenHeight) / 2f;
 
-		/// <summary>
-		/// Parses an Element or Compound name to its Enum value.
-		/// </summary>
-		/// <param name="name">The name.</param>
-		/// <param name="value">The value returned.  Defaults to 'null' if the name couldn't be found.</param>
-		/// <returns></returns>
-		public static bool TryParseUnknownName(string name, out Enum value){
-			value = null;
-			if(Enum.GetNames(typeof(Element)).Contains(name))
-				value = ParseToEnum<Element>(name);
-			else if(Enum.GetNames(typeof(Compound)).Contains(name))
-				value = ParseToEnum<Compound>(name);
-			return value != null;
-		}
-
 		public static T[] Create1DArray<T>(T value, uint length){
 			T[] arr = new T[length];
 			for(uint i = 0; i < length; i++)
@@ -119,5 +105,24 @@ namespace TerraScience.Utilities {
 
 		public static Item RetrieveItem(this MachineEntity entity, int slot)
 			=> !(entity.ParentState?.Active ?? false) ? entity.GetItem(slot) : entity.ParentState.GetSlot(slot).StoredItem;
+
+		/// <summary>
+		/// Converts this one-dimentional array to a two-dimensional array whose dimensions are the given <paramref name="width"/> and <paramref name="height"/>.
+		/// </summary>
+		public static T[,] To2DArray<T>(this T[] arr, int width, int height){
+			if(arr.Length != width * height)
+				throw new ArgumentException($"Array length does not match width and height parameters (length: {arr.Length}, result columns: {width}, result rows: {height})");
+
+			T[,] newArr = new T[width, height];
+
+			int arrIndex = 0;
+			for(int y = 0; y < height; y++){
+				for(int x = 0; x < width; x++){
+					newArr[x, y] = arr[arrIndex++];
+				}
+			}
+
+			return newArr;
+		}
 	}
 }

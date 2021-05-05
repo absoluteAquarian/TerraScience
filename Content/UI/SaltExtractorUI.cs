@@ -44,13 +44,6 @@ namespace TerraScience.Content.UI{
 			};
 			itemSlot_Salt.Top.Set(152, 0);
 			slots.Add(itemSlot_Salt);
-
-			UIItemSlot itemSlot_Water = new UIItemSlot{
-				HAlign = 0.6667f,
-				ValidItemFunc = item => item.IsAir
-			};
-			itemSlot_Water.Top.Set(152, 0);
-			slots.Add(itemSlot_Water);
 		}
 
 		internal override void UpdateText(List<UIText> text){

@@ -15,14 +15,26 @@ namespace TerraScience.Content.Tiles.Multitiles{
 			height = 4;
 		}
 
+		public override void ModifyLight(int i, int j, ref float r, ref float g, ref float b){
+			Tile tile = Framing.GetTileSafely(i, j);
+			if(MiscUtils.TryGetTileEntity(new Point16(i, j) - tile.TileCoord(), out ReinforcedFurnaceEntity entity) && entity.ReactionInProgress){
+				Vector3 color = new Vector3(0xD5, 0x44, 0x00) * 2.35f;
+				r = color.X;
+				g = color.Y;
+				b = color.Z;
+			}
+		}
+
 		public override bool HandleMouse(Point16 pos)
 			=> TileUtils.HandleMouse<ReinforcedFurnaceEntity>(this, pos, () => true);
 
 		public override void PostDraw(int i, int j, SpriteBatch spriteBatch){
 			Tile tile = Framing.GetTileSafely(i, j);
-			Point16 pos = new Point16(i, j) - tile.TileCoord();
+			Point16 frame = tile.TileCoord();
+			Point16 pos = new Point16(i, j) - frame;
+			bool lastTile = frame.X == Structure.GetLength(1) - 1 && frame.Y == Structure.GetLength(0) - 1;
 
-			if(MiscUtils.TryGetTileEntity(pos, out ReinforcedFurnaceEntity furnace)){
+			if(MiscUtils.TryGetTileEntity(pos, out ReinforcedFurnaceEntity furnace) && lastTile){
 				//If the UI is open, open the door and draw the rest of the things
 				//Otherwise, just draw the closed door
 				Vector2 offset = MiscUtils.GetLightingDrawOffset();

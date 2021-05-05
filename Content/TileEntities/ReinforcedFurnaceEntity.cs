@@ -9,6 +9,7 @@ using TerraScience.Content.Tiles.Multitiles;
 using TerraScience.Content.UI;
 using TerraScience.Utilities;
 using Terraria.ID;
+using TerraScience.Content.Items.Materials;
 
 namespace TerraScience.Content.TileEntities{
 	public class ReinforcedFurnaceEntity : MachineEntity{
@@ -61,6 +62,11 @@ namespace TerraScience.Content.TileEntities{
 				targetHeat = HeatMin;
 				burning?.Stop();
 			}
+
+			//Stop the sound if the game isn't in focus
+			// TODO: this doesn't work; the sound keeps playing while the game isn't in focus...
+			if(!Main.hasFocus)
+				burning?.Stop();
 
 			ReactionInProgress = true;
 		}
@@ -122,16 +128,16 @@ namespace TerraScience.Content.TileEntities{
 			//Otherwise, modify the parent MachineUI directly
 			ReinforcedFurnaceUI ui = ParentState as ReinforcedFurnaceUI;
 			if(!(ui?.Active ?? false)){
-				Item fuel = GetItem(0);
+				Item input = GetItem(0);
 				Item result = GetItem(1);
-				Do_Reaction(fuel, result);
+				Do_Reaction(input, result);
 
 			//	Main.NewText($"Edited entity slots: \"{Lang.GetItemNameValue(fuel.type)}\" ({fuel.stack}), \"{Lang.GetItemNameValue(result.type)}\" ({result.stack})");
 			}else{
-				UIItemSlot fuel = ui.GetSlot(0);
+				UIItemSlot input = ui.GetSlot(0);
 				UIItemSlot resultSlot = ui.GetSlot(1);
 
-				Do_Reaction(fuel.StoredItem, resultSlot.StoredItem);
+				Do_Reaction(input.StoredItem, resultSlot.StoredItem);
 
 			//	Main.NewText($"Edited UI slots: \"{Lang.GetItemNameValue(fuel.StoredItem.type)}\" ({fuel.StoredItem.stack}), \"{Lang.GetItemNameValue(resultSlot.StoredItem.type)}\" ({resultSlot.StoredItem.stack})");
 			}
@@ -141,20 +147,21 @@ namespace TerraScience.Content.TileEntities{
 			Main.PlaySound(SoundLoader.customSoundType, center, TerraScience.Instance.GetSoundSlot(SoundType.Custom, "Sounds/Custom/Flame Arrow"));
 		}
 
-		private void Do_Reaction(Item fuel, Item result){
-			fuel.stack--;
+		private void Do_Reaction(Item input, Item result){
+			input.stack--;
 
-			if(fuel.stack <= 0){
-				fuel.TurnToAir();
+			if(input.stack <= 0){
+				input.TurnToAir();
 				Heating = false;
 			}
 
 			if(result.IsAir){
-				result.SetDefaults(ElementUtils.ElementType(Element.Carbon));
+				result.SetDefaults(ModContent.ItemType<Coal>());
 				result.stack = 0;
 			}
-
-			result.stack += Main.rand.Next(7, 12);
+			
+			if(Main.rand.NextFloat() < 0.35f)
+				result.stack += Main.rand.Next(1, 4);
 
 			if(result.stack > result.maxStack) {
 				result.stack = result.maxStack;

@@ -12,8 +12,9 @@ Reinforced Furnace - burn wooden items to produce Carbon (C)
 
 Air Ionizer - has a random chance to collect certain gaseous elements and compounds from the air
 
+Electrolyzer - splits water into Hydrogen (2H₂) and Oxygen (O₂)
+
 
 TODO List:
-Add more machines
 Implement the rest of the elements
 Implement more compounds

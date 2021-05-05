@@ -16,15 +16,5 @@ namespace TerraScience.Content.Items.Materials{
 			item.value = Item.sellPrice(silver: 1, copper: 15);
 			TerraScience.VialDefaults(item);
 		}
-
-		public override void AddRecipes(){
-			ModRecipe recipe = new ModRecipe(mod);
-			recipe.AddIngredient(CompoundUtils.CompoundType(Compound.Water));
-			recipe.AddIngredient(CompoundUtils.CompoundType(Compound.SodiumChloride));
-			recipe.AddIngredient(ModContent.ItemType<EmptyVial>());
-			recipe.AddTile(TileID.WorkBenches);
-			recipe.SetResult(this);
-			recipe.AddRecipe();
-		}
 	}
 }

@@ -55,13 +55,16 @@ namespace TerraScience.Content.UI{
 		}
 
 		internal override void InitializeSlots(List<UIItemSlot> slots){
-			UIItemSlot fuel = new UIItemSlot(){
+			UIItemSlot input = new UIItemSlot(){
 				//Wood items burn
-				ValidItemFunc = item => item.IsAir || Lang.GetItemNameValue(item.type).Contains("Wood"),
+				ValidItemFunc = item => {
+					string name = Lang.GetItemNameValue(item.type);
+					return item.IsAir || name.Contains("Wood") || name.Contains("wood");
+				},
 				HAlign = 0.345f
 			};
-			fuel.Top.Set(152, 0);
-			slots.Add(fuel);
+			input.Top.Set(152, 0);
+			slots.Add(input);
 
 			UIItemSlot carbons = new UIItemSlot(){
 				ValidItemFunc = item => item.IsAir,

@@ -1,10 +1,12 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-using System;
 using System.Collections.Generic;
 using Terraria;
 using Terraria.UI;
 using TerraScience.Content.TileEntities;
+using TerraScience.Content.UI.Energy;
+using TerraScience.Content.UI.Energy.Storage;
+using TerraScience.Content.UI.Generators;
 using TerraScience.Utilities;
 
 namespace TerraScience.Content.UI {
@@ -34,8 +36,14 @@ namespace TerraScience.Content.UI {
 				AddUI(nameof(TileUtils.Structures.SaltExtractor), new SaltExtractorUI());
 				AddUI(nameof(TileUtils.Structures.ScienceWorkbench), new ScienceWorkbenchUI());
 				AddUI(nameof(TileUtils.Structures.ReinforcedFurncace), new ReinforcedFurnaceUI());
+				AddUI(nameof(TileUtils.Structures.BlastFurnace), new BlastFurnaceUI());
+
 				AddUI(nameof(TileUtils.Structures.AirIonizer), new AirIonizerUI());
 				AddUI(nameof(TileUtils.Structures.Electrolyzer), new ElectrolyzerUI());
+
+				AddUI(nameof(TileUtils.Structures.BasicWindTurbine), new BasicWindTurbineUI());
+
+				AddUI(nameof(TileUtils.Structures.BasicBattery), new BasicBatteryUI());
 
 				// Activate calls Initialize() on the UIState if not initialized, then calls OnActivate and then calls Activate on every child element
 				foreach(var state in states.Values)
@@ -99,6 +107,7 @@ namespace TerraScience.Content.UI {
 			machineState.UIEntity = entity;
 			machineState.UIEntity.ParentState = machineState;
 			machineState.UIEntity.MachineName = machineState.MachineName;
+			machineState.UIDelay = 10;
 
 			if(!machineState.CheckedForSavedItemCount){
 				machineState.CheckedForSavedItemCount = true;
@@ -108,7 +117,7 @@ namespace TerraScience.Content.UI {
 				machineState.UIEntity.LoadSlots();
 			}
 
-			interfaces[name].SetState(states[name]);
+			interfaces[name].SetState(machineState);
 		}
 
 		public void HideUI(string name) {
@@ -120,6 +129,7 @@ namespace TerraScience.Content.UI {
 
 			machineState.UIEntity.SaveSlots();
 			machineState.ClearSlots();
+			machineState.UIEntity.ParentState = null;
 			machineState.UIEntity = null;
 
 			machineState.CheckedForSavedItemCount = false;

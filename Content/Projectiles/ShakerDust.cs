@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
 using Terraria.ModLoader;
@@ -36,6 +37,9 @@ namespace TerraScience.Content.Projectiles{
 			projectile.localNPCHitCooldown = 5;
 		}
 
+		public override Color? GetAlpha(Color lightColor)
+			=> MiscUtils.Blend(lightColor, drawColor);
+
 		public override void AI(){
 			//ai[0] == 0, waiting to hit a tile; apply slight gravity and friction
 			//ai[0] == 1, hit a tile, start to fade out slowly and die once invisible
@@ -59,7 +63,5 @@ namespace TerraScience.Content.Projectiles{
 
 			return false;
 		}
-
-		public override Color? GetAlpha(Color lightColor) => MiscUtils.Blend(lightColor, new Color(drawColor.ToVector3() + new Vector3(Main.rand.Next(-0x2a, 0x2a))));
 	}
 }

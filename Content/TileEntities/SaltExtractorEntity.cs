@@ -4,6 +4,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using TerraScience.Content.API.UI;
+using TerraScience.Content.Items.Materials;
 using TerraScience.Content.Tiles.Multitiles;
 using TerraScience.Content.UI;
 using TerraScience.Utilities;
@@ -25,7 +26,7 @@ namespace TerraScience.Content.TileEntities{
 
 		public SE_LiquidType LiquidType = SE_LiquidType.None;
 
-		public override int SlotsCount => 2;
+		public override int SlotsCount => 1;
 
 		public override void ExtraLoad(TagCompound tag){
 			StoredLiquid = tag.GetFloat(nameof(StoredLiquid));
@@ -60,19 +61,13 @@ namespace TerraScience.Content.TileEntities{
 
 		public override void ReactionComplete(){
 			Item salt = this.RetrieveItem(0);
-			Item water = this.RetrieveItem(1);
 
 			if(salt.IsAir){
-				salt.SetDefaults(CompoundUtils.CompoundType(Compound.SodiumChloride));
+				salt.SetDefaults(ModContent.ItemType<Salt>());
 				salt.stack = 0;
-			}
-			if(water.IsAir){
-				water.SetDefaults(CompoundUtils.CompoundType(Compound.Water));
-				water.stack = 0;
 			}
 
 			salt.stack++;
-			water.stack++;
 
 			Main.PlaySound(new LegacySoundStyle(SoundID.Grab, 0).WithVolume(0.5f), Position.ToWorldCoordinates());
 		}
@@ -88,7 +83,6 @@ namespace TerraScience.Content.TileEntities{
 
 		public override void PostReaction(){
 			Item salt = this.RetrieveItem(0);
-			Item water = this.RetrieveItem(1);
 
 			if(!ReactionInProgress){
 				ReactionSpeed *= 1f - 0.0943f / 60f;
@@ -104,8 +98,8 @@ namespace TerraScience.Content.TileEntities{
 				LiquidType = SE_LiquidType.None;
 			}
 
-			//Stop the reaction if more than 99 salt or water items are stored
-			if(salt.stack >= 100 || water.stack >= 100)
+			//Stop the reaction if more than 99 salt items are stored
+			if(salt.stack >= 100)
 				ReactionInProgress = false;
 
 			//Update the delay timer

@@ -12,7 +12,7 @@ namespace TerraScience.Content.Tiles.Multitiles{
 			AddMapEntry(new Color(30, 30, 30));
 
 			dustType = 82;
-			drop = ModContent.ItemType<Items.Placeable.MachineSupport>();
+			drop = ModContent.ItemType<Items.Placeable.MachineSupportItem>();
 			soundType = 21;
 			soundStyle = 1;
 

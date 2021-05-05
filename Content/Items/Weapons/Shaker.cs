@@ -16,12 +16,12 @@ namespace TerraScience.Content.Items.Weapons{
 
 		private readonly string displayName;
 		private readonly string tooltip;
-		private readonly Compound ammoType;
+		private readonly Func<int> ammoType;
 		private readonly Action<Item> itemDefaults;
 
 		public Shaker(){ }
 
-		public Shaker(string display, string tooltip, Compound ammo, Action<Item> defaults){
+		public Shaker(string display, string tooltip, Func<int> ammo, Action<Item> defaults){
 			displayName = display;
 			this.tooltip = tooltip;
 			ammoType = ammo;
@@ -44,7 +44,7 @@ namespace TerraScience.Content.Items.Weapons{
 			item.useStyle = ItemUseStyleID.SwingThrow;
 			item.useTime = item.useAnimation = 24;
 			item.shootSpeed = 8;
-			item.useAmmo = CompoundUtils.CompoundType(ammoType);
+			item.useAmmo = ammoType();
 			item.width = 22;
 			item.height = 38;
 		}
@@ -65,7 +65,7 @@ namespace TerraScience.Content.Items.Weapons{
 		public override void AddRecipes(){
 			ModRecipe recipe = new ModRecipe(mod);
 			recipe.AddIngredient(ModContent.ItemType<Shaker_Empty>());
-			recipe.AddIngredient(CompoundUtils.CompoundType(ammoType), 4);
+			recipe.AddIngredient(ammoType(), 4);
 			recipe.AddTile(TileID.WorkBenches);
 			recipe.SetResult(this);
 			recipe.AddRecipe();

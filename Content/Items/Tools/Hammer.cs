@@ -4,28 +4,28 @@ using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 using TerraScience.Content.TileEntities;
-using TerraScience.Content.Tiles.Multitiles;
 using TerraScience.Utilities;
 
 namespace TerraScience.Content.Items.Tools{
 	public class Hammer : ModItem{
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Scientist's Hammer");
-			Tooltip.SetDefault("Can be used to convert certain tile structures to multi-tile machines." +
+			Tooltip.SetDefault("Can be used to convert certain placed tile structures to multi-tile machines." +
 				"\nAlso functions as a weak hammer.");
 		}
 
 		public override void SetDefaults(){
-			item.damage = 20;
-			item.knockBack = 7.2f;
+			item.damage = 12;
+			item.knockBack = 3.4f;
 			item.melee = true;
 			item.useStyle = ItemUseStyleID.SwingThrow;
 			item.UseSound = SoundID.Item1;
 			item.useTime = 18;
 			item.useAnimation = 18;
 			item.useTurn = true;
+			item.autoReuse = true;
 			item.rare = ItemRarityID.Blue;
-			item.hammer = 65;
+			item.hammer = 40;
 			item.value = Item.sellPrice(silver: 6, copper: 33);
 			item.width = 24;
 			item.height = 24;

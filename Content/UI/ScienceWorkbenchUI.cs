@@ -5,6 +5,7 @@ using Terraria.GameContent.UI.Elements;
 using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
+using TerraScience.API.UI;
 using TerraScience.Content.API.UI;
 using TerraScience.Content.Items;
 using TerraScience.Content.TileEntities;
@@ -43,12 +44,16 @@ namespace TerraScience.Content.UI{
 			if(nextRecipe.LeftClick && GetSlot(SlotsLength - 1).StoredItem.IsAir){
 				CurrentRecipe++;
 
+				PromptForRecipes = true;
+
 				if(CurrentRecipe > entity.curRecipes.Count)
 					CurrentRecipe = entity.curRecipes.Count - 1;
 
 				Main.PlaySound(SoundID.MenuTick);
 			}else if(prevRecipe.LeftClick && GetSlot(SlotsLength - 1).StoredItem.IsAir){
 				CurrentRecipe--;
+
+				PromptForRecipes = true;
 
 				if(CurrentRecipe < 0)
 					CurrentRecipe = 0;
@@ -122,7 +127,7 @@ namespace TerraScience.Content.UI{
 				left = origLeft;
 				for(int c = 0; c < 5; c++){
 					UIItemSlot ingredient = new UIItemSlot(){
-						ValidItemFunc = item => item.IsAir || item.modItem is ElementItem
+						ValidItemFunc = item => true
 					};
 					ingredient.Left.Set(left, 0);
 					ingredient.Top.Set(top, 0);

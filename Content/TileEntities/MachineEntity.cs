@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Terraria;
-using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using TerraScience.Content.UI;
@@ -87,7 +85,7 @@ namespace TerraScience.Content.TileEntities{
 				["slots"] = new TagCompound(){
 					//Lots of unnecessary data is saved, but that's fine due to the small amount of extra bytes used
 					// TODO: refactor ItemIO.Save/ItemIO.Load to get rid of this extra info
-					["items"] = slots.Select(i => ItemIO.Save(i)).ToList()
+					["items"] = slots.Count == 0 ? null : slots.Select(i => ItemIO.Save(i)).ToList()
 				},
 				["extra"] = ExtraSave()
 			};
@@ -101,7 +99,7 @@ namespace TerraScience.Content.TileEntities{
 			ReactionInProgress = info.GetBool(nameof(ReactionInProgress));
 
 			TagCompound tagSlots = tag.GetCompound("slots");
-			List<TagCompound> items = tagSlots.GetList<TagCompound>("items") as List<TagCompound>;
+			List<TagCompound> items = tagSlots.GetList<TagCompound>("items") as List<TagCompound> ?? new List<TagCompound>();
 			
 			foreach(var c in items)
 				slots.Add(ItemIO.Load(c));

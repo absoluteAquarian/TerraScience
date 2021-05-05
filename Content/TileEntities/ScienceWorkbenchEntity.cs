@@ -45,8 +45,12 @@ namespace TerraScience.Content.TileEntities{
 				Item slot = ui.GetSlot(i).StoredItem;
 				Item recipeItem = recipe.requiredItem[i];
 
-				if(!recipeItem.IsAir && !slot.IsAir)
+				if(!recipeItem.IsAir && !slot.IsAir){
 					slot.stack -= recipeItem.stack;
+
+					if(slot.stack <= 0)
+						slot.TurnToAir();
+				}
 			}
 
 			HasRecipe = RecipeUtils.HasRecipe(ui, out curRecipeType, out curRecipeStack, curRecipes);

@@ -5,6 +5,7 @@ using Terraria;
 using Terraria.GameInput;
 using Terraria.UI;
 using TerraScience.API.UI;
+using TerraScience.Content.UI;
 
 namespace TerraScience.Content.API.UI {
 	public class UIItemSlot : UIElement {
@@ -39,13 +40,15 @@ namespace TerraScience.Content.API.UI {
 			Main.inventoryScale = Scale;
 			Rectangle rectangle = GetDimensions().ToRectangle();
 
-			if (ContainsPoint(Main.MouseScreen) && !PlayerInput.IgnoreMouseInterface) {
+			//Lazy hardcoding lol
+			bool ignoreClicks = Parent is UIDragablePanel panel && panel.Parent is MachineUI ui && ui.UIDelay > 0;
+			if ((ContainsPoint(Main.MouseScreen) && !PlayerInput.IgnoreMouseInterface)) {
 				Main.LocalPlayer.mouseInterface = true;
 
-				if(Parent is UIDragablePanel panel)
-					panel.Dragging = false;
+				if(Parent is UIDragablePanel panel2)
+					panel2.Dragging = false;
 
-				if (ValidItemFunc == null || ValidItemFunc(Main.mouseItem)) {
+				if (!ignoreClicks && (ValidItemFunc == null || ValidItemFunc(Main.mouseItem))) {
 					// Handle handles all the click and hover actions based on the context.
 					storedItemBeforeHandle = StoredItem.Clone();
 					ItemSlot.Handle(ref storedItem, Context);

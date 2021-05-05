@@ -11,7 +11,7 @@ using TerraScience.Content.UI;
 namespace TerraScience.Utilities{
 	public static class RecipeUtils{
 		public static void SimpleRecipe(int itemID, int stack, int tileID, int resultID, int resultStack){
-			ModRecipe recipe = new ModRecipe(ModContent.GetInstance<TerraScience>());
+			ModRecipe recipe = new ModRecipe(TerraScience.Instance);
 
 			recipe.AddIngredient(itemID, stack);
 			recipe.AddTile(tileID);
@@ -20,9 +20,29 @@ namespace TerraScience.Utilities{
 		}
 
 		public static void SimpleRecipe(int itemID, int stack, int tileID, ModItem result, int resultStack){
-			ModRecipe recipe = new ModRecipe(ModContent.GetInstance<TerraScience>());
+			ModRecipe recipe = new ModRecipe(TerraScience.Instance);
 
 			recipe.AddIngredient(itemID, stack);
+			recipe.AddTile(tileID);
+			recipe.SetResult(result, resultStack);
+			recipe.AddRecipe();
+		}
+
+		/// <param name="group">Vanilla recipe groups consist of "Wood", "IronBar", "PresurePlate", "Sand", and "Fragment".</param>
+		public static void SimpleRecipe(string group, int stack, int tileID, int resultID, int resultStack){
+			ModRecipe recipe = new ModRecipe(TerraScience.Instance);
+
+			recipe.AddRecipeGroup(group, stack);
+			recipe.AddTile(tileID);
+			recipe.SetResult(resultID, resultStack);
+			recipe.AddRecipe();
+		}
+
+		/// <param name="group">Vanilla recipe groups consist of "Wood", "IronBar", "PresurePlate", "Sand", and "Fragment".</param>
+		public static void SimpleRecipe(string group, int stack, int tileID, ModItem result, int resultStack){
+			ModRecipe recipe = new ModRecipe(TerraScience.Instance);
+
+			recipe.AddRecipeGroup(group, stack);
 			recipe.AddTile(tileID);
 			recipe.SetResult(result, resultStack);
 			recipe.AddRecipe();

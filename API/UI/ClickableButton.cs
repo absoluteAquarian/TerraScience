@@ -1,10 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
 using Terraria;
 using Terraria.GameContent.UI.Elements;
-using Terraria.Localization;
+using TerraScience.Content.UI;
 
-namespace TerraScience.Content.UI{
+namespace TerraScience.API.UI{
 	public class ClickableButton : UITextPanel<string>{
 		public bool Hovering;
 

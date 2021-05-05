@@ -1,9 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
+using System;
 using System.Collections.Generic;
 using Terraria;
 using Terraria.GameContent.UI.Elements;
 using Terraria.ID;
-using Terraria.ModLoader;
 using Terraria.UI;
 using TerraScience.API.UI;
 using TerraScience.Content.API.UI;
@@ -12,7 +12,7 @@ using TerraScience.Utilities;
 
 namespace TerraScience.Content.UI{
 	public abstract class MachineUI : UIState{
-		public static string UIDecimalFormat(float value) =>string.Format("{0:G29}", decimal.Parse($"{value:N2}"));
+		public static string UIDecimalFormat(float value) => $"{value :0.##}";
 
 		public string MachineName;
 
@@ -49,6 +49,8 @@ namespace TerraScience.Content.UI{
 
 		public virtual void PlayOpenSound() => Main.PlaySound(SoundID.MenuOpen);
 		public virtual void PlayCloseSound() => Main.PlaySound(SoundID.MenuClose);
+
+		public int UIDelay = -1;
 
 		internal void ClearSlots(){
 			foreach(var slot in ItemSlots)
@@ -100,14 +102,19 @@ namespace TerraScience.Content.UI{
 		public sealed override void Update(GameTime gameTime){
 			base.Update(gameTime);
 
+			if(UIDelay > 0)
+				UIDelay--;
+
 			Main.playerInventory = true;
 
 			if (UIEntity != null) {
-				// Get the machine's center position
+				//Get the machine's center position
 				Vector2 middle = TileUtils.TileEntityCenter(UIEntity, Structure);
 
-				// Check if the inventory key was pressed or if the player is 5 blocks away from the tile.  If so, close the UI
-				if (Main.LocalPlayer.GetModPlayer<TerraSciencePlayer>().InventoryKeyPressed || Vector2.Distance(Main.LocalPlayer.Center, middle) > 5 * 16) {
+				//Check if the inventory key was pressed or if the player is too far away from the tile.  If so, close the UI
+				bool tooFar = Math.Abs(Main.LocalPlayer.Center.X - middle.X) > Structure.GetLength(1) * 8 + Main.LocalPlayer.lastTileRangeX * 16;
+				tooFar |= Math.Abs(Main.LocalPlayer.Center.Y - middle.Y) > Structure.GetLength(0) * 8 + Main.LocalPlayer.lastTileRangeY * 16;
+				if (Main.LocalPlayer.GetModPlayer<TerraSciencePlayer>().InventoryKeyPressed || tooFar){
 					TerraScience.Instance.machineLoader.HideUI(MachineName);
 					Main.playerInventory = false;
 					return;

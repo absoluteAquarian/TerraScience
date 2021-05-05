@@ -15,14 +15,5 @@ namespace TerraScience.Content.Items.Materials{
 			item.value = Item.sellPrice(silver: 1);
 			TerraScience.VialDefaults(item);
 		}
-
-		public override void AddRecipes(){
-			ModRecipe recipe = new ModRecipe(mod);
-			recipe.AddIngredient(CompoundUtils.CompoundType(Compound.Water));
-			recipe.AddIngredient(ModContent.ItemType<EmptyVial>());
-			recipe.AddTile(TileID.WorkBenches);
-			recipe.SetResult(this);
-			recipe.AddRecipe();
-		}
 	}
 }

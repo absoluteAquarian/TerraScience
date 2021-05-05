@@ -10,9 +10,12 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ObjectData;
 using Terraria.UI;
+using TerraScience.Content.Items.Placeable;
 using TerraScience.Content.TileEntities;
+using TerraScience.Content.TileEntities.Energy;
 using TerraScience.Content.Tiles.Multitiles;
 using TerraScience.Content.UI;
+using TerraScience.Systems.Energy;
 using static Terraria.ID.TileID;
 
 namespace TerraScience.Utilities{
@@ -20,9 +23,10 @@ namespace TerraScience.Utilities{
 		/// <summary>
 		/// An array of all viable tile types that a multitile structure can be made from.
 		/// </summary>
-		public static int[] StructureTileIDs;
+		public static ushort[] StructureTileIDs;
 
 		public static ushort SupportType => (ushort)ModContent.TileType<MachineSupport>();
+		public static ushort BlastFurnaceType => (ushort)ModContent.TileType<BlastBrickTile>();
 
 		public static Dictionary<int, MachineEntity> tileToEntity;
 
@@ -34,55 +38,28 @@ namespace TerraScience.Utilities{
 			public static Tile[,] SaltExtractor;
 			public static Tile[,] ScienceWorkbench;
 			public static Tile[,] ReinforcedFurncace;
+			public static Tile[,] BlastFurnace;
+
 			public static Tile[,] AirIonizer;
 			public static Tile[,] Electrolyzer;
 
-			public static void SetupStructures(){
-				StructureTileIDs = new int[]{ CopperPlating, TinPlating, GrayBrick, Glass, WoodBlock, SupportType, RedBrick };
+			public static Tile[,] BasicWindTurbine;
 
-				SaltExtractor = new Tile[,]{
-					{ NewTile(Glass, TileSlopeVariant.HalfBrick), NewTile(CopperPlating), NewTile(CopperPlating), NewTile(Glass, TileSlopeVariant.HalfBrick) },
-					{ NewTile(Glass), NewTile(GrayBrick), NewTile(GrayBrick), NewTile(Glass) },
-					{ NewTile(Glass), NewTile(GrayBrick), NewTile(GrayBrick), NewTile(Glass) }
-				};
-				ScienceWorkbench = new Tile[,]{
-					{ NewTile(SupportType), NewTile(Glass, TileSlopeVariant.UpRight), NewTile(WoodBlock, TileSlopeVariant.DownLeft) },
-					{ NewTile(CopperPlating, TileSlopeVariant.HalfBrick), NewTile(CopperPlating, TileSlopeVariant.HalfBrick), NewTile(WoodBlock) },
-					{ NewTile(GrayBrick), NewTile(WoodBlock), NewTile(GrayBrick) }
-				};
-				ReinforcedFurncace = new Tile[,]{
-					{ NewTile(SupportType), NewTile(SupportType), NewTile(GrayBrick), NewTile(SupportType) },
-					{ NewTile(GrayBrick, TileSlopeVariant.DownRight), NewTile(RedBrick), NewTile(RedBrick), NewTile(GrayBrick, TileSlopeVariant.DownLeft) },
-					{ NewTile(RedBrick), NewTile(TinPlating, TileSlopeVariant.HalfBrick), NewTile(TinPlating, TileSlopeVariant.HalfBrick), NewTile(RedBrick) },
-					{ NewTile(GrayBrick), NewTile(RedBrick), NewTile(RedBrick), NewTile(GrayBrick) }
-				};
-				AirIonizer = new Tile[,]{
-					{ NewTile(TinPlating, TileSlopeVariant.DownRight), NewTile(Glass, TileSlopeVariant.HalfBrick), NewTile(TinPlating, TileSlopeVariant.DownLeft) },
-					{ NewTile(TinPlating, TileSlopeVariant.UpRight), NewTile(TinPlating), NewTile(TinPlating, TileSlopeVariant.UpLeft) },
-					{ NewTile(GrayBrick, TileSlopeVariant.DownRight), NewTile(GrayBrick), NewTile(GrayBrick, TileSlopeVariant.DownLeft) }
-				};
-				Electrolyzer = new Tile[,]{
-					{ NewTile(Glass, TileSlopeVariant.DownRight), NewTile(Glass), NewTile(Glass), NewTile(Glass), NewTile(Glass, TileSlopeVariant.DownLeft) },
-					{ NewTile(Glass), NewTile(TinPlating), NewTile(SupportType), NewTile(CopperPlating), NewTile(Glass) },
-					{ NewTile(GrayBrick), NewTile(CopperPlating), NewTile(SupportType), NewTile(TinPlating), NewTile(GrayBrick) },
-					{ NewTile(GrayBrick), NewTile(GrayBrick), NewTile(GrayBrick), NewTile(GrayBrick), NewTile(GrayBrick) }
-				};
-
-				tileToStructureName = new Dictionary<int, string>(){
-					[ModContent.TileType<SaltExtractor>()] = nameof(SaltExtractor),
-					[ModContent.TileType<ScienceWorkbench>()] = nameof(ScienceWorkbench),
-					[ModContent.TileType<ReinforcedFurnace>()] = nameof(ReinforcedFurncace),
-					[ModContent.TileType<AirIonizer>()] = nameof(AirIonizer),
-					[ModContent.TileType<Electrolyzer>()] = nameof(Electrolyzer)
-				};
-			}
+			public static Tile[,] BasicBattery;
 
 			public static void Unload(){
 				StructureTileIDs = null;
 				SaltExtractor = null;
 				ScienceWorkbench = null;
 				ReinforcedFurncace = null;
+				BlastFurnace = null;
+
 				AirIonizer = null;
+				Electrolyzer = null;
+
+				BasicWindTurbine = null;
+				
+				BasicBattery = null;
 			}
 		}
 
@@ -120,6 +97,28 @@ namespace TerraScience.Utilities{
 				if(TryFindStructure(x, y, pair.Value, out topLeftTileLocation)){
 					structure = pair.Value;
 					tileType = pair.Key;
+
+					//If this structure has a powered entity on it, try to connect it to nearby networks
+					MachineEntity entity = tileToEntity[tileType];
+
+					if(entity is PoweredMachineEntity pme){
+						Point16 checkOrig = topLeftTileLocation - new Point16(1, 1);
+
+						int width = structure.GetLength(1), height = structure.GetLength(0);
+						for(int cx = checkOrig.X; cx < width + 2; cx++){
+							for(int cy = checkOrig.Y; cy < height + 2; cy++){
+								//Ignore the corners
+								if((cx == 0 && cy == 0) || (cx == width + 1 && cy == 0) || (cx == 0 && cy == height + 1) || (cx == width + 1 && cy == height + 1))
+									continue;
+
+								if(NetworkCollection.HasWireAt(new Point16(cx, cy), out WireNetwork net)){
+									net.connectedMachines.Add(pme);
+									return true;
+								}
+							}
+						}
+					}
+
 					return true;
 				}
 			}
@@ -179,11 +178,9 @@ namespace TerraScience.Utilities{
 			=> new Point16(tile.frameX / 18, tile.frameY / 18);
 
 		public static Texture2D GetEffectTexture(this ModTile multitile, string effect)
-			=> ModContent.GetTexture($"TerraScience/Content/Tiles/Multitiles/Effect_{multitile.Name}_{effect}");
+			=> ModContent.GetTexture($"TerraScience/Content/Tiles/Multitiles/Overlays/Effect_{multitile.Name}_{effect}");
 
 		public static void KillMachine(int i, int j, ref bool fail, ref bool noItem, Tile[,] structure){
-			// TODO: Force UI for this machine to close
-
 			//Do things only when the tile is destroyed and its actually this tile
 			Point16 mouse = Main.MouseWorld.ToTileCoordinates16();
 			Tile tile = Main.tile[i, j];
@@ -223,8 +220,13 @@ namespace TerraScience.Utilities{
 						break;
 				}
 
-				if(itemType == 0 && structureTile.type == SupportType)
-					itemType = ModContent.ItemType<Content.Items.Placeable.MachineSupport>();
+				//Modded tiles
+				if(itemType == 0){
+					if(structureTile.type == SupportType)
+						itemType = ModContent.ItemType<MachineSupportItem>();
+					else if(structureTile.type == BlastFurnaceType)
+						itemType = ModContent.ItemType<BlastBrick>();
+				}
 
 				//Spawn the item
 				if(itemType > 0)
@@ -249,6 +251,10 @@ namespace TerraScience.Utilities{
 								me.OnKill();
 								TileEntity.ByID.Remove(tileEntity.ID);
 								TileEntity.ByPosition.Remove(pos);
+
+								//Remove this machine from the wire networks if it's a powered machine
+								if(tileEntity is PoweredMachineEntity pme)
+									NetworkCollection.RemoveMachine(pme);
 							}
 						}
 
@@ -273,7 +279,7 @@ namespace TerraScience.Utilities{
 			Main.tileNoAttach[type] = true;
 			Main.tileFrameImportant[type] = true;
 
-			TileObjectData.newTile.CoordinateHeights = MiscUtils.Create1DArray<int>(16, height);
+			TileObjectData.newTile.CoordinateHeights = MiscUtils.Create1DArray(16, height);
 			TileObjectData.newTile.CoordinateWidth = 16;
 			TileObjectData.newTile.Height = (int)height;
 			TileObjectData.newTile.Width = (int)width;

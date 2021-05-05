@@ -4,11 +4,8 @@ using System;
 using System.Linq;
 using Terraria;
 using Terraria.DataStructures;
-using Terraria.Enums;
 using Terraria.ID;
 using Terraria.ModLoader;
-using Terraria.ObjectData;
-using Terraria.UI.Chat;
 using TerraScience.Content.Items.Materials;
 using TerraScience.Content.TileEntities;
 using TerraScience.Utilities;
@@ -76,13 +73,13 @@ namespace TerraScience.Content.Tiles.Multitiles{
 		public override void PostDraw(int i, int j, SpriteBatch spriteBatch) {
 			//Draw the water in the side vials
 			Tile tile = Framing.GetTileSafely(i, j);
-			Point16 pos = new Point16(i, j) - tile.TileCoord();
-
-			//Normally i'd make it so that the draw only happens once, but then that fucks up the drawing for the rest of the tiles.  Oh well.
+			Point16 frame = tile.TileCoord();
+			Point16 pos = new Point16(i, j) - frame;
+			bool lastTile = frame.X == Structure.GetLength(1) - 1 && frame.Y == Structure.GetLength(0) - 1;
 
 			int maxWaterDrawDiff = 22;
 
-			if(MiscUtils.TryGetTileEntity(pos, out SaltExtractorEntity se)){
+			if(MiscUtils.TryGetTileEntity(pos, out SaltExtractorEntity se) && lastTile){
 				//Do the rest of the things
 				float curWaterRatio = se.StoredLiquid / SaltExtractorEntity.MaxLiquid;
 				float invRatio = 1f - curWaterRatio;
