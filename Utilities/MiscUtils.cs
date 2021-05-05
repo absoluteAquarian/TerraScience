@@ -1,7 +1,15 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
+using System.Linq;
 using Terraria;
+using Terraria.DataStructures;
+using Terraria.ID;
 using Terraria.ModLoader;
+using TerraScience.Content.Items.Materials;
+using TerraScience.Content.TileEntities;
+using TerraScience.Content.TileEntities.Energy;
+using TerraScience.Content.UI;
+using static TerraScience.Content.TileEntities.SaltExtractorEntity;
 
 namespace TerraScience.Utilities {
 	public static class MiscUtils {
@@ -24,5 +32,97 @@ namespace TerraScience.Utilities {
 
 		public static T ParseToEnum<T>(string name) where T : Enum
 			=> (T)Enum.Parse(typeof(T), name);
+
+		public static bool TryGetTileEntity<T>(Point16 position, out T tileEntity) where T : TileEntity{
+			tileEntity = null;
+			if(TileEntity.ByPosition.ContainsKey(position))
+				tileEntity = TileEntity.ByPosition[position] as T;	//'as' will make 'tileEntity' null if the TileEntity at the position isn't the same type
+			return tileEntity != null;
+		}
+
+		public static bool HeldItemIsViableForElectrolyzer(this Player player, Point16 pos){
+			//Near copy-pasta of HeldItemIsViableForSaltExtractor
+			// TODO: make this not a copy-pasta
+			if(!TryGetTileEntity(pos, out ElectrolyzerEntity _))
+				return false;
+
+			int[] types = new int[]{
+				ItemID.WaterBucket,
+				ItemID.BottomlessBucket,
+				ModContent.ItemType<Vial_Water>()
+			};
+
+			//Electrolyzer only accepts water atm
+			// TODO: support more liquid types
+			return types.Contains(player.HeldItem.type);
+		}
+
+		public static bool HeldItemIsViableForSaltExtractor(this Player player, Point16 pos){
+			if(!TryGetTileEntity(pos, out SaltExtractorEntity se))
+				return false;
+
+			int[] types = new int[]{
+				ItemID.WaterBucket,
+				ItemID.BottomlessBucket,
+				ModContent.ItemType<Vial_Water>(),
+				ModContent.ItemType<Vial_Saltwater>()
+			};
+
+			if(!types.Contains(player.HeldItem.type))
+				return false;
+
+			//Liquid: none
+			if(se.LiquidType == SE_LiquidType.None)
+				return true;
+
+			//Liquid: water
+			if((player.HeldItem.type == ItemID.WaterBucket || player.HeldItem.type == ItemID.BottomlessBucket || player.HeldItem.type == ModContent.ItemType<Vial_Water>())
+				&& se.LiquidType == SE_LiquidType.Water)
+				return true;
+
+			//Liquid: saltwater
+			if(player.HeldItem.type == ModContent.ItemType<Vial_Saltwater>() && se.LiquidType == SE_LiquidType.Saltwater)
+				return true;
+
+			//Bad
+			return false;
+		}
+
+		public static Vector2 ScreenCenter()
+			=> new Vector2(Main.screenWidth, Main.screenHeight) / 2f;
+
+		public static T[] Create1DArray<T>(T value, uint length){
+			T[] arr = new T[length];
+			for(uint i = 0; i < length; i++)
+				arr[i] = value;
+			return arr;
+		}
+
+		//This added offset is needed to draw the bars at the right positions during different lighting modes
+		public static Vector2 GetLightingDrawOffset() => Lighting.NotRetro ? new Vector2(12) * 16 : Vector2.Zero;
+
+		public static int GetIconType(this MachineUI ui) => TerraScience.Instance.ItemType($"{ui.MachineName}Icon");
+
+		public static Item RetrieveItem(this MachineEntity entity, int slot)
+			=> !(entity.ParentState?.Active ?? false) ? entity.GetItem(slot) : entity.ParentState.GetSlot(slot).StoredItem;
+
+		/// <summary>
+		/// Converts this one-dimentional array to a two-dimensional array whose dimensions are the given <paramref name="width"/> and <paramref name="height"/>.
+		/// </summary>
+		public static T[,] To2DArray<T>(this T[] arr, int width, int height){
+			if(arr.Length != width * height)
+				throw new ArgumentException($"Array length does not match width and height parameters (length: {arr.Length}, result columns: {width}, result rows: {height})");
+
+			T[,] newArr = new T[width, height];
+
+			int arrIndex = 0;
+			for(int y = 0; y < height; y++){
+				for(int x = 0; x < width; x++){
+					newArr[x, y] = arr[arrIndex++];
+				}
+			}
+
+			return newArr;
+		}
 	}
 }

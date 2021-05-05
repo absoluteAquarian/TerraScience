@@ -1,5 +1,20 @@
-Terraria, but with Science!
+﻿Terraria, but with Science!
 
-This mod adds the Elements from real life and lets you create all kinds of substances.
+Construct multitile machines with your trusty Scientist's Hammer and explore the foundations of chemistry and science!
 
-Or, well, it should.  Right now it doesn't add much, but it will in due time!
+
+Current Multitiles:
+Salt Extractor - provide Water or Saltwater to produce Salt (NaCl) and Water (H₂O)
+
+Science Workbench - construct chemical compounds from their element components
+
+Reinforced Furnace - burn wooden items to produce Carbon (C)
+
+Air Ionizer - has a random chance to collect certain gaseous elements and compounds from the air
+
+Electrolyzer - splits water into Hydrogen (2H₂) and Oxygen (O₂)
+
+
+TODO List:
+Implement the rest of the elements
+Implement more compounds

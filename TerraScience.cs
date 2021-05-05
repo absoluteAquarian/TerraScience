@@ -2,338 +2,275 @@
 using System;
 using System.Collections.Generic;
 using Terraria;
+using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.UI;
+using Terraria.Utilities;
+using TerraScience.API.Classes.ModLiquid;
+using TerraScience.API.StructureData;
 using TerraScience.Content.Items;
-using TerraScience.Systems;
+using TerraScience.Content.Items.Icons;
+using TerraScience.Content.Items.Materials;
+using TerraScience.Content.Items.Placeable;
+using TerraScience.Content.Items.Weapons;
+using TerraScience.Content.Projectiles;
+using TerraScience.Content.TileEntities;
+using TerraScience.Content.TileEntities.Energy;
+using TerraScience.Content.TileEntities.Energy.Generators;
+using TerraScience.Content.TileEntities.Energy.Storage;
+using TerraScience.Content.Tiles.Energy;
+using TerraScience.Content.Tiles.Multitiles;
+using TerraScience.Content.Tiles.Multitiles.EnergyMachines;
+using TerraScience.Content.Tiles.Multitiles.EnergyMachines.Basic;
+using TerraScience.Content.Tiles.Multitiles.EnergyMachines.Storage;
+using TerraScience.Content.UI;
+using TerraScience.Systems.Energy;
+using TerraScience.Systems.TemperatureSystem;
 using TerraScience.Utilities;
 
 namespace TerraScience {
 	public class TerraScience : Mod {
-		public readonly Action<ModRecipe> NoRecipe = r => { };
-		public readonly Action<ModRecipe> OnlyWorkBench = r => { r.AddTile(TileID.WorkBenches); };
+		/// <summary>
+		/// For fast and easy access to this mod's instance when one doesn't exist already
+		/// </summary>
+		public static TerraScience Instance => ModContent.GetInstance<TerraScience>();
+
+		/// <summary>
+		/// A <seealso cref="WeightedRandom{(int, int)}"/> used by <seealso cref="AirIonizerEntity"/>.
+		/// Initialized during <seealso cref="Load"/>
+		/// </summary>
+		public static WeightedRandom<(int, int)> wRand;
+
+		public static readonly Action<ModRecipe> NoRecipe = r => { };
+		public static readonly Action<ModRecipe> OnlyWorkBench = r => { r.AddTile(TileID.WorkBenches); };
+
+		// TODO: Move this into a MaterialLoader?
+		public static readonly Action<Item> VialDefaults = i => {
+			i.maxStack = 99;
+			i.width = 26;
+			i.height = 26;
+			i.useStyle = ItemUseStyleID.SwingThrow;
+			i.useTime = 15;
+			i.useAnimation = 10;
+			i.autoReuse = true;
+			i.useTurn = true;
+			i.noMelee = true;
+		};
+
+		internal MachineUILoader machineLoader;
+
+		internal ModLiquidLoader LiquidLoader { get; private set; }
+
+		internal ModLiquidFactory LiquidFactory { get; private set; }
+
+		internal TemperatureSystem temperatureSystem;
+
+		public static ModHotKey DebugHotkey;
 
 		public const string WarningWaterExplode = "[c/bb3300:WARNING:] exposure to water may cause spontaneous combustion!";
 
-		/// <summary>
-		/// The cached Actions for each ElementItem defaults.
-		/// </summary>
-		public static Dictionary<string, Action<Item>> CachedElementDefaults { get; private set; }
-
-		/// <summary>
-		/// The cached Actions for each ElementItem recipe.  Assumes that only one recipe was added.
-		/// </summary>
-		public static Dictionary<string, Action<ModRecipe, ElementItem>> CachedElementRecipes { get; private set; }
-
-		/// <summary>
-		/// The cached Actions for each CompoundItem defaults.
-		/// </summary>
-		public static Dictionary<string, Action<Item>> CachedCompoundDefaults { get; private set; }
-
-		/// <summary>
-		/// The cached Actions for each CompoundItem recipe.  Assumes that only one recipe was added.
-		/// </summary>
-		public static Dictionary<string, Action<ModRecipe, CompoundItem>> CachedCompoundRecipes { get; private set; }
-
 		public override void Load() {
-			CachedElementDefaults = new Dictionary<string, Action<Item>>();
-			CachedElementRecipes = new Dictionary<string, Action<ModRecipe, ElementItem>>();
-			CachedCompoundDefaults = new Dictionary<string, Action<Item>>();
-			CachedCompoundRecipes = new Dictionary<string, Action<ModRecipe, CompoundItem>>();
+			//Consistent randomness with Main
+			wRand = new WeightedRandom<(int, int)>(Main.rand);
 
-			RegisterElements();
-			RegisterCompounds();
+			Logger.DebugFormat("Loading Factories and system Loaders...");
+
+			LiquidLoader = new ModLiquidLoader();
+			LiquidFactory = new ModLiquidFactory();
+			machineLoader = new MachineUILoader();
+			temperatureSystem = new TemperatureSystem();
+
+			Logger.DebugFormat("Initializing dictionaries...");
+
+			DebugHotkey = RegisterHotKey("Debuging", "J");
+
+			Logger.DebugFormat("Adding other content...");
+
+			AddProjectile("PepperDust", new ShakerDust("Pepper Dust", new Color(){ PackedValue = 0xff2a2a2a }));
+			AddProjectile("SaltDust", new ShakerDust("Salt Dust", new Color(){ PackedValue = 0xffd5d5d5 }));
+
+			AddItem("Shaker_Pepper", new Shaker("Pepper Shaker",
+				"\"Time to spice up the competition a bit!\"",
+				() => ModContent.ItemType<Capsaicin>(),
+				item => {
+					item.damage = 28;
+					item.knockBack = 5.735f;
+					item.rare = ItemRarityID.Blue;
+					item.value = Item.sellPrice(silver: 4, copper: 20);
+					item.shoot = ProjectileType("PepperDust");
+				}));
+			AddItem("Shaker_Salt", new Shaker("Salt Shaker",
+				"\"Enemy #1 in the Slug Kingdom\"",
+				() => ModContent.ItemType<Salt>(),
+				item => {
+					item.damage = 11;
+					item.knockBack = 5.735f;
+					item.rare = ItemRarityID.Blue;
+					item.value = Item.sellPrice(silver: 4, copper: 20);
+					item.shoot = ProjectileType("SaltDust");
+				}));
+
+			//The machine icon items
+			IconTemplate.allRecipes = new Dictionary<string, Action<ScienceRecipe, IconTemplate>>();
+
+			AddIcon("SaltExtractor",
+				new int[]{ ItemID.Glass, ItemID.CopperPlating, ItemID.GrayBrick },
+				new int[]{ 3, 2, 4 });
+			AddIcon("ScienceWorkbench",
+				new int[]{ ModContent.ItemType<MachineSupportItem>(), ItemID.Wood, ItemID.CopperPlating, ItemID.GrayBrick, ItemID.Glass },
+				new int[]{ 1, 3, 2, 2, 1 });
+
+			Main.OnTick += OnUpdate;
+
+			Logger.DebugFormat("Inializing machines and UI...");
+
+			LiquidLoader.LoadLiquids(LiquidFactory);
+			machineLoader.Load();
+
+			// TODO: finish this
+			//Set the Air Ionizer stuff
+			/*
+			AirIonizerEntity.ResultTypes = new List<int>(){
+				ItemType(ElementUtils.ElementName(Element.Nitrogen)),
+				ItemType(ElementUtils.ElementName(Element.Oxygen)),
+				ItemType(ElementUtils.ElementName(Element.Argon)),
+				ItemType(CompoundUtils.CompoundName(Compound.CarbonDioxide)),
+				ItemType(ElementUtils.ElementName(Element.Neon)),
+				ItemType(ElementUtils.ElementName(Element.Helium)),
+				ItemType(CompoundUtils.CompoundName(Compound.Methane)),
+				ItemType(ElementUtils.ElementName(Element.Krypton)),
+				ItemType(ElementUtils.ElementName(Element.Hydrogen))
+			};
+
+			AirIonizerEntity.ResultWeights = new List<double>(){
+				78.084, 20.946, 0.9340, 0.0407, 0.001818, 0.000524, 0.00018, 0.000114, 0.000055
+			};
+
+			AirIonizerEntity.ResultStacks = new List<int>(){
+				2, 2, 2, 1, 2, 2, 1, 2, 2
+			};
+			*/
+
+			BlastFurnaceEntity.ingredientToResult = new Dictionary<int, (int, int)>(){
+				[ItemID.CopperOre] = (ItemID.CopperBar, 2),
+				[ItemID.IronOre] = (ItemID.IronBar, 2),
+				[ItemID.SilverOre] = (ItemID.SilverBar, 2),
+				[ItemID.GoldOre] = (ItemID.GoldBar, 2),
+				[ItemID.TinOre] = (ItemID.TinBar, 2),
+				[ItemID.LeadOre] = (ItemID.LeadBar, 2),
+				[ItemID.TungstenOre] = (ItemID.TungstenBar, 2),
+				[ItemID.PlatinumOre] = (ItemID.PlatinumBar, 2)
+			};
+		}
+
+		private void OnUpdate() {
+			if (LiquidFactory.Liquids != null) {
+				foreach (var liquid in LiquidFactory.Liquids) {
+					liquid.Value.Update();
+				}
+			}
+		}
+
+		public override void PreUpdateEntities(){
+			Main.tileSolid[ModContent.TileType<TFWireTile>()] = false;
 		}
 
 		public override void Unload() {
-			CachedElementDefaults = null;
-			CachedElementRecipes = null;
+			Logger.DebugFormat("Unloading dictionaries...");
+
+			TileUtils.tileToEntity = null;
+			TileUtils.tileToStructureName = null;
+
+			DebugHotkey = null;
+
+			Main.OnTick -= OnUpdate;
+
+			Logger.DebugFormat("Unloading machines and UI...");
+
+			machineLoader?.Unload();
+
+			AirIonizerEntity.ResultTypes = null;
+			AirIonizerEntity.ResultWeights = null;
+
+			BlastFurnaceEntity.ingredientToResult = null;
+
+			NetworkCollection.Unload();
 		}
 
-		private void RegisterElements() {
-			ElementUtils.RegisterElement(Element.Hydrogen,
-				"Element #1\nVery flammable.",
-				NoRecipe,
-				1,
-				item => {
-					item.width = 32;
-					item.height = 32;
-					item.scale = 0.5f;
-					item.rare = ItemRarityID.Blue;
-					item.maxStack = 999;
-					item.value = 1;
-				},
-				ElementState.Gas,
-				ElementFamily.None,
-				TemperatureSystem.CelsiusToKelvin(-252.9f),
-				TemperatureSystem.CelsiusToKelvin(-259.14f),
-				Color.Orange,
-				null //The Hydrogen modliquid when we add liquids
-			);
+		public override void PostSetupContent() {
+			Logger.DebugFormat("Loading tile data and machine structures...");
 
-			ElementUtils.RegisterElement(Element.Helium,
-				"Element #2\nFloaty, floaty!\nInert, not very reactive",
-				NoRecipe,
-				1,
-				item => {
-					item.width = 32;
-					item.height = 32;
-					item.scale = 0.5f;
-					item.rare = ItemRarityID.Blue;
-					item.maxStack = 999;
-					item.value = 1;
-				},
-				ElementState.Gas,
-				ElementFamily.NobleGases,
-				TemperatureSystem.CelsiusToKelvin(-268.9f),
-				TemperatureSystem.CelsiusToKelvin(-272.2f),
-				Color.Wheat
-			);
+			TileUtils.tileToStructureName = new Dictionary<int, string>(){
+				[ModContent.TileType<SaltExtractor>()] = nameof(TileUtils.Structures.SaltExtractor),
+				[ModContent.TileType<ScienceWorkbench>()] = nameof(TileUtils.Structures.ScienceWorkbench),
+				[ModContent.TileType<ReinforcedFurnace>()] = nameof(TileUtils.Structures.ReinforcedFurncace),
+				[ModContent.TileType<AirIonizer>()] = nameof(TileUtils.Structures.AirIonizer),
+				[ModContent.TileType<Electrolyzer>()] = nameof(TileUtils.Structures.Electrolyzer),
+				[ModContent.TileType<BasicWindTurbine>()] = nameof(TileUtils.Structures.BasicWindTurbine),
+				[ModContent.TileType<BasicBattery>()] = nameof(TileUtils.Structures.BasicBattery),
+				[ModContent.TileType<BlastFurnace>()] = nameof(TileUtils.Structures.BlastFurnace)
+			};
 
-			ElementUtils.RegisterElement(Element.Lithium,
-				$"Element #3\nVERY reactive!\n{WarningWaterExplode}",
-				NoRecipe,
-				1,
-				item => {
-					item.width = 30;
-					item.height = 24;
-					item.rare = ItemRarityID.Blue;
-					item.maxStack = 999;
-					item.value = 20;
-				},
-				ElementState.Solid,
-				ElementFamily.AlkaliMetals,
-				TemperatureSystem.CelsiusToKelvin(1330f),
-				TemperatureSystem.CelsiusToKelvin(180.5f),
-				isPlaceableBar: true
-			);
+			StructureExtractor.Load();
 
-			ElementUtils.RegisterElement(Element.Beryllium,
-				$"Element #4\nFairly reactive\n{WarningWaterExplode}",
-				NoRecipe,
-				1,
-				item => {
-					item.width = 30;
-					item.height = 24;
-					item.rare = ItemRarityID.Blue;
-					item.maxStack = 999;
-					item.value = 20;
-				},
-				ElementState.Solid,
-				ElementFamily.AlkalineEarthMetals,
-				TemperatureSystem.CelsiusToKelvin(2970f),
-				TemperatureSystem.CelsiusToKelvin(1287f),
-				isPlaceableBar: true
-			);
+			TileUtils.tileToEntity = new Dictionary<int, MachineEntity>(){
+				[ModContent.TileType<SaltExtractor>()] = ModContent.GetInstance<SaltExtractorEntity>(),
+				[ModContent.TileType<ScienceWorkbench>()] = ModContent.GetInstance<ScienceWorkbenchEntity>(),
+				[ModContent.TileType<ReinforcedFurnace>()] = ModContent.GetInstance<ReinforcedFurnaceEntity>(),
+				[ModContent.TileType<AirIonizer>()] = ModContent.GetInstance<AirIonizerEntity>(),
+				[ModContent.TileType<Electrolyzer>()] = ModContent.GetInstance<ElectrolyzerEntity>(),
+				[ModContent.TileType<BasicWindTurbine>()] = ModContent.GetInstance<BasicWindTurbineEntity>(),
+				[ModContent.TileType<BasicBattery>()] = ModContent.GetInstance<BasicBatteryEntity>(),
+				[ModContent.TileType<BlastFurnace>()] = ModContent.GetInstance<BlastFurnaceEntity>()
+			};
 
-			// TODO: register Boron
-			// TODO: register Carbon
-			// TODO: register Nitrogen
+			TileUtils.tileToStructure = new Dictionary<int, Tile[,]>(){
+				[ModContent.TileType<SaltExtractor>()] = TileUtils.Structures.SaltExtractor,
+				[ModContent.TileType<ScienceWorkbench>()] = TileUtils.Structures.ScienceWorkbench,
+				[ModContent.TileType<ReinforcedFurnace>()] = TileUtils.Structures.ReinforcedFurncace,
+				[ModContent.TileType<AirIonizer>()] = TileUtils.Structures.AirIonizer,
+				[ModContent.TileType<Electrolyzer>()] = TileUtils.Structures.Electrolyzer,
+				[ModContent.TileType<BasicWindTurbine>()] = TileUtils.Structures.BasicWindTurbine,
+				[ModContent.TileType<BasicBattery>()] = TileUtils.Structures.BasicBattery,
+				[ModContent.TileType<BlastFurnace>()] = TileUtils.Structures.BlastFurnace
+			};
 
-			ElementUtils.RegisterElement(Element.Oxygen,
-				"Element #8\nA breath of fresh air...",
-				NoRecipe,
-				1,
-				item => {
-					item.width = 32;
-					item.height = 32;
-					item.scale = 0.5f;
-					item.rare = ItemRarityID.Blue;
-					item.maxStack = 999;
-					item.value = 3;
-				},
-				ElementState.Gas,
-				ElementFamily.Oxygen,
-				TemperatureSystem.CelsiusToKelvin(-182.962f),
-				TemperatureSystem.CelsiusToKelvin(-218.79f),
-				Color.CornflowerBlue
-			);
+			//Loading merge data here instead of TFWireTile.SetDefaults
+			int wireType = ModContent.TileType<TFWireTile>();
+			foreach(var pair in TileUtils.tileToEntity){
+				if(pair.Value is PoweredMachineEntity)
+					Main.tileMerge[wireType][pair.Key] = true;
+			}
 		}
 
-		private void RegisterCompounds() {
-			//HYDROXIDES
-			CompoundUtils.RegisterCompound(Compound.LithiumHydroxide,
-				"LiOH\nA fine powder.",
-				NoRecipe,
-				1,
-				item => {
-					item.width = 30;
-					item.height = 24;
-					item.rare = ItemRarityID.Blue;
-					item.maxStack = 999;
-					item.value = 120;
-				},
-				ElementState.Solid,
-				CompoundClassification.Hydroxide,
-				TemperatureSystem.CelsiusToKelvin(924),
-				TemperatureSystem.CelsiusToKelvin(462),
-				c => {
-					c.AddElement(Element.Lithium, 1);
-					c.AddElement(Element.Oxygen, 1);
-					c.AddElement(Element.Hydrogen, 1);
-				});
-			CompoundUtils.RegisterCompound(Compound.BerylliumHydroxide,
-				"Be(OH)2\nAn unstable gel.\nSeems to dissolve easily in many things.",
-				NoRecipe,
-				1,
-				item => {
-					item.width = 26;
-					item.height = 26;
-					item.rare = ItemRarityID.Blue;
-					item.maxStack = 999;
-					item.value = 120;
-				},
-				ElementState.Solid,
-				CompoundClassification.Hydroxide,
-				-1f,    //beryllium hydroxide isn't stable
-				-1f,
-				c => {
-					c.AddElement(Element.Beryllium, 1);
-					c.AddElement(Element.Oxygen, 2);
-					c.AddElement(Element.Hydrogen, 2);
-				});
-			//OXIDES
-			CompoundUtils.RegisterCompound(Compound.LithiumOxide,
-				"Li2O\nA fine powder.\nUsed for many things.",
-				NoRecipe,
-				1,
-				item => {
-					item.width = 30;
-					item.height = 24;
-					item.rare = ItemRarityID.Blue;
-					item.maxStack = 999;
-					item.value = 120;
-				},
-				ElementState.Solid,
-				CompoundClassification.Oxide,
-				TemperatureSystem.CelsiusToKelvin(2600),
-				TemperatureSystem.CelsiusToKelvin(1438),
-				c => {
-					c.AddElement(Element.Lithium, 2);
-					c.AddElement(Element.Oxygen, 1);
-				});
-			CompoundUtils.RegisterCompound(Compound.BerylliumOxide,
-				"BeO\nA weird powder with a high melting and boiling point",
-				NoRecipe,
-				1,
-				item => {
-					item.width = 30;
-					item.height = 24;
-					item.rare = ItemRarityID.Blue;
-					item.maxStack = 999;
-					item.value = 120;
-				},
-				ElementState.Solid,
-				CompoundClassification.Oxide,
-				TemperatureSystem.CelsiusToKelvin(3900),
-				TemperatureSystem.CelsiusToKelvin(2507),
-				c => {
-					c.AddElement(Element.Beryllium, 1);
-					c.AddElement(Element.Oxygen, 1);
-				});
-			//PEROXIDES
-			CompoundUtils.RegisterCompound(Compound.LithiumPeroxide,
-				"Li2O2\nA fine powder.\nUsed for many things.",
-				NoRecipe,
-				1,
-				item => {
-					item.width = 30;
-					item.height = 24;
-					item.rare = ItemRarityID.Blue;
-					item.maxStack = 999;
-					item.value = 120;
-				},
-				ElementState.Solid,
-				CompoundClassification.Peroxide,
-				-1f,
-				TemperatureSystem.CelsiusToKelvin(340),  //Decomposes to Li2O
-				c => {
-					c.AddElement(Element.Lithium, 2);
-					c.AddElement(Element.Oxygen, 2);
-				});
-			//SUPEROXIDES
-			CompoundUtils.RegisterCompound(Compound.LithiumSuperoxide,
-				"LiO2\nThis shouldn't exist...",
-				NoRecipe,
-				1,
-				item => {
-					item.width = 32;
-					item.height = 32;
-					item.rare = ItemRarityID.Blue;
-					item.maxStack = 999;
-					item.value = 240;
-				},
-				ElementState.Solid,
-				CompoundClassification.Superoxide,
-				-1f,
-				-1f,
-				c => {
-					c.AddElement(Element.Lithium, 1);
-					c.AddElement(Element.Oxygen, 2);
-				});
+		public override void UpdateUI(GameTime gameTime) {
+			machineLoader.UpdateUI(gameTime);
 		}
 
-		/// <summary>
-		/// Wraps the vanilla Item.NewItem() method to drop an ElementItem instance.
-		/// </summary>
-		/// <param name="x">The tile X-position to spawn the item at.</param>
-		/// <param name="y">The tile Y-position to spawn the item at.</param>
-		/// <param name="width">The rectangle width to spawn the item in.</param>
-		/// <param name="height">The rectangle height to spawn the item in.</param>
-		/// <param name="itemName">The name of the ElementItem to drop.</param>
-		/// <param name="stack">How many of the item to drop.</param>
-		/// <returns></returns>
-		public static int SpawnScienceItem(int x, int y, int width, int height, string itemName, int stack = 1, Vector2? initialVelocity = null) {
-			int index = Item.NewItem(x, y, width, height, ModContent.GetInstance<TerraScience>().ItemType(itemName), stack);
-			Item item = Main.item[index];
-			item.velocity = initialVelocity ?? Vector2.Zero;
-			return index;
+		public override void ModifyInterfaceLayers(List<GameInterfaceLayer> layers) {
+			machineLoader.ModifyInterfaceLayers(layers);
 		}
-	}
 
-	public enum ElementState{
-		Solid,
-		Liquid,
-		Gas
-	}
+		// -- Types --
+		// Call("Get Machine Entity", new Point16(x, y))
+		//	- gets the MachineEntity at the tile position, if one exists there
+		// Call("Add Compound")
+		//  - todo, does nothing
+		public override object Call(params object[] args) {
+			//People who don't use the exact call name are dumb.  We shouldn't have to make sure they typed the name correctly
 
-	public enum ElementFamily{
-		None,
-		AlkaliMetals,
-		AlkalineEarthMetals,
-		TransitionMetals,
-		Boron,
-		Carbon,
-		Nitrogen,
-		Oxygen,
-		Halogens,
-		NobleGases
-	}
+			switch((string)args[0]){
+				case "Get Machine Entity":
+					MiscUtils.TryGetTileEntity((Point16)args[1], out MachineEntity entity);
+					return entity;
+			}
 
-	public enum Element{
-		Hydrogen = 1, Helium,
-		Lithium, Beryllium, Boron, Carbon, Nitrogen, Oxygen, Fluorine, Neon,
-		Sodium, Magnesium, //Add rest of period
-		Potassium, Calcium, //Add rest of period
-		Rubidium, Strontium, //Add rest of period
-		Caesium, Barium, //Add rest of period
-		Francium, Radium //Add rest of period
-	}
+			return base.Call(args);
+		}
 
-	public enum Compound{
-		//Hydrogen compounds
-		Water, HydrogenPeroxide, Hydroxide,
-		//Alkali/Earth metal hydroxides
-		LithiumHydroxide, BerylliumHydroxide, SodiumHydroxide, MagnesiumHydroxide, PotassiumHydroxide, CalciumHydroxide, RubidiumHydroxide, StrontiumHydroxide, CaesiumHydroxide, BariumHydroxide, FranciumHydroxide, RadiumHydroxide,
-		//Alkali/Earth metal oxides
-		LithiumOxide, BerylliumOxide, SodiumOxide, MagnesiumOxide, PotassiumOxide, CalciumOxide, RubidiumOxide, StrontiumOxide, CaesiumOxide, BariumOxide, FranciumOxide, RadiumOxide,
-		//Alikali metal peroxides
-		LithiumPeroxide, SodiumPeroxide, PotassiumPeroxide, RubidiumPeroxide, CaesiumPeroxide, FranciumPeroxide,
-		//Alkali metal superoxides
-		LithiumSuperoxide, SodiumSuperoxide, PotassiumSuperoxide, RubidiumSuperoxide, CaesiumSuperoxide, FranciumSuperoxide
-	}
-
-	public enum CompoundClassification{
-		Oxide, Hydroxide, Peroxide, Superoxide, Hydride
+		private void AddIcon(string internalName, int[] buildMaterials, int[] buildStacks){
+			AddItem($"{internalName}Icon", new IconTemplate(internalName, buildMaterials, buildStacks));
+		}
 	}
 }
