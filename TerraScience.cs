@@ -179,13 +179,8 @@ namespace TerraScience {
 		public override void Unload() {
 			Logger.DebugFormat("Unloading dictionaries...");
 
-			IconTemplate.allRecipes = null;
-
 			TileUtils.tileToEntity = null;
-			TileUtils.tileToStructure = null;
 			TileUtils.tileToStructureName = null;
-
-			StructureExtractor.Unload();
 
 			DebugHotkey = null;
 
@@ -193,7 +188,6 @@ namespace TerraScience {
 
 			Logger.DebugFormat("Unloading machines and UI...");
 
-			TileUtils.Structures.Unload();
 			machineLoader?.Unload();
 
 			AirIonizerEntity.ResultTypes = null;

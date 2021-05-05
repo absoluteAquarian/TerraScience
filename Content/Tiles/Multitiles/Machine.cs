@@ -9,11 +9,11 @@ using TerraScience.Utilities;
 namespace TerraScience.Content.Tiles.Multitiles{
 	public abstract class Machine : ModTile{
 		public sealed override void SetDefaults(){
-			GetDefaultParams(out string mapName, out uint width, out uint height);
-			TileUtils.MultitileDefaults(this, mapName, Type, width, height);
+			GetDefaultParams(out string mapName, out uint width, out uint height, out int itemType);
+			TileUtils.MultitileDefaults(this, mapName, Type, width, height, itemType);
 		}
 
-		public abstract void GetDefaultParams(out string mapName, out uint width, out uint height);
+		public abstract void GetDefaultParams(out string mapName, out uint width, out uint height, out int itemType);
 
 		/// <summary>
 		/// Return <seealso cref="TileUtils.HandleMouse{TEntity}(Point16, string, Func{bool})"/> for your MachineEntity here.
@@ -33,8 +33,8 @@ namespace TerraScience.Content.Tiles.Multitiles{
 
 		public abstract Tile[,] Structure{ get; }
 
-		public sealed override void KillTile(int i, int j, ref bool fail, ref bool effectOnly, ref bool noItem)
-			=> TileUtils.KillMachine(i, j, ref fail, ref noItem, Structure);
+		public sealed override void KillMultiTile(int i, int j, int frameX, int frameY)
+			=> TileUtils.KillMachine(i, j, Structure);
 
 		public sealed override void MouseOver(int i, int j){
 			Tile tile = Framing.GetTileSafely(i, j);
