@@ -4,9 +4,13 @@ using System.Collections.Generic;
 using Terraria;
 using Terraria.UI;
 using TerraScience.Content.TileEntities;
+using TerraScience.Content.Tiles.Multitiles;
+using TerraScience.Content.Tiles.Multitiles.EnergyMachines;
+using TerraScience.Content.Tiles.Multitiles.EnergyMachines.Basic;
+using TerraScience.Content.Tiles.Multitiles.EnergyMachines.Storage;
 using TerraScience.Content.UI.Energy;
+using TerraScience.Content.UI.Energy.Generators;
 using TerraScience.Content.UI.Energy.Storage;
-using TerraScience.Content.UI.Generators;
 using TerraScience.Utilities;
 
 namespace TerraScience.Content.UI {
@@ -33,17 +37,17 @@ namespace TerraScience.Content.UI {
 				interfaces = new Dictionary<string, UserInterface>();
 				states = new Dictionary<string, MachineUI>();
 
-				AddUI(nameof(TileUtils.Structures.SaltExtractor), new SaltExtractorUI());
-				AddUI(nameof(TileUtils.Structures.ScienceWorkbench), new ScienceWorkbenchUI());
-				AddUI(nameof(TileUtils.Structures.ReinforcedFurncace), new ReinforcedFurnaceUI());
-				AddUI(nameof(TileUtils.Structures.BlastFurnace), new BlastFurnaceUI());
-
-				AddUI(nameof(TileUtils.Structures.AirIonizer), new AirIonizerUI());
-				AddUI(nameof(TileUtils.Structures.Electrolyzer), new ElectrolyzerUI());
-
-				AddUI(nameof(TileUtils.Structures.BasicWindTurbine), new BasicWindTurbineUI());
-
-				AddUI(nameof(TileUtils.Structures.BasicBattery), new BasicBatteryUI());
+				AddUI(nameof(SaltExtractor), new SaltExtractorUI());
+				AddUI(nameof(ScienceWorkbench), new ScienceWorkbenchUI());
+				AddUI(nameof(ReinforcedFurnace), new ReinforcedFurnaceUI());
+				AddUI(nameof(BlastFurnace), new BlastFurnaceUI());
+				AddUI(nameof(AirIonizer), new AirIonizerUI());
+				AddUI(nameof(Electrolyzer), new ElectrolyzerUI());
+				AddUI(nameof(BasicWindTurbine), new BasicWindTurbineUI());
+				AddUI(nameof(BasicBattery), new BasicBatteryUI());
+				AddUI(nameof(AutoExtractinator), new AutoExtractinatorUI());
+				AddUI(nameof(BasicSolarPanel), new BasicSolarPanelUI());
+				AddUI(nameof(Greenhouse), new GreenhouseUI());
 
 				// Activate calls Initialize() on the UIState if not initialized, then calls OnActivate and then calls Activate on every child element
 				foreach(var state in states.Values)

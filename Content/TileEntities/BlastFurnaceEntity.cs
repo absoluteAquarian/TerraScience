@@ -25,6 +25,9 @@ namespace TerraScience.Content.TileEntities{
 			Item fuel = ParentState?.GetSlot(1).StoredItem ?? GetItem(1);
 
 			ReactionInProgress = !ForceNoReaction && !input.IsAir && !fuel.IsAir;
+
+			if(!ReactionInProgress)
+				ReactionProgress = 0;
 		}
 
 		public override bool UpdateReaction(){
@@ -37,7 +40,7 @@ namespace TerraScience.Content.TileEntities{
 
 		public override void PostReaction(){
 			if(ReactionInProgress && !ForceNoReaction){
-				Vector2 center = TileUtils.TileEntityCenter(this, TileUtils.Structures.BlastFurnace);
+				Vector2 center = TileUtils.TileEntityCenter(this, MachineTile);
 
 				burning = Main.PlaySound(SoundLoader.customSoundType, (int)center.X, (int)center.Y, TerraScience.Instance.GetSoundSlot(SoundType.Custom, "Sounds/Custom/CampfireBurning"));
 			}else
@@ -66,7 +69,7 @@ namespace TerraScience.Content.TileEntities{
 			
 			ReactionProgress = 0;
 
-			Vector2 center = TileUtils.TileEntityCenter(this, TileUtils.Structures.BlastFurnace);
+			Vector2 center = TileUtils.TileEntityCenter(this, MachineTile);
 
 			Main.PlaySound(SoundLoader.customSoundType, center, TerraScience.Instance.GetSoundSlot(SoundType.Custom, "Sounds/Custom/Flame Arrow"));
 

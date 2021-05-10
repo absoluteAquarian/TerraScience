@@ -21,7 +21,7 @@ namespace TerraScience.Content.TileEntities.Energy{
 
 		public override TerraFlux FluxCap => new TerraFlux(5000f);
 
-		public TerraFlux Requirement => new TerraFlux(1000f);
+		public override TerraFlux FluxUsage => new TerraFlux(1000f);
 
 		public bool ForceNoReaction = false;
 
@@ -57,13 +57,13 @@ namespace TerraScience.Content.TileEntities.Energy{
 			//1000TF per operation
 			//Do nothing for now
 			bool f = true;
-			if(f || CurBatteryCharge <= 0f || !CheckFluxRequirement(Requirement))
+			if(f || CurBatteryCharge <= 0f || !CheckFluxRequirement(FluxUsage))
 				return;
 
 			Item hydros = this.RetrieveItem(1);
 			Item oxys = this.RetrieveItem(2);
 
-			Main.PlaySound(SoundID.Item85, TileUtils.TileEntityCenter(this, TileUtils.tileToStructure[MachineTile]));
+			Main.PlaySound(SoundID.Item85, TileUtils.TileEntityCenter(this, MachineTile));
 
 			if(hydros.IsAir){
 			//	hydros.SetDefaults(ElementUtils.ElementType(Element.Hydrogen));
@@ -82,7 +82,7 @@ namespace TerraScience.Content.TileEntities.Energy{
 			//Battery lasts for 30s
 			if((float)StoredFlux <= 0f)
 				CurBatteryCharge -= BatteryMax / 30f / 60f;
-			else if(CheckFluxRequirement(Requirement, use: false))
+			else if(CheckFluxRequirement(FluxUsage, use: false))
 				CurBatteryCharge += BatteryMax / 30f / 60f;
 
 			CurBatteryCharge = Utils.Clamp(CurBatteryCharge, 0f, BatteryMax);

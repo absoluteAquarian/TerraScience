@@ -2,15 +2,17 @@
 using System.Collections.Generic;
 using Terraria;
 using Terraria.GameContent.UI.Elements;
+using Terraria.ModLoader;
 using TerraScience.Content.API.UI;
 using TerraScience.Content.TileEntities;
+using TerraScience.Content.Tiles.Multitiles;
 using TerraScience.Utilities;
 
 namespace TerraScience.Content.UI{
 	public class SaltExtractorUI : MachineUI{
 		public override string Header => "Salt Extractor";
 
-		public override Tile[,] Structure => TileUtils.Structures.SaltExtractor;
+		public override int TileType => ModContent.TileType<SaltExtractor>();
 
 		internal override void PanelSize(out int width, out int height){
 			width = 300;

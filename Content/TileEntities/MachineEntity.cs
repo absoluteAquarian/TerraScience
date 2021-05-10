@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Terraria;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using TerraScience.Content.UI;
+using TerraScience.Utilities;
 
 namespace TerraScience.Content.TileEntities{
 	public abstract class MachineEntity : ModTileEntity{
@@ -157,6 +159,16 @@ namespace TerraScience.Content.TileEntities{
 			//Force the UI to close if it's open
 			if(ParentState?.Active ?? false)
 				TerraScience.Instance.machineLoader.HideUI(MachineName);
+		}
+
+		public override void NetSend(BinaryWriter writer, bool lightSend){
+			var pair = TileUtils.tileToEntity.First(p => p.Value.GetType() == this.GetType());
+			int entity = pair.Key;
+			TagIO.WriteTag(TileUtils.tileToStructureName[entity], pair.Value.Save(), writer);
+		}
+
+		public override void NetReceive(BinaryReader reader, bool lightReceive){
+			Load(TagIO.Read(reader));
 		}
 	}
 }

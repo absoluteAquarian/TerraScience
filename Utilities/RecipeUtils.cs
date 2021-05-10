@@ -5,6 +5,7 @@ using System.Reflection;
 using Terraria;
 using Terraria.ModLoader;
 using TerraScience.Content.Items;
+using TerraScience.Content.Items.Placeable.Machines;
 using TerraScience.Content.Tiles.Multitiles;
 using TerraScience.Content.UI;
 
@@ -45,6 +46,60 @@ namespace TerraScience.Utilities{
 			recipe.AddRecipeGroup(group, stack);
 			recipe.AddTile(tileID);
 			recipe.SetResult(result, resultStack);
+			recipe.AddRecipe();
+		}
+
+		public static void ScienceWorkbenchRecipe<T>(Mod mod, (short type, int stack)[] ingredients) where T : MachineItem{
+			if(ingredients.Length != 9)
+				throw new ArgumentException($"Expected 9 ingredients for a Science Workbench recipe, only found {ingredients.Length}");
+			
+			string name = typeof(T).Name;
+			if(!name.EndsWith("Item"))
+				throw new ArgumentException("Expected a name that ends with \"Item\", found \"" + name + "\" instead.");
+
+			ScienceRecipe recipe = new ScienceRecipe(mod);
+			
+			recipe.AddIngredient(ingredients[0].type, ingredients[0].stack);
+			recipe.AddIngredient(ingredients[1].type, ingredients[1].stack);
+			recipe.AddIngredient(ingredients[2].type, ingredients[2].stack);
+
+			recipe.AddIngredient(ingredients[3].type, ingredients[3].stack);
+			recipe.AddIngredient(ingredients[4].type, ingredients[4].stack);
+			recipe.AddIngredient(ingredients[5].type, ingredients[5].stack);
+
+			recipe.AddIngredient(ingredients[6].type, ingredients[6].stack);
+			recipe.AddIngredient(ingredients[7].type, ingredients[7].stack);
+			recipe.AddIngredient(ingredients[8].type, ingredients[8].stack);
+
+			recipe.AddTile(ModContent.TileType<ScienceWorkbench>());
+			recipe.SetResult(mod.ItemType("Dataless" + name.Substring(0, name.LastIndexOf("Item"))), 1);
+			recipe.AddRecipe();
+		}
+
+		public static void ScienceWorkbenchRecipe<T>(Mod mod, (int type, int stack)[] ingredients) where T : MachineItem{
+			if(ingredients.Length != 9)
+				throw new ArgumentException($"Expected 9 ingredients for a Science Workbench recipe, only found {ingredients.Length}");
+			
+			string name = typeof(T).Name;
+			if(!name.EndsWith("Item"))
+				throw new ArgumentException("Expected a name that ends with \"Item\", found \"" + name + "\" instead.");
+
+			ScienceRecipe recipe = new ScienceRecipe(mod);
+			
+			recipe.AddIngredient(ingredients[0].type, ingredients[0].stack);
+			recipe.AddIngredient(ingredients[1].type, ingredients[1].stack);
+			recipe.AddIngredient(ingredients[2].type, ingredients[2].stack);
+
+			recipe.AddIngredient(ingredients[3].type, ingredients[3].stack);
+			recipe.AddIngredient(ingredients[4].type, ingredients[4].stack);
+			recipe.AddIngredient(ingredients[5].type, ingredients[5].stack);
+
+			recipe.AddIngredient(ingredients[6].type, ingredients[6].stack);
+			recipe.AddIngredient(ingredients[7].type, ingredients[7].stack);
+			recipe.AddIngredient(ingredients[8].type, ingredients[8].stack);
+
+			recipe.AddTile(ModContent.TileType<ScienceWorkbench>());
+			recipe.SetResult(mod.ItemType("Dataless" + name.Substring(0, name.LastIndexOf("Item"))), 1);
 			recipe.AddRecipe();
 		}
 

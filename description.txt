@@ -1,20 +1,21 @@
-﻿Terraria, but with Science!
+﻿Terraria, but with Technology!
 
-Construct multitile machines with your trusty Scientist's Hammer and explore the foundations of chemistry and science!
+Construct multitile machines with the Science Workbench and explore the wonders of technology!
 
 
 Current Multitiles:
-Salt Extractor - provide Water or Saltwater to produce Salt (NaCl) and Water (H₂O)
+Salt Extractor - provide Water or Saltwater to produce Salt
 
-Science Workbench - construct chemical compounds from their element components
+Science Workbench - constructs machinery
 
-Reinforced Furnace - burn wooden items to produce Carbon (C)
+Reinforced Furnace - burn wooden items to produce Coal
 
-Air Ionizer - has a random chance to collect certain gaseous elements and compounds from the air
+Air Ionizer - currently does nothing
 
-Electrolyzer - splits water into Hydrogen (2H₂) and Oxygen (O₂)
+Electrolyzer - currently does nothing
 
+Blast Furnace - powered by coal, increases the gains from smeling ores
 
-TODO List:
-Implement the rest of the elements
-Implement more compounds
+Basic Wind Turbine - generates Terra Flux (TF) based on the current wind speed and weather
+
+Basic Battery - stores TF

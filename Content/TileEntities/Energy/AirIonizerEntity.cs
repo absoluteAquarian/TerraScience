@@ -12,6 +12,8 @@ namespace TerraScience.Content.TileEntities.Energy{
 
 		public override TerraFlux FluxCap => new TerraFlux(3000f);
 
+		public override TerraFlux FluxUsage => new TerraFlux(300f);
+
 		public static List<int> ResultTypes;
 
 		public static List<double> ResultWeights;
@@ -44,7 +46,7 @@ namespace TerraScience.Content.TileEntities.Energy{
 			//Battery lasts for 30s
 			if((float)StoredFlux <= 0f)
 				CurBatteryCharge -= BatteryMax / 30f / 60f;
-			else if(CheckFluxRequirement(new TerraFlux(300f), use: false))
+			else if(CheckFluxRequirement(FluxUsage, use: false))
 				CurBatteryCharge += BatteryMax / 30f / 60f;
 
 			CurBatteryCharge = Utils.Clamp(CurBatteryCharge, 0f, BatteryMax);
@@ -89,7 +91,7 @@ namespace TerraScience.Content.TileEntities.Energy{
 
 		public override void ReactionComplete(){
 			bool f = true;
-			if(f || CurBatteryCharge <= 0f || !CheckFluxRequirement(new TerraFlux(300f)))
+			if(f || CurBatteryCharge <= 0f || !CheckFluxRequirement(FluxUsage))
 				return;
 
 			//Initialize the randomness
@@ -106,7 +108,7 @@ namespace TerraScience.Content.TileEntities.Energy{
 			int stack = result.Item2;
 
 			//Zappy sound
-			Main.PlaySound(SoundLoader.customSoundType, TileUtils.TileEntityCenter(this, TileUtils.Structures.AirIonizer), TerraScience.Instance.GetSoundSlot(SoundType.Custom, "Sounds/Custom/Zap"));
+			Main.PlaySound(SoundLoader.customSoundType, TileUtils.TileEntityCenter(this, MachineTile), TerraScience.Instance.GetSoundSlot(SoundType.Custom, "Sounds/Custom/Zap"));
 
 			//Then try and either add to an existing stack or insert it into the first available slot
 			//Check for existing stacks first, then empty slots

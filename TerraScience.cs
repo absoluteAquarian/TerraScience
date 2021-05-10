@@ -4,15 +4,18 @@ using System.Collections.Generic;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.ID;
+using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.UI;
 using Terraria.Utilities;
 using TerraScience.API.Classes.ModLiquid;
-using TerraScience.API.StructureData;
-using TerraScience.Content.Items;
-using TerraScience.Content.Items.Icons;
+using TerraScience.Content.Items.Energy;
 using TerraScience.Content.Items.Materials;
 using TerraScience.Content.Items.Placeable;
+using TerraScience.Content.Items.Placeable.Machines;
+using TerraScience.Content.Items.Placeable.Machines.Energy;
+using TerraScience.Content.Items.Placeable.Machines.Energy.Generators;
+using TerraScience.Content.Items.Placeable.Machines.Energy.Storage;
 using TerraScience.Content.Items.Weapons;
 using TerraScience.Content.Projectiles;
 using TerraScience.Content.TileEntities;
@@ -31,6 +34,10 @@ using TerraScience.Utilities;
 
 namespace TerraScience {
 	public class TerraScience : Mod {
+		public static class ScienceRecipeGroups{
+			public const string Sand = "TerrasScience: Sand Blocks";
+		}
+
 		/// <summary>
 		/// For fast and easy access to this mod's instance when one doesn't exist already
 		/// </summary>
@@ -85,6 +92,11 @@ namespace TerraScience {
 
 			DebugHotkey = RegisterHotKey("Debuging", "J");
 
+			TileUtils.tileToEntity = new Dictionary<int, MachineEntity>();
+			TileUtils.tileToStructureName = new Dictionary<int, string>();
+
+			DatalessMachineInfo.recipes = new Dictionary<int, Action<Mod>>();
+
 			Logger.DebugFormat("Adding other content...");
 
 			AddProjectile("PepperDust", new ShakerDust("Pepper Dust", new Color(){ PackedValue = 0xff2a2a2a }));
@@ -111,15 +123,17 @@ namespace TerraScience {
 					item.shoot = ProjectileType("SaltDust");
 				}));
 
-			//The machine icon items
-			IconTemplate.allRecipes = new Dictionary<string, Action<ScienceRecipe, IconTemplate>>();
-
-			AddIcon("SaltExtractor",
-				new int[]{ ItemID.Glass, ItemID.CopperPlating, ItemID.GrayBrick },
-				new int[]{ 3, 2, 4 });
-			AddIcon("ScienceWorkbench",
-				new int[]{ ModContent.ItemType<MachineSupportItem>(), ItemID.Wood, ItemID.CopperPlating, ItemID.GrayBrick, ItemID.Glass },
-				new int[]{ 1, 3, 2, 2, 1 });
+			AddDatalessMachineItem<SaltExtractorItem>();
+			AddDatalessMachineItem<ScienceWorkbenchItem>();
+			AddDatalessMachineItem<ReinforcedFurnaceItem>();
+			AddDatalessMachineItem<AirIonizerItem>();
+			AddDatalessMachineItem<ElectrolyzerItem>();
+			AddDatalessMachineItem<BlastFurnaceItem>();
+			AddDatalessMachineItem<BasicWindTurbineItem>();
+			AddDatalessMachineItem<BasicBatteryItem>();
+			AddDatalessMachineItem<AutoExtractinatorItem>();
+			AddDatalessMachineItem<BasicSolarPanelItem>();
+			AddDatalessMachineItem<GreenhouseItem>();
 
 			Main.OnTick += OnUpdate;
 
@@ -164,6 +178,22 @@ namespace TerraScience {
 			};
 		}
 
+		private void AddDatalessMachineItem<T>() where T : MachineItem{
+			string name = typeof(T).Name;
+			
+			if(!name.EndsWith("Item"))
+				throw new ArgumentException("Machine item type had an unexpected name: " + name);
+
+			AddItem($"Dataless{name.Substring(0, name.LastIndexOf("Item"))}", new DatalessMachineItem<T>());
+		}
+
+		public override void AddRecipeGroups(){
+			RegisterRecipeGroup(ScienceRecipeGroups.Sand, ItemID.SandBlock, new int[]{ ItemID.SandBlock, ItemID.CrimsandBlock, ItemID.EbonsandBlock, ItemID.PearlsandBlock });
+		}
+
+		private static void RegisterRecipeGroup(string groupName, int itemForAnyName, int[] validTypes)
+			=> RecipeGroup.RegisterGroup(groupName, new RecipeGroup(() => $"{Language.GetTextValue("LegacyMisc.37")} {Lang.GetItemNameValue(itemForAnyName)}", validTypes));
+
 		private void OnUpdate() {
 			if (LiquidFactory.Liquids != null) {
 				foreach (var liquid in LiquidFactory.Liquids) {
@@ -177,10 +207,18 @@ namespace TerraScience {
 		}
 
 		public override void Unload() {
+			//Revert the sand blocks to their original extractinator state
+			ItemID.Sets.ExtractinatorMode[ItemID.SandBlock] = -1;
+			ItemID.Sets.ExtractinatorMode[ItemID.EbonsandBlock] = -1;
+			ItemID.Sets.ExtractinatorMode[ItemID.CrimsandBlock] = -1;
+			ItemID.Sets.ExtractinatorMode[ItemID.PearlsandBlock] = -1;
+
 			Logger.DebugFormat("Unloading dictionaries...");
 
 			TileUtils.tileToEntity = null;
 			TileUtils.tileToStructureName = null;
+
+			DatalessMachineInfo.recipes = null;
 
 			DebugHotkey = null;
 
@@ -201,47 +239,136 @@ namespace TerraScience {
 		public override void PostSetupContent() {
 			Logger.DebugFormat("Loading tile data and machine structures...");
 
-			TileUtils.tileToStructureName = new Dictionary<int, string>(){
-				[ModContent.TileType<SaltExtractor>()] = nameof(TileUtils.Structures.SaltExtractor),
-				[ModContent.TileType<ScienceWorkbench>()] = nameof(TileUtils.Structures.ScienceWorkbench),
-				[ModContent.TileType<ReinforcedFurnace>()] = nameof(TileUtils.Structures.ReinforcedFurncace),
-				[ModContent.TileType<AirIonizer>()] = nameof(TileUtils.Structures.AirIonizer),
-				[ModContent.TileType<Electrolyzer>()] = nameof(TileUtils.Structures.Electrolyzer),
-				[ModContent.TileType<BasicWindTurbine>()] = nameof(TileUtils.Structures.BasicWindTurbine),
-				[ModContent.TileType<BasicBattery>()] = nameof(TileUtils.Structures.BasicBattery),
-				[ModContent.TileType<BlastFurnace>()] = nameof(TileUtils.Structures.BlastFurnace)
-			};
+			TileUtils.Register<SaltExtractor,     SaltExtractorEntity>();
+			TileUtils.Register<ScienceWorkbench,  ScienceWorkbenchEntity>();
+			TileUtils.Register<ReinforcedFurnace, ReinforcedFurnaceEntity>();
+			TileUtils.Register<AirIonizer,        AirIonizerEntity>();
+			TileUtils.Register<Electrolyzer,      ElectrolyzerEntity>();
+			TileUtils.Register<BlastFurnace,      BlastFurnaceEntity>();
+			TileUtils.Register<BasicWindTurbine,  BasicWindTurbineEntity>();
+			TileUtils.Register<BasicBattery,      BasicBatteryEntity>();
+			TileUtils.Register<AutoExtractinator, AutoExtractinatorEntity>();
+			TileUtils.Register<BasicSolarPanel,   BasicSolarPanelEntity>();
+			TileUtils.Register<Greenhouse,        GreenhouseEntity>();
 
-			StructureExtractor.Load();
+			DatalessMachineInfo.Register<SaltExtractorItem>(new[]{
+				(ItemID.Glass, 10),                    (ModContent.ItemType<MachineSupportItem>(), 5), (ItemID.Glass, 10),
+				(ModContent.ItemType<EmptyVial>(), 3), (ItemID.Torch, 30),                             (ModContent.ItemType<EmptyVial>(), 3),
+				(ItemID.IronBar, 2),                   (ModContent.ItemType<TFWireItem>(), 5),         (ItemID.IronBar, 2)
+			});
 
-			TileUtils.tileToEntity = new Dictionary<int, MachineEntity>(){
-				[ModContent.TileType<SaltExtractor>()] = ModContent.GetInstance<SaltExtractorEntity>(),
-				[ModContent.TileType<ScienceWorkbench>()] = ModContent.GetInstance<ScienceWorkbenchEntity>(),
-				[ModContent.TileType<ReinforcedFurnace>()] = ModContent.GetInstance<ReinforcedFurnaceEntity>(),
-				[ModContent.TileType<AirIonizer>()] = ModContent.GetInstance<AirIonizerEntity>(),
-				[ModContent.TileType<Electrolyzer>()] = ModContent.GetInstance<ElectrolyzerEntity>(),
-				[ModContent.TileType<BasicWindTurbine>()] = ModContent.GetInstance<BasicWindTurbineEntity>(),
-				[ModContent.TileType<BasicBattery>()] = ModContent.GetInstance<BasicBatteryEntity>(),
-				[ModContent.TileType<BlastFurnace>()] = ModContent.GetInstance<BlastFurnaceEntity>()
-			};
+			DatalessMachineInfo.recipes.Add(ModContent.ItemType<ScienceWorkbenchItem>(), mod => {
+				ModRecipe recipe = new ModRecipe(mod);
+				recipe.AddRecipeGroup(RecipeGroupID.Wood, 20);
+				recipe.AddIngredient(ItemID.CopperBar, 5);
+				recipe.AddIngredient(ItemID.Glass, 8);
+				recipe.AddIngredient(ItemID.GrayBrick, 30);
+				recipe.AddTile(TileID.WorkBenches);
+				recipe.SetResult(ModContent.ItemType<ScienceWorkbenchItem>(), 1);
+				recipe.AddRecipe();
+			});
 
-			TileUtils.tileToStructure = new Dictionary<int, Tile[,]>(){
-				[ModContent.TileType<SaltExtractor>()] = TileUtils.Structures.SaltExtractor,
-				[ModContent.TileType<ScienceWorkbench>()] = TileUtils.Structures.ScienceWorkbench,
-				[ModContent.TileType<ReinforcedFurnace>()] = TileUtils.Structures.ReinforcedFurncace,
-				[ModContent.TileType<AirIonizer>()] = TileUtils.Structures.AirIonizer,
-				[ModContent.TileType<Electrolyzer>()] = TileUtils.Structures.Electrolyzer,
-				[ModContent.TileType<BasicWindTurbine>()] = TileUtils.Structures.BasicWindTurbine,
-				[ModContent.TileType<BasicBattery>()] = TileUtils.Structures.BasicBattery,
-				[ModContent.TileType<BlastFurnace>()] = TileUtils.Structures.BlastFurnace
-			};
+			DatalessMachineInfo.Register<ReinforcedFurnaceItem>(new[]{
+				(ItemID.GrayBrick, 5), (ItemID.RedBrick, 5), (ItemID.GrayBrick, 5),
+				(ItemID.RedBrick, 5),  (ItemID.TinBar, 8),   (ItemID.RedBrick, 5),
+				(ItemID.GrayBrick, 5), (ItemID.RedBrick, 5), (ItemID.GrayBrick, 5)
+			});
+			DatalessMachineInfo.Register<AirIonizerItem>(new[]{
+				(ItemID.TinBar, 3),    (ItemID.TinBar, 3),                           (ItemID.TinBar, 3),
+				(ItemID.TinBar, 3),    (ModContent.ItemType<BasicMachineCore>(), 1), (ItemID.TinBar, 3),
+				(ItemID.GrayBrick, 8), (ItemID.GrayBrick, 8),                        (ItemID.GrayBrick, 8)
+			});
+			DatalessMachineInfo.Register<ElectrolyzerItem>(new[]{
+				(ItemID.IronBar, 5), (ModContent.ItemType<IronPipe>(), 2),         (ItemID.IronBar, 5),
+				(ItemID.Glass, 20),  (ModContent.ItemType<BasicMachineCore>(), 1), (ItemID.Glass, 20),
+				(ItemID.IronBar, 5), (ItemID.IronBar, 5),                          (ItemID.IronBar, 5)
+			});
+			DatalessMachineInfo.Register<BlastFurnaceItem>(new[]{
+				(ModContent.ItemType<BlastBrick>(), 5), (ModContent.ItemType<BlastBrick>(), 5), (ModContent.ItemType<BlastBrick>(), 5),
+				(ModContent.ItemType<BlastBrick>(), 5), (ModContent.ItemType<BlastBrick>(), 5), (ModContent.ItemType<BlastBrick>(), 5),
+				(ModContent.ItemType<BlastBrick>(), 5), (ModContent.ItemType<BlastBrick>(), 5), (ModContent.ItemType<BlastBrick>(), 5)
+			});
+			DatalessMachineInfo.Register<BasicWindTurbineItem>(new[]{
+				(ModContent.ItemType<MachineSupportItem>(), 5), (ModContent.ItemType<WindmillSail>(), 4),     (ModContent.ItemType<MachineSupportItem>(), 5),
+				(ItemID.IronBar, 6),                            (ModContent.ItemType<BasicMachineCore>(), 1), (ItemID.IronBar, 6),
+				(ItemID.IronBar, 6),                            (ModContent.ItemType<TFWireItem>(), 10),      (ItemID.IronBar, 6)
+			});
+			DatalessMachineInfo.Register<BasicBatteryItem>(new[]{
+				(ItemID.IronBar, 5),   (ItemID.CopperBar, 4),                        (ItemID.IronBar, 5),
+				(ItemID.TinBar, 4),    (ModContent.ItemType<BasicMachineCore>(), 1), (ItemID.TinBar, 4),
+				(ItemID.IronBar, 5),   (ItemID.CopperBar, 4),                        (ItemID.IronBar, 5)
+			});
+			DatalessMachineInfo.Register<AutoExtractinatorItem>(new[]{
+				(ModContent.ItemType<Silicon>(), 10), (ItemID.IronBar, 8),                          (ModContent.ItemType<Silicon>(), 10),
+				(ItemID.WaterBucket, 2),              (ItemID.Extractinator, 1),                    (ItemID.WaterBucket, 2),
+				(ItemID.IronBar, 8),                  (ModContent.ItemType<BasicMachineCore>(), 1), (ItemID.IronBar, 8)
+			});
+			DatalessMachineInfo.Register<BasicSolarPanelItem>(new[]{
+				(ItemID.Glass, 5),                    (ItemID.Glass, 8),                            (ItemID.Glass, 5),
+				(ModContent.ItemType<Silicon>(), 5),  (ModContent.ItemType<BasicMachineCore>(), 1), (ModContent.ItemType<Silicon>(), 5),
+				(ItemID.IronBar, 4),                  (ModContent.ItemType<TFWireItem>(), 10),      (ItemID.IronBar, 4)
+			});
+			DatalessMachineInfo.recipes.Add(ModContent.ItemType<GreenhouseItem>(), mod => {
+				ScienceRecipe recipe = new ScienceRecipe(mod);
+				recipe.AddIngredient(ItemID.Glass, 4);
+				recipe.AddIngredient(ItemID.Glass, 4);
+				recipe.AddIngredient(ItemID.Glass, 4);
+
+				recipe.AddIngredient(ItemID.Glass, 4);
+				recipe.AddIngredient(ModContent.ItemType<BasicMachineCore>(), 1);
+				recipe.AddIngredient(ItemID.Glass, 4);
+					
+				recipe.AddRecipeGroup(RecipeGroupID.Wood, 30);
+				recipe.AddIngredient(ModContent.ItemType<TFWireItem>(), 8);
+				recipe.AddRecipeGroup(RecipeGroupID.Wood, 30);
+
+				recipe.AddTile(ModContent.TileType<ScienceWorkbench>());
+				recipe.SetResult(mod.ItemType("DatalessGreenhouse"), 1);
+				recipe.AddRecipe();
+			});
 
 			//Loading merge data here instead of TFWireTile.SetDefaults
 			int wireType = ModContent.TileType<TFWireTile>();
 			foreach(var pair in TileUtils.tileToEntity){
-				if(pair.Value is PoweredMachineEntity)
+				if(pair.Value is PoweredMachineEntity){
 					Main.tileMerge[wireType][pair.Key] = true;
+					Main.tileMerge[pair.Key][wireType] = true;
+				}
 			}
+		}
+
+		public override void AddRecipes(){
+			AddGreenhouseRecipe(ItemID.Acorn, ItemID.DirtBlock, ItemID.GrassSeeds, ItemID.Wood);
+			AddGreenhouseRecipe(ItemID.Acorn, ItemID.DirtBlock, ItemID.CorruptSeeds, ItemID.Ebonwood);
+			AddGreenhouseRecipe(ItemID.Acorn, ItemID.DirtBlock, ItemID.CrimsonSeeds, ItemID.Shadewood);
+			AddGreenhouseRecipe(ItemID.Acorn, ItemID.DirtBlock, ItemID.HallowedSeeds, ItemID.Pearlwood);
+			AddGreenhouseRecipe(ItemID.Acorn, ItemID.DirtBlock, ModContent.ItemType<Vial_Saltwater>(), ItemID.PalmWood);
+			AddGreenhouseRecipe(ItemID.Acorn, ItemID.SnowBlock, null, ItemID.BorealWood);
+			AddGreenhouseRecipe(ItemID.Acorn, ItemID.MudBlock, ItemID.JungleGrassSeeds, ItemID.RichMahogany);
+
+			AddGreenhouseRecipe(ItemID.DaybloomSeeds, ItemID.DirtBlock, ItemID.GrassSeeds, ItemID.Daybloom);
+			AddGreenhouseRecipe(ItemID.BlinkrootSeeds, ItemID.DirtBlock, ItemID.GrassSeeds, ItemID.Blinkroot);
+			AddGreenhouseRecipe(ItemID.ShiverthornSeeds, ItemID.SnowBlock, null, ItemID.Shiverthorn);
+			AddGreenhouseRecipe(ItemID.WaterleafSeeds, ItemID.SandBlock, null, ItemID.Waterleaf);
+			AddGreenhouseRecipe(ItemID.MoonglowSeeds, ItemID.MudBlock, ItemID.JungleGrassSeeds, ItemID.Moonglow);
+			AddGreenhouseRecipe(ItemID.DeathweedSeeds, ItemID.DirtBlock, ItemID.CorruptSeeds, ItemID.Deathweed);
+			AddGreenhouseRecipe(ItemID.DeathweedSeeds, ItemID.DirtBlock, ItemID.CrimsonSeeds, ItemID.Deathweed);
+			AddGreenhouseRecipe(ItemID.Fireblossom, ItemID.AshBlock, null, ItemID.Fireblossom);
+
+			AddGreenhouseRecipe(ItemID.MushroomGrassSeeds, ItemID.MudBlock, null, ItemID.GlowingMushroom);
+
+			AddGreenhouseRecipe(ItemID.Cactus, ItemID.SandBlock, null, ItemID.Cactus);
+		}
+
+		private void AddGreenhouseRecipe(int inputType, int blockType, int? modifierType, int resultType){
+			ScienceRecipe recipe = new ScienceRecipe(this);
+			recipe.AddIngredient(inputType, 1);
+			recipe.AddIngredient(blockType, 1);
+			if(modifierType is int modifier)
+				recipe.AddIngredient(modifier, 1);
+			recipe.AddTile(ModContent.TileType<Greenhouse>());
+			recipe.SetResult(resultType, 1);
+			recipe.AddRecipe();
 		}
 
 		public override void UpdateUI(GameTime gameTime) {
@@ -267,10 +394,6 @@ namespace TerraScience {
 			}
 
 			return base.Call(args);
-		}
-
-		private void AddIcon(string internalName, int[] buildMaterials, int[] buildStacks){
-			AddItem($"{internalName}Icon", new IconTemplate(internalName, buildMaterials, buildStacks));
 		}
 	}
 }

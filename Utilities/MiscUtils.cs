@@ -101,10 +101,13 @@ namespace TerraScience.Utilities {
 		//This added offset is needed to draw the bars at the right positions during different lighting modes
 		public static Vector2 GetLightingDrawOffset() => Lighting.NotRetro ? new Vector2(12) * 16 : Vector2.Zero;
 
-		public static int GetIconType(this MachineUI ui) => TerraScience.Instance.ItemType($"{ui.MachineName}Icon");
+		public static int GetIconType(this MachineUI ui) => TerraScience.Instance.ItemType(ui.MachineName + "Item");
 
 		public static Item RetrieveItem(this MachineEntity entity, int slot)
 			=> !(entity.ParentState?.Active ?? false) ? entity.GetItem(slot) : entity.ParentState.GetSlot(slot).StoredItem;
+
+		public static void ClearItem(this MachineEntity entity, int slot)
+			=> entity.RetrieveItem(slot).TurnToAir();
 
 		/// <summary>
 		/// Converts this one-dimentional array to a two-dimensional array whose dimensions are the given <paramref name="width"/> and <paramref name="height"/>.

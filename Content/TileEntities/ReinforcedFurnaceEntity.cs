@@ -55,7 +55,7 @@ namespace TerraScience.Content.TileEntities{
 			if(Heating){
 				targetHeat = HeatMax;
 
-				Vector2 center = TileUtils.TileEntityCenter(this, TileUtils.Structures.ReinforcedFurncace);
+				Vector2 center = TileUtils.TileEntityCenter(this, MachineTile);
 
 				burning = Main.PlaySound(SoundLoader.customSoundType, (int)center.X, (int)center.Y, TerraScience.Instance.GetSoundSlot(SoundType.Custom, "Sounds/Custom/CampfireBurning"));
 			}else{
@@ -142,7 +142,7 @@ namespace TerraScience.Content.TileEntities{
 			//	Main.NewText($"Edited UI slots: \"{Lang.GetItemNameValue(fuel.StoredItem.type)}\" ({fuel.StoredItem.stack}), \"{Lang.GetItemNameValue(resultSlot.StoredItem.type)}\" ({resultSlot.StoredItem.stack})");
 			}
 
-			Vector2 center = TileUtils.TileEntityCenter(this, TileUtils.Structures.ReinforcedFurncace);
+			Vector2 center = TileUtils.TileEntityCenter(this, MachineTile);
 
 			Main.PlaySound(SoundLoader.customSoundType, center, TerraScience.Instance.GetSoundSlot(SoundType.Custom, "Sounds/Custom/Flame Arrow"));
 		}

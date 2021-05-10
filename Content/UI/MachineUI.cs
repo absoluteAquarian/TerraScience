@@ -4,10 +4,12 @@ using System.Collections.Generic;
 using Terraria;
 using Terraria.GameContent.UI.Elements;
 using Terraria.ID;
+using Terraria.ModLoader;
 using Terraria.UI;
 using TerraScience.API.UI;
 using TerraScience.Content.API.UI;
 using TerraScience.Content.TileEntities;
+using TerraScience.Content.Tiles.Multitiles;
 using TerraScience.Utilities;
 
 namespace TerraScience.Content.UI{
@@ -43,9 +45,9 @@ namespace TerraScience.Content.UI{
 
 		internal UIItemSlot GetSlot(int index) => ItemSlots[index];
 
-		public int SlotsLength => ItemSlots.Count;
+		public abstract int TileType{ get; }
 
-		public abstract Tile[,] Structure{ get; }
+		public int SlotsLength => ItemSlots.Count;
 
 		public virtual void PlayOpenSound() => Main.PlaySound(SoundID.MenuOpen);
 		public virtual void PlayCloseSound() => Main.PlaySound(SoundID.MenuClose);
@@ -109,11 +111,13 @@ namespace TerraScience.Content.UI{
 
 			if (UIEntity != null) {
 				//Get the machine's center position
-				Vector2 middle = TileUtils.TileEntityCenter(UIEntity, Structure);
+				Vector2 middle = TileUtils.TileEntityCenter(UIEntity, TileType);
+
+				(ModContent.GetModTile(TileType) as Machine).GetDefaultParams(out _, out uint width, out uint height, out _);
 
 				//Check if the inventory key was pressed or if the player is too far away from the tile.  If so, close the UI
-				bool tooFar = Math.Abs(Main.LocalPlayer.Center.X - middle.X) > Structure.GetLength(1) * 8 + Main.LocalPlayer.lastTileRangeX * 16;
-				tooFar |= Math.Abs(Main.LocalPlayer.Center.Y - middle.Y) > Structure.GetLength(0) * 8 + Main.LocalPlayer.lastTileRangeY * 16;
+				bool tooFar = Math.Abs(Main.LocalPlayer.Center.X - middle.X) > width * 8 + Main.LocalPlayer.lastTileRangeX * 16;
+				tooFar |= Math.Abs(Main.LocalPlayer.Center.Y - middle.Y) > height * 8 + Main.LocalPlayer.lastTileRangeY * 16;
 				if (Main.LocalPlayer.GetModPlayer<TerraSciencePlayer>().InventoryKeyPressed || tooFar){
 					TerraScience.Instance.machineLoader.HideUI(MachineName);
 					Main.playerInventory = false;

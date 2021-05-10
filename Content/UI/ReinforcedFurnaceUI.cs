@@ -5,15 +5,16 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using TerraScience.Content.API.UI;
 using TerraScience.Content.TileEntities;
+using TerraScience.Content.Tiles.Multitiles;
 using TerraScience.Utilities;
 
 namespace TerraScience.Content.UI{
 	public class ReinforcedFurnaceUI : MachineUI{
-		public override Tile[,] Structure => TileUtils.Structures.ReinforcedFurncace;
-
 		public bool HasFuel => GetSlot(0).StoredItem.stack > 0;
 
 		public override string Header => "Reinforced Furnace";
+
+		public override int TileType => ModContent.TileType<ReinforcedFurnace>();
 
 		public override void PlayOpenSound()
 			=> Main.PlaySound(SoundLoader.customSoundType, Style: TerraScience.Instance.GetSoundSlot(SoundType.Custom, "Sounds/Custom/SFX chest open"));

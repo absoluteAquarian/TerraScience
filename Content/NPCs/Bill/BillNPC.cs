@@ -88,7 +88,6 @@ namespace TerraScience.Content.NPCs.Bill{
 		}
 
 		public override void SetupShop(Chest shop, ref int nextSlot){
-			ShopUtils.AddItemToShop(shop, ref nextSlot, ModContent.ItemType<Hammer>());
 			ShopUtils.AddItemToShop(shop, ref nextSlot, ModContent.ItemType<Battery9V>());
 		}
 

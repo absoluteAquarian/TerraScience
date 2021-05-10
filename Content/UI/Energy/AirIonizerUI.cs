@@ -5,13 +5,14 @@ using Terraria.ModLoader;
 using TerraScience.Content.API.UI;
 using TerraScience.Content.Items.Tools;
 using TerraScience.Content.TileEntities.Energy;
+using TerraScience.Content.Tiles.Multitiles.EnergyMachines;
 using TerraScience.Utilities;
 
 namespace TerraScience.Content.UI.Energy{
 	public class AirIonizerUI : PoweredMachineUI{
 		public override string Header => "Air Ionizer";
 
-		public override Tile[,] Structure => TileUtils.Structures.AirIonizer;
+		public override int TileType => ModContent.TileType<AirIonizer>();
 
 		internal override void PanelSize(out int width, out int height){
 			width = 470;

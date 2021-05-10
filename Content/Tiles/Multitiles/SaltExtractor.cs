@@ -7,15 +7,17 @@ using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 using TerraScience.Content.Items.Materials;
+using TerraScience.Content.Items.Placeable.Machines;
 using TerraScience.Content.TileEntities;
 using TerraScience.Utilities;
 
 namespace TerraScience.Content.Tiles.Multitiles{
 	public class SaltExtractor : Machine{
-		public override void GetDefaultParams(out string mapName, out uint width, out uint height){
+		public override void GetDefaultParams(out string mapName, out uint width, out uint height, out int itemType){
 			mapName = "Salt Extractor";
 			width = 4;
 			height = 3;
+			itemType = ModContent.ItemType<SaltExtractorItem>();
 		}
 
 		public override void ModifyLight(int i, int j, ref float r, ref float g, ref float b){
@@ -27,8 +29,6 @@ namespace TerraScience.Content.Tiles.Multitiles{
 				b = color.Z;
 			}
 		}
-
-		public override Tile[,] Structure => TileUtils.Structures.SaltExtractor;
 
 		public override bool PreHandleMouse(Point16 pos){
 			if(MiscUtils.TryGetTileEntity(pos, out SaltExtractorEntity se) && Main.LocalPlayer.HeldItemIsViableForSaltExtractor(pos) && se.WaterPlaceDelay == 0 && se.StoredLiquid < SaltExtractorEntity.MaxLiquid - 1){
@@ -72,10 +72,12 @@ namespace TerraScience.Content.Tiles.Multitiles{
 
 		public override void PostDraw(int i, int j, SpriteBatch spriteBatch) {
 			//Draw the water in the side vials
+			GetDefaultParams(out _, out uint width, out uint height, out _);
+
 			Tile tile = Framing.GetTileSafely(i, j);
 			Point16 frame = tile.TileCoord();
 			Point16 pos = new Point16(i, j) - frame;
-			bool lastTile = frame.X == Structure.GetLength(1) - 1 && frame.Y == Structure.GetLength(0) - 1;
+			bool lastTile = frame.X == width - 1 && frame.Y == height - 1;
 
 			int maxWaterDrawDiff = 22;
 

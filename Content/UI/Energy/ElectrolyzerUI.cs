@@ -6,13 +6,14 @@ using Terraria.ModLoader;
 using TerraScience.Content.API.UI;
 using TerraScience.Content.Items.Tools;
 using TerraScience.Content.TileEntities.Energy;
+using TerraScience.Content.Tiles.Multitiles.EnergyMachines;
 using TerraScience.Utilities;
 
 namespace TerraScience.Content.UI.Energy{
 	public class ElectrolyzerUI : PoweredMachineUI{
 		public override string Header => "Electrolyzer";
 
-		public override Tile[,] Structure => TileUtils.Structures.Electrolyzer;
+		public override int TileType => ModContent.TileType<Electrolyzer>();
 
 		internal override void PanelSize(out int width, out int height){
 			width = 300;

@@ -1,8 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.Enums;
@@ -10,13 +10,12 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ObjectData;
 using Terraria.UI;
-using TerraScience.Content.Items.Placeable;
+using TerraScience.Content.Items.Placeable.Machines;
 using TerraScience.Content.TileEntities;
 using TerraScience.Content.TileEntities.Energy;
 using TerraScience.Content.Tiles.Multitiles;
 using TerraScience.Content.UI;
 using TerraScience.Systems.Energy;
-using static Terraria.ID.TileID;
 
 namespace TerraScience.Utilities{
 	public static class TileUtils{
@@ -26,6 +25,16 @@ namespace TerraScience.Utilities{
 		public static Dictionary<int, MachineEntity> tileToEntity;
 
 		public static Dictionary<int, string> tileToStructureName;
+
+		public static void Register<TTile, TEntity>() where TTile : Machine where TEntity : MachineEntity{
+			var tType = ModContent.TileType<TTile>();
+			var eInst = ModContent.GetInstance<TEntity>();
+
+			tileToEntity.Add(tType, eInst);
+			tileToStructureName.Add(tType, typeof(TTile).Name);
+
+			TerraScience.Instance.Logger.Debug($"Registered tile type \"{typeof(TTile).FullName}\" (ID: {tType}) with entity \"{typeof(TEntity).FullName}\"");
+		}
 
 		public static Vector2 TileEntityCenter(TileEntity entity, int tileType) {
 			Machine tile = ModContent.GetModTile(tileType) as Machine;
@@ -43,103 +52,60 @@ namespace TerraScience.Utilities{
 		public static Point16 TileCoord(this Tile tile)
 			=> new Point16(tile.frameX / 18, tile.frameY / 18);
 
-		public static Texture2D GetEffectTexture(this ModTile multitile, string effect)
-			=> ModContent.GetTexture($"TerraScience/Content/Tiles/Multitiles/Overlays/Effect_{multitile.Name}_{effect}");
+		public static Texture2D GetEffectTexture(this ModTile multitile, string effect){
+			try{
+				return ModContent.GetTexture($"TerraScience/Content/Tiles/Multitiles/Overlays/Effect_{multitile.Name}_{effect}");
+			}catch{
+				throw new ContentLoadException($"Could not find overlay texture \"{effect}\" for machine \"{multitile.Name}\"");
+			}
+		}
 
 		public static void KillMachine(int i, int j, int type){
 			Tile tile = Main.tile[i, j];
 			Machine mTile = ModContent.GetModTile(type) as Machine;
-			mTile.GetDefaultParams(out _, out uint width, out uint height, out _);
+			mTile.GetDefaultParams(out _, out _, out _, out int itemType);
+
+			int itemIndex = Item.NewItem(i * 16, j * 16, 16, 16, itemType);
+			MachineItem item = Main.item[itemIndex].modItem as MachineItem;
+
+		//	Main.NewText($"Spawned item \"{item.Name}\" at tile position ({i}, {j})");
 
 			Point16 tePos = new Point16(i, j) - tile.TileCoord();
 			if(TileEntity.ByPosition.ContainsKey(tePos)){
-				TileEntity tileEntity = TileEntity.ByPosition[tePos];
-				if(tileEntity is MachineEntity me){
-					me.OnKill();
-					TileEntity.ByID.Remove(tileEntity.ID);
-					TileEntity.ByPosition.Remove(pos);
+				MachineEntity tileEntity = TileEntity.ByPosition[tePos] as MachineEntity;
+				//Drop any items the entity contains
+				if(tileEntity.SlotsCount > 0){
+					for(int slot = 0; slot < tileEntity.SlotsCount; slot++){
+						Item drop = tileEntity.RetrieveItem(slot);
 
-					//Remove this machine from the wire networks if it's a powered machine
-					if(tileEntity is PoweredMachineEntity pme)
-						NetworkCollection.RemoveMachine(pme);
-				}
-			}
-
-			//Only run this code if the tile at the mouse is the same one as (i, j) and the tile is actually being destroyed
-			if(!fail && i == mouse.X && j == mouse.Y){
-				noItem = true;
-
-				//Determine which tile in the structure was removed and place the others
-				Tile structureTile = structure[tileY, tileX];
-				int itemType = 0;
-
-				//Determine the dropped item type
-				switch(structureTile.type){
-					case CopperPlating:
-						itemType = ItemID.CopperPlating;
-						break;
-					case TinPlating:
-						itemType = ItemID.TinPlating;
-						break;
-					case Glass:
-						itemType = ItemID.Glass;
-						break;
-					case GrayBrick:
-						itemType = ItemID.GrayBrick;
-						break;
-					case WoodBlock:
-						itemType = ItemID.Wood;
-						break;
-					case RedBrick:
-						itemType = ItemID.RedBrick;
-						break;
-				}
-
-				//Modded tiles
-				if(itemType == 0){
-					if(structureTile.type == SupportType)
-						itemType = ModContent.ItemType<MachineSupportItem>();
-					else if(structureTile.type == BlastFurnaceType)
-						itemType = ModContent.ItemType<BlastBrick>();
-				}
-
-				//Spawn the item
-				if(itemType > 0)
-					Item.NewItem(i * 16, j * 16, 16, 16, itemType);
-
-				//Replace the other tiles
-				for(int c = 0; c < columns; c++){
-					for(int r = 0; r < rows; r++){
-						//Only replace the tile if it's not this one
-						if(r != tileY || c != tileX){
-							Tile newTile = Main.tile[i - tileX + c, j - tileY + r];
-							newTile.CopyFrom(structure[r, c]);
-							newTile.active(true);
+						//Drop the item and copy over any important data
+						if(drop.type > ItemID.None && drop.stack > 0){
+							int dropIndex = Item.NewItem(i * 16, j * 16, 16, 16, drop.type, drop.stack);
+							if(drop.modItem != null)
+								Main.item[dropIndex].modItem.Load(drop.modItem.Save());
 						}
 
-						//If there's a machine entity present, kill it
-						//Copy of TileEntity.Kill(int, int), but modified
-						Point16 pos = new Point16(i - tileX + c, j - tileY + r);
-						
-
-						//Only run this code on the last tile in the structure
-						if(c == columns - 1 && r == rows - 1){
-							//Update the frames for the tiles
-							int minX = i - tileX - columns;
-							int minY = j - tileY - rows;
-							int sizeX = 2 * tileX;
-							int sizeY = 2 * tileY;
-							WorldGen.RangeFrame(minX, minY, sizeX, sizeY);
-							//...and send a net message
-							if(Main.netMode == NetmodeID.MultiplayerClient)
-								NetMessage.SendTileRange(-1, minX, minY, sizeX, sizeY);
-						}
+						tileEntity.ClearItem(slot);
 					}
 				}
+
+				item.entityData = tileEntity.Save();
+
+				//Remove this machine from the wire networks if it's a powered machine
+				if(tileEntity is PoweredMachineEntity pme){
+					NetworkCollection.RemoveMachine(pme);
+
+				//	Main.NewText($"Removed machine \"{tileEntity.MachineName}\" at position ({i}, {j}) from all networks");
+				}
+
+				tileEntity.Kill(i, j);
+
+				if(Main.netMode == NetmodeID.MultiplayerClient)
+					NetMessage.SendData(MessageID.TileEntitySharing, remoteClient: -1, ignoreClient: Main.myPlayer, number: tileEntity.ID);
 			}
 		}
 
-		public static void MultitileDefaults(ModTile tile, string mapName, int type, uint width, uint height, int item){
+		public static void MultitileDefaults(ModTile tile, string mapName, int type, uint width, uint height){
 			Main.tileNoAttach[type] = true;
 			Main.tileFrameImportant[type] = true;
 
@@ -148,12 +114,12 @@ namespace TerraScience.Utilities{
 			TileObjectData.newTile.Height = (int)height;
 			TileObjectData.newTile.Width = (int)width;
 			TileObjectData.newTile.CoordinatePadding = 2;
-			TileObjectData.newTile.UsesCustomCanPlace = true;
 			TileObjectData.newTile.LavaDeath = false;
 			TileObjectData.newTile.WaterDeath = false;
 			TileObjectData.newTile.LavaPlacement = LiquidPlacement.NotAllowed;
 			TileObjectData.newTile.WaterPlacement = LiquidPlacement.NotAllowed;
 			TileObjectData.newTile.Origin = new Point16((int)width / 2, (int)height - 1);
+
 			TileObjectData.addTile(type);
 
 			ModTranslation name = tile.CreateMapEntryName();
@@ -164,8 +130,6 @@ namespace TerraScience.Utilities{
 			//Metal sound
 			tile.soundType = SoundID.Tink;
 			tile.soundStyle = 1;
-
-			tile.drop = item;
 		}
 
 		public static bool HandleMouse<TEntity>(Machine machine, Point16 tilePos, Func<bool> additionalCondition) where TEntity : MachineEntity{

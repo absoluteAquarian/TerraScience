@@ -5,13 +5,14 @@ using Terraria.ModLoader;
 using TerraScience.Content.API.UI;
 using TerraScience.Content.Items;
 using TerraScience.Content.Items.Materials;
+using TerraScience.Content.Tiles.Multitiles;
 using TerraScience.Utilities;
 
 namespace TerraScience.Content.UI{
 	public class BlastFurnaceUI : MachineUI{
 		public override string Header => "Blast Furnace";
 
-		public override Tile[,] Structure => TileUtils.Structures.BlastFurnace;
+		public override int TileType => ModContent.TileType<BlastFurnace>();
 
 		internal override void PanelSize(out int width, out int height){
 			width = 400;

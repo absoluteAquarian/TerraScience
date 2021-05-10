@@ -2,17 +2,18 @@
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.DataStructures;
+using Terraria.ModLoader;
+using TerraScience.Content.Items.Placeable.Machines;
 using TerraScience.Content.TileEntities;
 using TerraScience.Utilities;
 
 namespace TerraScience.Content.Tiles.Multitiles{
 	public class ReinforcedFurnace : Machine{
-		public override Tile[,] Structure => TileUtils.Structures.ReinforcedFurncace;
-
-		public override void GetDefaultParams(out string mapName, out uint width, out uint height){
+		public override void GetDefaultParams(out string mapName, out uint width, out uint height, out int itemType){
 			mapName = "Reinforced Furnace";
 			width = 4;
 			height = 4;
+			itemType = ModContent.ItemType<ReinforcedFurnaceItem>();
 		}
 
 		public override void ModifyLight(int i, int j, ref float r, ref float g, ref float b){
@@ -29,10 +30,12 @@ namespace TerraScience.Content.Tiles.Multitiles{
 			=> TileUtils.HandleMouse<ReinforcedFurnaceEntity>(this, pos, () => true);
 
 		public override void PostDraw(int i, int j, SpriteBatch spriteBatch){
+			GetDefaultParams(out _, out uint width, out uint height, out _);
+
 			Tile tile = Framing.GetTileSafely(i, j);
 			Point16 frame = tile.TileCoord();
 			Point16 pos = new Point16(i, j) - frame;
-			bool lastTile = frame.X == Structure.GetLength(1) - 1 && frame.Y == Structure.GetLength(0) - 1;
+			bool lastTile = frame.X == width - 1 && frame.Y == height - 1;
 
 			if(MiscUtils.TryGetTileEntity(pos, out ReinforcedFurnaceEntity furnace) && lastTile){
 				//If the UI is open, open the door and draw the rest of the things

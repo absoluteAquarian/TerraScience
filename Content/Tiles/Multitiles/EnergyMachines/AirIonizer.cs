@@ -2,20 +2,21 @@
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.DataStructures;
+using Terraria.ModLoader;
+using TerraScience.Content.Items.Placeable.Machines.Energy;
 using TerraScience.Content.TileEntities.Energy;
 using TerraScience.Utilities;
 
 namespace TerraScience.Content.Tiles.Multitiles.EnergyMachines{
 	public class AirIonizer : Machine{
-		public override Tile[,] Structure => TileUtils.Structures.AirIonizer;
-
 		public override bool HandleMouse(Point16 pos)
 			=> TileUtils.HandleMouse<AirIonizerEntity>(this, pos, () => true);
 
-		public override void GetDefaultParams(out string mapName, out uint width, out uint height){
+		public override void GetDefaultParams(out string mapName, out uint width, out uint height, out int itemType){
 			mapName = "Air Ionizer";
 			width = 3;
 			height = 3;
+			itemType = ModContent.ItemType<AirIonizerItem>();
 		}
 
 		public override bool PreDraw(int i, int j, SpriteBatch spriteBatch){
@@ -30,9 +31,9 @@ namespace TerraScience.Content.Tiles.Multitiles.EnergyMachines{
 				Rectangle draw = new Rectangle(drawPos.X, drawPos.Y, 48, 48);
 
 				if(ions.ParentState?.Active ?? false)
-					Lighting.AddLight(TileUtils.TileEntityCenter(ions, Structure) - new Vector2(0, 8), 0, 0.8f, 0.8f);
+					Lighting.AddLight(TileUtils.TileEntityCenter(ions, Type) - new Vector2(0, 8), 0, 0.8f, 0.8f);
 				else
-					Lighting.AddLight(TileUtils.TileEntityCenter(ions, Structure) - new Vector2(0, 8), 0, 0.22f, 0.22f);
+					Lighting.AddLight(TileUtils.TileEntityCenter(ions, Type) - new Vector2(0, 8), 0, 0.22f, 0.22f);
 
 				//Draw the back texture
 				spriteBatch.Draw(this.GetEffectTexture("machineback"), draw, null, Lighting.GetColor(i, j));
@@ -50,10 +51,12 @@ namespace TerraScience.Content.Tiles.Multitiles.EnergyMachines{
 		}
 
 		public override void PostDraw(int i, int j, SpriteBatch spriteBatch){
+			GetDefaultParams(out _, out uint width, out uint height, out _);
+
 			Tile tile = Framing.GetTileSafely(i, j);
 			Point16 frame = tile.TileCoord();
 			Point16 pos = new Point16(i, j) - frame;
-			bool lastTile = frame.X == Structure.GetLength(1) - 1 && frame.Y == Structure.GetLength(0) - 1;
+			bool lastTile = frame.X == width - 1 && frame.Y == height - 1;
 
 			if(MiscUtils.TryGetTileEntity(pos, out AirIonizerEntity ions) && lastTile){
 				//This code has been in a lot of places.  Oughta abstract it

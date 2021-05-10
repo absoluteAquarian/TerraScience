@@ -10,12 +10,15 @@ namespace TerraScience.Content.TileEntities.Energy.Generators{
 	public class BasicWindTurbineEntity : GeneratorEntity{
 		public override int MachineTile => ModContent.TileType<BasicWindTurbine>();
 
-		public override TerraFlux FluxCap => new TerraFlux(6000);
+		public override TerraFlux FluxCap => new TerraFlux(3000);
 
-		//max export is rougly 10TF/t
-		public override TerraFlux ExportRate => new TerraFlux(10);
+		//max export is rougly 6TF/t
+		public override TerraFlux ExportRate => new TerraFlux(6);
 
 		public float bladeRotation;
+
+		public bool rainBoost;
+		public bool sandstormBoost;
 
 		public override void ReactionComplete(){
 			TerraFlux flux = GetPowerGeneration(ticks: 1);
@@ -73,6 +76,9 @@ namespace TerraScience.Content.TileEntities.Energy.Generators{
 				flux *= 1.15f;
 			if(Main.raining)
 				flux *= 1.085f;
+
+			rainBoost = Main.raining;
+			sandstormBoost = Sandstorm.Happening;
 
 			if(Sandstorm.Happening)
 				flux += 1.75f;

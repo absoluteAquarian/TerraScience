@@ -14,12 +14,14 @@ namespace TerraScience.Content.TileEntities.Energy{
 
 		public TerraFlux StoredFlux{ get; set; }
 
+		public abstract TerraFlux FluxUsage{ get; }
+
 		public abstract TerraFlux FluxCap{ get; }
 
 		/// <summary>
 		/// Adds the incoming <paramref name="flux"/> to this machine's flux pool.  Any excess <paramref name="flux"/> is left in the parameter for the network to collect.
 		/// </summary>
-		/// <param name="flux"></param>
+		/// <param name="flux">The incoming Terra Flux power</param>
 		public void ImportFlux(ref TerraFlux flux){
 			if(flux + StoredFlux > FluxCap){
 				TerraFlux old = StoredFlux;

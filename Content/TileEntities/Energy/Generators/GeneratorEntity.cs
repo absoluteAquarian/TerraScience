@@ -2,6 +2,8 @@
 
 namespace TerraScience.Content.TileEntities.Energy.Generators{
 	public abstract class GeneratorEntity : PoweredMachineEntity{
+		public override TerraFlux FluxUsage => new TerraFlux(0f);
+
 		/// <summary>
 		/// The max Terra Flux that is exported to the connected networks per tick. Exported flux is split across the networks.
 		/// </summary>

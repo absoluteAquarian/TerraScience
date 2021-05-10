@@ -9,6 +9,7 @@ using TerraScience.API.UI;
 using TerraScience.Content.API.UI;
 using TerraScience.Content.Items;
 using TerraScience.Content.TileEntities;
+using TerraScience.Content.Tiles.Multitiles;
 using TerraScience.Utilities;
 
 namespace TerraScience.Content.UI{
@@ -23,7 +24,7 @@ namespace TerraScience.Content.UI{
 
 		public override string Header => "Science Workbench";
 
-		public override Tile[,] Structure => TileUtils.Structures.ScienceWorkbench;
+		public override int TileType => ModContent.TileType<ScienceWorkbench>();
 
 		internal override void PanelSize(out int width, out int height){
 			width = 400;
@@ -120,27 +121,28 @@ namespace TerraScience.Content.UI{
 
 		internal override void InitializeSlots(List<UIItemSlot> slots){
 			int top = 100;
-			int origLeft = 30, left;
+			int origLeft = 80, left;
+			const int buffer = 10;
 
-			//10 ingredient slots, 5 per row
-			for(int r = 0; r < 2; r++){
+			//9 ingredient slots, 3 per row
+			for(int r = 0; r < 3; r++){
 				left = origLeft;
-				for(int c = 0; c < 5; c++){
+				for(int c = 0; c < 3; c++){
 					UIItemSlot ingredient = new UIItemSlot(){
 						ValidItemFunc = item => true
 					};
 					ingredient.Left.Set(left, 0);
 					ingredient.Top.Set(top, 0);
 
-					left += Main.inventoryBack9Texture.Width + 15;
+					left += Main.inventoryBack9Texture.Width + buffer;
 
 					slots.Add(ingredient);
 				}
-				top += Main.inventoryBack9Texture.Height + 15;
+				top += Main.inventoryBack9Texture.Height + buffer;
 			}
 
 			top = 300;
-			left = 400 - (Main.inventoryBack9Texture.Width + 15) - 30;
+			left = 400 - (Main.inventoryBack9Texture.Width + buffer) - buffer * 2;
 
 			//1 result slot
 			for(int c = 0; c < 1; c++){
@@ -150,7 +152,7 @@ namespace TerraScience.Content.UI{
 				ingredient.Left.Set(left, 0);
 				ingredient.Top.Set(top, 0);
 
-				left += Main.inventoryBack9Texture.Width + 15;
+				left += Main.inventoryBack9Texture.Width + buffer;
 
 				slots.Add(ingredient);
 			}
