@@ -20,7 +20,7 @@ namespace TerraScience.Content.Items.Materials{
 
 		public override void AddRecipes(){
 			ScienceRecipe recipe = new ScienceRecipe(mod);
-			recipe.AddRecipeGroup(TerraScience.ScienceRecipeGroups.Sand, 1);
+			recipe.AddRecipeGroup(TechMod.ScienceRecipeGroups.Sand, 1);
 			recipe.AddTile(TileID.Extractinator);
 			recipe.SetResult(this, 1);
 			recipe.AddRecipe();

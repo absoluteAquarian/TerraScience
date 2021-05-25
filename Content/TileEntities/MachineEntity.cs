@@ -1,10 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Terraria;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
+using TerraScience.Content.TileEntities.Energy.Generators;
+using TerraScience.Content.Tiles;
 using TerraScience.Content.UI;
+using TerraScience.Systems;
 using TerraScience.Utilities;
 
 namespace TerraScience.Content.TileEntities{
@@ -117,6 +123,9 @@ namespace TerraScience.Content.TileEntities{
 			if(RequiresUI && !(ParentState?.Active ?? false))
 				return;
 
+			if(this is GeneratorEntity && !updating)
+				return;
+
 			ValidateSlots(SlotsCount);
 
 			PreUpdateReaction();
@@ -135,6 +144,9 @@ namespace TerraScience.Content.TileEntities{
 
 			PostReaction();
 		}
+
+		internal bool updating = false;
+		//NOTE: ModTileEntity.PreGlobalUpdate() is called from a singleton for some fucking reason
 
 		public void SaveSlots(){
 			slots.Clear();
@@ -158,7 +170,7 @@ namespace TerraScience.Content.TileEntities{
 		public override void OnKill(){
 			//Force the UI to close if it's open
 			if(ParentState?.Active ?? false)
-				TerraScience.Instance.machineLoader.HideUI(MachineName);
+				TechMod.Instance.machineLoader.HideUI(MachineName);
 		}
 
 		public override void NetSend(BinaryWriter writer, bool lightSend){
@@ -169,6 +181,152 @@ namespace TerraScience.Content.TileEntities{
 
 		public override void NetReceive(BinaryReader reader, bool lightReceive){
 			Load(TagIO.Read(reader));
+		}
+
+		internal SoundEffectInstance PlayCustomSound(Vector2 position, string path){
+			bool nearbyMuffler = WorldGen.InWorld((int)position.X >> 4, (int)position.Y >> 4) && MachineMufflerTile.AnyMufflersNearby(position);
+
+			return Main.PlaySound(SoundLoader.customSoundType, (int)position.X, (int)position.Y, TechMod.Instance.GetSoundSlot(SoundType.Custom, $"Sounds/Custom/{path}"), volumeScale: nearbyMuffler ? 0.1f : 1f);
+		}
+
+		internal void PlaySound(int type, Vector2 position, int style = 1){
+			bool nearbyMuffler = WorldGen.InWorld((int)position.X >> 4, (int)position.Y >> 4) && MachineMufflerTile.AnyMufflersNearby(position);
+
+			Main.PlaySound(type, (int)position.X, (int)position.Y, style, volumeScale: nearbyMuffler ? 0.1f : 1f);
+		}
+
+		internal void PlaySound(Terraria.Audio.LegacySoundStyle type, Vector2 position){
+			bool nearbyMuffler = WorldGen.InWorld((int)position.X >> 4, (int)position.Y >> 4) && MachineMufflerTile.AnyMufflersNearby(position);
+
+			Main.PlaySound(type.SoundId, (int)position.X, (int)position.Y, type.Style, volumeScale: nearbyMuffler ? 0.1f : 1f);
+		}
+
+		internal void PlaySound(int type, int x = -1, int y = -1, int style = 1){
+			bool nearbyMuffler = WorldGen.InWorld(x, y) && MachineMufflerTile.AnyMufflersNearby(new Vector2(x, y));
+
+			Main.PlaySound(type, x, y, style, volumeScale: nearbyMuffler ? 0.1f : 1f);
+		}
+
+		internal abstract int[] GetInputSlots();
+
+		internal abstract int[] GetOutputSlots();
+
+		/// <summary>
+		/// The function the entity should fall back to for detecing if an incoming item is valid when its parent UI state is not active.
+		/// You can assume that <paramref name="slot"/> refers to an "input item" slot
+		/// </summary>
+		internal abstract bool CanInputItem(int slot, Item item);
+
+		public bool CanBeInput(Item item){
+			int stack = item.stack;
+			int[] inputSlots = GetInputSlots();
+
+			foreach(int slot in inputSlots){
+				Item slotItem;
+				if((ParentState?.GetSlot(slot).ValidItemFunc(item) ?? false) || CanInputItem(slot, item)){
+					slotItem = this.RetrieveItem(slot);
+
+					if(slotItem.IsAir)
+						return true;
+					else if(slotItem.type == item.type){
+						if(slotItem.stack + stack <= slotItem.maxStack)
+							return true;
+						else
+							stack -= slotItem.maxStack - slotItem.stack;
+					}
+				}
+			}
+
+			return stack <= 0;
+		}
+
+		public bool TryExtractOutputs(int stackToExtract, out Item item){
+			var outputs = GetOutputSlots();
+			item = null;
+
+			if(outputs.Length == 0)
+				return false;
+
+			//Try to remove items from the machine
+			//Should a stack underflow, check if another stack has the same type.  If one does, remove from that stack as well
+			//Keep removing from stacks until either 1) all slots have been checked or 2) "stackToExtract" reaches zero
+			foreach(int slot in outputs){
+				Item slotItem = this.RetrieveItem(slot);
+
+				if(slotItem.IsAir)
+					continue;
+
+				if(item is null || slotItem.type == item.type){
+					if(item is null){
+						//Just use this item directly
+						item = slotItem.Clone();
+						
+						if(item.stack > stackToExtract){
+							item.stack = stackToExtract;
+							slotItem.stack -= stackToExtract;
+							stackToExtract = 0;
+						}else{
+							stackToExtract -= item.stack;
+							slotItem.stack = 0;
+						}
+					}else{
+						//Add to the stack of the output item
+						if(slotItem.stack < stackToExtract){
+							stackToExtract -= slotItem.stack;
+							item.stack += slotItem.stack;
+							slotItem.stack = 0;
+						}else{
+							item.stack += stackToExtract;
+							slotItem.stack -= stackToExtract;
+							stackToExtract = 0;
+						}
+					}
+				}
+
+				if(stackToExtract <= 0)
+					break;
+			}
+
+			return item != null;
+		}
+
+		public void InputItemFromNetwork(ItemNetworkPath incoming, out bool sendBack){
+			Item data = ItemIO.Load(incoming.itemData);
+			sendBack = true;
+
+			if(!CanBeInput(data))
+				return;
+
+			int[] inputSlots = GetInputSlots();
+
+			foreach(int slot in inputSlots){
+				Item slotItem = this.RetrieveItem(slot);
+				if(slotItem.IsAir || slotItem.type == data.type){
+					if(slotItem.IsAir){
+						slots[slot] = data.Clone();
+
+						if(ParentState?.Active ?? false)
+							ParentState.LoadToSlots(slots);
+
+						slotItem = this.RetrieveItem(slot);
+						slotItem.stack = 0;
+					}
+
+					if(slotItem.stack + data.stack > slotItem.maxStack){
+						data.stack -= slotItem.maxStack - slotItem.stack;
+						slotItem.stack = slotItem.maxStack;
+					}else{
+						slotItem.stack += data.stack;
+						data.stack = 0;
+
+						sendBack = false;
+						break;
+					}
+				}
+			}
+
+			if(sendBack)
+				incoming.itemData = ItemIO.Save(data);
 		}
 	}
 }

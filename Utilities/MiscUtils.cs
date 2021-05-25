@@ -1,10 +1,13 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
+using TerraScience.Content.ID;
 using TerraScience.Content.Items.Materials;
 using TerraScience.Content.TileEntities;
 using TerraScience.Content.TileEntities.Energy;
@@ -49,12 +52,25 @@ namespace TerraScience.Utilities {
 			int[] types = new int[]{
 				ItemID.WaterBucket,
 				ItemID.BottomlessBucket,
-				ModContent.ItemType<Vial_Water>()
+				ModContent.ItemType<Vial_Water>(),
+				ModContent.ItemType<Vial_Saltwater>()
 			};
 
 			//Electrolyzer only accepts water atm
 			// TODO: support more liquid types
 			return types.Contains(player.HeldItem.type);
+		}
+
+		public static MachineLiquidID GetIDFromItem(int type){
+			if(type == ItemID.WaterBucket || type == ItemID.BottomlessBucket || type == ModContent.ItemType<Vial_Water>())
+				return MachineLiquidID.Water;
+			else if(type == ModContent.ItemType<Vial_Saltwater>())
+				return MachineLiquidID.Saltwater;
+			else if(type == ItemID.LavaBucket)
+				return MachineLiquidID.Lava;
+			else if(type == ItemID.HoneyBucket)
+				return MachineLiquidID.Honey;
+			return MachineLiquidID.None;
 		}
 
 		public static bool HeldItemIsViableForSaltExtractor(this Player player, Point16 pos){
@@ -72,16 +88,16 @@ namespace TerraScience.Utilities {
 				return false;
 
 			//Liquid: none
-			if(se.LiquidType == SE_LiquidType.None)
+			if(se.LiquidTypes[0] == MachineLiquidID.None)
 				return true;
 
 			//Liquid: water
 			if((player.HeldItem.type == ItemID.WaterBucket || player.HeldItem.type == ItemID.BottomlessBucket || player.HeldItem.type == ModContent.ItemType<Vial_Water>())
-				&& se.LiquidType == SE_LiquidType.Water)
+				&& se.LiquidTypes[0] == MachineLiquidID.Water)
 				return true;
 
 			//Liquid: saltwater
-			if(player.HeldItem.type == ModContent.ItemType<Vial_Saltwater>() && se.LiquidType == SE_LiquidType.Saltwater)
+			if(player.HeldItem.type == ModContent.ItemType<Vial_Saltwater>() && se.LiquidTypes[0] == MachineLiquidID.Saltwater)
 				return true;
 
 			//Bad
@@ -98,10 +114,15 @@ namespace TerraScience.Utilities {
 			return arr;
 		}
 
-		//This added offset is needed to draw the bars at the right positions during different lighting modes
-		public static Vector2 GetLightingDrawOffset() => Lighting.NotRetro ? new Vector2(12) * 16 : Vector2.Zero;
+		public static Vector2 GetLightingDrawOffset(){
+			bool doOffset = Lighting.NotRetro;
+			if(!doOffset && Main.GameZoomTarget != 1)
+				doOffset = true;
 
-		public static int GetIconType(this MachineUI ui) => TerraScience.Instance.ItemType(ui.MachineName + "Item");
+			return doOffset ? new Vector2(12) * 16 : Vector2.Zero;
+		}
+
+		public static int GetIconType(this MachineUI ui) => TechMod.Instance.ItemType(ui.MachineName + "Item");
 
 		public static Item RetrieveItem(this MachineEntity entity, int slot)
 			=> !(entity.ParentState?.Active ?? false) ? entity.GetItem(slot) : entity.ParentState.GetSlot(slot).StoredItem;
@@ -126,6 +147,21 @@ namespace TerraScience.Utilities {
 			}
 
 			return newArr;
+		}
+
+		public static string EnumName<T>(this T id) where T : Enum => Enum.GetName(typeof(T), id);
+
+		public static string ProperEnumName<T>(this T id) where T : Enum => Regex.Replace(id.EnumName(), "([A-Z])", " $1").Trim();
+
+		public static Color MixLightColors(Color light, Color source) => new Color(light.ToVector3() * source.ToVector3());
+
+		public static bool TrueForAny<T>(this List<T> list, Predicate<T> predicate){
+			for(int i = 0; i < list.Count; i++){
+				if(predicate(list[i]))
+					return true;
+			}
+
+			return false;
 		}
 	}
 }

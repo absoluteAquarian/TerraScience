@@ -1,31 +1,30 @@
-﻿using Terraria.DataStructures;
+﻿using System;
+using Terraria.DataStructures;
+using TerraScience.API.Interfaces;
 
 namespace TerraScience.Systems.Energy{
-	public struct TFWire{
-		public readonly Point16 location;
-		public readonly WireNetwork network;
+	public struct TFWire : INetworkable<TFWire>{
+		public INetwork<TFWire> ParentNetwork{ get; set; }
 
-		public TFWire(Point16 tilePos, WireNetwork network){
-			location = tilePos;
-			this.network = network;
+		public Point16 Position{ get; set; }
+
+		public TFWire(Point16 tilePos, INetwork network){
+			Position = tilePos;
+			ParentNetwork = network as WireNetwork;
+
+			if(ParentNetwork is null)
+				throw new ArgumentException("Wires must be connected to a WireNetwork");
 		}
 
-		public override int GetHashCode(){
-			unchecked{
-				int hash = (int)2166136261;
-				hash = (hash * 16777619) ^ location.X;
-				hash = (hash * 16777619) ^ location.Y;
-				return hash;
-			}
-		}
+		public override int GetHashCode() => (Position.X << 16) | (int)Position.Y;
 
 		public override bool Equals(object obj)
-			=> obj is TFWire wire && location == wire.location;
+			=> obj is TFWire wire && Position == wire.Position;
 
 		public static bool operator ==(TFWire first, TFWire second)
-			=> first.location == second.location;
+			=> first.Position == second.Position;
 
 		public static bool operator !=(TFWire first, TFWire second)
-			=> first.location != second.location;
+			=> first.Position != second.Position;
 	}
 }

@@ -24,7 +24,7 @@ namespace TerraScience.Content.TileEntities.Energy{
 			if(saplingRand == -1)
 				saplingRand = Main.rand.Next(3);
 
-			ReactionSpeed = CheckFluxRequirement(FluxUsage, use: false) ? 0.05f : 1f;
+			ReactionSpeed = !CheckFluxRequirement(FluxUsage, use: false) ? 0.05f : 1f;
 
 			//Check that all slots aren't full.  If they are, abort early
 			bool allFull = true;
@@ -47,7 +47,8 @@ namespace TerraScience.Content.TileEntities.Energy{
 
 			//2min to grow saplings, 1min 15s to grow herbs
 			float time = this.RetrieveItem(0).type == ItemID.Acorn ? 2 : 1.25f;
-			ReactionProgress += 100f / time / 3600f * ReactionSpeed;
+			time *= 3600;
+			ReactionProgress += 100f / time * ReactionSpeed;
 
 			return ReactionProgress >= 100;
 		}
@@ -145,7 +146,7 @@ namespace TerraScience.Content.TileEntities.Energy{
 			if(Main.rand.NextFloat() < 0.06f)
 				InsertItems(input.type, 1);
 
-			Main.PlaySound(SoundID.Grab, TileUtils.TileEntityCenter(this, MachineTile));
+			this.PlaySound(SoundID.Grab, TileUtils.TileEntityCenter(this, MachineTile));
 		}
 
 		private void InsertItems(int resultType, int resultStack){
@@ -170,5 +171,11 @@ namespace TerraScience.Content.TileEntities.Energy{
 				}
 			}
 		}
+
+		internal override int[] GetInputSlots() => new int[0];
+
+		internal override int[] GetOutputSlots() => new int[]{ 3, 4, 5 };
+
+		internal override bool CanInputItem(int slot, Item item) => false;
 	}
 }

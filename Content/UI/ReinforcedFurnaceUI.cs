@@ -17,10 +17,10 @@ namespace TerraScience.Content.UI{
 		public override int TileType => ModContent.TileType<ReinforcedFurnace>();
 
 		public override void PlayOpenSound()
-			=> Main.PlaySound(SoundLoader.customSoundType, Style: TerraScience.Instance.GetSoundSlot(SoundType.Custom, "Sounds/Custom/SFX chest open"));
+			=> Main.PlaySound(SoundLoader.customSoundType, Style: TechMod.Instance.GetSoundSlot(SoundType.Custom, "Sounds/Custom/SFX chest open"));
 
 		public override void PlayCloseSound()
-			=> Main.PlaySound(SoundLoader.customSoundType, Style: TerraScience.Instance.GetSoundSlot(SoundType.Custom, "Sounds/Custom/SFX chest close"));
+			=> Main.PlaySound(SoundLoader.customSoundType, Style: TechMod.Instance.GetSoundSlot(SoundType.Custom, "Sounds/Custom/SFX chest close"));
 
 		internal override void PanelSize(out int width, out int height){
 			width = 420;
@@ -55,13 +55,15 @@ namespace TerraScience.Content.UI{
 			text[2].SetText($"Progress: {(int)entity.ReactionProgress}%");
 		}
 
+		public static bool ValidItem(Item item){
+			string name = Lang.GetItemNameValue(item.type);
+			return item.IsAir || name.Contains("Wood") || name.Contains("wood");
+		}
+
 		internal override void InitializeSlots(List<UIItemSlot> slots){
 			UIItemSlot input = new UIItemSlot(){
 				//Wood items burn
-				ValidItemFunc = item => {
-					string name = Lang.GetItemNameValue(item.type);
-					return item.IsAir || name.Contains("Wood") || name.Contains("wood");
-				},
+				ValidItemFunc = item => ValidItem(item),
 				HAlign = 0.345f
 			};
 			input.Top.Set(152, 0);

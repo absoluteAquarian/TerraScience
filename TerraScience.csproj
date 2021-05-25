@@ -12,6 +12,7 @@
   </Target>
   <ItemGroup>
     <None Remove="Systems\Energy\TFWire.cs~RF32b509c0.TMP" />
+    <None Remove="Systems\Pathfinding\AStarSimulationEntry.cs~RF17775d31.TMP" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="tModLoader.CodeAssist" Version="0.1.*" />

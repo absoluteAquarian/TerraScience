@@ -47,6 +47,9 @@ namespace TerraScience.Content.TileEntities.Energy.Generators{
 				ReactionProgress = 100;
 				ReactionInProgress = true;
 			}
+
+			eclipseReduce = Main.eclipse;
+			rainReduce = Main.raining && Main.windSpeed != 0;
 		}
 
 		public override TerraFlux GetPowerGeneration(int ticks){
@@ -58,9 +61,6 @@ namespace TerraScience.Content.TileEntities.Energy.Generators{
 
 			//Power generation is at max when it's noon
 			float factor = (fullDay - (float)Math.Abs(fullDay / 2 - Main.time)) / fullDay;
-
-			eclipseReduce = Main.eclipse;
-			rainReduce = Main.raining && Main.windSpeed != 0;
 
 			if(eclipseReduce){
 				//Eclipe reduces power gen

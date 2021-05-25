@@ -12,7 +12,7 @@ namespace TerraScience.Content.Items.Materials{
 		public override void SetDefaults(){
 			item.rare = ItemRarityID.White;
 			item.value = Item.sellPrice(copper: 80);
-			TerraScience.VialDefaults(item);
+			TechMod.VialDefaults(item);
 		}
 
 		public override void AddRecipes(){

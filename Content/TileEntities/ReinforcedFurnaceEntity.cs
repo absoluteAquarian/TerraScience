@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
-using System;
 using Terraria;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
@@ -8,7 +7,6 @@ using TerraScience.Content.API.UI;
 using TerraScience.Content.Tiles.Multitiles;
 using TerraScience.Content.UI;
 using TerraScience.Utilities;
-using Terraria.ID;
 using TerraScience.Content.Items.Materials;
 
 namespace TerraScience.Content.TileEntities{
@@ -57,7 +55,7 @@ namespace TerraScience.Content.TileEntities{
 
 				Vector2 center = TileUtils.TileEntityCenter(this, MachineTile);
 
-				burning = Main.PlaySound(SoundLoader.customSoundType, (int)center.X, (int)center.Y, TerraScience.Instance.GetSoundSlot(SoundType.Custom, "Sounds/Custom/CampfireBurning"));
+				burning = this.PlayCustomSound(center, "CampfireBurning");
 			}else{
 				targetHeat = HeatMin;
 				burning?.Stop();
@@ -80,7 +78,7 @@ namespace TerraScience.Content.TileEntities{
 			 *          M = targetHeat
 			 *          T = Heat
 			 */
-			MachineUILoader loader = TerraScience.Instance.machineLoader;
+			MachineUILoader loader = TechMod.Instance.machineLoader;
 			float dt = (float)loader.lastUpdateUIGameTime.ElapsedGameTime.TotalSeconds;
 
 			if(!Heating && Heat - targetHeat < epsilon){
@@ -144,7 +142,7 @@ namespace TerraScience.Content.TileEntities{
 
 			Vector2 center = TileUtils.TileEntityCenter(this, MachineTile);
 
-			Main.PlaySound(SoundLoader.customSoundType, center, TerraScience.Instance.GetSoundSlot(SoundType.Custom, "Sounds/Custom/Flame Arrow"));
+			this.PlayCustomSound(center, "Flame Arrow");
 		}
 
 		private void Do_Reaction(Item input, Item result){
@@ -168,5 +166,12 @@ namespace TerraScience.Content.TileEntities{
 				Heating = false;
 			}
 		}
+
+		internal override int[] GetInputSlots() => new int[]{ 0 };
+
+		internal override int[] GetOutputSlots() => new int[]{ 1 };
+
+		internal override bool CanInputItem(int slot, Item item)
+			=> slot == 0 && ReinforcedFurnaceUI.ValidItem(item);
 	}
 }

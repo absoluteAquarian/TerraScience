@@ -1,7 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using System;
 using System.Collections.Generic;
 using Terraria;
+using Terraria.ModLoader;
 using Terraria.UI;
 using TerraScience.Content.TileEntities;
 using TerraScience.Content.Tiles.Multitiles;
@@ -37,28 +39,36 @@ namespace TerraScience.Content.UI {
 				interfaces = new Dictionary<string, UserInterface>();
 				states = new Dictionary<string, MachineUI>();
 
-				AddUI(nameof(SaltExtractor), new SaltExtractorUI());
-				AddUI(nameof(ScienceWorkbench), new ScienceWorkbenchUI());
-				AddUI(nameof(ReinforcedFurnace), new ReinforcedFurnaceUI());
-				AddUI(nameof(BlastFurnace), new BlastFurnaceUI());
-				AddUI(nameof(AirIonizer), new AirIonizerUI());
-				AddUI(nameof(Electrolyzer), new ElectrolyzerUI());
-				AddUI(nameof(BasicWindTurbine), new BasicWindTurbineUI());
-				AddUI(nameof(BasicBattery), new BasicBatteryUI());
-				AddUI(nameof(AutoExtractinator), new AutoExtractinatorUI());
-				AddUI(nameof(BasicSolarPanel), new BasicSolarPanelUI());
-				AddUI(nameof(Greenhouse), new GreenhouseUI());
+				var types = TechMod.types;
+				foreach(var type in types){
+					//Ignore abstract classes
+					if(type.IsAbstract)
+						continue;
+
+					if(typeof(MachineUI).IsAssignableFrom(type)){
+						//Not abstract and doesn't have a parameterless ctor?  Throw an exception
+						if(type.GetConstructor(Type.EmptyTypes) is null)
+							throw new TypeLoadException($"Machine UI type \"{type.FullName}\" does not have a parameterless constructor.");
+
+						//Machine UI type.  Try to link the UI to the machine
+						MachineUI state = Activator.CreateInstance(type) as MachineUI;
+						ModTile machine = ModContent.GetModTile(state.TileType);
+
+						if(machine is null)
+							throw new TypeLoadException($"Machine UI type \"{type.FullName}\" had an invalid return value for its \"TileType\" getter property.");
+
+						//Register the UI
+						string name = machine.GetType().Name;
+						state.MachineName = name;
+						interfaces.Add(name, new UserInterface());
+						states.Add(name, state);
+					}
+				}
 
 				// Activate calls Initialize() on the UIState if not initialized, then calls OnActivate and then calls Activate on every child element
 				foreach(var state in states.Values)
 					state.Activate();
 			}
-		}
-
-		private void AddUI(string name, MachineUI state){
-			state.MachineName = name;
-			interfaces.Add(name, new UserInterface());
-			states.Add(name, state);
 		}
 
 		/// <summary>
@@ -82,7 +92,7 @@ namespace TerraScience.Content.UI {
 			int mouseTextIndex = layers.FindIndex(layer => layer.Name.Equals("Vanilla: Mouse Text"));
 
 			if (mouseTextIndex != -1) {
-				layers.Insert(mouseTextIndex, new LegacyGameInterfaceLayer(
+				layers.Insert(mouseTextIndex - 1, new LegacyGameInterfaceLayer(
 					"TerraScience: Machine UI",
 					delegate {
 						foreach(var ui in interfaces.Values)

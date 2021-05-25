@@ -95,20 +95,20 @@ namespace TerraScience.Content.TileEntities.Energy{
 				return;
 
 			//Initialize the randomness
-			TerraScience.wRand.Clear();
+			TechMod.wRand.Clear();
 			for(int i = 0; i < ResultTypes.Count; i++){
-				TerraScience.wRand.Add((ResultTypes[i], ResultStacks[i]), ResultWeights[i]);
+				TechMod.wRand.Add((ResultTypes[i], ResultStacks[i]), ResultWeights[i]);
 			}
 
 			//Do the randomness
-			var result = TerraScience.wRand.Get();
+			var result = TechMod.wRand.Get();
 
 			//Parse the result
 			int type = result.Item1;
 			int stack = result.Item2;
 
 			//Zappy sound
-			Main.PlaySound(SoundLoader.customSoundType, TileUtils.TileEntityCenter(this, MachineTile), TerraScience.Instance.GetSoundSlot(SoundType.Custom, "Sounds/Custom/Zap"));
+			Main.PlaySound(SoundLoader.customSoundType, TileUtils.TileEntityCenter(this, MachineTile), TechMod.Instance.GetSoundSlot(SoundType.Custom, "Sounds/Custom/Zap"));
 
 			//Then try and either add to an existing stack or insert it into the first available slot
 			//Check for existing stacks first, then empty slots
@@ -137,5 +137,12 @@ namespace TerraScience.Content.TileEntities.Energy{
 				}
 			}
 		}
+
+		// TODO: Wait to implement these until after the machine has a use again
+		internal override int[] GetInputSlots() => new int[0];
+
+		internal override int[] GetOutputSlots() => new int[0];
+
+		internal override bool CanInputItem(int slot, Item item) => false;
 	}
 }

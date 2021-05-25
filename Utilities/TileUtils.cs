@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.Enums;
@@ -15,7 +16,7 @@ using TerraScience.Content.TileEntities;
 using TerraScience.Content.TileEntities.Energy;
 using TerraScience.Content.Tiles.Multitiles;
 using TerraScience.Content.UI;
-using TerraScience.Systems.Energy;
+using TerraScience.Systems;
 
 namespace TerraScience.Utilities{
 	public static class TileUtils{
@@ -26,14 +27,24 @@ namespace TerraScience.Utilities{
 
 		public static Dictionary<int, string> tileToStructureName;
 
-		public static void Register<TTile, TEntity>() where TTile : Machine where TEntity : MachineEntity{
-			var tType = ModContent.TileType<TTile>();
-			var eInst = ModContent.GetInstance<TEntity>();
+		public static void RegisterAllEntities(){
+			var types = TechMod.types;
+			foreach(var type in types){
+				if(type.IsAbstract)
+					continue;
 
-			tileToEntity.Add(tType, eInst);
-			tileToStructureName.Add(tType, typeof(TTile).Name);
+				if(typeof(MachineEntity).IsAssignableFrom(type)){
+					var entity = TechMod.Instance.GetTileEntity(type.Name) as MachineEntity;
+					var tileType = entity.MachineTile;
 
-			TerraScience.Instance.Logger.Debug($"Registered tile type \"{typeof(TTile).FullName}\" (ID: {tType}) with entity \"{typeof(TEntity).FullName}\"");
+					Type tileTypeInst = TileLoader.GetTile(tileType).GetType();
+
+					tileToEntity.Add(tileType, entity);
+					tileToStructureName.Add(tileType, tileTypeInst.Name);
+
+					TechMod.Instance.Logger.Debug($"Registered tile type \"{tileTypeInst.FullName}\" (ID: {tileType}) with entity \"{type.FullName}\"");
+				}
+			}
 		}
 
 		public static Vector2 TileEntityCenter(TileEntity entity, int tileType) {
@@ -68,8 +79,6 @@ namespace TerraScience.Utilities{
 			int itemIndex = Item.NewItem(i * 16, j * 16, 16, 16, itemType);
 			MachineItem item = Main.item[itemIndex].modItem as MachineItem;
 
-		//	Main.NewText($"Spawned item \"{item.Name}\" at tile position ({i}, {j})");
-
 			Point16 tePos = new Point16(i, j) - tile.TileCoord();
 			if(TileEntity.ByPosition.ContainsKey(tePos)){
 				MachineEntity tileEntity = TileEntity.ByPosition[tePos] as MachineEntity;
@@ -92,11 +101,8 @@ namespace TerraScience.Utilities{
 				item.entityData = tileEntity.Save();
 
 				//Remove this machine from the wire networks if it's a powered machine
-				if(tileEntity is PoweredMachineEntity pme){
+				if(tileEntity is PoweredMachineEntity pme)
 					NetworkCollection.RemoveMachine(pme);
-
-				//	Main.NewText($"Removed machine \"{tileEntity.MachineName}\" at position ({i}, {j}) from all networks");
-				}
 
 				tileEntity.Kill(i, j);
 
@@ -119,6 +125,7 @@ namespace TerraScience.Utilities{
 			TileObjectData.newTile.LavaPlacement = LiquidPlacement.NotAllowed;
 			TileObjectData.newTile.WaterPlacement = LiquidPlacement.NotAllowed;
 			TileObjectData.newTile.Origin = new Point16((int)width / 2, (int)height - 1);
+			TileObjectData.newTile.UsesCustomCanPlace = true;
 
 			TileObjectData.addTile(type);
 
@@ -134,7 +141,7 @@ namespace TerraScience.Utilities{
 
 		public static bool HandleMouse<TEntity>(Machine machine, Point16 tilePos, Func<bool> additionalCondition) where TEntity : MachineEntity{
 			if(MiscUtils.TryGetTileEntity(tilePos, out TEntity entity) && additionalCondition()){
-				TerraScience instance = TerraScience.Instance;
+				TechMod instance = TechMod.Instance;
 				string name = tileToStructureName[instance.TileType(machine.Name)];
 
 				UserInterface ui = instance.machineLoader.GetInterface(name);
@@ -152,6 +159,82 @@ namespace TerraScience.Utilities{
 			}
 
 			return false;
+		}
+
+		public static bool TryExtractItems(this Chest chest, int stackToExtract, List<int> slots, out Item item){
+			int id = Chest.FindChest(chest.x, chest.y);
+
+			void SyncSlot(int slot){
+				if(Main.netMode != NetmodeID.SinglePlayer)
+					NetMessage.SendData(MessageID.SyncChestItem, number: id, number2: slot, number3: 0);
+			}
+
+			item = null;
+			for(int i = 0; i < slots.Count; i++){
+				Item slotItem = chest.item[slots[i]];
+				if(slotItem.IsAir)
+					continue;
+
+				if(item is null || slotItem.type == item.type){
+					if(item is null){
+						//Just use this item directly
+						item = slotItem.Clone();
+						
+						if(item.stack > stackToExtract){
+							item.stack = stackToExtract;
+							slotItem.stack -= stackToExtract;
+							stackToExtract = 0;
+
+							SyncSlot(i);
+						}else{
+							stackToExtract -= item.stack;
+							slotItem.stack = 0;
+
+							SyncSlot(i);
+						}
+					}else{
+						//Add to the stack of the output item
+						if(slotItem.stack < stackToExtract){
+							stackToExtract -= slotItem.stack;
+							item.stack += slotItem.stack;
+							slotItem.stack = 0;
+
+							SyncSlot(i);
+						}else{
+							item.stack += stackToExtract;
+							slotItem.stack -= stackToExtract;
+							stackToExtract = 0;
+
+							SyncSlot(i);
+						}
+					}
+				}
+
+				if(stackToExtract <= 0)
+					break;
+			}
+
+			return item != null;
+		}
+
+		public static bool IsFull(this Chest chest, Item incoming){
+			int stack = incoming.stack;
+
+			for(int i = 0; i < chest.item.Length; i++){
+				Item chestItem = chest.item[i];
+
+				if(chestItem.IsAir)
+					return false;
+				else if(chestItem.type == incoming.type){
+					if(chestItem.stack + incoming.stack <= chestItem.maxStack)
+						return false;
+					else
+						stack -= chestItem.maxStack - chestItem.stack;
+				}
+			}
+
+			//Full stack couldn't be put into the chest
+			return stack <= 0;
 		}
 	}
 

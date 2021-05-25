@@ -1,214 +1,250 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.ModLoader;
+using Terraria.ModLoader.IO;
 using TerraScience.Content.TileEntities.Energy;
 using TerraScience.Content.TileEntities.Energy.Generators;
 using TerraScience.Content.TileEntities.Energy.Storage;
+using TerraScience.Content.Tiles;
 using TerraScience.Content.Tiles.Energy;
-using TerraScience.Utilities;
 
 namespace TerraScience.Systems.Energy{
-	public class WireNetwork{
-		//Used to make finding wires faster...
-		private HashSet<TFWire> hash = new HashSet<TFWire>();
+	public class WireNetwork : Network<TFWire, TFWireTile>{
+		public TerraFlux totalExportedFlux;
 
-		public List<PoweredMachineEntity> connectedMachines = new List<PoweredMachineEntity>();
+		public TerraFlux StoredFlux{ get; internal set; }
 
-		public readonly int id;
+		public TerraFlux Capacity{ get; internal set; }
 
-		private static int nextID = 0;
+		public TerraFlux ExportRate{ get; internal set; }
 
-		public WireNetwork(){
-			id = nextID++;
-		}
+		public TerraFlux ImportRate{ get; internal set; }
 
-		public override bool Equals(object obj)
-			=> obj is WireNetwork network && id == network.id;
+		private bool needsRateRefresh;
 
-		public override int GetHashCode()
-			=> id;
+		internal override JunctionType Type => JunctionType.Wires;
 
-		public static bool operator ==(WireNetwork first, WireNetwork second)
-			=> first?.id == second?.id;
-
-		public static bool operator !=(WireNetwork first, WireNetwork second)
-			=> first?.id != second?.id;
-
-		public static WireNetwork CombineNetworks(params WireNetwork[] networks){
-			WireNetwork network = new WireNetwork();
-
-			var hashList = networks.SelectMany(n => n.hash).Distinct().ToList();
-			for(int i = 0; i < hashList.Count; i++)
-				hashList[i] = new TFWire(hashList[i].location, network);
-			network.hash = new HashSet<TFWire>(hashList);
-
-			network.connectedMachines = networks.SelectMany(n => n.connectedMachines).Distinct().ToList();
-
-			return network;
-		}
-
-		public void RefreshConnections(){
-			//Start from the first wire, then keep adding adjacent wires and machines until the network is fully combed through
-			TFWire wire = GetWires()[0];
-
-			//Clear the collections
-			hash.Clear();
-			connectedMachines.Clear();
-
-			//Initialize some vars
-			List<Point16> pos = new List<Point16>(){
-				wire.location
+		public WireNetwork() : base(){
+			OnClear += () => {
+				Capacity = new TerraFlux(0f);
+				totalExportedFlux = new TerraFlux(0f);
+				needsRateRefresh = true;
 			};
-			List<Point16> tiles = new List<Point16>();
-			int type = ModContent.TileType<TFWireTile>();
+			OnEntryPlace += pos => {
+				Tile tile = Framing.GetTileSafely(pos.X, pos.Y);
+				var mTile = ModContent.GetModTile(tile.type);
+				
+				TerraFlux cap = new TerraFlux(0f);
 
-			//Local functions to make code shorter
-			bool Valid(Point16 p) => p.X >= 0 && p.X < Main.maxTilesX && p.Y >= 0 && p.Y < Main.maxTilesY;
-			void TryAddWire(Point16 dir){
-				if(pos.Contains(dir))
+				if(mTile is TFWireTile wire)
+					cap = wire.Capacity;
+				else if(mTile is TransportJunction junction)
+					cap = ModContent.GetInstance<TFWireTile>().Capacity;
+				else
 					return;
 
-				Tile tile = null;
-				if(Valid(dir))
-					tile = Framing.GetTileSafely(dir);
+				Capacity += cap;
 
-				if(tile?.type == type)
-					pos.Add(dir);
-			}
-			void TryAddMachine(Point16 dir){
-				if(tiles.Contains(dir))
+				needsRateRefresh = true;
+			};
+			OnEntryKill += pos => {
+				Tile tile = Framing.GetTileSafely(pos.X, pos.Y);
+				var mTile = ModContent.GetModTile(tile.type);
+				TerraFlux cap = new TerraFlux(0f);
+				if(mTile is TFWireTile wire)
+					cap = wire.Capacity;
+				else if(mTile is TransportJunction junction)
+					cap = ModContent.GetInstance<TFWireTile>().Capacity;
+				else
 					return;
 
-				Tile tile = null;
-				if(Valid(dir))
-					tile = Framing.GetTileSafely(dir);
+				Capacity -= cap;
+				StoredFlux -= cap;
 
-				//Must be a machine tile
-				if(!TileUtils.tileToEntity.ContainsKey(tile.type))
-					return;
+				if((float)StoredFlux < 0)
+					StoredFlux = new TerraFlux(0f);
 
-				//Top-leftmost tile
-				Point16 origin = dir - tile.TileCoord();
+				needsRateRefresh = true;
+			};
+		}
 
-				if(TileEntity.ByPosition.ContainsKey(origin) && TileEntity.ByPosition[origin] is PoweredMachineEntity)
-					tiles.Add(origin);
+		public override TagCompound Save()
+			=> new TagCompound(){
+				["flux"] = (float)StoredFlux
+			};
+
+		public override void Load(TagCompound tag){
+			StoredFlux = new TerraFlux(tag.GetFloat("flux"));
+
+			RefreshConnections(NetworkCollection.ignoreCheckLocation);
+		}
+
+		public override TagCompound CombineSave()
+			=> new TagCompound(){
+				["flux"] = (float)StoredFlux
+			};
+
+		public override void LoadCombinedData(TagCompound up, TagCompound left, TagCompound right, TagCompound down){
+			TerraFlux total = new TerraFlux(up?.GetFloat("flux") ?? 0);
+			total += new TerraFlux(left?.GetFloat("flux") ?? 0);
+			total += new TerraFlux(right?.GetFloat("flux") ?? 0);
+			total += new TerraFlux(down?.GetFloat("flux") ?? 0);
+
+			StoredFlux = total;
+		}
+
+		public override void SplitDataAcrossNetworks(Point16 splitOrig){
+			NetworkCollection.HasWireAt(splitOrig + new Point16(0, -1), out WireNetwork upNet);
+			NetworkCollection.HasWireAt(splitOrig + new Point16(-1, 0), out WireNetwork leftNet);
+			NetworkCollection.HasWireAt(splitOrig + new Point16(1, 0), out WireNetwork rightNet);
+			NetworkCollection.HasWireAt(splitOrig + new Point16(0, 1), out WireNetwork downNet);
+
+			List<WireNetwork> nets = new List<WireNetwork>();
+			if(upNet != null)
+				nets.Add(upNet);
+			if(leftNet != null && !nets.Contains(leftNet))
+				nets.Add(leftNet);
+			if(rightNet != null && !nets.Contains(rightNet))
+				nets.Add(rightNet);
+			if(downNet != null && !nets.Contains(downNet))
+				nets.Add(downNet);
+
+			nets = nets.OrderBy(n => (float)n.Capacity).Distinct().ToList();
+
+			foreach(var net in nets){
+				net.StoredFlux = new TerraFlux(Math.Min((float)StoredFlux, (float)net.Capacity));
+				StoredFlux -= net.StoredFlux;
+
+				if((float)StoredFlux <= 0)
+					break;
+			}
+		}
+
+		private void RefreshRates(){
+			if(!needsRateRefresh)
+				return;
+
+			needsRateRefresh = false;
+
+			TerraFlux import = new TerraFlux(0f);
+			TerraFlux export = new TerraFlux(0f);
+
+			int count = 0;
+
+			var inst = ModContent.GetInstance<TFWireTile>();
+
+			foreach(var wire in Hash){
+				ModTile tile = ModContent.GetModTile(Framing.GetTileSafely(wire.Position).type);
+
+				if(tile is null)
+					continue;
+
+				if(tile is TransportJunction){
+					import += inst.ImportRate;
+					export += inst.ExportRate;
+				}else if(tile is TFWireTile wireTile){
+					import += wireTile.ImportRate;
+					export += wireTile.ExportRate;
+				}else
+					continue;
+
+				count++;
 			}
 
-			//Keep on looping
-			//As new positions are added, the loop will run for longer and longer
-			//Positions already added will be skipped over
-			for(int i = 0; i < pos.Count; i++){
-				Point16 loc = pos[i];
-
-				Point16 up = loc + new Point16(0, -1);
-				Point16 left = loc + new Point16(-1, 0);
-				Point16 right = loc + new Point16(1, 0);
-				Point16 down = loc + new Point16(0, 1);
-
-				TryAddWire(up);
-				TryAddWire(left);
-				TryAddWire(right);
-				TryAddWire(down);
-
-				TryAddMachine(up);
-				TryAddMachine(left);
-				TryAddMachine(right);
-				TryAddMachine(down);
+			if(count == 0){
+				ImportRate = new TerraFlux(0f);
+				ExportRate = new TerraFlux(0f);
+			}else{
+				ImportRate = import / count;
+				ExportRate = export / count;
 			}
-
-			//Convert the positions back to wires and machines...
-			hash = new HashSet<TFWire>(pos.Select(p => new TFWire(p, this)));
-			connectedMachines = new List<PoweredMachineEntity>(tiles.Select(p => TileEntity.ByPosition[p] as PoweredMachineEntity));
-		}
-
-		public void AddWire(TFWire wire)
-			=> hash.Add(wire);
-
-		public void RemoveWire(TFWire wire){
-			hash.Remove(wire);
-		}
-
-		public void RemoveWireAt(Point16 location){
-			hash.RemoveWhere(wire => wire.location == location);
-		}
-
-		public void AddMachine(PoweredMachineEntity machine){
-			if(!connectedMachines.Contains(machine))
-				connectedMachines.Add(machine);
-		}
-
-		public void RemoveMachine(PoweredMachineEntity machine){
-			connectedMachines.Remove(machine);
 		}
 
 		/// <summary>
-		/// Sends the received <paramref name="flux"/> to the machines connected to this network.
+		/// Sends the <paramref name="flux"/> from the <paramref name="source"/> machine to this network
 		/// </summary>
+		/// <param name="source">The source of the TF</param>
 		/// <param name="flux">Terra Flux; the power unit for TerraScience machines</param>
-		public void ExportFlux(GeneratorEntity source, TerraFlux flux){
-			//Send the flux to a machine, but only if it's not a generator
+		internal void ImportFlux(GeneratorEntity source, ref TerraFlux flux){
+			RefreshRates();
+
 			List<PoweredMachineEntity> machines = new List<PoweredMachineEntity>();
 
-			foreach(PoweredMachineEntity machine in connectedMachines)
+			foreach(PoweredMachineEntity machine in ConnectedMachines)
 				if((!(machine is GeneratorEntity) || machine is Battery) && !object.ReferenceEquals(machine, source))
 					machines.Add(machine);
 
 			//More machines = less flux to each machine
 			if(machines.Count > 0){
-				source.StoredFlux -= flux;
+				TerraFlux receive = flux;
 
-				TerraFlux orig = flux;
-				TerraFlux excess = new TerraFlux(0f);
+				//Too much power coming in.  Send the rest of it back to the machine
+				if(receive > ImportRate){
+					receive = ImportRate;
+					flux -= receive;
+				}else
+					flux = new TerraFlux(0f);
 
-				foreach(PoweredMachineEntity machine in machines){
-					TerraFlux send = orig / machines.Count;
-
-					if(machine is Battery battery && send > battery.ImportRate){
-						TerraFlux preSend = send;
-						send = battery.ImportRate;
-						//Add the extra power to the excess pool
-						excess += preSend - send;
+				if(StoredFlux + receive <= Capacity){
+					//Able to put energy into the system
+					
+					if(source.StoredFlux >= receive){
+						//Able to remove energy from the machine
+						source.StoredFlux -= receive;
+					}else{
+						receive = source.StoredFlux;
+						source.StoredFlux = new TerraFlux(0f);
 					}
 
+					StoredFlux += receive;
+				}else{
+					//Energy would overflow.  Put the remainder back into the generator
+					TerraFlux diff = Capacity - StoredFlux;
+					StoredFlux = Capacity;
+
+					source.StoredFlux -= diff;
+				}
+			}
+		}
+
+		/// <summary>
+		/// Exports Terra Flux (TF) to the machines connected to this network
+		/// </summary>
+		internal void ExportFlux(){
+			RefreshRates();
+
+			//Send the flux to a machine, but only if it's not a generator
+			List<PoweredMachineEntity> machines = new List<PoweredMachineEntity>();
+
+			foreach(PoweredMachineEntity machine in ConnectedMachines)
+				if(!(machine is GeneratorEntity) || machine is Battery)
+					machines.Add(machine);
+
+			if(machines.Count > 0){
+				foreach(var machine in machines){
+					float export = Math.Max((float)ExportRate, (float)(machine is Battery battery ? battery.ImportRate : machine.FluxUsage));
+					TerraFlux send = new TerraFlux(Math.Min((float)StoredFlux, export));
+
+					TerraFlux origSend = send;
+
+					if((float)send <= 0f)
+						break;
+
+					StoredFlux -= send;
+
 					machine.ImportFlux(ref send);
-					excess += send;
-				}
 
-				source.ImportFlux(ref excess);
-			}
-		}
+					totalExportedFlux += origSend - send;
 
-		public List<TFWire> GetWires()
-			=> hash.ToList();
-
-		public bool HasWire(TFWire wire)
-			=> hash.Contains(wire);
-
-		public bool HasWireAt(Point16 location){
-			//Short-circuit bad inputs
-			if(location.X < 0 || location.X >= Main.maxTilesX || location.Y < 0 || location.Y >= Main.maxTilesY)
-				return false;
-
-			//TFWire only checks location when placed in a hash, so that's good enough for us
-			TFWire wire = new TFWire(location, this);
-
-			return hash.Contains(wire);
-		}
-
-		public void Cleanup(){
-			var wires = GetWires();
-
-			for(int i = 0; i < wires.Count; i++){
-				Point16 location = wires[i].location;
-				if(Framing.GetTileSafely(location).type != ModContent.TileType<TFWireTile>()){
-					wires.RemoveAt(i);
-					i--;
+					StoredFlux += send;
 				}
 			}
 
-			hash = new HashSet<TFWire>(wires);
+			if(StoredFlux > Capacity)
+				StoredFlux = Capacity;
 		}
 	}
 }

@@ -8,7 +8,7 @@ namespace TerraScience.Content.Items.Materials{
 		public override string Texture => "Terraria/Item_" + ItemID.Coal;
 
 		public override void SetStaticDefaults(){
-			DisplayName.SetDefault("Coal");
+			DisplayName.SetDefault("Charcoal");
 			Tooltip.SetDefault("Carbon that's been compressed to a rough ball.");
 		}
 

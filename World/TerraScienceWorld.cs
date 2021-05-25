@@ -1,8 +1,22 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using System;
+using System.Collections.Generic;
+using Terraria;
+using Terraria.DataStructures;
+using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
+using Terraria.UI;
 using Terraria.World.Generation;
+using TerraScience.API.Interfaces;
+using TerraScience.Content.Items.Placeable;
+using TerraScience.Content.Items.Tools;
+using TerraScience.Content.Tiles;
+using TerraScience.Systems;
 using TerraScience.Systems.Energy;
+using TerraScience.Systems.Pipes;
+using TerraScience.Utilities;
 
 namespace TerraScience.World{
 	public class TerraScienceWorld : ModWorld{
@@ -12,7 +26,8 @@ namespace TerraScience.World{
 
 		public override TagCompound Save()
 			=> new TagCompound(){
-				["networks"] = NetworkCollection.Save()
+				["networks"] = NetworkCollection.Save(),
+				["mufflers"] = MachineMufflerTile.mufflers
 			};
 
 		public override void Load(TagCompound tag){
@@ -20,6 +35,9 @@ namespace TerraScience.World{
 
 			if(tag.ContainsKey("networks"))
 				NetworkCollection.Load(tag.GetCompound("networks"));
+
+			if(tag.GetList<Point16>("mufflers") is List<Point16> list)
+				MachineMufflerTile.mufflers = list;
 		}
 
 		public override void PreUpdate(){
@@ -28,6 +46,178 @@ namespace TerraScience.World{
 
 		public override void PostUpdate(){
 			NetworkCollection.CleanupNetworks();
+		}
+
+		private void DrawNetTiles<TEntry>(List<TEntry> entries, Color drawColor) where TEntry : struct, INetworkable, INetworkable<TEntry>{
+			var texture = ModContent.GetTexture("TerraScience/Content/Items/FakeCapsuleFluidItem");
+
+			Rectangle screen = new Rectangle((int)Main.screenPosition.X - 4, (int)Main.screenPosition.Y - 4, (int)(Main.screenWidth * Main.GameZoomTarget) + 8, (int)(Main.screenHeight * Main.GameZoomTarget) + 8);
+			foreach(var wire in entries){
+				Vector2 screenPos = wire.Position.ToWorldCoordinates(0, 0);
+
+				Rectangle tile = new Rectangle((int)screenPos.X, (int)screenPos.Y, 16, 16);
+				if(!tile.Intersects(screen))
+					continue;
+
+				screenPos -= Main.screenPosition;
+				
+				Main.spriteBatch.Draw(texture, screenPos, null, drawColor);
+			}
+		}
+
+		public static void DrawItemInPipe(ItemNetworkPath path, SpriteBatch spriteBatch){
+			//We need to emulate drawing items in the world, but shrinked into the bounds of a pipe
+			Item item = ItemIO.Load(path.itemData);
+
+			var offset = MiscUtils.GetLightingDrawOffset();
+
+			spriteBatch.DrawItemInWorld(item, path.worldCenter - Main.screenPosition + offset, new Vector2(3.85f * 2));
+		}
+
+		public override void PostDrawTiles(){
+			bool began = false;
+
+			//Draw any junction stuff
+			if(Main.LocalPlayer.HeldItem.modItem is TransportJunctionItem){
+				if(!string.IsNullOrWhiteSpace(TransportJunctionItem.display) && TransportJunctionItem.displayTimer >= 0){
+					Vector2 measure = Main.fontMouseText.MeasureString(TransportJunctionItem.display);
+					Vector2 position = Main.LocalPlayer.Top - new Vector2(0, 20) - Main.screenPosition;
+
+					Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullNone, null);
+					began = true;
+
+					Utils.DrawBorderStringFourWay(Main.spriteBatch, Main.fontMouseText,
+						TransportJunctionItem.display,
+						position.X,
+						position.Y,
+						Color.Yellow,
+						Color.Black,
+						measure / 2f);
+				}
+
+				if(TransportJunctionItem.displayTimer >= 0)
+					TransportJunctionItem.displayTimer--;
+			}else{
+				TransportJunctionItem.display = null;
+				TransportJunctionItem.displayTimer = -1;
+			}
+
+			if(!TechMod.debugging){
+				if(began)
+					Main.spriteBatch.End();
+
+				return;
+			}
+
+			if(Main.LocalPlayer.HeldItem.type != ModContent.ItemType<DebugTool>() || Main.LocalPlayer.inventory[58].type == ModContent.ItemType<DebugTool>()){
+				if(began)
+					Main.spriteBatch.End();
+
+				return;
+			}
+
+			Point16 mouse = Main.MouseWorld.ToTileCoordinates16();
+
+			bool hasWire = NetworkCollection.HasWireAt(mouse, out WireNetwork wireNet);
+			bool hasItem = NetworkCollection.HasItemPipeAt(mouse, out ItemNetwork itemNet);
+			bool hasFluid = NetworkCollection.HasFluidPipeAt(mouse, out FluidNetwork fluidNet);
+			if(!hasWire && !hasItem && !hasFluid){
+				if(began)
+					Main.spriteBatch.End();
+
+				return;
+			}
+
+			if(!began)
+				Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullNone, null);
+
+			//For every wire on-screen in the network the player's mouse is hovering over, draw an indicator
+			if(hasWire)
+				DrawNetTiles(wireNet.GetEntries(), Color.Blue * 0.45f);
+			if(hasItem)
+				DrawNetTiles(itemNet.GetEntries(), Color.Green * 0.45f);
+			if(hasFluid)
+				DrawNetTiles(fluidNet.GetEntries(), Color.Red * 0.45f);
+
+			//Then draw what network is being targeted
+			Vector2 offset = Main.MouseScreen + new Vector2(20, 20);
+			bool hasOffset = false;
+
+			if(wireNet != null){
+				hasOffset = true;
+
+				Utils.DrawBorderStringFourWay(Main.spriteBatch, Main.fontMouseText,
+					$"Targeting Wire Network (ID: {wireNet.ID})",
+					offset.X,
+					offset.Y,
+					Color.Blue,
+					Color.Black,
+					Vector2.Zero);
+
+				Utils.DrawBorderStringFourWay(Main.spriteBatch, Main.fontMouseText,
+					$"Stored TF: {(float)wireNet.StoredFlux :0.##} / {(float)wireNet.Capacity :0.##} TF",
+					offset.X,
+					offset.Y += 20,
+					Color.White,
+					Color.Black,
+					Vector2.Zero);
+
+				Utils.DrawBorderStringFourWay(Main.spriteBatch, Main.fontMouseText,
+					$"Exported Flux: {(float)wireNet.totalExportedFlux :0.##} TF/t ({(float)wireNet.totalExportedFlux * 60 :0.##} TF/s)",
+					offset.X,
+					offset.Y += 20,
+					Color.White,
+					Color.Black,
+					Vector2.Zero);
+			}
+			if(itemNet != null){
+				Utils.DrawBorderStringFourWay(Main.spriteBatch, Main.fontMouseText,
+					$"Targeting Item Network (ID: {itemNet.ID})",
+					offset.X,
+					!hasOffset ? offset.Y : (offset.Y += 20),
+					Color.Green,
+					Color.Black,
+					Vector2.Zero);
+
+				hasOffset = true;
+
+				Utils.DrawBorderStringFourWay(Main.spriteBatch, Main.fontMouseText,
+					$"Item Stacks in Network: {itemNet.paths.Count}",
+					offset.X,
+					offset.Y += 20,
+					Color.White,
+					Color.Black,
+					Vector2.Zero);
+
+				Utils.DrawBorderStringFourWay(Main.spriteBatch, Main.fontMouseText,
+					$"Connected Chests: {itemNet.chests.Count}",
+					offset.X,
+					offset.Y += 20,
+					Color.White,
+					Color.Black,
+					Vector2.Zero);
+
+				Utils.DrawBorderStringFourWay(Main.spriteBatch, Main.fontMouseText,
+					$"Pipes Connected to Chests: {itemNet.pipesConnectedToChests.Count}",
+					offset.X,
+					offset.Y += 20,
+					Color.White,
+					Color.Black,
+					Vector2.Zero);
+
+				Utils.DrawBorderStringFourWay(Main.spriteBatch, Main.fontMouseText,
+					$"Pipes Connected to Machines: {itemNet.pipesConnectedToMachines.Count}",
+					offset.X,
+					offset.Y += 20,
+					Color.White,
+					Color.Black,
+					Vector2.Zero);
+			}
+			if(fluidNet != null){
+				// TODO: display liquid type that's flowing through network
+			}
+
+			Main.spriteBatch.End();
 		}
 	}
 }

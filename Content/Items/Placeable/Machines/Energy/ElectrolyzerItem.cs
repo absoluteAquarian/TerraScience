@@ -4,8 +4,6 @@ using TerraScience.Content.Tiles.Multitiles.EnergyMachines;
 
 namespace TerraScience.Content.Items.Placeable.Machines.Energy{
 	public class ElectrolyzerItem : MachineItem<Electrolyzer>{
-		public override string Texture => "TerraScience/Content/Items/Placeable/Machines/TemporaryMachineSprite";
-
 		public override string ItemName => "Electrolyzer";
 		public override string ItemTooltip => "TODO";
 

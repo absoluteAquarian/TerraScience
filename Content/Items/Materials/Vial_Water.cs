@@ -13,7 +13,7 @@ namespace TerraScience.Content.Items.Materials{
 		public override void SetDefaults(){
 			item.rare = ItemRarityID.Blue;
 			item.value = Item.sellPrice(silver: 1);
-			TerraScience.VialDefaults(item);
+			TechMod.VialDefaults(item);
 		}
 	}
 }

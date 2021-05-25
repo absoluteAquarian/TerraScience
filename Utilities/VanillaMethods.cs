@@ -11,6 +11,8 @@ namespace TerraScience.Utilities{
 		/// <param name="type">The item type extracted.  A type of 0 means nothing was extracted</param>
 		/// <param name="stack">The stack of the item type extracted</param>
 		public static void Player_ExtractinatorUse(int extractType, out int type, out int stack){
+			// TODO: make this an IL edit for maximum mod compatability
+
 			int amberMosquitoChance = 5000;
 			int gemsNotAmberChance = 25;
 			int gemsAmberChance = 50;

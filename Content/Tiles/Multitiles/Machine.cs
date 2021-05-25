@@ -8,7 +8,9 @@ using TerraScience.Content.Items.Placeable.Machines;
 using TerraScience.Content.TileEntities;
 using TerraScience.Content.TileEntities.Energy;
 using TerraScience.Content.UI;
+using TerraScience.Systems;
 using TerraScience.Systems.Energy;
+using TerraScience.Systems.Pipes;
 using TerraScience.Utilities;
 
 namespace TerraScience.Content.Tiles.Multitiles{
@@ -21,10 +23,14 @@ namespace TerraScience.Content.Tiles.Multitiles{
 		public abstract void GetDefaultParams(out string mapName, out uint width, out uint height, out int itemType);
 
 		/// <summary>
-		/// Return <seealso cref="TileUtils.HandleMouse{TEntity}(Point16, string, Func{bool})"/> for your MachineEntity here.
+		/// Return <seealso cref="TileUtils.HandleMouse{TEntity}(Machine, Point16, Func{bool})"/> for your MachineEntity here.
 		/// </summary>
 		public abstract bool HandleMouse(Point16 pos);
 
+		/// <summary>
+		/// Allows you to let things happen before the UI is attempted to be opened for this machine.
+		/// Return <see langword="true"/> to prevent <seealso cref="HandleMouse(Point16)"/> from executing
+		/// </summary>
 		public virtual bool PreHandleMouse(Point16 pos) => false;
 
 		public sealed override bool NewRightClick(int i, int j) {
@@ -48,11 +54,13 @@ namespace TerraScience.Content.Tiles.Multitiles{
 				player.mouseInterface = true;
 				player.noThrow = 2;
 				player.showItemIcon = true;
-				player.showItemIcon2 = TerraScience.Instance.machineLoader.GetState<MachineUI>(entity.MachineName).GetIconType();
+				player.showItemIcon2 = TechMod.Instance.machineLoader.GetState<MachineUI>(entity.MachineName).GetIconType();
 			}
 		}
 
 		public override void PlaceInWorld(int i, int j, Item item){
+			// TODO: TileObject.CanPlace is throwing null-ref exceptions.  why???
+
 			MachineItem mItem = item.modItem as MachineItem;
 
 			GetDefaultParams(out _, out uint width, out uint height, out _);
@@ -60,18 +68,6 @@ namespace TerraScience.Content.Tiles.Multitiles{
 			Point16 tePos = new Point16(i, j) - new Point16((int)width / 2, (int)height - 1);
 
 			int type = (item.modItem as MachineItem).TileType;
-
-			/*
-			Main.NewText($"Attempting to access entity dictionary with type \"{ModContent.GetModTile(type).Name}\" (ID: {type})");
-
-			StringBuilder sb = new StringBuilder(200);
-			sb.Append("Keys: ");
-			foreach(var key in TileUtils.tileToEntity.Keys)
-				sb.Append($"\"{ModContent.GetModTile(key).Name}\" ({key}), ");
-			sb.Remove(sb.Length - 2, 2);
-
-			Main.NewText(sb.ToString());
-			*/
 
 			MachineEntity entity = TileUtils.tileToEntity[type];
 
@@ -84,35 +80,39 @@ namespace TerraScience.Content.Tiles.Multitiles{
 
 			//Restore the saved data, if it exists
 			MachineEntity placed = TileEntity.ByPosition[tePos] as MachineEntity;
-			if(mItem.entityData != null){
+			if(mItem.entityData != null)
 				placed.Load(mItem.entityData);
 
-			//	Main.NewText("Machine loaded data from item");
-			}
-
 			//If this structure has a powered entity on it, try to connect it to nearby networks
-			if(placed is PoweredMachineEntity pme){
-				Point16 checkOrig = tePos - new Point16(1, 1);
+			Point16 checkOrig = tePos - new Point16(1, 1);
 
-				for(int cx = checkOrig.X; cx < checkOrig.X + width + 2; cx++){
-					for(int cy = checkOrig.Y; cy < checkOrig.Y + height + 2; cy++){
-						WorldGen.TileFrame(cx, cy);
+			bool canUseWires = placed is PoweredMachineEntity;
+			bool canUseItemPipes = placed.SlotsCount > 0;
+			bool canUseFluidPipes = placed is ILiquidMachine || placed is IGasMachine;
 
-						//Ignore the corners
-						if((cx == 0 && cy == 0) || (cx == width + 1 && cy == 0) || (cx == 0 && cy == height + 1) || (cx == width + 1 && cy == height + 1))
-							continue;
+			for(int cx = checkOrig.X; cx < checkOrig.X + width + 2; cx++){
+				for(int cy = checkOrig.Y; cy < checkOrig.Y + height + 2; cy++){
+					WorldGen.TileFrame(cx, cy);
 
-						if(NetworkCollection.HasWireAt(new Point16(cx, cy), out WireNetwork net) && !net.connectedMachines.Contains(pme)){
-							net.connectedMachines.Add(pme);
+					//Ignore the corners
+					if((cx == 0 && cy == 0) || (cx == width + 1 && cy == 0) || (cx == 0 && cy == height + 1) || (cx == width + 1 && cy == height + 1))
+						continue;
 
-						//	Main.NewText($"Connected machine \"{pme.MachineName}\" to network {net.id}");
-						}
+					Point16 test = new Point16(cx, cy);
+
+					if(canUseWires && NetworkCollection.HasWireAt(test, out WireNetwork wireNet))
+						wireNet.AddMachine(placed);
+					if(canUseItemPipes && NetworkCollection.HasItemPipeAt(test, out ItemNetwork itemNet)){
+						itemNet.AddMachine(placed);
+						itemNet.pipesConnectedToMachines.Add(test);
 					}
+					if(canUseFluidPipes && NetworkCollection.HasFluidPipeAt(test, out FluidNetwork fluidNet))
+						fluidNet.AddMachine(placed);
 				}
-
-				if(Main.netMode == NetmodeID.MultiplayerClient)
-					NetMessage.SendTileRange(Main.myPlayer, checkOrig.X, checkOrig.Y, (int)width + 1, (int)height + 1);
 			}
+
+			if(Main.netMode == NetmodeID.MultiplayerClient)
+				NetMessage.SendTileRange(Main.myPlayer, checkOrig.X, checkOrig.Y, (int)width + 1, (int)height + 1);
 		}
 	}
 }

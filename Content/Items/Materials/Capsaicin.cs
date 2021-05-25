@@ -13,6 +13,7 @@ namespace TerraScience.Content.Items.Materials{
 			item.scale = 0.6f;
 			item.rare = ItemRarityID.Blue;
 			item.value = 5;
+			item.maxStack = 999;
 		}
 
 		public override void AddRecipes(){

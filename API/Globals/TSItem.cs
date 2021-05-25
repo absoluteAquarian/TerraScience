@@ -20,6 +20,27 @@ namespace TerraScience.API.Globals{
 				 *  1-3 Silicon (5%)
 				 */
 				wRand.Add((ModContent.ItemType<Silicon>(), 1, 3), 0.05);
+
+				if(extractType == ItemID.EbonsandBlock){
+					wRand.Add((ItemID.RottenChunk, 1, 2), 0.03);
+					wRand.Add((ItemID.VilePowder, 1, 1), 0.02);
+					if(Main.hardMode){
+						wRand.Add((ItemID.CursedFlame, 1, 4), 0.015);
+						wRand.Add((ItemID.SoulofNight, 1, 3), 0.005);
+					}
+				}else if(extractType == ItemID.CrimsandBlock){
+					wRand.Add((ItemID.Vertebrae, 1, 2), 0.03);
+					wRand.Add((ItemID.ViciousPowder, 1, 1), 0.02);
+					if(Main.hardMode){
+						wRand.Add((ItemID.Ichor, 1, 4), 0.015);
+						wRand.Add((ItemID.SoulofNight, 1, 3), 0.005);
+					}
+				}else if(extractType == ItemID.PearlsandBlock){
+					wRand.Add((ItemID.CrystalShard, 1, 8), 0.03);
+					wRand.Add((ItemID.PixieDust, 1, 5), 0.06);
+					wRand.Add((ItemID.UnicornHorn, 1, 1), 0.008);
+					wRand.Add((ItemID.SoulofLight, 1, 3), 0.005);
+				}
 			}else{
 				//Don't do logic for types this class doesn't support
 				return;

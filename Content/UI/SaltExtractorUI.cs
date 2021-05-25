@@ -4,6 +4,7 @@ using Terraria;
 using Terraria.GameContent.UI.Elements;
 using Terraria.ModLoader;
 using TerraScience.Content.API.UI;
+using TerraScience.Content.ID;
 using TerraScience.Content.TileEntities;
 using TerraScience.Content.Tiles.Multitiles;
 using TerraScience.Utilities;
@@ -52,7 +53,7 @@ namespace TerraScience.Content.UI{
 			SaltExtractorEntity se = UIEntity as SaltExtractorEntity;
 
 			text[0].SetText($"{UIDecimalFormat(se.StoredLiquid)}L / {Math.Round(SaltExtractorEntity.MaxLiquid)}L");
-			text[1].SetText($"Processing: {Enum.GetName(typeof(SaltExtractorEntity.SE_LiquidType), se.LiquidType)}");
+			text[1].SetText($"Processing: {Enum.GetName(typeof(MachineLiquidID), se.LiquidTypes[0])}");
 			text[2].SetText($"Speed Multiplier: {UIDecimalFormat(se.ReactionSpeed)}x");
 		}
 	}

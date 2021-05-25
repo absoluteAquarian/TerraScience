@@ -13,7 +13,7 @@ namespace TerraScience.Content.Tiles.Multitiles{
 
 			dustType = 82;
 			drop = ModContent.ItemType<Items.Placeable.MachineSupportItem>();
-			soundType = 21;
+			soundType = SoundID.Tink;
 			soundStyle = 1;
 
 			mineResist = 2;

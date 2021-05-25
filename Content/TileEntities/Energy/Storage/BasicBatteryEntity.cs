@@ -1,6 +1,9 @@
-﻿using Terraria.ModLoader;
+﻿using Microsoft.Xna.Framework;
+using Terraria;
+using Terraria.ModLoader;
 using TerraScience.Content.Tiles.Multitiles.EnergyMachines.Storage;
 using TerraScience.Systems.Energy;
+using TerraScience.Utilities;
 
 namespace TerraScience.Content.TileEntities.Energy.Storage{
 	public class BasicBatteryEntity : Battery{
@@ -14,9 +17,14 @@ namespace TerraScience.Content.TileEntities.Energy.Storage{
 
 		public override int MachineTile => ModContent.TileType<BasicBattery>();
 
-		public override void ReactionComplete(){ }
+		public override void PreUpdateReaction(){
+			if((float)StoredFlux > 0)
+				Lighting.AddLight(TileUtils.TileEntityCenter(this, MachineTile), Color.Green.ToVector3() * 0.3f);
+		}
 
 		public override bool UpdateReaction() => false;
+
+		public override void ReactionComplete(){ }
 
 		public override int SlotsCount => 0;
 	}

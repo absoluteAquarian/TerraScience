@@ -34,6 +34,9 @@ namespace TerraScience.Content.TileEntities.Energy.Generators{
 			ReactionInProgress = true;
 
 			bladeRotation += MathHelper.ToRadians(Main.windSpeed * 6f);
+
+			rainBoost = Main.raining;
+			sandstormBoost = Sandstorm.Happening;
 		}
 
 		public override TerraFlux GetPowerGeneration(int ticks){
@@ -70,20 +73,17 @@ namespace TerraScience.Content.TileEntities.Energy.Generators{
 			flux *= 0.333f;
 
 			//Wind turbine is in a sandstorm/blizzard?
-			//Sandstorm: Multiply the generation by 1.15x and add a flat 1.75TF/t increase
-			//Blizzard/Raining: Multiply the generation by 1.085x and add a flat 1TF/t increase
-			if(Sandstorm.Happening)
+			//Sandstorm: Multiply the generation by 1.15x and add a flat 0.5TF/t increase
+			//Blizzard/Raining: Multiply the generation by 1.085x and add a flat 0.2TF/t increase
+			if(sandstormBoost)
 				flux *= 1.15f;
-			if(Main.raining)
+			if(rainBoost)
 				flux *= 1.085f;
 
-			rainBoost = Main.raining;
-			sandstormBoost = Sandstorm.Happening;
-
-			if(Sandstorm.Happening)
-				flux += 1.75f;
-			if(Main.raining)
-				flux += 1f;
+			if(sandstormBoost)
+				flux += 0.5f;
+			if(rainBoost)
+				flux += 0.2f;
 
 			flux *= ticks;
 

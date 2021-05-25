@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Terraria;
 using Terraria.ModLoader;
 using TerraScience.Content.API.UI;
+using TerraScience.Content.Items.Materials;
 using TerraScience.Content.Tiles.Multitiles;
 using TerraScience.Utilities;
 
@@ -32,8 +33,8 @@ namespace TerraScience.Content.TileEntities{
 
 		public override bool UpdateReaction(){
 			// TODO: Heater blocks that can be powered to speed up the reaction
-			//100% progress per 30s
-			ReactionProgress += 100f / 30f / 60f;
+			//100% progress per 5s
+			ReactionProgress += 100f / 5f / 60f;
 
 			return true;
 		}
@@ -42,7 +43,7 @@ namespace TerraScience.Content.TileEntities{
 			if(ReactionInProgress && !ForceNoReaction){
 				Vector2 center = TileUtils.TileEntityCenter(this, MachineTile);
 
-				burning = Main.PlaySound(SoundLoader.customSoundType, (int)center.X, (int)center.Y, TerraScience.Instance.GetSoundSlot(SoundType.Custom, "Sounds/Custom/CampfireBurning"));
+				burning = this.PlayCustomSound(center, "CampfireBurning");
 			}else
 				burning?.Stop();
 		}
@@ -71,7 +72,7 @@ namespace TerraScience.Content.TileEntities{
 
 			Vector2 center = TileUtils.TileEntityCenter(this, MachineTile);
 
-			Main.PlaySound(SoundLoader.customSoundType, center, TerraScience.Instance.GetSoundSlot(SoundType.Custom, "Sounds/Custom/Flame Arrow"));
+			this.PlayCustomSound(center, "Flame Arrow");
 
 			//Find the first available slot to put the item in
 			for(int i = 2; i < SlotsCount; i++){
@@ -99,5 +100,12 @@ namespace TerraScience.Content.TileEntities{
 			//Ran out of space
 			ForceNoReaction = true;
 		}
+
+		internal override int[] GetInputSlots() => new int[]{ 0, 1 };
+
+		internal override int[] GetOutputSlots() => new int[]{ 2, 3, 4, 5, 6, 7, 8, 9 };
+
+		internal override bool CanInputItem(int slot, Item item)
+			=> (slot == 0 && ItemUtils.IsOre(item)) || (slot == 1 && item.type == ModContent.ItemType<Coal>());
 	}
 }

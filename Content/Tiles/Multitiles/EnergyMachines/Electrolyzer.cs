@@ -4,8 +4,10 @@ using Terraria;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
+using TerraScience.Content.ID;
 using TerraScience.Content.Items.Materials;
 using TerraScience.Content.Items.Placeable.Machines.Energy;
+using TerraScience.Content.Items.Tools;
 using TerraScience.Content.TileEntities.Energy;
 using TerraScience.Utilities;
 
@@ -26,7 +28,7 @@ namespace TerraScience.Content.Tiles.Multitiles.EnergyMachines{
 			//Only draw behind if this is the top-left tile.  Otherwise, the things start drawing on top of other tiles
 			if(MiscUtils.TryGetTileEntity(new Point16(i, j), out ElectrolyzerEntity entity)){
 				//Draw order: water back, bars, water front
-				float curWaterRatio = entity.StoredLiquid / ElectrolyzerEntity.MaxLiquid;
+				float curWaterRatio = entity.StoredLiquidAmounts[0] / ElectrolyzerEntity.MaxLiquid;
 				float invRatio = 1f - curWaterRatio;
 				Vector2 offset = MiscUtils.GetLightingDrawOffset();
 
@@ -35,12 +37,12 @@ namespace TerraScience.Content.Tiles.Multitiles.EnergyMachines{
 				Rectangle draw = new Rectangle(drawPos.X, drawPos.Y + 18 + (int)(maxWaterDrawDiff * invRatio), 80, (int)(maxWaterDrawDiff * curWaterRatio));
 				Rectangle source = new Rectangle(0, (int)(maxWaterDrawDiff * invRatio) + 18, 80, (int)(maxWaterDrawDiff * curWaterRatio));
 
-				if(entity.StoredLiquid > 0)
+				if(entity.StoredLiquidAmounts[0] > 0)
 					spriteBatch.Draw(this.GetEffectTexture("water"), draw, source, Lighting.GetColor(i, j));
 
 				spriteBatch.Draw(this.GetEffectTexture("bars"), drawPos.ToVector2(), null, Lighting.GetColor(i, j));
 
-				if(entity.StoredLiquid > 0)
+				if(entity.StoredLiquidAmounts[0] > 0)
 					spriteBatch.Draw(this.GetEffectTexture("water"), draw, source, Lighting.GetColor(i, j) * (50f / 255f));
 			}
 
@@ -61,50 +63,68 @@ namespace TerraScience.Content.Tiles.Multitiles.EnergyMachines{
 
 				Point drawPos = (entity.Position.ToVector2() * 16 - Main.screenPosition + offset).ToPoint();
 
-				if(!entity.RetrieveItem(0).IsAir){
+				if(!entity.RetrieveItem(0).IsAir)
 					spriteBatch.Draw(this.GetEffectTexture("battery"), drawPos.ToVector2(), null, Lighting.GetColor(i, j));
 
-					if(entity.ReactionInProgress){
-						spriteBatch.Draw(this.GetEffectTexture("lightgreen"), drawPos.ToVector2(), null, Color.White);
-						Lighting.AddLight(drawPos.ToVector2() + new Vector2(44, 20), 0f, 0.87f, 0f);
-					}else{
-						spriteBatch.Draw(this.GetEffectTexture("lightred"), drawPos.ToVector2(), null, Color.White);
-						Lighting.AddLight(drawPos.ToVector2() + new Vector2(36, 20), 0.87f, 0f, 0f);
-					}
+				if(entity.ReactionInProgress){
+					spriteBatch.Draw(this.GetEffectTexture("lightgreen"), drawPos.ToVector2(), null, Color.White);
+					Lighting.AddLight(drawPos.ToVector2() + new Vector2(44, 20), 0f, 0.87f, 0f);
+				}else{
+					spriteBatch.Draw(this.GetEffectTexture("lightred"), drawPos.ToVector2(), null, Color.White);
+					Lighting.AddLight(drawPos.ToVector2() + new Vector2(36, 20), 0.87f, 0f, 0f);
 				}
 
-				float hydroFactor = entity.RetrieveItem(1).stack / 100f;
-				float oxyFactor = entity.RetrieveItem(2).stack / 100f;
+				float gas1Factor = entity.StoredGasAmounts[0] / ElectrolyzerEntity.MaxGasPrimary;
+				float gas2Factor = entity.StoredGasAmounts[1] / ElectrolyzerEntity.MaxGasSecondary;
 
-				if(hydroFactor > 0)
-					spriteBatch.Draw(this.GetEffectTexture("gashydrogen"), drawPos.ToVector2(), null, Lighting.GetColor(i, j) * (hydroFactor * 75f / 255f));
-				if(oxyFactor > 0)
-					spriteBatch.Draw(this.GetEffectTexture("gasoxygen"), drawPos.ToVector2(), null, Lighting.GetColor(i, j) * (oxyFactor * 75f / 255f));
+				if(gas1Factor > 0){
+					Color color = Capsule.GetBackColor(entity.GasTypes[0]);
+					color = MiscUtils.MixLightColors(Lighting.GetColor(i, j), color);
+					spriteBatch.Draw(this.GetEffectTexture("gashydrogen"), drawPos.ToVector2(), null, color * (gas1Factor * 75f / 255f));
+				}
+				if(gas2Factor > 0){
+					Color color = Capsule.GetBackColor(entity.GasTypes[1]);
+					color = MiscUtils.MixLightColors(Lighting.GetColor(i, j), color);
+					spriteBatch.Draw(this.GetEffectTexture("gasoxygen"), drawPos.ToVector2(), null, color * (gas2Factor * 75f / 255f));
+				}
 
 				spriteBatch.Draw(this.GetEffectTexture("tanks"), drawPos.ToVector2(), null, Lighting.GetColor(i, j));
 			}
 		}
 
 		public override bool PreHandleMouse(Point16 pos){
-			if(MiscUtils.TryGetTileEntity(pos, out ElectrolyzerEntity ee) && Main.LocalPlayer.HeldItemIsViableForElectrolyzer(pos) && ee.WaterPlaceDelay == 0 && ee.StoredLiquid < ElectrolyzerEntity.MaxLiquid - 1){
+			if(MiscUtils.TryGetTileEntity(pos, out ElectrolyzerEntity ee) && Main.LocalPlayer.HeldItemIsViableForElectrolyzer(pos) && ee.WaterPlaceDelay == 0 && ee.StoredLiquidAmounts[0] <= ElectrolyzerEntity.MaxLiquid - 1){
+				MachineLiquidID newType = MiscUtils.GetIDFromItem(Main.LocalPlayer.HeldItem.type);
+
+			//	Main.NewText($"Attempting to place liquid \"{newType.ProperEnumName()}\".  Current: \"{ee.LiquidTypes[0].ProperEnumName()}\"");
+
+				if(ee.LiquidTypes[0] != MachineLiquidID.None && newType != ee.LiquidTypes[0])
+					return false;
+
+				(MachineGasID gas, MachineGasID gas2) = ElectrolyzerEntity.liquidToGas[newType];
+
+			//	Main.NewText($"Attempting to store gases \"{gas.ProperEnumName()}\" and \"{gas2.ProperEnumName()}\".  Current: \"{ee.GasTypes[0].ProperEnumName()}\" and \"{ee.GasTypes[1].ProperEnumName()}\"");
+
+				if((ee.GasTypes[0] != MachineGasID.None && ee.GasTypes[0] != gas) || (ee.GasTypes[1] != MachineGasID.None && ee.GasTypes[1] != gas2))
+					return false;
+
 				ee.WaterPlaceDelay = ElectrolyzerEntity.MaxPlaceDelay;
-				ee.StoredLiquid++;
-				Main.PlaySound(SoundID.Splash);
+				ee.LiquidTypes[0] = newType;
+				ee.StoredLiquidAmounts[0]++;
+				Main.PlaySound(SoundID.Splash, TileUtils.TileEntityCenter(ee, Type));
 
-				//Only mess with the player items if the Salt Extractor isn't full
-				if (ee.StoredLiquid > ElectrolyzerEntity.MaxLiquid)
-					ee.StoredLiquid = ElectrolyzerEntity.MaxLiquid;
-				else{
-					Item heldItem = Main.LocalPlayer.HeldItem;
+				if (ee.StoredLiquidAmounts[0] > ElectrolyzerEntity.MaxLiquid)
+					ee.StoredLiquidAmounts[0] = ElectrolyzerEntity.MaxLiquid;
+				
+				Item heldItem = Main.LocalPlayer.HeldItem;
 
-					//And give the player back the container they used (unless it's the bottomless bucket)
-					if(heldItem.type == ItemID.WaterBucket){
-						Main.LocalPlayer.HeldItem.stack--;
-						Main.LocalPlayer.QuickSpawnItem(ItemID.EmptyBucket);
-					}else if(heldItem.type == ModContent.ItemType<Vial_Water>()){
-						Main.LocalPlayer.HeldItem.stack--;
-						Main.LocalPlayer.QuickSpawnItem(ModContent.ItemType<EmptyVial>());
-					}
+				//And give the player back the container they used (unless it's the bottomless bucket)
+				if(heldItem.type == ItemID.WaterBucket){
+					Main.LocalPlayer.HeldItem.stack--;
+					Main.LocalPlayer.QuickSpawnItem(ItemID.EmptyBucket);
+				}else if(heldItem.type == ModContent.ItemType<Vial_Water>() || heldItem.type == ModContent.ItemType<Vial_Saltwater>()){
+					Main.LocalPlayer.HeldItem.stack--;
+					Main.LocalPlayer.QuickSpawnItem(ModContent.ItemType<EmptyVial>());
 				}
 
 				//Something happened

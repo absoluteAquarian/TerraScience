@@ -1,21 +1,29 @@
-﻿Terraria, but with Technology!
+﻿Terraria, but with technology!
 
 Construct multitile machines with the Science Workbench and explore the wonders of technology!
 
-
 Current Multitiles:
-Salt Extractor - provide Water or Saltwater to produce Salt
-
-Science Workbench - constructs machinery
-
-Reinforced Furnace - burn wooden items to produce Coal
-
-Air Ionizer - currently does nothing
-
-Electrolyzer - currently does nothing
-
-Blast Furnace - powered by coal, increases the gains from smeling ores
-
-Basic Wind Turbine - generates Terra Flux (TF) based on the current wind speed and weather
-
-Basic Battery - stores TF
+[c/dddd00:Auto-Extractinator]
+- automatically extractinates silt, slush, fossils and sand
+[c/dddd00:Air Ionizer]
+- currently does nothing
+[c/dddd00:Basic Battery]
+- stores TF
+[c/dddd00:Blast Furnace]
+- powered by coal, increases the gains from smeling ores
+[c/dddd00:Basic Solar Panel]
+- generates TF based on the time of day and weather
+[c/dddd00:Basic Wind Turbine]
+- generates Terra Flux (TF) based on the current wind speed and weather
+[c/dddd00:Electrolyzer]
+- chemically separates certain liquids into their gaseous components
+[c/dddd00:Greenhouse]
+- grows and automatically harvests herbs, mushroom grass cacti and saplings
+[c/dddd00:Reinforced Furnace]
+- burn wooden items to produce Coal
+[c/dddd00:Salt Extractor]
+- provide Water or Saltwater to produce Salt
+[c/dddd00:Science Workbench]
+- constructs machinery
+[c/dddd00:Pulverizer]
+- crushes certain blocks into materials

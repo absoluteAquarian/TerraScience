@@ -15,7 +15,7 @@ namespace TerraScience.Content.TileEntities.Energy{
 
 		public override TerraFlux FluxCap => new TerraFlux(2000f);
 
-		public override TerraFlux FluxUsage => new TerraFlux(200f / 60f);
+		public override TerraFlux FluxUsage => new TerraFlux(140f / 60f);
 
 		public float shifterTopSin, shifterBottomSin;
 
@@ -39,14 +39,7 @@ namespace TerraScience.Content.TileEntities.Energy{
 			bool hasFlux = CheckFluxRequirement(FluxUsage, use: false);
 			ReactionInProgress = !this.RetrieveItem(0).IsAir && hasFlux;
 
-			//Check that all slots aren't full.  If they are, abort early
-			bool allFull = true;
-			for(int i = 1; i < SlotsCount; i++)
-				if(this.RetrieveItem(i).IsAir)
-					allFull = false;
-
-			if(allFull)
-				ReactionInProgress = false;
+			this.StopReactionIfOutputSlotsAreFull(1, SlotsCount - 1);
 
 			if(frameRand == -1 || frameRand2 == -1){
 				frameRand = Main.rand.Next(0, 3);
@@ -95,31 +88,11 @@ namespace TerraScience.Content.TileEntities.Energy{
 				storedCoins += stack * 10000;
 			else if(type == ItemID.PlatinumCoin)
 				storedCoins += stack * 100000;
-			else{
-				//Find the first slot that the items can stack to.  If that stack isn't enough, overflow to the next slot
-				for(int i = 1; i < SlotsCount; i++){
-					Item item = this.RetrieveItem(i);
-					if(item.IsAir){
-						item.SetDefaults(type);
-						item.type = type;
-						item.stack = stack;
-						break;
-					}
+			else if(type > 0 && stack > 0){
+				this.TryInsertOutput(1, SlotsCount - 1, type, stack);
 
-					if(item.type == type && item.stack < item.maxStack){
-						if(item.stack + stack <= item.maxStack){
-							item.stack += stack;
-							break;
-						}else{
-							stack -= item.maxStack - item.stack;
-							item.stack = item.maxStack;
-						}
-					}
-				}
+				this.PlaySound(SoundID.Grab, TileUtils.TileEntityCenter(this, MachineTile));
 			}
-
-			if(type > 0 && stack > 0)
-				Main.PlaySound(SoundID.Grab, TileUtils.TileEntityCenter(this, MachineTile));
 
 			frameRand = frameRand2;
 			frameRand2 = Main.rand.Next(0, 3);
@@ -158,5 +131,12 @@ namespace TerraScience.Content.TileEntities.Energy{
 
 			storedCoins = 0;
 		}
+
+		internal override int[] GetInputSlots() => new int[]{ 0 };
+
+		internal override int[] GetOutputSlots() => new int[]{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 };
+
+		internal override bool CanInputItem(int slot, Item item)
+			=> slot == 0 && ItemID.Sets.ExtractinatorMode[item.type] >= 0;
 	}
 }

@@ -3,29 +3,27 @@ using Terraria;
 using Terraria.DataStructures;
 using Terraria.ModLoader;
 using TerraScience.Content.Items.Energy;
+using TerraScience.Systems;
 using TerraScience.Systems.Energy;
 
 namespace TerraScience.Content.Tiles.Energy{
-	public class TFWireTile : ModTile{
-		public override void SetDefaults(){
-			//Non-solid, but this is required.  Explanation is in TerraScience.PreUpdateEntities()
-			Main.tileSolid[Type] = false;
-			Main.tileNoSunLight[Type] = false;
+	public class TFWireTile : JunctionMergeable{
+		public override JunctionType MergeType => JunctionType.Wires;
+
+		public virtual TerraFlux Capacity => new TerraFlux(200);
+
+		public virtual TerraFlux ImportRate => new TerraFlux(1000 / 60f);
+		public virtual TerraFlux ExportRate => new TerraFlux(1000 / 60f);
+
+		public override void SafeSetDefaults(){
 			AddMapEntry(Color.Orange);
 			drop = ModContent.ItemType<TFWireItem>();
 		}
 
-		public override bool CanPlace(int i, int j){
-			//This hook is called just before the tile is placed, which means we can fool the game into thinking this tile is solid when it really isn't
-			Main.tileSolid[Type] = true;
-			return true;
-		}
-
 		public override void PlaceInWorld(int i, int j, Item item){
-			NetworkCollection.OnWirePlace(new Point16(i, j));
+			base.PlaceInWorld(i, j, item);
 
-			//(Continuing from CanPlace)... then I can just set it back to false here
-			Main.tileSolid[Type] = false;
+			NetworkCollection.OnWirePlace(new Point16(i, j));
 		}
 
 		public override void KillTile(int i, int j, ref bool fail, ref bool effectOnly, ref bool noItem){

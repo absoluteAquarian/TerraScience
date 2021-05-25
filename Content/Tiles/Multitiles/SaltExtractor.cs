@@ -6,6 +6,7 @@ using Terraria;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
+using TerraScience.Content.ID;
 using TerraScience.Content.Items.Materials;
 using TerraScience.Content.Items.Placeable.Machines;
 using TerraScience.Content.TileEntities;
@@ -34,7 +35,7 @@ namespace TerraScience.Content.Tiles.Multitiles{
 			if(MiscUtils.TryGetTileEntity(pos, out SaltExtractorEntity se) && Main.LocalPlayer.HeldItemIsViableForSaltExtractor(pos) && se.WaterPlaceDelay == 0 && se.StoredLiquid < SaltExtractorEntity.MaxLiquid - 1){
 				se.WaterPlaceDelay = SaltExtractorEntity.MaxPlaceDelay;
 				se.StoredLiquid++;
-				Main.PlaySound(SoundID.Splash);
+				se.PlaySound(SoundID.Splash);
 
 				//Only mess with the player items if the Salt Extractor isn't full
 				if (se.StoredLiquid > SaltExtractorEntity.MaxLiquid)
@@ -44,9 +45,9 @@ namespace TerraScience.Content.Tiles.Multitiles{
 
 					//Set the liquid type
 					if(heldItem.type == ItemID.WaterBucket || heldItem.type == ItemID.BottomlessBucket || heldItem.type == ModContent.ItemType<Vial_Water>())
-						se.LiquidType = SaltExtractorEntity.SE_LiquidType.Water;
+						se.LiquidTypes[0] = MachineLiquidID.Water;
 					else if(heldItem.type == ModContent.ItemType<Vial_Saltwater>())
-						se.LiquidType = SaltExtractorEntity.SE_LiquidType.Saltwater;
+						se.LiquidTypes[0] = MachineLiquidID.Saltwater;
 
 					//And give the player back the container they used (unless it's the bottomless bucket)
 					if(heldItem.type == ItemID.WaterBucket){

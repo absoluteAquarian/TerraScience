@@ -9,6 +9,8 @@ using Terraria.ModLoader;
 using Terraria.UI;
 using Terraria.Utilities;
 using TerraScience.API.Classes.ModLiquid;
+using TerraScience.Content.ID;
+using TerraScience.Content.Items;
 using TerraScience.Content.Items.Energy;
 using TerraScience.Content.Items.Materials;
 using TerraScience.Content.Items.Placeable;
@@ -16,32 +18,31 @@ using TerraScience.Content.Items.Placeable.Machines;
 using TerraScience.Content.Items.Placeable.Machines.Energy;
 using TerraScience.Content.Items.Placeable.Machines.Energy.Generators;
 using TerraScience.Content.Items.Placeable.Machines.Energy.Storage;
+using TerraScience.Content.Items.Tools;
 using TerraScience.Content.Items.Weapons;
 using TerraScience.Content.Projectiles;
 using TerraScience.Content.TileEntities;
 using TerraScience.Content.TileEntities.Energy;
-using TerraScience.Content.TileEntities.Energy.Generators;
-using TerraScience.Content.TileEntities.Energy.Storage;
-using TerraScience.Content.Tiles.Energy;
+using TerraScience.Content.Tiles;
 using TerraScience.Content.Tiles.Multitiles;
 using TerraScience.Content.Tiles.Multitiles.EnergyMachines;
-using TerraScience.Content.Tiles.Multitiles.EnergyMachines.Basic;
-using TerraScience.Content.Tiles.Multitiles.EnergyMachines.Storage;
 using TerraScience.Content.UI;
+using TerraScience.Systems;
 using TerraScience.Systems.Energy;
+using TerraScience.Systems.Pipes;
 using TerraScience.Systems.TemperatureSystem;
 using TerraScience.Utilities;
 
 namespace TerraScience {
-	public class TerraScience : Mod {
+	public class TechMod : Mod {
 		public static class ScienceRecipeGroups{
-			public const string Sand = "TerrasScience: Sand Blocks";
+			public const string Sand = "TerraScience: Sand Blocks";
 		}
 
 		/// <summary>
 		/// For fast and easy access to this mod's instance when one doesn't exist already
 		/// </summary>
-		public static TerraScience Instance => ModContent.GetInstance<TerraScience>();
+		public static TechMod Instance => ModContent.GetInstance<TechMod>();
 
 		/// <summary>
 		/// A <seealso cref="WeightedRandom{(int, int)}"/> used by <seealso cref="AirIonizerEntity"/>.
@@ -77,6 +78,10 @@ namespace TerraScience {
 
 		public const string WarningWaterExplode = "[c/bb3300:WARNING:] exposure to water may cause spontaneous combustion!";
 
+		public static bool debugging;
+
+		internal static Type[] types;
+
 		public override void Load() {
 			//Consistent randomness with Main
 			wRand = new WeightedRandom<(int, int)>(Main.rand);
@@ -90,12 +95,32 @@ namespace TerraScience {
 
 			Logger.DebugFormat("Initializing dictionaries...");
 
-			DebugHotkey = RegisterHotKey("Debuging", "J");
+			DebugHotkey = RegisterHotKey("Debugging", "J");
 
 			TileUtils.tileToEntity = new Dictionary<int, MachineEntity>();
 			TileUtils.tileToStructureName = new Dictionary<int, string>();
 
+			ElectrolyzerEntity.liquidToGas = new Dictionary<MachineLiquidID, (MachineGasID, MachineGasID)>(){
+				[MachineLiquidID.Water] = (MachineGasID.Hydrogen, MachineGasID.Oxygen),
+				[MachineLiquidID.Saltwater] = (MachineGasID.Hydrogen, MachineGasID.Chlorine)
+			};
+
 			DatalessMachineInfo.recipes = new Dictionary<int, Action<Mod>>();
+
+			Capsule.containerTypes = new Dictionary<int, MachineGasID>();
+			FakeCapsuleFluidItem.containerTypes = new Dictionary<int, (MachineGasID?, MachineLiquidID?)>();
+
+			MachineMufflerTile.mufflers = new List<Point16>();
+
+			PulverizerEntity.inputToOutputs = new Dictionary<int, WeightedRandom<(int type, int stack)>>();
+
+			JunctionMergeable.InitMergeArray();
+
+			NetworkCollection.networkTypeCtors = new Dictionary<Type, NetworkCollection.typeCtor>(){
+				[typeof(TFWire)] = (location, network) => new TFWire(location, network),
+				[typeof(ItemPipe)] = (location, network) => new ItemPipe(location, network),
+				[typeof(FluidPipe)] = (location, network) => new FluidPipe(location, network)
+			};
 
 			Logger.DebugFormat("Adding other content...");
 
@@ -123,17 +148,44 @@ namespace TerraScience {
 					item.shoot = ProjectileType("SaltDust");
 				}));
 
-			AddDatalessMachineItem<SaltExtractorItem>();
-			AddDatalessMachineItem<ScienceWorkbenchItem>();
-			AddDatalessMachineItem<ReinforcedFurnaceItem>();
-			AddDatalessMachineItem<AirIonizerItem>();
-			AddDatalessMachineItem<ElectrolyzerItem>();
-			AddDatalessMachineItem<BlastFurnaceItem>();
-			AddDatalessMachineItem<BasicWindTurbineItem>();
-			AddDatalessMachineItem<BasicBatteryItem>();
-			AddDatalessMachineItem<AutoExtractinatorItem>();
-			AddDatalessMachineItem<BasicSolarPanelItem>();
-			AddDatalessMachineItem<GreenhouseItem>();
+			MachineGasID[] gasIDs = (MachineGasID[])Enum.GetValues(typeof(MachineGasID));
+			for(int i = 0; i < gasIDs.Length; i++){
+				AddItem("Capsule_" + gasIDs[i].EnumName(), new Capsule());
+				int id = ItemLoader.ItemCount - 1;
+				Capsule.containerTypes.Add(id, gasIDs[i]);
+			}
+
+			for(int i = 1; i < gasIDs.Length; i++){
+				AddItem("Fake" + gasIDs[i].EnumName() + "GasIngredient", new FakeCapsuleFluidItem());
+				int id = ItemLoader.ItemCount - 1;
+				FakeCapsuleFluidItem.containerTypes.Add(id, (gasIDs[i], null));
+			}
+
+			MachineLiquidID[] liquidIDs = (MachineLiquidID[])Enum.GetValues(typeof(MachineLiquidID));
+			for(int i = 1; i < liquidIDs.Length; i++){
+				AddItem("Fake" + liquidIDs[i].EnumName() + "LiquidIngredient", new FakeCapsuleFluidItem());
+				int id = ItemLoader.ItemCount - 1;
+				FakeCapsuleFluidItem.containerTypes.Add(id, (null, liquidIDs[i]));
+			}
+
+			//Register the dataless machines
+			types = Code.GetTypes();
+			var datalessTypeNoArgs = typeof(DatalessMachineItem<>);
+			foreach(var type in types){
+				//Ignore abstract types and the "DatalessMachineItem<T>" type
+				if(type.IsAbstract || (type.IsGenericType && type.GetGenericTypeDefinition() == datalessTypeNoArgs))
+					continue;
+
+				if(typeof(MachineItem).IsAssignableFrom(type)){
+					string name = type.Name;
+			
+					if(!name.EndsWith("Item"))
+						throw new ArgumentException("Machine item type had an unexpected name: " + name);
+
+					var datalessType = datalessTypeNoArgs.MakeGenericType(type);
+					AddItem($"Dataless{name.Substring(0, name.LastIndexOf("Item"))}", (ModItem)Activator.CreateInstance(datalessType, new object[]{ false }));
+				}
+			}
 
 			Main.OnTick += OnUpdate;
 
@@ -174,18 +226,41 @@ namespace TerraScience {
 				[ItemID.TinOre] = (ItemID.TinBar, 2),
 				[ItemID.LeadOre] = (ItemID.LeadBar, 2),
 				[ItemID.TungstenOre] = (ItemID.TungstenBar, 2),
-				[ItemID.PlatinumOre] = (ItemID.PlatinumBar, 2)
+				[ItemID.PlatinumOre] = (ItemID.PlatinumBar, 2),
+
+				[ItemID.Meteorite] = (ItemID.MeteoriteBar, 2),
+
+				[ItemID.DemoniteOre] = (ItemID.DemoniteBar, 2),
+				[ItemID.CrimtaneOre] = (ItemID.CrimtaneOre, 2)
 			};
+
+			//SendPowerToMachines needs to run after the generators have exported their power to the networks, but before the rest of the machines update
+			TileEntity._UpdateStart += NetworkCollection.SendPowerToMachines;
+
+			Logger.Debug("Executing MSIL Edits and Method Detours...");
+
+			//Method Detours and IL Edits
+			API.Edits.MSIL.ILHelper.InitMonoModDumps();
+
+			API.Edits.MSIL.ILHelper.Load();
+			API.Edits.MSIL.Vanilla.Load();
+
+			API.Edits.MSIL.ILHelper.DeInitMonoModDumps();
+
+			API.Edits.Detours.Vanilla.Load();
 		}
 
-		private void AddDatalessMachineItem<T>() where T : MachineItem{
-			string name = typeof(T).Name;
-			
-			if(!name.EndsWith("Item"))
-				throw new ArgumentException("Machine item type had an unexpected name: " + name);
+		public static int GetCapsuleType(MachineGasID gas){
+			int type = Instance.ItemType("Capsule_" + gas);
+			if(type == 0)
+				throw new ArgumentException("Gas ID requested was invalid: " + gas.ToString());
 
-			AddItem($"Dataless{name.Substring(0, name.LastIndexOf("Item"))}", new DatalessMachineItem<T>());
+			return type;
 		}
+
+		public static int GetFakeIngredientType(MachineLiquidID id) => Instance.ItemType("Fake" + id.EnumName() + "LiquidIngredient");
+
+		public static int GetFakeIngredientType(MachineGasID id) => Instance.ItemType("Fake" + id.EnumName() + "GasIngredient");
 
 		public override void AddRecipeGroups(){
 			RegisterRecipeGroup(ScienceRecipeGroups.Sand, ItemID.SandBlock, new int[]{ ItemID.SandBlock, ItemID.CrimsandBlock, ItemID.EbonsandBlock, ItemID.PearlsandBlock });
@@ -202,8 +277,49 @@ namespace TerraScience {
 			}
 		}
 
+		internal void SetNetworkTilesSolid(){
+			Main.tileSolid[ModContent.TileType<TransportJunction>()] = true;
+
+			foreach(var type in types){
+				if(type.IsAbstract)
+					continue;
+
+				if(typeof(JunctionMergeable).IsAssignableFrom(type)){
+					int tileType = GetTile(type.Name).Type;
+
+					Main.tileSolid[tileType] = true;
+				}
+			}
+		}
+
+		internal void ResetNetworkTilesSolid(){
+			Main.tileSolid[ModContent.TileType<TransportJunction>()] = false;
+
+			foreach(var type in types){
+				if(type.IsAbstract)
+					continue;
+
+				if(typeof(JunctionMergeable).IsAssignableFrom(type)){
+					int tileType = GetTile(type.Name).Type;
+
+					Main.tileSolid[tileType] = false;
+				}
+			}
+		}
+
 		public override void PreUpdateEntities(){
-			Main.tileSolid[ModContent.TileType<TFWireTile>()] = false;
+			//ModHooks.PreUpdateEntities() is called before WorldGen.UpdateWorld, which updates the tile entities
+			//So this is a good place to have the tile stuff update
+
+			//Sanity check
+			ResetNetworkTilesSolid();
+
+			//Reset the wire network export counts
+			NetworkCollection.ResetNetworkInfo();
+		}
+
+		public override void MidUpdateProjectileItem(){
+			NetworkCollection.UpdateItemNetworks();
 		}
 
 		public override void Unload() {
@@ -218,7 +334,20 @@ namespace TerraScience {
 			TileUtils.tileToEntity = null;
 			TileUtils.tileToStructureName = null;
 
+			ElectrolyzerEntity.liquidToGas = null;
+
 			DatalessMachineInfo.recipes = null;
+
+			Capsule.containerTypes = null;
+			FakeCapsuleFluidItem.containerTypes = null;
+
+			MachineMufflerTile.mufflers = null;
+
+			PulverizerEntity.inputToOutputs = null;
+
+			JunctionMergeable.mergeTypes = null;
+
+			NetworkCollection.networkTypeCtors = null;
 
 			DebugHotkey = null;
 
@@ -234,22 +363,16 @@ namespace TerraScience {
 			BlastFurnaceEntity.ingredientToResult = null;
 
 			NetworkCollection.Unload();
+
+			TileEntity._UpdateStart -= NetworkCollection.SendPowerToMachines;
+
+			types = null;
 		}
 
 		public override void PostSetupContent() {
 			Logger.DebugFormat("Loading tile data and machine structures...");
 
-			TileUtils.Register<SaltExtractor,     SaltExtractorEntity>();
-			TileUtils.Register<ScienceWorkbench,  ScienceWorkbenchEntity>();
-			TileUtils.Register<ReinforcedFurnace, ReinforcedFurnaceEntity>();
-			TileUtils.Register<AirIonizer,        AirIonizerEntity>();
-			TileUtils.Register<Electrolyzer,      ElectrolyzerEntity>();
-			TileUtils.Register<BlastFurnace,      BlastFurnaceEntity>();
-			TileUtils.Register<BasicWindTurbine,  BasicWindTurbineEntity>();
-			TileUtils.Register<BasicBattery,      BasicBatteryEntity>();
-			TileUtils.Register<AutoExtractinator, AutoExtractinatorEntity>();
-			TileUtils.Register<BasicSolarPanel,   BasicSolarPanelEntity>();
-			TileUtils.Register<Greenhouse,        GreenhouseEntity>();
+			TileUtils.RegisterAllEntities();
 
 			DatalessMachineInfo.Register<SaltExtractorItem>(new[]{
 				(ItemID.Glass, 10),                    (ModContent.ItemType<MachineSupportItem>(), 5), (ItemID.Glass, 10),
@@ -326,18 +449,63 @@ namespace TerraScience {
 				recipe.SetResult(mod.ItemType("DatalessGreenhouse"), 1);
 				recipe.AddRecipe();
 			});
+			DatalessMachineInfo.Register<BasicThermoGeneratorItem>(new[]{
+				(ItemID.Glass, 3),    (ItemID.CopperBar, 2),                  (ItemID.Glass, 4),
+				(ItemID.RedBrick, 5), (ItemID.Torch, 10),                     (ItemID.WaterBucket, 3),
+				(ItemID.RedBrick, 5), (ModContent.ItemType<TFWireItem>(), 6), (ItemID.GrayBrick, 3)
+			});
+			DatalessMachineInfo.Register<PulverizerItem>(new[]{
+				(ItemID.IronBar, 2),                  (ModContent.ItemType<IronPipe>(), 1),         (ItemID.IronBar, 2),
+				(ModContent.ItemType<IronPipe>(), 1), (ModContent.ItemType<BasicMachineCore>(), 1), (ModContent.ItemType<IronPipe>(), 1),
+				(ItemID.IronBar, 2),                  (ModContent.ItemType<TFWireItem>(), 6),       (ItemID.IronBar, 2)
+			});
 
-			//Loading merge data here instead of TFWireTile.SetDefaults
-			int wireType = ModContent.TileType<TFWireTile>();
-			foreach(var pair in TileUtils.tileToEntity){
-				if(pair.Value is PoweredMachineEntity){
-					Main.tileMerge[wireType][pair.Key] = true;
-					Main.tileMerge[pair.Key][wireType] = true;
+			//Loading merge data here instead of <tile>.SetDefaults()
+			foreach(var type in types){
+				if(type.IsAbstract)
+					continue;
+
+				if(typeof(JunctionMergeable).IsAssignableFrom(type)){
+					int tileType = GetTile(type.Name).Type;
+
+					foreach(var pair in TileUtils.tileToEntity){
+						if(pair.Value is PoweredMachineEntity){
+							Main.tileMerge[tileType][pair.Key] = true;
+							Main.tileMerge[pair.Key][tileType] = true;
+						}
+					}
 				}
 			}
 		}
 
 		public override void AddRecipes(){
+			//Electrolyzer recipes
+			AddElectrolyzerRecipe(MachineLiquidID.Water, MachineGasID.Hydrogen);
+			AddElectrolyzerRecipe(MachineLiquidID.Water, MachineGasID.Oxygen);
+			AddElectrolyzerRecipe(MachineLiquidID.Saltwater, MachineGasID.Hydrogen);
+			AddElectrolyzerRecipe(MachineLiquidID.Saltwater, MachineGasID.Chlorine);
+
+			AddElectrolyzerRecipe(MachineGasID.Hydrogen);
+			AddElectrolyzerRecipe(MachineGasID.Oxygen);
+			AddElectrolyzerRecipe(MachineGasID.Chlorine);
+
+			//Additional Extractinator recipes
+			AddExtractinatorRecipe(ItemID.EbonsandBlock, ItemID.CursedFlame);
+			AddExtractinatorRecipe(ItemID.EbonsandBlock, ItemID.RottenChunk);
+			AddExtractinatorRecipe(ItemID.EbonsandBlock, ItemID.VilePowder);
+			AddExtractinatorRecipe(ItemID.EbonsandBlock, ItemID.SoulofNight);
+
+			AddExtractinatorRecipe(ItemID.CrimsandBlock, ItemID.Ichor);
+			AddExtractinatorRecipe(ItemID.CrimsandBlock, ItemID.Vertebrae);
+			AddExtractinatorRecipe(ItemID.CrimsandBlock, ItemID.ViciousPowder);
+			AddExtractinatorRecipe(ItemID.CrimsandBlock, ItemID.SoulofNight);
+
+			AddExtractinatorRecipe(ItemID.PearlsandBlock, ItemID.CrystalShard);
+			AddExtractinatorRecipe(ItemID.PearlsandBlock, ItemID.PixieDust);
+			AddExtractinatorRecipe(ItemID.PearlsandBlock, ItemID.UnicornHorn);
+			AddExtractinatorRecipe(ItemID.PearlsandBlock, ItemID.SoulofLight);
+
+			//Greenhouse recipes
 			AddGreenhouseRecipe(ItemID.Acorn, ItemID.DirtBlock, ItemID.GrassSeeds, ItemID.Wood);
 			AddGreenhouseRecipe(ItemID.Acorn, ItemID.DirtBlock, ItemID.CorruptSeeds, ItemID.Ebonwood);
 			AddGreenhouseRecipe(ItemID.Acorn, ItemID.DirtBlock, ItemID.CrimsonSeeds, ItemID.Shadewood);
@@ -358,6 +526,56 @@ namespace TerraScience {
 			AddGreenhouseRecipe(ItemID.MushroomGrassSeeds, ItemID.MudBlock, null, ItemID.GlowingMushroom);
 
 			AddGreenhouseRecipe(ItemID.Cactus, ItemID.SandBlock, null, ItemID.Cactus);
+
+			//Pulverizer recipes
+			AddPulverizerEntry(inputItem: ItemID.DirtBlock,
+				(ItemID.SandBlock,             1, 0.01),
+				(ItemID.SiltBlock,             1, 0.01),
+				(ItemID.StoneBlock,            1, 0.01),
+				(ItemID.ClayBlock,             1, 0.01),
+				(ItemID.GrassSeeds,            1, 0.015),
+				(ItemID.DaybloomSeeds,         1, 0.015),
+				(ItemID.BlinkrootSeeds,        1, 0.015),
+				(ItemID.Acorn,                 1, 0.05),
+				(ItemID.Worm,                  1, 0.125),
+				(ItemID.EnchantedNightcrawler, 1, 0.0075));
+
+			AddPulverizerEntry(inputItem: ItemID.StoneBlock,
+				(ItemID.SandBlock,   1, 0.05),
+				(ItemID.SiltBlock,   1, 0.025),
+				(ItemID.CopperOre,   1, 0.01),
+				(ItemID.TinOre,      1, 0.01),
+				(ItemID.IronOre,     1, 0.005),
+				(ItemID.LeadOre,     1, 0.005),
+				(ItemID.SilverOre,   1, 0.002),
+				(ItemID.SilverOre,   1, 0.002),
+				(ItemID.GoldOre,     1, 0.001),
+				(ItemID.PlatinumOre, 1, 0.001),
+				(ItemID.Amethyst,    1, 0.01),
+				(ItemID.Topaz,       1, 0.008),
+				(ItemID.Sapphire,    1, 0.006),
+				(ItemID.Emerald,     1, 0.005),
+				(ItemID.Amber,       1, 0.005),
+				(ItemID.Ruby,        1, 0.0025),
+				(ItemID.Diamond,     1, 0.001));
+		}
+
+		private void AddElectrolyzerRecipe(MachineLiquidID input, MachineGasID output){
+			ScienceRecipe recipe = new ScienceRecipe(this);
+			recipe.AddIngredient(GetFakeIngredientType(input), 1);
+			recipe.AddIngredient(ModContent.ItemType<TerraFluxIndicator>());
+			recipe.AddTile(ModContent.TileType<Electrolyzer>());
+			recipe.SetResult(GetFakeIngredientType(output), 1);
+			recipe.AddRecipe();
+		}
+
+		private void AddElectrolyzerRecipe(MachineGasID capsuleGasType){
+			ScienceRecipe recipe = new ScienceRecipe(this);
+			recipe.AddIngredient(ItemType("Capsule"), 1);
+			recipe.AddIngredient(GetFakeIngredientType(capsuleGasType), 1);
+			recipe.AddTile(ModContent.TileType<Electrolyzer>());
+			recipe.SetResult(GetCapsuleType(capsuleGasType), 1);
+			recipe.AddRecipe();
 		}
 
 		private void AddGreenhouseRecipe(int inputType, int blockType, int? modifierType, int resultType){
@@ -371,6 +589,44 @@ namespace TerraScience {
 			recipe.AddRecipe();
 		}
 
+		private void AddExtractinatorRecipe(int inputType, int outputType){
+			ScienceRecipe recipe = new ScienceRecipe(this);
+			recipe.AddIngredient(inputType, 1);
+			recipe.AddTile(TileID.Extractinator);
+			recipe.SetResult(outputType, 1);
+			recipe.AddRecipe();
+
+			recipe = new ScienceRecipe(this);
+			recipe.AddIngredient(inputType, 1);
+			recipe.AddIngredient(ModContent.ItemType<TerraFluxIndicator>());
+			recipe.AddTile(ModContent.TileType<AutoExtractinator>());
+			recipe.SetResult(outputType, 1);
+			recipe.AddRecipe();
+		}
+
+		private void AddPulverizerEntry(int inputItem, params (int type, int stack, double weight)[] outputs){
+			var wRand = new WeightedRandom<(int type, int stack)>(Main.rand);
+
+			double remaining = 1.0;
+			foreach((int type, int stack, double weight) in outputs){
+				wRand.Add((type, stack), weight);
+				remaining -= weight;
+
+				//Add a recipe for the thing
+				ScienceRecipe recipe = new ScienceRecipe(this);
+				recipe.AddIngredient(inputItem);
+				recipe.AddIngredient(ModContent.ItemType<TerraFluxIndicator>());
+				recipe.AddTile(ModContent.TileType<Pulverizer>());
+				recipe.SetResult(type, stack);
+				recipe.AddRecipe();
+			}
+
+			if(remaining > 0)
+				wRand.Add((-1, 0), remaining);
+
+			PulverizerEntity.inputToOutputs.Add(inputItem, wRand);
+		}
+
 		public override void UpdateUI(GameTime gameTime) {
 			machineLoader.UpdateUI(gameTime);
 		}
@@ -382,8 +638,6 @@ namespace TerraScience {
 		// -- Types --
 		// Call("Get Machine Entity", new Point16(x, y))
 		//	- gets the MachineEntity at the tile position, if one exists there
-		// Call("Add Compound")
-		//  - todo, does nothing
 		public override object Call(params object[] args) {
 			//People who don't use the exact call name are dumb.  We shouldn't have to make sure they typed the name correctly
 

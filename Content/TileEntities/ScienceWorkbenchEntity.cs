@@ -1,10 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
-using Terraria.ModLoader.IO;
-using TerraScience.Content.API.UI;
 using TerraScience.Content.Tiles.Multitiles;
 using TerraScience.Content.UI;
 using TerraScience.Utilities;
@@ -57,5 +54,11 @@ namespace TerraScience.Content.TileEntities{
 
 			Main.PlaySound(SoundID.Grab);
 		}
+
+		internal override int[] GetInputSlots() => new int[0];
+
+		internal override int[] GetOutputSlots() => new int[]{ SlotsCount - 1 };
+
+		internal override bool CanInputItem(int slot, Item item) => false;
 	}
 }
