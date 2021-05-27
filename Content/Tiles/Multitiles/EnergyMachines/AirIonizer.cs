@@ -13,7 +13,7 @@ namespace TerraScience.Content.Tiles.Multitiles.EnergyMachines{
 			=> TileUtils.HandleMouse<AirIonizerEntity>(this, pos, () => true);
 
 		public override void GetDefaultParams(out string mapName, out uint width, out uint height, out int itemType){
-			mapName = "Air Ionizer";
+			mapName = "Matter Energizer";
 			width = 3;
 			height = 3;
 			itemType = ModContent.ItemType<AirIonizerItem>();

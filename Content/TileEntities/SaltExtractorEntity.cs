@@ -1,39 +1,27 @@
-﻿using Terraria;
+﻿using System;
+using System.Collections.Generic;
+using Terraria;
 using Terraria.Audio;
+using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using TerraScience.Content.ID;
 using TerraScience.Content.Items.Materials;
+using TerraScience.Content.Tiles;
 using TerraScience.Content.Tiles.Multitiles;
 using TerraScience.Utilities;
 
 namespace TerraScience.Content.TileEntities{
 	public class SaltExtractorEntity : MachineEntity, ILiquidMachine{
-		/// <summary>
-		/// How much liquid is stored in the Salt Extractor in Liters.
-		/// </summary>
-		public float StoredLiquid = 0f;
-
-		public static readonly float MaxLiquid = 10f;
-
-		/// <summary>
-		/// The max delay between water placements into the machine.
-		/// </summary>
-		public const int MaxPlaceDelay = 12;
-		public int WaterPlaceDelay = 0;
-
 		public override int SlotsCount => 1;
 
 		public override void ExtraLoad(TagCompound tag){
-			StoredLiquid = tag.GetFloat(nameof(StoredLiquid));
-			this.LoadLiquids(tag, failsafeArrayLength: 1);
+			this.LoadLiquids(tag);
 		}
 
 		public override TagCompound ExtraSave(){
-			TagCompound tag = new TagCompound(){
-				[nameof(StoredLiquid)] = StoredLiquid
-			};
+			TagCompound tag = new TagCompound();
 
 			this.SaveLiquids(tag);
 
@@ -42,22 +30,31 @@ namespace TerraScience.Content.TileEntities{
 
 		public override int MachineTile => ModContent.TileType<SaltExtractor>();
 
-		public MachineLiquidID[] LiquidTypes{ get; set; }
-		public float[] StoredLiquidAmounts{ get; set; }
+		public LiquidEntry[] LiquidEntries{ get; set; } = new LiquidEntry[]{
+			new LiquidEntry(max: 10f, isInput: true, MachineLiquidID.Water, MachineLiquidID.Saltwater)
+		};
+		public int LiquidPlaceDelay{ get; set; }
+
+		public override void PreUpdateReaction(){
+			Item salt = this.RetrieveItem(0);
+
+			if(LiquidEntries[0].current > 0 && salt.stack < 100)
+				ReactionInProgress = true;
+		}
 
 		public override bool UpdateReaction(){
 			float litersLostPerSecond = 0f;
-			if(LiquidTypes[0] == MachineLiquidID.Water)
+			if(LiquidEntries[0].id == MachineLiquidID.Water)
 				litersLostPerSecond = 0.05f;
-			else if(LiquidTypes[0] == MachineLiquidID.Saltwater)
+			else if(LiquidEntries[0].id == MachineLiquidID.Saltwater)
 				litersLostPerSecond = 0.075f;
 
 			float reaction = ReactionSpeed * litersLostPerSecond / 60f;
-			StoredLiquid -= reaction;
+			LiquidEntries[0].current -= reaction;
 
-			if(LiquidTypes[0] == MachineLiquidID.Water)
+			if(LiquidEntries[0].id == MachineLiquidID.Water)
 				ReactionProgress += reaction * 0.5f * 100;
-			else if(LiquidTypes[0] == MachineLiquidID.Saltwater)
+			else if(LiquidEntries[0].id == MachineLiquidID.Saltwater)
 				ReactionProgress += reaction * 1.5f * 100;
 
 			return true;
@@ -96,10 +93,10 @@ namespace TerraScience.Content.TileEntities{
 			}
 
 			//If there isn't any water left, pause the reaction
-			if(StoredLiquid <= 0f && ReactionInProgress){
+			if(LiquidEntries[0].current <= 0f && ReactionInProgress){
 				ReactionInProgress = false;
-				StoredLiquid = 0f;
-				LiquidTypes[0] = MachineLiquidID.None;
+				LiquidEntries[0].current = 0f;
+				LiquidEntries[0].id = MachineLiquidID.None;
 			}
 
 			//Stop the reaction if more than 99 salt items are stored
@@ -107,8 +104,8 @@ namespace TerraScience.Content.TileEntities{
 				ReactionInProgress = false;
 
 			//Update the delay timer
-			if(WaterPlaceDelay > 0)
-				WaterPlaceDelay--;
+			if(LiquidPlaceDelay > 0)
+				LiquidPlaceDelay--;
 		}
 
 		internal override int[] GetInputSlots() => new int[0];
@@ -116,5 +113,9 @@ namespace TerraScience.Content.TileEntities{
 		internal override int[] GetOutputSlots() => new int[]{ SlotsCount - 1 };
 
 		internal override bool CanInputItem(int slot, Item item) => false;
+
+		public void TryExportLiquid(Point16 pumpPos){ }
+
+		public void TryImportLiquid(Point16 pipePos) => this.TryImportLiquids(pipePos, 0);
 	}
 }

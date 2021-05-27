@@ -53,8 +53,6 @@ namespace TerraScience.Systems.Pipes{
 			pumpPathsToChests = new Dictionary<Point16, List<(float time, List<Point16> list)>>();
 			pumpsToRefresh = new HashSet<Point16>();
 
-			OnClear += () => InformPathsOfNetUpdate(null);
-
 			OnEntryPlace += pos => {
 				Tile tile = Framing.GetTileSafely(pos);
 				if(!(ModContent.GetModTile(tile.type) is ItemPumpTile))
@@ -108,8 +106,10 @@ namespace TerraScience.Systems.Pipes{
 						chests.Add(chestDown);
 				}
 
-				if(TileEntityUtils.TryFindMachineEntity(pos + new Point16(0, -1), out MachineEntity _))
-					pipesConnectedToMachines.Add(pos);
+				if(TileEntityUtils.TryFindMachineEntity(pos + new Point16(0, -1), out MachineEntity _)){
+					if(!pipesConnectedToMachines.Contains(pos))
+						pipesConnectedToMachines.Add(pos);
+				}
 
 				if(TileEntityUtils.TryFindMachineEntity(pos + new Point16(-1, 0), out MachineEntity _)){
 					if(!pipesConnectedToMachines.Contains(pos))
@@ -127,8 +127,9 @@ namespace TerraScience.Systems.Pipes{
 				}
 
 				Tile tile = Framing.GetTileSafely(pos);
-				if(ModContent.GetModTile(tile.type) is ItemPumpTile && !pumpTimers.ContainsKey(pos)){
-					pumpTimers.Add(pos, new Timer(){ value = 18 });
+				if(ModContent.GetModTile(tile.type) is ItemPumpTile){
+					if(!pumpTimers.ContainsKey(pos))
+						pumpTimers.Add(pos, new Timer(){ value = 18 });
 
 					if(ID != -1)
 						pumpsToRefresh.Add(pos);
@@ -208,7 +209,7 @@ namespace TerraScience.Systems.Pipes{
 		}
 
 		private static List<Point16> FilterPumps(Dictionary<Point16, List<(float time, List<Point16> list)>> dictionary, Point16 pos)
-			=> dictionary.Where(kvp => kvp.Value.Any(t => t.list.Any(p => Math.Abs(pos.X - p.X) + Math.Abs(pos.Y - p.Y) <= 1)))
+			=> dictionary.Where(kvp => kvp.Value.Any(t => t.list.Any(p => pos == p)))  //Only update paths that have this tile to speed up processing time
 				.Select(kvp => kvp.Key)
 				.ToList();
 
@@ -253,9 +254,6 @@ namespace TerraScience.Systems.Pipes{
 
 			return new TagCompound(){
 				["paths"] = paths.Count == 0 ? null : paths.Select(p => p.Save()).ToList(),
-				["chests"] = chests.Count == 0 ? null : chests,
-				["pipeChests"] = pipesConnectedToChests.Count == 0 ? null : pipesConnectedToChests,
-				["pipeMachines"] = pipesConnectedToMachines.Count == 0 ? null : pipesConnectedToMachines,
 				["pumpPositions"] = dirs?.Count > 0 ? dirs.Select(t => t.Item1).ToList() : null,
 				["pumpDirs"] = dirs?.Count > 0 ? dirs.Select(t => t.Item2).ToList() : null,
 				["pumpTimerLocations"] = pumpTimers.Keys.ToList(),
@@ -273,21 +271,6 @@ namespace TerraScience.Systems.Pipes{
 				}
 			}else
 				paths = new List<ItemNetworkPath>();
-			
-			if(tag.GetList<int>("chests") is List<int> ids)
-				chests = ids;
-			else
-				chests = new List<int>();
-			
-			if(tag.GetList<Point16>("pipeChests") is List<Point16> chestPos)
-				pipesConnectedToChests = chestPos;
-			else
-				pipesConnectedToChests = new List<Point16>();
-			
-			if(tag.GetList<Point16>("pipeMachines") is List<Point16> machinePos)
-				pipesConnectedToChests = machinePos;
-			else
-				pipesConnectedToMachines = new List<Point16>();
 
 			if(tag.GetList<Point16>("pumpPositions") is List<Point16> dirPos && tag.GetList<short>("pumpDirs") is List<short> dirDirs){
 				if(dirPos.Count == dirDirs.Count)
@@ -365,11 +348,11 @@ namespace TerraScience.Systems.Pipes{
 		}
 
 		private void InformPathsOfNetUpdate(Point16? updated = null){
-			foreach(var path in paths){
-				if(updated is Point16 pos){
+			if(updated is Point16 pos){
+				foreach(var path in paths){
 					var pathPos = path?.Path;
 
-					if(pathPos != null && pathPos.Any(p => Math.Abs(pos.X - p.X) + Math.Abs(pos.Y - p.Y) == 1))
+					if(pathPos != null && pathPos.Any(p => pos == p))  //Only update items that would pass over this tile to speed up processing time
 						path.needsPathRefresh = true;
 				}
 			}

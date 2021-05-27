@@ -1,13 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
-using System.Linq;
 using Terraria;
 using Terraria.DataStructures;
-using Terraria.ID;
 using Terraria.ModLoader;
-using TerraScience.Content.ID;
-using TerraScience.Content.Items.Materials;
 using TerraScience.Content.Items.Placeable.Machines;
 using TerraScience.Content.TileEntities;
 using TerraScience.Utilities;
@@ -31,45 +27,14 @@ namespace TerraScience.Content.Tiles.Multitiles{
 			}
 		}
 
-		public override bool PreHandleMouse(Point16 pos){
-			if(MiscUtils.TryGetTileEntity(pos, out SaltExtractorEntity se) && Main.LocalPlayer.HeldItemIsViableForSaltExtractor(pos) && se.WaterPlaceDelay == 0 && se.StoredLiquid < SaltExtractorEntity.MaxLiquid - 1){
-				se.WaterPlaceDelay = SaltExtractorEntity.MaxPlaceDelay;
-				se.StoredLiquid++;
-				se.PlaySound(SoundID.Splash);
+		public override bool PreHandleMouse(Point16 pos)
+			=> TileUtils.TryPlaceLiquidInMachine<SaltExtractorEntity>(this, pos);
 
-				//Only mess with the player items if the Salt Extractor isn't full
-				if (se.StoredLiquid > SaltExtractorEntity.MaxLiquid)
-					se.StoredLiquid = SaltExtractorEntity.MaxLiquid;
-				else{
-					Item heldItem = Main.LocalPlayer.HeldItem;
+		public override bool HandleMouse(Point16 pos){
+			var id = MiscUtils.GetIDFromItem(Main.LocalPlayer.HeldItem.type);
 
-					//Set the liquid type
-					if(heldItem.type == ItemID.WaterBucket || heldItem.type == ItemID.BottomlessBucket || heldItem.type == ModContent.ItemType<Vial_Water>())
-						se.LiquidTypes[0] = MachineLiquidID.Water;
-					else if(heldItem.type == ModContent.ItemType<Vial_Saltwater>())
-						se.LiquidTypes[0] = MachineLiquidID.Saltwater;
-
-					//And give the player back the container they used (unless it's the bottomless bucket)
-					if(heldItem.type == ItemID.WaterBucket){
-						Main.LocalPlayer.HeldItem.stack--;
-						Main.LocalPlayer.QuickSpawnItem(ItemID.EmptyBucket);
-					}else if(heldItem.type == ModContent.ItemType<Vial_Saltwater>() || heldItem.type == ModContent.ItemType<Vial_Water>()){
-						Main.LocalPlayer.HeldItem.stack--;
-						Main.LocalPlayer.QuickSpawnItem(ModContent.ItemType<EmptyVial>());
-					}
-
-					se.ReactionInProgress = true;
-				}
-
-				//Something happened
-				return true;
-			}
-
-			return false;
+			return TileUtils.HandleMouse<SaltExtractorEntity>(this, pos, () => MiscUtils.TryGetTileEntity(pos, out SaltExtractorEntity entity) && !Array.Exists(entity.LiquidEntries[0].validTypes, t => t == id));
 		}
-
-		public override bool HandleMouse(Point16 pos)
-			=> TileUtils.HandleMouse<SaltExtractorEntity>(this, pos, () => !Main.LocalPlayer.HeldItemIsViableForSaltExtractor(pos));
 
 		public override void PostDraw(int i, int j, SpriteBatch spriteBatch) {
 			//Draw the water in the side vials
@@ -84,7 +49,7 @@ namespace TerraScience.Content.Tiles.Multitiles{
 
 			if(MiscUtils.TryGetTileEntity(pos, out SaltExtractorEntity se) && lastTile){
 				//Do the rest of the things
-				float curWaterRatio = se.StoredLiquid / SaltExtractorEntity.MaxLiquid;
+				float curWaterRatio = se.LiquidEntries[0].current / se.LiquidEntries[0].max;
 				float invRatio = 1f - curWaterRatio;
 				Vector2 offset = MiscUtils.GetLightingDrawOffset();
 

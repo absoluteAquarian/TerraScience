@@ -14,35 +14,39 @@ namespace TerraScience.Content.TileEntities.Energy{
 
 		public override TerraFlux FluxUsage => new TerraFlux(300f);
 
-		public static List<int> ResultTypes;
+		public static Dictionary<int, (int requireStack, int resultType, int resultStack, float energyUsage, float convertTimeSeconds)> recipes;
 
-		public static List<double> ResultWeights;
-
-		public static List<int> ResultStacks;
-
-		public override int SlotsCount => 11;
+		public override int SlotsCount => 3;
 
 		public float CurBatteryCharge = 0f;
 		public const float BatteryMax = 9f;
 
+		private float currentConvertTimeMax;
+		private float currentConvertTime;
+		private Item convertItem;
+
 		public override void ExtraLoad(TagCompound tag){
 			base.ExtraLoad(tag);
 
-			CurBatteryCharge = tag.GetFloat(nameof(CurBatteryCharge));
+			CurBatteryCharge = tag.GetFloat("battery");
+			currentConvertTime = tag.GetFloat("convertTime");
+			currentConvertTimeMax = tag.GetFloat("convertMax");
+			if(tag.GetCompound("convert") is TagCompound item)
+				convertItem = ItemIO.Load(item);
 		}
 
 		public override TagCompound ExtraSave(){
 			var baseTag = base.ExtraSave();
-			baseTag.Add(nameof(CurBatteryCharge), CurBatteryCharge);
+
+			baseTag.Add("battery", CurBatteryCharge);
+			baseTag.Add("convertTime", currentConvertTime);
+			baseTag.Add("convertMax", currentConvertTimeMax);
+			baseTag.Add("convert", ItemIO.Save(convertItem));
+
 			return baseTag;
 		}
 
 		public override void PreUpdateReaction(){
-			//Force this tile to do nothing for the time being until i can think of a use for it
-			bool f = true;
-			if(f)
-				return;
-
 			//Battery lasts for 30s
 			if((float)StoredFlux <= 0f)
 				CurBatteryCharge -= BatteryMax / 30f / 60f;
@@ -51,22 +55,7 @@ namespace TerraScience.Content.TileEntities.Energy{
 
 			CurBatteryCharge = Utils.Clamp(CurBatteryCharge, 0f, BatteryMax);
 
-			//Always try to collect air, unless one of the slots would be full if another result stack was added to it
-			for(int i = 0; i < 10; i++){
-				Item item = this.RetrieveItem(i);
-
-				if(item.IsAir)
-					continue;
-
-				for(int j = 0; j < ResultTypes.Count; j++){
-					if(ResultTypes[j] == item.type && item.stack + ResultStacks[j] >= item.maxStack){
-						ReactionInProgress = false;
-						return;
-					}
-				}
-			}
-
-			Item battery = this.RetrieveItem(SlotsCount - 1);
+			Item battery = this.RetrieveItem(1);
 
 			if(!battery.IsAir && CurBatteryCharge <= 0){
 				battery.stack--;
@@ -78,71 +67,72 @@ namespace TerraScience.Content.TileEntities.Energy{
 					CurBatteryCharge = BatteryMax;
 			}
 
-			//If we're here, then no slots were too full.  Check if there's a battery active
-			ReactionInProgress = CurBatteryCharge > 0;
+			Item input = this.RetrieveItem(0);
+
+			if(convertItem.IsAir && !input.IsAir)
+				SetNextConvert();
+
+			Item output = this.RetrieveItem(2);
+
+			ReactionInProgress = CurBatteryCharge > 0
+				&& recipes.ContainsKey(convertItem.type)
+				&& convertItem.stack >= recipes[convertItem.type].requireStack
+				&& (output.IsAir || recipes[convertItem.type].resultType == output.type);
 		}
 
 		public override bool UpdateReaction(){
 			//Small chance to get an item each tick
-			if(Main.rand.NextFloat() < 0.08f / 60f)
-				ReactionProgress = 100;
-			return ReactionProgress == 100;
+			if(currentConvertTimeMax == 0)
+				return false;
+
+			currentConvertTime += 1f / 60f;
+
+			ReactionProgress = 100 * currentConvertTime / currentConvertTimeMax;
+			return ReactionProgress >= 100;
 		}
 
 		public override void ReactionComplete(){
-			bool f = true;
-			if(f || CurBatteryCharge <= 0f || !CheckFluxRequirement(FluxUsage))
-				return;
+			Item input = this.RetrieveItem(0);
+			Item output = this.RetrieveItem(2);
 
-			//Initialize the randomness
-			TechMod.wRand.Clear();
-			for(int i = 0; i < ResultTypes.Count; i++){
-				TechMod.wRand.Add((ResultTypes[i], ResultStacks[i]), ResultWeights[i]);
-			}
+			ReactionProgress = 0;
 
-			//Do the randomness
-			var result = TechMod.wRand.Get();
+			(int requireStack, int resultType, int resultStack, float _, float _) = recipes[convertItem.type];
 
-			//Parse the result
-			int type = result.Item1;
-			int stack = result.Item2;
+			if(output.IsAir){
+				output.SetDefaults(resultType);
+				output.stack = resultStack;
+			}else
+				output.stack += resultStack;
 
-			//Zappy sound
-			Main.PlaySound(SoundLoader.customSoundType, TileUtils.TileEntityCenter(this, MachineTile), TechMod.Instance.GetSoundSlot(SoundType.Custom, "Sounds/Custom/Zap"));
+			input.stack -= requireStack;
 
-			//Then try and either add to an existing stack or insert it into the first available slot
-			//Check for existing stacks first, then empty slots
-			for(int i = 0; i < 10; i++){
-				Item item = this.RetrieveItem(i);
+			if(input.stack <= 0)
+				input.TurnToAir();
 
-				if(item.IsAir)
-					continue;
+			SetNextConvert();
+		}
 
-				if(item.type == type){
-					item.stack += stack;
+		private void SetNextConvert(){
+			Item input = this.RetrieveItem(0);
 
-					if(item.stack > item.maxStack)
-						item.stack = item.maxStack;
+			if(recipes.ContainsKey(input.type) && recipes[input.type].requireStack <= input.stack && CheckFluxRequirement(new TerraFlux(recipes[input.type].energyUsage))){
+				currentConvertTimeMax = recipes[input.type].convertTimeSeconds;
+				currentConvertTime = 0;
 
-					return;
-				}
-			}
-			for(int i = 0; i < 10; i++){
-				Item item = this.RetrieveItem(i);
+				convertItem = input.Clone();
 
-				if(item.IsAir){
-					item.SetDefaults(type);
-					item.stack = stack;
-					return;
-				}
+				this.PlayCustomSound(TileUtils.TileEntityCenter(this, MachineTile), "Zap");
+			}else{
+				currentConvertTimeMax = 0;
+				convertItem.TurnToAir();
 			}
 		}
 
-		// TODO: Wait to implement these until after the machine has a use again
-		internal override int[] GetInputSlots() => new int[0];
+		internal override int[] GetInputSlots() => new int[]{ 0 };
 
-		internal override int[] GetOutputSlots() => new int[0];
+		internal override int[] GetOutputSlots() => new int[]{ 2 };
 
-		internal override bool CanInputItem(int slot, Item item) => false;
+		internal override bool CanInputItem(int slot, Item item) => slot == 0 && recipes.ContainsKey(item.type);
 	}
 }

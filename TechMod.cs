@@ -44,12 +44,6 @@ namespace TerraScience {
 		/// </summary>
 		public static TechMod Instance => ModContent.GetInstance<TechMod>();
 
-		/// <summary>
-		/// A <seealso cref="WeightedRandom{(int, int)}"/> used by <seealso cref="AirIonizerEntity"/>.
-		/// Initialized during <seealso cref="Load"/>
-		/// </summary>
-		public static WeightedRandom<(int, int)> wRand;
-
 		public static readonly Action<ModRecipe> NoRecipe = r => { };
 		public static readonly Action<ModRecipe> OnlyWorkBench = r => { r.AddTile(TileID.WorkBenches); };
 
@@ -82,11 +76,8 @@ namespace TerraScience {
 
 		internal static Type[] types;
 
-		public override void Load() {
-			//Consistent randomness with Main
-			wRand = new WeightedRandom<(int, int)>(Main.rand);
-
-			Logger.DebugFormat("Loading Factories and system Loaders...");
+		public override void Load(){
+			Logger.DebugFormat("Loading Factories and System Loaders...");
 
 			LiquidLoader = new ModLiquidLoader();
 			LiquidFactory = new ModLiquidFactory();
@@ -194,44 +185,31 @@ namespace TerraScience {
 			LiquidLoader.LoadLiquids(LiquidFactory);
 			machineLoader.Load();
 
-			// TODO: finish this
-			//Set the Air Ionizer stuff
-			/*
-			AirIonizerEntity.ResultTypes = new List<int>(){
-				ItemType(ElementUtils.ElementName(Element.Nitrogen)),
-				ItemType(ElementUtils.ElementName(Element.Oxygen)),
-				ItemType(ElementUtils.ElementName(Element.Argon)),
-				ItemType(CompoundUtils.CompoundName(Compound.CarbonDioxide)),
-				ItemType(ElementUtils.ElementName(Element.Neon)),
-				ItemType(ElementUtils.ElementName(Element.Helium)),
-				ItemType(CompoundUtils.CompoundName(Compound.Methane)),
-				ItemType(ElementUtils.ElementName(Element.Krypton)),
-				ItemType(ElementUtils.ElementName(Element.Hydrogen))
+			AirIonizerEntity.recipes = new Dictionary<int, (int requireStack, int resultType, int resultStack, float energyUsage, float convertTimeSeconds)>(){
+				[ItemID.CopperOre] =   (1, ItemID.TinOre,      1, 1000f, 8f),
+				[ItemID.IronOre] =     (1, ItemID.LeadOre,     1, 1200f, 11.5f),
+				[ItemID.SilverOre] =   (1, ItemID.TungstenOre, 1, 1500f, 15f),
+				[ItemID.GoldOre] =     (1, ItemID.PlatinumOre, 1, 2000f, 20f),
+				[ItemID.TinOre] =      (1, ItemID.CopperOre,   1, 1000f, 8f),
+				[ItemID.LeadOre] =     (1, ItemID.IronOre,     1, 1200f, 11.5f),
+				[ItemID.TungstenOre] = (1, ItemID.SilverOre,   1, 1500f, 15f),
+				[ItemID.PlatinumOre] = (1, ItemID.GoldOre,     1, 2000f, 20f)
 			};
 
-			AirIonizerEntity.ResultWeights = new List<double>(){
-				78.084, 20.946, 0.9340, 0.0407, 0.001818, 0.000524, 0.00018, 0.000114, 0.000055
-			};
+			BlastFurnaceEntity.ingredientToResult = new Dictionary<int, (int requireStack, int resultType, int resultStack)>(){
+				[ItemID.CopperOre] =   (3, ItemID.CopperBar,    2),
+				[ItemID.IronOre] =     (3, ItemID.IronBar,      2),
+				[ItemID.SilverOre] =   (4, ItemID.SilverBar,    2),
+				[ItemID.GoldOre] =     (4, ItemID.GoldBar,      2),
+				[ItemID.TinOre] =      (3, ItemID.TinBar,       2),
+				[ItemID.LeadOre] =     (3, ItemID.LeadBar,      2),
+				[ItemID.TungstenOre] = (4, ItemID.TungstenBar,  2),
+				[ItemID.PlatinumOre] = (4, ItemID.PlatinumBar,  2),
 
-			AirIonizerEntity.ResultStacks = new List<int>(){
-				2, 2, 2, 1, 2, 2, 1, 2, 2
-			};
-			*/
+				[ItemID.Meteorite] =   (3, ItemID.MeteoriteBar, 2),
 
-			BlastFurnaceEntity.ingredientToResult = new Dictionary<int, (int, int)>(){
-				[ItemID.CopperOre] = (ItemID.CopperBar, 2),
-				[ItemID.IronOre] = (ItemID.IronBar, 2),
-				[ItemID.SilverOre] = (ItemID.SilverBar, 2),
-				[ItemID.GoldOre] = (ItemID.GoldBar, 2),
-				[ItemID.TinOre] = (ItemID.TinBar, 2),
-				[ItemID.LeadOre] = (ItemID.LeadBar, 2),
-				[ItemID.TungstenOre] = (ItemID.TungstenBar, 2),
-				[ItemID.PlatinumOre] = (ItemID.PlatinumBar, 2),
-
-				[ItemID.Meteorite] = (ItemID.MeteoriteBar, 2),
-
-				[ItemID.DemoniteOre] = (ItemID.DemoniteBar, 2),
-				[ItemID.CrimtaneOre] = (ItemID.CrimtaneOre, 2)
+				[ItemID.DemoniteOre] = (3, ItemID.DemoniteBar,  2),
+				[ItemID.CrimtaneOre] = (3, ItemID.CrimtaneOre,  2)
 			};
 
 			//SendPowerToMachines needs to run after the generators have exported their power to the networks, but before the rest of the machines update
@@ -320,6 +298,7 @@ namespace TerraScience {
 
 		public override void MidUpdateProjectileItem(){
 			NetworkCollection.UpdateItemNetworks();
+			NetworkCollection.UpdateFluidNetworks();
 		}
 
 		public override void Unload() {
@@ -357,8 +336,7 @@ namespace TerraScience {
 
 			machineLoader?.Unload();
 
-			AirIonizerEntity.ResultTypes = null;
-			AirIonizerEntity.ResultWeights = null;
+			AirIonizerEntity.recipes = null;
 
 			BlastFurnaceEntity.ingredientToResult = null;
 
@@ -459,6 +437,11 @@ namespace TerraScience {
 				(ModContent.ItemType<IronPipe>(), 1), (ModContent.ItemType<BasicMachineCore>(), 1), (ModContent.ItemType<IronPipe>(), 1),
 				(ItemID.IronBar, 2),                  (ModContent.ItemType<TFWireItem>(), 6),       (ItemID.IronBar, 2)
 			});
+			DatalessMachineInfo.Register<FluidTankItem>(new[]{
+				(ItemID.IronBar, 5), (ModContent.ItemType<FluidPump>(), 1), (ItemID.IronBar, 5),
+				(ItemID.Glass, 10),  (ItemID.IronBar, 5),                   (ItemID.Glass, 10),
+				(ItemID.IronBar, 5), (ModContent.ItemType<FluidPump>(), 1), (ItemID.IronBar, 5)
+			});
 
 			//Loading merge data here instead of <tile>.SetDefaults()
 			foreach(var type in types){
@@ -488,6 +471,25 @@ namespace TerraScience {
 			AddElectrolyzerRecipe(MachineGasID.Hydrogen);
 			AddElectrolyzerRecipe(MachineGasID.Oxygen);
 			AddElectrolyzerRecipe(MachineGasID.Chlorine);
+
+			//Blast furnace recipes
+			foreach(var entry in BlastFurnaceEntity.ingredientToResult){
+				ScienceRecipe recipe = new ScienceRecipe(this);
+				recipe.AddIngredient(entry.Key, entry.Value.requireStack);
+				recipe.AddTile(ModContent.TileType<BlastFurnace>());
+				recipe.SetResult(entry.Value.resultType, entry.Value.resultStack);
+				recipe.AddRecipe();
+			}
+
+			//Matter Energizer recipes
+			foreach(var entry in AirIonizerEntity.recipes){
+				ScienceRecipe recipe = new ScienceRecipe(this);
+				recipe.AddIngredient(entry.Key, entry.Value.requireStack);
+				recipe.AddIngredient(ModContent.ItemType<TerraFluxIndicator>());
+				recipe.AddTile(ModContent.TileType<AirIonizer>());
+				recipe.SetResult(entry.Value.resultType, entry.Value.resultStack);
+				recipe.AddRecipe();
+			}
 
 			//Additional Extractinator recipes
 			AddExtractinatorRecipe(ItemID.EbonsandBlock, ItemID.CursedFlame);
@@ -636,15 +638,31 @@ namespace TerraScience {
 		}
 
 		// -- Types --
-		// Call("Get Machine Entity", new Point16(x, y))
+		// Call("Get Machine Entity", tile position)
 		//	- gets the MachineEntity at the tile position, if one exists there
-		public override object Call(params object[] args) {
+		// Call("Register Blast Furnace Recipe", ingredient type, ingredient stack, result type, result stack)
+		//  - registers a recipe for the Blast Furnace machine
+		// Call("Register Matter Energizer Recipe", ingredient type, ingredient stack, result type, result stack)
+		//  - registers a recipe for the Blast Furnace machine
+		public override object Call(params object[] args){
 			//People who don't use the exact call name are dumb.  We shouldn't have to make sure they typed the name correctly
 
 			switch((string)args[0]){
 				case "Get Machine Entity":
 					MiscUtils.TryGetTileEntity((Point16)args[1], out MachineEntity entity);
 					return entity;
+				case "Register Blast Furnace Recipe":
+					if(args[1] is int ingredientType && args[2] is int ingredientStack && args[3] is int resultType && args[4] is int resultStack){
+						BlastFurnaceEntity.ingredientToResult.Add(ingredientType, (ingredientStack, resultType, resultStack));
+						return true;
+					}else
+						throw new Exception("Invalid data passed to Mod.Call(\"Register Blast Furnace Recipe\")");
+				case "Register Matter Energizer Recipe":
+					if(args[1] is int ingredientType2 && args[2] is int ingredientStack2 && args[3] is int resultType2 && args[4] is int resultStack2){
+						BlastFurnaceEntity.ingredientToResult.Add(ingredientType2, (ingredientStack2, resultType2, resultStack2));
+						return true;
+					}else
+						throw new Exception("Invalid data passed to Mod.Call(\"Register Matter Energizer Recipe\")");
 			}
 
 			return base.Call(args);

@@ -1,13 +1,77 @@
-﻿using TerraScience.Content.ID;
+﻿using Terraria.DataStructures;
+using Terraria.ModLoader.IO;
+using TerraScience.Content.ID;
 
 namespace TerraScience.Content.TileEntities{
+	public class LiquidEntry{
+		public MachineLiquidID id;
+		public float current;
+		public float max;
+
+		public readonly MachineLiquidID[] validTypes;
+
+		public readonly bool isInput;
+
+		public LiquidEntry(float max, bool isInput, params MachineLiquidID[] validTypes){
+			this.max = max;
+			this.isInput = isInput;
+			this.validTypes = validTypes;
+		}
+
+		public TagCompound Save()
+			=> new TagCompound(){
+				["cur"] = current,
+				["id"] = (int)id
+			};
+
+		public void Load(TagCompound tag){
+			current = tag.GetFloat("cur");
+			id = (MachineLiquidID)tag.GetInt("id");
+		}
+	}
+
+	public class GasEntry{
+		public MachineGasID id;
+		public float current;
+		public float max;
+
+		public readonly MachineGasID[] validTypes;
+
+		public readonly bool isInput;
+
+		public GasEntry(float max, bool isInput, params MachineGasID[] validTypes){
+			this.max = max;
+			this.isInput = isInput;
+			this.validTypes = validTypes;
+		}
+
+		public TagCompound Save()
+			=> new TagCompound(){
+				["cur"] = current,
+				["id"] = (int)id
+			};
+
+		public void Load(TagCompound tag){
+			current = tag.GetFloat("cur");
+			id = (MachineGasID)tag.GetInt("id");
+		}
+	}
+
 	public interface IGasMachine{
-		MachineGasID[] GasTypes{ get; set; }
-		float[] StoredGasAmounts{ get; set; }
+		GasEntry[] GasEntries{ get; set; }
+
+		int GasPlaceDelay{ get; set; }
+
+		void TryExportGas(Point16 pumpPos);
+		void TryImportGas(Point16 pipePos);
 	}
 
 	public interface ILiquidMachine{
-		MachineLiquidID[] LiquidTypes{ get; set; }
-		float[] StoredLiquidAmounts{ get; set; }
+		LiquidEntry[] LiquidEntries{ get; set; }
+
+		int LiquidPlaceDelay{ get; set; }
+
+		void TryExportLiquid(Point16 pumpPos);
+		void TryImportLiquid(Point16 pipePos);
 	}
 }

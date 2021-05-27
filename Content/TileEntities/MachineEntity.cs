@@ -328,5 +328,16 @@ namespace TerraScience.Content.TileEntities{
 			if(sendBack)
 				incoming.itemData = ItemIO.Save(data);
 		}
+
+		public override bool Equals(object obj)
+			=> obj is MachineEntity entity && Position == entity.Position;
+
+		public override int GetHashCode() => base.GetHashCode();
+
+		public static bool operator ==(MachineEntity first, MachineEntity second)
+			=> first?.Position == second?.Position;
+
+		public static bool operator !=(MachineEntity first, MachineEntity second)
+			=> first?.Position != second?.Position;
 	}
 }

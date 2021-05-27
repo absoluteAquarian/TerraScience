@@ -10,6 +10,7 @@ using Terraria.ModLoader.IO;
 using Terraria.UI;
 using Terraria.World.Generation;
 using TerraScience.API.Interfaces;
+using TerraScience.Content.ID;
 using TerraScience.Content.Items.Placeable;
 using TerraScience.Content.Items.Tools;
 using TerraScience.Content.Tiles;
@@ -214,7 +215,29 @@ namespace TerraScience.World{
 					Vector2.Zero);
 			}
 			if(fluidNet != null){
-				// TODO: display liquid type that's flowing through network
+				Utils.DrawBorderStringFourWay(Main.spriteBatch, Main.fontMouseText,
+					$"Targeting Fluid Network (ID: {fluidNet.ID})",
+					offset.X,
+					!hasOffset ? offset.Y : (offset.Y += 20),
+					Color.Red,
+					Color.Black,
+					Vector2.Zero);
+
+				Utils.DrawBorderStringFourWay(Main.spriteBatch, Main.fontMouseText,
+					$"Fluid Type: {(fluidNet.liquidType != MachineLiquidID.None ? fluidNet.liquidType.ProperEnumName() : fluidNet.gasType.ProperEnumName())}",
+					offset.X,
+					offset.Y += 20,
+					Color.White,
+					Color.Black,
+					Vector2.Zero);
+
+				Utils.DrawBorderStringFourWay(Main.spriteBatch, Main.fontMouseText,
+					$"Stored Fluid: {fluidNet.StoredFluid :0.##} / {fluidNet.Capacity :0.##} L",
+					offset.X,
+					offset.Y += 20,
+					Color.White,
+					Color.Black,
+					Vector2.Zero);
 			}
 
 			Main.spriteBatch.End();

@@ -11,7 +11,10 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ObjectData;
 using Terraria.UI;
+using TerraScience.Content.ID;
+using TerraScience.Content.Items.Materials;
 using TerraScience.Content.Items.Placeable.Machines;
+using TerraScience.Content.Items.Tools;
 using TerraScience.Content.TileEntities;
 using TerraScience.Content.TileEntities.Energy;
 using TerraScience.Content.Tiles.Multitiles;
@@ -115,6 +118,7 @@ namespace TerraScience.Utilities{
 			Main.tileNoAttach[type] = true;
 			Main.tileFrameImportant[type] = true;
 
+			TileObjectData.newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.SolidWithTop, (int)width, 0);
 			TileObjectData.newTile.CoordinateHeights = MiscUtils.Create1DArray(16, height);
 			TileObjectData.newTile.CoordinateWidth = 16;
 			TileObjectData.newTile.Height = (int)height;
@@ -235,6 +239,100 @@ namespace TerraScience.Utilities{
 
 			//Full stack couldn't be put into the chest
 			return stack <= 0;
+		}
+
+		public static bool TryPlaceLiquidInMachine<T>(Machine machine, Point16 pos) where T : MachineEntity, ILiquidMachine{
+			Tile tile = Framing.GetTileSafely(pos);
+
+			Point16 orig = pos - tile.TileCoord();
+
+			if(MiscUtils.TryGetTileEntity(orig, out T entity) && entity.LiquidPlaceDelay <= 0){
+				var id = MiscUtils.GetIDFromItem(Main.LocalPlayer.HeldItem.type);
+
+				//null validTypes means any liquid can be put in the slot
+				int index;
+				if(id == MachineLiquidID.None || (index = Array.FindIndex(entity.LiquidEntries, entry => entry.isInput && (entry.validTypes is null || Array.Exists(entry.validTypes, t => t == id)))) == -1 || (entity.LiquidEntries[index].id != MachineLiquidID.None && entity.LiquidEntries[index].id != id))
+					return false;
+
+				var use = entity.LiquidEntries[index];
+
+				if(use.current + 1 > use.max)
+					return false;
+
+				if(use.id == MachineLiquidID.None)
+					use.id = id;
+
+				use.current += 1;
+
+				if(use.current > use.max)
+					use.current = use.max;
+
+				entity.LiquidPlaceDelay = ElectrolyzerEntity.MaxPlaceDelay;
+
+				Main.PlaySound(SoundID.Splash, TileEntityCenter(entity, machine.Type));
+
+				Item heldItem = Main.LocalPlayer.HeldItem;
+
+				//And give the player back the container they used (unless it's the bottomless bucket)
+				if(heldItem.type == ItemID.WaterBucket){
+					Main.LocalPlayer.HeldItem.stack--;
+					Main.LocalPlayer.QuickSpawnItem(ItemID.EmptyBucket);
+				}else if(heldItem.type == ModContent.ItemType<Vial_Water>() || heldItem.type == ModContent.ItemType<Vial_Saltwater>()){
+					Main.LocalPlayer.HeldItem.stack--;
+					Main.LocalPlayer.QuickSpawnItem(ModContent.ItemType<EmptyVial>());
+				}
+
+				//Success
+				return true;
+			}
+
+			return false;
+		}
+
+		public static bool TryPlaceGasInMachine<T>(Machine machine, Point16 pos) where T : MachineEntity, IGasMachine{
+			Tile tile = Framing.GetTileSafely(pos);
+
+			Point16 orig = pos - tile.TileCoord();
+
+			if(MiscUtils.TryGetTileEntity(orig, out T entity) && entity.GasPlaceDelay <= 0){
+				if(!(Main.LocalPlayer.HeldItem.modItem is Capsule capsule))
+					return false;
+				
+				var id = capsule.GasType;
+
+				if(id == MachineGasID.None)
+					return false;
+
+				//null validTypes means any gas can be put in the slot
+				int index;
+				if(id == MachineGasID.None || (index = Array.FindIndex(entity.GasEntries, entry => entry.isInput && (entry.validTypes is null || Array.Exists(entry.validTypes, t => t == id)))) == -1 || (entity.GasEntries[index].id != MachineGasID.None && entity.GasEntries[index].id != id))
+					return false;
+
+				var use = entity.GasEntries[index];
+
+				if(use.current + 1 > use.max)
+					return false;
+
+				if(use.id == MachineGasID.None)
+					use.id = id;
+
+				use.current += 1;
+
+				if(use.current > use.max)
+					use.current = use.max;
+
+				entity.GasPlaceDelay = ElectrolyzerEntity.MaxPlaceDelay;
+
+				Main.PlaySound(SoundID.Splash, TileEntityCenter(entity, machine.Type));
+
+				Main.LocalPlayer.HeldItem.stack--;
+				Main.LocalPlayer.QuickSpawnItem(TechMod.GetCapsuleType(MachineGasID.None));
+
+				//Success
+				return true;
+			}
+
+			return false;
 		}
 	}
 

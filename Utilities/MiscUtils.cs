@@ -12,7 +12,6 @@ using TerraScience.Content.Items.Materials;
 using TerraScience.Content.TileEntities;
 using TerraScience.Content.TileEntities.Energy;
 using TerraScience.Content.UI;
-using static TerraScience.Content.TileEntities.SaltExtractorEntity;
 
 namespace TerraScience.Utilities {
 	public static class MiscUtils {
@@ -43,24 +42,6 @@ namespace TerraScience.Utilities {
 			return tileEntity != null;
 		}
 
-		public static bool HeldItemIsViableForElectrolyzer(this Player player, Point16 pos){
-			//Near copy-pasta of HeldItemIsViableForSaltExtractor
-			// TODO: make this not a copy-pasta
-			if(!TryGetTileEntity(pos, out ElectrolyzerEntity _))
-				return false;
-
-			int[] types = new int[]{
-				ItemID.WaterBucket,
-				ItemID.BottomlessBucket,
-				ModContent.ItemType<Vial_Water>(),
-				ModContent.ItemType<Vial_Saltwater>()
-			};
-
-			//Electrolyzer only accepts water atm
-			// TODO: support more liquid types
-			return types.Contains(player.HeldItem.type);
-		}
-
 		public static MachineLiquidID GetIDFromItem(int type){
 			if(type == ItemID.WaterBucket || type == ItemID.BottomlessBucket || type == ModContent.ItemType<Vial_Water>())
 				return MachineLiquidID.Water;
@@ -71,37 +52,6 @@ namespace TerraScience.Utilities {
 			else if(type == ItemID.HoneyBucket)
 				return MachineLiquidID.Honey;
 			return MachineLiquidID.None;
-		}
-
-		public static bool HeldItemIsViableForSaltExtractor(this Player player, Point16 pos){
-			if(!TryGetTileEntity(pos, out SaltExtractorEntity se))
-				return false;
-
-			int[] types = new int[]{
-				ItemID.WaterBucket,
-				ItemID.BottomlessBucket,
-				ModContent.ItemType<Vial_Water>(),
-				ModContent.ItemType<Vial_Saltwater>()
-			};
-
-			if(!types.Contains(player.HeldItem.type))
-				return false;
-
-			//Liquid: none
-			if(se.LiquidTypes[0] == MachineLiquidID.None)
-				return true;
-
-			//Liquid: water
-			if((player.HeldItem.type == ItemID.WaterBucket || player.HeldItem.type == ItemID.BottomlessBucket || player.HeldItem.type == ModContent.ItemType<Vial_Water>())
-				&& se.LiquidTypes[0] == MachineLiquidID.Water)
-				return true;
-
-			//Liquid: saltwater
-			if(player.HeldItem.type == ModContent.ItemType<Vial_Saltwater>() && se.LiquidTypes[0] == MachineLiquidID.Saltwater)
-				return true;
-
-			//Bad
-			return false;
 		}
 
 		public static Vector2 ScreenCenter()

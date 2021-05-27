@@ -37,9 +37,7 @@ namespace TerraScience.Content.Tiles.Multitiles{
 			Tile tile = Framing.GetTileSafely(i, j);
 			Point16 pos = new Point16(i, j) - tile.TileCoord();
 
-			if(PreHandleMouse(pos))
-				return true;
-			return HandleMouse(pos);
+			return PreHandleMouse(pos) || HandleMouse(pos);
 		}
 
 		public sealed override void KillMultiTile(int i, int j, int frameX, int frameY)

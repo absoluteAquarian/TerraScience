@@ -46,7 +46,6 @@ namespace TerraScience.Content.Items{
 		}
 
 		private void Draw(SpriteBatch spriteBatch, Vector2 position, Color lightColor, Vector2 origin, float rotation, float scale){
-			//Need to force a type refresh since moving items can cause problems
 			Color color = Gas is MachineGasID gasID
 				? Capsule.GetBackColor(gasID)
 				: Liquid is MachineLiquidID liquidID

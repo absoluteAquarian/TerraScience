@@ -69,6 +69,10 @@ namespace TerraScience.Systems.Energy{
 
 				needsRateRefresh = true;
 			};
+			PostRefreshConnections += () => {
+				if(StoredFlux > Capacity)
+					StoredFlux = Capacity;
+			};
 		}
 
 		public override TagCompound Save()

@@ -38,5 +38,7 @@ namespace TerraScience.API.Interfaces{
 		TagCompound CombineSave();
 		void LoadCombinedData(TagCompound up, TagCompound left, TagCompound right, TagCompound down);
 		void SplitDataAcrossNetworks(Point16 splitOrig);
+
+		bool CanCombine(Point16 orig, Point16 dir);
 	}
 }

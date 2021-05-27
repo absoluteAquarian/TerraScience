@@ -14,7 +14,7 @@ namespace TerraScience.Content.TileEntities{
 
 		public override int SlotsCount => 10;
 
-		public static Dictionary<int, (int, int)> ingredientToResult;
+		public static Dictionary<int, (int requireStack, int resultType, int resultStack)> ingredientToResult;
 
 		public bool ForceNoReaction = false;
 
@@ -24,6 +24,11 @@ namespace TerraScience.Content.TileEntities{
 		public override void PreUpdateReaction(){
 			Item input = ParentState?.GetSlot(0).StoredItem ?? GetItem(0);
 			Item fuel = ParentState?.GetSlot(1).StoredItem ?? GetItem(1);
+
+			if(ingredientToResult.TryGetValue(input.type, out (int requireStack, int resultType, int resultStack) tuple)){
+				if(input.stack >= tuple.requireStack && ForceNoReaction)
+					ForceNoReaction = false;
+			}
 
 			ReactionInProgress = !ForceNoReaction && !input.IsAir && !fuel.IsAir;
 
@@ -58,7 +63,13 @@ namespace TerraScience.Content.TileEntities{
 				fuel = ParentState.GetSlot(1).StoredItem;
 			}
 
-			(int, int) result = ingredientToResult[input.type];
+			(int requireStack, int resultType, int resultStack) = ingredientToResult[input.type];
+
+			if(input.stack < requireStack){
+				ForceNoReaction = true;
+				ReactionProgress = 0;
+				return;
+			}
 
 			input.stack--;
 			if(input.stack <= 0)
@@ -79,19 +90,19 @@ namespace TerraScience.Content.TileEntities{
 				Item slot = ParentState?.GetSlot(i).StoredItem ?? GetItem(i);
 
 				if(slot.IsAir){
-					slot.SetDefaults(result.Item1);
-					slot.stack = result.Item2;
+					slot.SetDefaults(resultType);
+					slot.stack = resultStack;
 					return;
-				}else if(slot.type == result.Item1){
-					if(slot.stack + result.Item2 > slot.maxStack){
+				}else if(slot.type == resultType){
+					if(slot.stack + resultStack > slot.maxStack){
 						int old = slot.stack;
 						slot.stack = slot.maxStack;
-						result.Item2 -= slot.stack - old;
+						resultStack -= slot.stack - old;
 
-						if(result.Item2 <= 0)
+						if(resultStack <= 0)
 							return;
 					}else{
-						slot.stack += result.Item2;
+						slot.stack += resultStack;
 						return;
 					}
 				}

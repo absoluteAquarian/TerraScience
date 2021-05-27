@@ -47,6 +47,8 @@ namespace TerraScience.Systems{
 
 		public virtual void SplitDataAcrossNetworks(Point16 splitOrig){ }
 
+		public virtual bool CanCombine(Point16 orig, Point16 dir) => true;
+
 		public override bool Equals(object obj)
 			=> obj is Network<T, TTile> network && ID == network.ID;
 

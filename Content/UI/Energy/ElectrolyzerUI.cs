@@ -102,7 +102,7 @@ namespace TerraScience.Content.UI.Energy{
 		internal override void UpdateText(List<UIText> text){
 			ElectrolyzerEntity ee = UIEntity as ElectrolyzerEntity;
 
-			text[0].SetText($"{ee.LiquidTypes[0].ProperEnumName()}: {UIDecimalFormat(ee.StoredLiquidAmounts[0])}L / {Math.Round(ElectrolyzerEntity.MaxLiquid)}L");
+			text[0].SetText($"{ee.LiquidEntries[0].id.ProperEnumName()}: {UIDecimalFormat(ee.LiquidEntries[0].current)}L / {Math.Round(ee.LiquidEntries[0].max)}L");
 			text[1].SetText($"Charge: {UIDecimalFormat(ee.CurBatteryCharge)}V");
 			text[2].SetText(GetFluxString());
 		}
@@ -110,15 +110,15 @@ namespace TerraScience.Content.UI.Energy{
 		internal override void UpdateEntity(){
 			ElectrolyzerEntity entity = UIEntity as ElectrolyzerEntity;
 
-			gaugeGas1.fluidName = entity.GasTypes[0].ProperEnumName();
-			gaugeGas1.fluidCur = entity.StoredGasAmounts[0];
-			gaugeGas1.fluidMax = ElectrolyzerEntity.MaxGasPrimary;
-			gaugeGas1.fluidColor = entity.StoredGasAmounts[0] <= 0f ? Color.Transparent : Capsule.GetBackColor(entity.GasTypes[0]);
+			gaugeGas1.fluidName = entity.GasEntries[0].id.ProperEnumName();
+			gaugeGas1.fluidCur = entity.GasEntries[0].current;
+			gaugeGas1.fluidMax = entity.GasEntries[0].max;
+			gaugeGas1.fluidColor = entity.GasEntries[0].current <= 0f ? Color.Transparent : Capsule.GetBackColor(entity.GasEntries[0].id);
 
-			gaugeGas2.fluidName = entity.GasTypes[1].ProperEnumName();
-			gaugeGas2.fluidCur = entity.StoredGasAmounts[1];
-			gaugeGas2.fluidMax = ElectrolyzerEntity.MaxGasSecondary;
-			gaugeGas2.fluidColor = entity.StoredGasAmounts[1] <= 0f ? Color.Transparent : Capsule.GetBackColor(entity.GasTypes[1]);
+			gaugeGas2.fluidName = entity.GasEntries[1].id.ProperEnumName();
+			gaugeGas2.fluidCur = entity.GasEntries[1].current;
+			gaugeGas2.fluidMax = entity.GasEntries[1].max;
+			gaugeGas2.fluidColor = entity.GasEntries[1].current <= 0f ? Color.Transparent : Capsule.GetBackColor(entity.GasEntries[1].id);
 		}
 	}
 }

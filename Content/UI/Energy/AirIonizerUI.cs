@@ -10,13 +10,13 @@ using TerraScience.Utilities;
 
 namespace TerraScience.Content.UI.Energy{
 	public class AirIonizerUI : PoweredMachineUI{
-		public override string Header => "Air Ionizer";
+		public override string Header => "Matter Energizer";
 
 		public override int TileType => ModContent.TileType<AirIonizer>();
 
 		internal override void PanelSize(out int width, out int height){
 			width = 470;
-			height = 250;
+			height = 270;
 		}
 
 		internal override void InitializeText(List<UIText> text){
@@ -31,37 +31,35 @@ namespace TerraScience.Content.UI.Energy{
 			};
 			power.Top.Set(77, 0);
 			text.Add(power);
+
+			UIText progress = new UIText("Progress: 0%"){
+				HAlign = 0.5f
+			};
+			progress.Top.Set(108, 0);
+			text.Add(progress);
 		}
 
 		internal override void InitializeSlots(List<UIItemSlot> slots){
-			//Copied from ScienceWorkbenchUI lul
-			int top = 100;
-			int origLeft = 30 + 70, left;
-
-			//10 slots, 5 per row
-			for(int r = 0; r < 2; r++){
-				left = origLeft;
-				for(int c = 0; c < 5; c++){
-					//Can't place items, only remove them
-					UIItemSlot slot = new UIItemSlot(){
-						ValidItemFunc = item => item.IsAir
-					};
-					slot.Left.Set(left, 0);
-					slot.Top.Set(top, 0);
-
-					left += Main.inventoryBack9Texture.Width + 15;
-
-					slots.Add(slot);
-				}
-				top += Main.inventoryBack9Texture.Height + 15;
-			}
+			UIItemSlot input = new UIItemSlot(){
+				ValidItemFunc = item => item.IsAir || AirIonizerEntity.recipes.ContainsKey(item.type),
+				HAlign = 0.38f
+			};
+			input.Top.Set(150, 0);
+			slots.Add(input);
 
 			UIItemSlot battery = new UIItemSlot(){
-				ValidItemFunc = item => item.IsAir || item.type == ModContent.ItemType<Battery9V>(),
-				VAlign = 0.5f
+				ValidItemFunc = item => item.IsAir || item.type == ModContent.ItemType<Battery9V>()
 			};
-			battery.Left.Set(20, 0);
+			battery.Top.Set(130, 0);
+			battery.Left.Set(40, 0);
 			slots.Add(battery);
+
+			UIItemSlot output = new UIItemSlot(){
+				ValidItemFunc = item => item.IsAir,
+				HAlign = 0.62f
+			};
+			output.Top.Set(150, 0);
+			slots.Add(output);
 		}
 
 		internal override void UpdateText(List<UIText> text){
@@ -69,6 +67,7 @@ namespace TerraScience.Content.UI.Energy{
 
 			text[0].SetText($"Charge: {UIDecimalFormat(ions.CurBatteryCharge)}V");
 			text[1].SetText(GetFluxString());
+			text[2].SetText($"Progress: {UIDecimalFormat(UIEntity.ReactionProgress)}%");
 		}
 	}
 }

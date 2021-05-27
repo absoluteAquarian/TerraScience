@@ -5,10 +5,8 @@ Construct multitile machines with the Science Workbench and explore the wonders 
 Current Multitiles:
 [c/dddd00:Auto-Extractinator]
 - automatically extractinates silt, slush, fossils and sand
-[c/dddd00:Air Ionizer]
-- currently does nothing
 [c/dddd00:Basic Battery]
-- stores TF
+- stores Terra Flux (TF)
 [c/dddd00:Blast Furnace]
 - powered by coal, increases the gains from smeling ores
 [c/dddd00:Basic Solar Panel]
@@ -17,8 +15,12 @@ Current Multitiles:
 - generates Terra Flux (TF) based on the current wind speed and weather
 [c/dddd00:Electrolyzer]
 - chemically separates certain liquids into their gaseous components
+[c/dddd00:Fluid Tank]
+- stores one liquid and one gas
 [c/dddd00:Greenhouse]
 - grows and automatically harvests herbs, mushroom grass cacti and saplings
+[c/dddd00:Matter Energizer]
+- consumes Terra Flux (TF) to convert certain items into other items
 [c/dddd00:Reinforced Furnace]
 - burn wooden items to produce Coal
 [c/dddd00:Salt Extractor]
