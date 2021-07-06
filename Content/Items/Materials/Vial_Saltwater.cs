@@ -1,7 +1,6 @@
 ﻿using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
-using TerraScience.Utilities;
 
 namespace TerraScience.Content.Items.Materials{
 	public class Vial_Saltwater : ModItem{

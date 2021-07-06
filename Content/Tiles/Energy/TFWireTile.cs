@@ -12,8 +12,8 @@ namespace TerraScience.Content.Tiles.Energy{
 
 		public virtual TerraFlux Capacity => new TerraFlux(200);
 
-		public virtual TerraFlux ImportRate => new TerraFlux(1000 / 60f);
-		public virtual TerraFlux ExportRate => new TerraFlux(1000 / 60f);
+		public virtual TerraFlux ImportRate => new TerraFlux(2000 / 60f);
+		public virtual TerraFlux ExportRate => new TerraFlux(2000 / 60f);
 
 		public override void SafeSetDefaults(){
 			AddMapEntry(Color.Orange);

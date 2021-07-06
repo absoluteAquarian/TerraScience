@@ -4,28 +4,28 @@ Construct multitile machines with the Science Workbench and explore the wonders 
 
 Current Multitiles:
 [c/dddd00:Auto-Extractinator]
-- automatically extractinates silt, slush, fossils and sand
+- consumes [c/dd3333:Terra Flux (TF)] to automatically extractinate silt, slush, fossils and sand
 [c/dddd00:Basic Battery]
-- stores Terra Flux (TF)
+- stores [c/dd3333:Terra Flux (TF)]
 [c/dddd00:Blast Furnace]
-- powered by coal, increases the gains from smeling ores
+- powered by coal, increases the gains from smelting ores
 [c/dddd00:Basic Solar Panel]
-- generates TF based on the time of day and weather
+- generates [c/dd3333:Terra Flux (TF)] based on the time of day and weather
 [c/dddd00:Basic Wind Turbine]
-- generates Terra Flux (TF) based on the current wind speed and weather
+- generates [c/dd3333:Terra Flux (TF)] based on the current wind speed and weather
 [c/dddd00:Electrolyzer]
-- chemically separates certain liquids into their gaseous components
+- consumes [c/dd3333:Terra Flux (TF)] to chemically separate certain liquids into their gaseous components
 [c/dddd00:Fluid Tank]
 - stores one liquid and one gas
 [c/dddd00:Greenhouse]
 - grows and automatically harvests herbs, mushroom grass cacti and saplings
 [c/dddd00:Matter Energizer]
-- consumes Terra Flux (TF) to convert certain items into other items
+- consumes [c/dd3333:Terra Flux (TF)] to convert certain items into other items
 [c/dddd00:Reinforced Furnace]
 - burn wooden items to produce Coal
 [c/dddd00:Salt Extractor]
-- provide Water or Saltwater to produce Salt
+- consumes Water or Saltwater to produce Salt
 [c/dddd00:Science Workbench]
 - constructs machinery
 [c/dddd00:Pulverizer]
-- crushes certain blocks into materials
+- consumes [c/dd3333:Terra Flux (TF)] to crush certain blocks into materials

@@ -4,7 +4,6 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using TerraScience.Content.Items.Materials;
-using TerraScience.Utilities;
 
 namespace TerraScience.Content.Items.Weapons{
 	public class Shaker : ModItem{

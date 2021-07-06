@@ -1,11 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
-using Terraria;
 using Terraria.GameContent.UI.Elements;
 using Terraria.ModLoader;
 using TerraScience.API.UI;
-using TerraScience.Content.API.UI;
 using TerraScience.Content.ID;
 using TerraScience.Content.Items.Tools;
 using TerraScience.Content.TileEntities.Energy;

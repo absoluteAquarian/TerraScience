@@ -5,7 +5,6 @@ using Terraria.GameContent.UI.Elements;
 using Terraria.ID;
 using Terraria.ModLoader;
 using TerraScience.API.UI;
-using TerraScience.Content.API.UI;
 using TerraScience.Content.TileEntities.Energy;
 using TerraScience.Content.Tiles.Multitiles.EnergyMachines;
 

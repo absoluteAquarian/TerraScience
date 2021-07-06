@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using Terraria;
 using Terraria.GameContent.UI.Elements;
 using Terraria.ModLoader;
-using TerraScience.Content.API.UI;
-using TerraScience.Content.ID;
+using TerraScience.API.UI;
 using TerraScience.Content.TileEntities;
 using TerraScience.Content.Tiles.Multitiles;
 using TerraScience.Utilities;

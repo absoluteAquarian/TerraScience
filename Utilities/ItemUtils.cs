@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using Terraria;
+﻿using Terraria;
 using Terraria.ID;
-using TerraScience.Systems;
 
 namespace TerraScience.Utilities{
 	public static class ItemUtils{

@@ -4,11 +4,12 @@ using System;
 using Terraria;
 using Terraria.GameInput;
 using Terraria.UI;
-using TerraScience.API.UI;
 using TerraScience.Content.UI;
 
-namespace TerraScience.Content.API.UI {
+namespace TerraScience.API.UI {
 	public class UIItemSlot : UIElement {
+		// TODO: CaptionedUIItemSlot; inherits from UIItemSlot and displays some text above itself
+
 		private int Context { get; set; }
 
 		public float Scale { get; private set; }

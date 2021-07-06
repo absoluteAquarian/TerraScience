@@ -1,12 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Terraria;
+﻿using Terraria;
 using Terraria.GameInput;
 using Terraria.ID;
 using Terraria.ModLoader;
-using Terraria.ModLoader.IO;
 using TerraScience.Content.Items;
-using TerraScience.Utilities;
 
 namespace TerraScience{
 	public class TerraSciencePlayer : ModPlayer {

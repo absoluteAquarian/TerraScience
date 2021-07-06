@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework.Audio;
 using System.Collections.Generic;
 using Terraria;
 using Terraria.ModLoader;
-using TerraScience.Content.API.UI;
 using TerraScience.Content.Items.Materials;
 using TerraScience.Content.Tiles.Multitiles;
 using TerraScience.Utilities;
@@ -71,7 +70,7 @@ namespace TerraScience.Content.TileEntities{
 				return;
 			}
 
-			input.stack--;
+			input.stack -= requireStack;
 			if(input.stack <= 0)
 				input.TurnToAir();
 

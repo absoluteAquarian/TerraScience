@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.ModLoader;
@@ -101,30 +100,16 @@ namespace TerraScience.Systems.Energy{
 		}
 
 		public override void SplitDataAcrossNetworks(Point16 splitOrig){
-			NetworkCollection.HasWireAt(splitOrig + new Point16(0, -1), out WireNetwork upNet);
-			NetworkCollection.HasWireAt(splitOrig + new Point16(-1, 0), out WireNetwork leftNet);
-			NetworkCollection.HasWireAt(splitOrig + new Point16(1, 0), out WireNetwork rightNet);
-			NetworkCollection.HasWireAt(splitOrig + new Point16(0, 1), out WireNetwork downNet);
+			float factor = (float)StoredFlux / (float)Capacity;
 
-			List<WireNetwork> nets = new List<WireNetwork>();
-			if(upNet != null)
-				nets.Add(upNet);
-			if(leftNet != null && !nets.Contains(leftNet))
-				nets.Add(leftNet);
-			if(rightNet != null && !nets.Contains(rightNet))
-				nets.Add(rightNet);
-			if(downNet != null && !nets.Contains(downNet))
-				nets.Add(downNet);
-
-			nets = nets.OrderBy(n => (float)n.Capacity).Distinct().ToList();
-
-			foreach(var net in nets){
-				net.StoredFlux = new TerraFlux(Math.Min((float)StoredFlux, (float)net.Capacity));
-				StoredFlux -= net.StoredFlux;
-
-				if((float)StoredFlux <= 0)
-					break;
-			}
+			if(NetworkCollection.HasWireAt(splitOrig + new Point16(0, -1), out WireNetwork upNet))
+				upNet.StoredFlux = upNet.Capacity * factor;
+			if(NetworkCollection.HasWireAt(splitOrig + new Point16(-1, 0), out WireNetwork leftNet))
+				leftNet.StoredFlux = leftNet.Capacity * factor;
+			if(NetworkCollection.HasWireAt(splitOrig + new Point16(1, 0), out WireNetwork rightNet))
+				rightNet.StoredFlux = rightNet.Capacity * factor;
+			if(NetworkCollection.HasWireAt(splitOrig + new Point16(0, 1), out WireNetwork downNet))
+				downNet.StoredFlux = downNet.Capacity * factor;
 		}
 
 		private void RefreshRates(){
@@ -250,5 +235,7 @@ namespace TerraScience.Systems.Energy{
 			if(StoredFlux > Capacity)
 				StoredFlux = Capacity;
 		}
+
+		public override string ToString() => $"ID: {ID}, Flux: {StoredFlux} / {Capacity} TF, Exported Flux: {totalExportedFlux} TF";
 	}
 }

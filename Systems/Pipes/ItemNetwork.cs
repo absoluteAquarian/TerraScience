@@ -294,7 +294,9 @@ namespace TerraScience.Systems.Pipes{
 
 		public override TagCompound CombineSave()
 			=> new TagCompound(){
-				["items"] = paths.Select(p => p.Save()).ToList()
+				["items"] = paths.Select(p => p.Save()).ToList(),
+				["pumpTimerLocations"] = pumpTimers.Keys.ToList(),
+				["pumpTimerValues"] = pumpTimers.Values.Select(t => (byte)t.value).ToList()
 			};
 
 		public override void LoadCombinedData(TagCompound up, TagCompound left, TagCompound right, TagCompound down){
@@ -311,6 +313,18 @@ namespace TerraScience.Systems.Pipes{
 				path.itemNetwork = this;
 				path.needsPathRefresh = true;
 			}
+			
+			LoadCombinedPumps(up);
+			LoadCombinedPumps(left);
+			LoadCombinedPumps(right);
+			LoadCombinedPumps(down);
+		}
+
+		private void LoadCombinedPumps(TagCompound tag){
+			if(tag?.GetList<Point16>("pumpTimerLocations") is List<Point16> pumps && tag?.GetList<byte>("pumpTimerValues") is List<byte> timers)
+				for(int i = 0; i < pumps.Count; i++)
+					if(!pumpTimers.ContainsKey(pumps[i]))
+						pumpTimers.Add(pumps[i], new Timer(){ value = timers[i] });
 		}
 
 		public override void SplitDataAcrossNetworks(Point16 splitOrig){
@@ -379,5 +393,7 @@ namespace TerraScience.Systems.Pipes{
 			//  before checking the connected chests
 			return ConnectedMachines.Select(machine => (Func<Item, bool>)(item => machine.CanBeInput(item))).ToList();
 		}
+
+		public override string ToString() => $"ID: {ID}, Items: {paths.Count}, Pumps: {pumpTimers.Count}";
 	}
 }

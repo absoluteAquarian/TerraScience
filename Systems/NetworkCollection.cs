@@ -26,14 +26,25 @@ namespace TerraScience.Systems{
 		internal static Dictionary<Type, typeCtor> networkTypeCtors;
 
 		public static INetwork CombineNetworks<T, E>(params T[] networks) where T : INetwork, INetwork<E>, new() where E : struct, INetworkable, INetworkable<E>{
-			INetwork<E> network = new T();
+			if(networks.Length == 0)
+				throw new Exception("Error -- length zero, cannot combine no networks");
 
-			var hashList = networks.SelectMany(n => n.Hash).Distinct().ToList();
-			for(int i = 0; i < hashList.Count; i++)
-				hashList[i] = (E)networkTypeCtors[typeof(E)](hashList[i].Position, network);
-			network.Hash = new HashSet<E>(hashList);
+			if(networks.Length == 1)
+				return networks[0];
 
-			network.ConnectedMachines = networks.SelectMany(n => n.ConnectedMachines).Distinct().ToList();
+			INetwork<E> network = networks[0];
+
+			var ctor = networkTypeCtors[typeof(E)];
+
+			for(int i = 1; i < networks.Length; i++){
+				foreach(var hash in networks[i].Hash){
+					E newHash = (E)ctor(hash.Position, network);
+					network.AddEntry(newHash);
+				}
+
+				foreach(var machine in networks[i].ConnectedMachines)
+					network.AddMachine(machine);
+			}
 
 			return network;
 		}
@@ -45,6 +56,9 @@ namespace TerraScience.Systems{
 				itemNetworks = new List<ItemNetwork>();
 			if(fluidNetworks is null)
 				fluidNetworks = new List<FluidNetwork>();
+
+			if(MachineMufflerTile.mufflers is null)
+				MachineMufflerTile.mufflers = new List<Point16>();
 		}
 
 		public static void ResetNetworkInfo(){
@@ -110,6 +124,7 @@ forceNextCheck: ;
 			wireNetworks = null;
 			itemNetworks = null;
 			fluidNetworks = null;
+			MachineMufflerTile.mufflers = null;
 		}
 
 		private static void LoadNetwork<TNet, TEntry>(TagCompound tag, string entry, List<TNet> networks) where TNet : class, INetwork, INetwork<TEntry>, new() where TEntry : struct, INetworkable, INetworkable<TEntry>{
@@ -445,20 +460,17 @@ forceNextCheck: ;
 			TNet newNetwork;
 			if(networksToConnect.Count == 0)
 				newNetwork = new TNet();
-			else if(networksToConnect.Count == 1){
-				var oldEntry = networksToConnect[0].GetEntries()[0];
-				newNetwork = new TNet();
-				newNetwork.AddEntry(oldEntry);
-			}else
+			else
 				newNetwork = (TNet)CombineNetworks<TNet, TEntry>(networksToConnect.ToArray());
 
 			//Then create the entry and add it
 			TEntry entry = (TEntry)networkTypeCtors[typeof(TEntry)](location, newNetwork);
 			newNetwork.AddEntry(entry);
 			newNetwork.RefreshConnections(ignoreCheckLocation);
-			networks.Add(newNetwork);
 
 			newNetwork.LoadCombinedData(upData, leftData, rightData, downData);
+
+			networks.Add(newNetwork);
 		}
 
 		public static void OnWireKill(Point16 location)

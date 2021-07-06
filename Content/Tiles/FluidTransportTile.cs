@@ -17,7 +17,8 @@ namespace TerraScience.Content.Tiles{
 
 		public virtual float Capacity => 0.25f;  //0.25L
 
-		public virtual float ExportRate => 0.4f / 60f;  //0.4L/s
+		//Export rate/s needs to be greater than pump rate/s in order to have a net gain in storage containers
+		public virtual float ExportRate => 0.5f / 60f;  //0.5L/s -> 0.008333L/tick
 
 		public override void SafeSetDefaults(){
 			AddMapEntry(Color.DarkBlue);
@@ -74,11 +75,11 @@ namespace TerraScience.Content.Tiles{
 					int subsetHeight = texture.Frame(1, 4, 0, 0).Height;
 
 					if(factor < 0.3f)
-						rect.X += subsetHeight * 3;
+						rect.Y += subsetHeight * 3;
 					else if(factor < 0.6f)
-						rect.X += subsetHeight * 2;
+						rect.Y += subsetHeight * 2;
 					else if(factor < 0.90f)
-						rect.X += subsetHeight;
+						rect.Y += subsetHeight;
 				}
 
 				spriteBatch.Draw(texture, tilePos.ToWorldCoordinates(0, 0) + offset - Main.screenPosition, rect, color * alpha, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0);

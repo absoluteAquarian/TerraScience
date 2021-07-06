@@ -8,7 +8,6 @@ using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.UI;
 using Terraria.Utilities;
-using TerraScience.API.Classes.ModLiquid;
 using TerraScience.Content.ID;
 using TerraScience.Content.Items;
 using TerraScience.Content.Items.Energy;
@@ -30,7 +29,6 @@ using TerraScience.Content.UI;
 using TerraScience.Systems;
 using TerraScience.Systems.Energy;
 using TerraScience.Systems.Pipes;
-using TerraScience.Systems.TemperatureSystem;
 using TerraScience.Utilities;
 
 namespace TerraScience {
@@ -62,12 +60,6 @@ namespace TerraScience {
 
 		internal MachineUILoader machineLoader;
 
-		internal ModLiquidLoader LiquidLoader { get; private set; }
-
-		internal ModLiquidFactory LiquidFactory { get; private set; }
-
-		internal TemperatureSystem temperatureSystem;
-
 		public static ModHotKey DebugHotkey;
 
 		public const string WarningWaterExplode = "[c/bb3300:WARNING:] exposure to water may cause spontaneous combustion!";
@@ -79,10 +71,7 @@ namespace TerraScience {
 		public override void Load(){
 			Logger.DebugFormat("Loading Factories and System Loaders...");
 
-			LiquidLoader = new ModLiquidLoader();
-			LiquidFactory = new ModLiquidFactory();
 			machineLoader = new MachineUILoader();
-			temperatureSystem = new TemperatureSystem();
 
 			Logger.DebugFormat("Initializing dictionaries...");
 
@@ -178,11 +167,8 @@ namespace TerraScience {
 				}
 			}
 
-			Main.OnTick += OnUpdate;
-
 			Logger.DebugFormat("Inializing machines and UI...");
 
-			LiquidLoader.LoadLiquids(LiquidFactory);
 			machineLoader.Load();
 
 			AirIonizerEntity.recipes = new Dictionary<int, (int requireStack, int resultType, int resultStack, float energyUsage, float convertTimeSeconds)>(){
@@ -246,14 +232,6 @@ namespace TerraScience {
 
 		private static void RegisterRecipeGroup(string groupName, int itemForAnyName, int[] validTypes)
 			=> RecipeGroup.RegisterGroup(groupName, new RecipeGroup(() => $"{Language.GetTextValue("LegacyMisc.37")} {Lang.GetItemNameValue(itemForAnyName)}", validTypes));
-
-		private void OnUpdate() {
-			if (LiquidFactory.Liquids != null) {
-				foreach (var liquid in LiquidFactory.Liquids) {
-					liquid.Value.Update();
-				}
-			}
-		}
 
 		internal void SetNetworkTilesSolid(){
 			Main.tileSolid[ModContent.TileType<TransportJunction>()] = true;
@@ -330,8 +308,6 @@ namespace TerraScience {
 
 			DebugHotkey = null;
 
-			Main.OnTick -= OnUpdate;
-
 			Logger.DebugFormat("Unloading machines and UI...");
 
 			machineLoader?.Unload();
@@ -374,21 +350,25 @@ namespace TerraScience {
 				(ItemID.RedBrick, 5),  (ItemID.TinBar, 8),   (ItemID.RedBrick, 5),
 				(ItemID.GrayBrick, 5), (ItemID.RedBrick, 5), (ItemID.GrayBrick, 5)
 			});
+
 			DatalessMachineInfo.Register<AirIonizerItem>(new[]{
 				(ItemID.TinBar, 3),    (ItemID.TinBar, 3),                           (ItemID.TinBar, 3),
 				(ItemID.TinBar, 3),    (ModContent.ItemType<BasicMachineCore>(), 1), (ItemID.TinBar, 3),
 				(ItemID.GrayBrick, 8), (ItemID.GrayBrick, 8),                        (ItemID.GrayBrick, 8)
 			});
+
 			DatalessMachineInfo.Register<ElectrolyzerItem>(new[]{
 				(ItemID.IronBar, 5), (ModContent.ItemType<IronPipe>(), 2),         (ItemID.IronBar, 5),
 				(ItemID.Glass, 20),  (ModContent.ItemType<BasicMachineCore>(), 1), (ItemID.Glass, 20),
 				(ItemID.IronBar, 5), (ItemID.IronBar, 5),                          (ItemID.IronBar, 5)
 			});
+
 			DatalessMachineInfo.Register<BlastFurnaceItem>(new[]{
 				(ModContent.ItemType<BlastBrick>(), 5), (ModContent.ItemType<BlastBrick>(), 5), (ModContent.ItemType<BlastBrick>(), 5),
 				(ModContent.ItemType<BlastBrick>(), 5), (ModContent.ItemType<BlastBrick>(), 5), (ModContent.ItemType<BlastBrick>(), 5),
 				(ModContent.ItemType<BlastBrick>(), 5), (ModContent.ItemType<BlastBrick>(), 5), (ModContent.ItemType<BlastBrick>(), 5)
 			});
+
 			DatalessMachineInfo.Register<BasicWindTurbineItem>(new[]{
 				(ModContent.ItemType<MachineSupportItem>(), 5), (ModContent.ItemType<WindmillSail>(), 4),     (ModContent.ItemType<MachineSupportItem>(), 5),
 				(ItemID.IronBar, 6),                            (ModContent.ItemType<BasicMachineCore>(), 1), (ItemID.IronBar, 6),
@@ -399,16 +379,19 @@ namespace TerraScience {
 				(ItemID.TinBar, 4),    (ModContent.ItemType<BasicMachineCore>(), 1), (ItemID.TinBar, 4),
 				(ItemID.IronBar, 5),   (ItemID.CopperBar, 4),                        (ItemID.IronBar, 5)
 			});
+
 			DatalessMachineInfo.Register<AutoExtractinatorItem>(new[]{
 				(ModContent.ItemType<Silicon>(), 10), (ItemID.IronBar, 8),                          (ModContent.ItemType<Silicon>(), 10),
 				(ItemID.WaterBucket, 2),              (ItemID.Extractinator, 1),                    (ItemID.WaterBucket, 2),
 				(ItemID.IronBar, 8),                  (ModContent.ItemType<BasicMachineCore>(), 1), (ItemID.IronBar, 8)
 			});
+
 			DatalessMachineInfo.Register<BasicSolarPanelItem>(new[]{
 				(ItemID.Glass, 5),                    (ItemID.Glass, 8),                            (ItemID.Glass, 5),
 				(ModContent.ItemType<Silicon>(), 5),  (ModContent.ItemType<BasicMachineCore>(), 1), (ModContent.ItemType<Silicon>(), 5),
 				(ItemID.IronBar, 4),                  (ModContent.ItemType<TFWireItem>(), 10),      (ItemID.IronBar, 4)
 			});
+
 			DatalessMachineInfo.recipes.Add(ModContent.ItemType<GreenhouseItem>(), mod => {
 				ScienceRecipe recipe = new ScienceRecipe(mod);
 				recipe.AddIngredient(ItemID.Glass, 4);
@@ -427,20 +410,29 @@ namespace TerraScience {
 				recipe.SetResult(mod.ItemType("DatalessGreenhouse"), 1);
 				recipe.AddRecipe();
 			});
+
 			DatalessMachineInfo.Register<BasicThermoGeneratorItem>(new[]{
 				(ItemID.Glass, 3),    (ItemID.CopperBar, 2),                  (ItemID.Glass, 4),
 				(ItemID.RedBrick, 5), (ItemID.Torch, 10),                     (ItemID.WaterBucket, 3),
 				(ItemID.RedBrick, 5), (ModContent.ItemType<TFWireItem>(), 6), (ItemID.GrayBrick, 3)
 			});
+
 			DatalessMachineInfo.Register<PulverizerItem>(new[]{
 				(ItemID.IronBar, 2),                  (ModContent.ItemType<IronPipe>(), 1),         (ItemID.IronBar, 2),
 				(ModContent.ItemType<IronPipe>(), 1), (ModContent.ItemType<BasicMachineCore>(), 1), (ModContent.ItemType<IronPipe>(), 1),
 				(ItemID.IronBar, 2),                  (ModContent.ItemType<TFWireItem>(), 6),       (ItemID.IronBar, 2)
 			});
+
 			DatalessMachineInfo.Register<FluidTankItem>(new[]{
 				(ItemID.IronBar, 5), (ModContent.ItemType<FluidPump>(), 1), (ItemID.IronBar, 5),
 				(ItemID.Glass, 10),  (ItemID.IronBar, 5),                   (ItemID.Glass, 10),
 				(ItemID.IronBar, 5), (ModContent.ItemType<FluidPump>(), 1), (ItemID.IronBar, 5)
+			});
+
+			DatalessMachineInfo.Register<LiquidDuplicatorItem>(new[]{
+				(ItemID.IronBar, 2),   (ItemID.OutletPump, 1),                       (ItemID.IronBar, 2),
+				(ItemID.InletPump, 1), (ModContent.ItemType<BasicMachineCore>(), 1), (ItemID.InletPump, 1),
+				(ItemID.IronBar, 2),   (ModContent.ItemType<TFWireItem>(), 6),       (ItemID.IronBar, 2)
 			});
 
 			//Loading merge data here instead of <tile>.SetDefaults()
@@ -492,16 +484,21 @@ namespace TerraScience {
 			}
 
 			//Additional Extractinator recipes
+			AddExtractinatorRecipe(ItemID.SandBlock, ModContent.ItemType<Silicon>());
+
+			AddExtractinatorRecipe(ItemID.EbonsandBlock, ModContent.ItemType<Silicon>());
 			AddExtractinatorRecipe(ItemID.EbonsandBlock, ItemID.CursedFlame);
 			AddExtractinatorRecipe(ItemID.EbonsandBlock, ItemID.RottenChunk);
 			AddExtractinatorRecipe(ItemID.EbonsandBlock, ItemID.VilePowder);
 			AddExtractinatorRecipe(ItemID.EbonsandBlock, ItemID.SoulofNight);
 
+			AddExtractinatorRecipe(ItemID.CrimsandBlock, ModContent.ItemType<Silicon>());
 			AddExtractinatorRecipe(ItemID.CrimsandBlock, ItemID.Ichor);
 			AddExtractinatorRecipe(ItemID.CrimsandBlock, ItemID.Vertebrae);
 			AddExtractinatorRecipe(ItemID.CrimsandBlock, ItemID.ViciousPowder);
 			AddExtractinatorRecipe(ItemID.CrimsandBlock, ItemID.SoulofNight);
 
+			AddExtractinatorRecipe(ItemID.PearlsandBlock, ModContent.ItemType<Silicon>());
 			AddExtractinatorRecipe(ItemID.PearlsandBlock, ItemID.CrystalShard);
 			AddExtractinatorRecipe(ItemID.PearlsandBlock, ItemID.PixieDust);
 			AddExtractinatorRecipe(ItemID.PearlsandBlock, ItemID.UnicornHorn);
@@ -528,6 +525,8 @@ namespace TerraScience {
 			AddGreenhouseRecipe(ItemID.MushroomGrassSeeds, ItemID.MudBlock, null, ItemID.GlowingMushroom);
 
 			AddGreenhouseRecipe(ItemID.Cactus, ItemID.SandBlock, null, ItemID.Cactus);
+
+			AddGreenhouseRecipe(ItemID.PumpkinSeed, ItemID.DirtBlock, ItemID.GrassSeeds, ItemID.Pumpkin);
 
 			//Pulverizer recipes
 			AddPulverizerEntry(inputItem: ItemID.DirtBlock,
@@ -560,6 +559,23 @@ namespace TerraScience {
 				(ItemID.Amber,       1, 0.005),
 				(ItemID.Ruby,        1, 0.0025),
 				(ItemID.Diamond,     1, 0.001));
+
+			//Liquid duplicator recipes
+			for(int i = 0; i < ItemLoader.ItemCount; i++){
+				MachineLiquidID id = MiscUtils.GetIDFromItem(i);
+
+				if(id == MachineLiquidID.None)
+					continue;
+
+				int fakeItem = GetFakeIngredientType(id);
+
+				ScienceRecipe recipe = new ScienceRecipe(this);
+				recipe.AddIngredient(i, 1);
+				recipe.AddIngredient(ModContent.ItemType<TerraFluxIndicator>(), 1);
+				recipe.AddTile(ModContent.TileType<LiquidDuplicator>());
+				recipe.SetResult(fakeItem, 1);
+				recipe.AddRecipe();
+			}
 		}
 
 		private void AddElectrolyzerRecipe(MachineLiquidID input, MachineGasID output){
@@ -638,8 +654,6 @@ namespace TerraScience {
 		}
 
 		// -- Types --
-		// Call("Get Machine Entity", tile position)
-		//	- gets the MachineEntity at the tile position, if one exists there
 		// Call("Register Blast Furnace Recipe", ingredient type, ingredient stack, result type, result stack)
 		//  - registers a recipe for the Blast Furnace machine
 		// Call("Register Matter Energizer Recipe", ingredient type, ingredient stack, result type, result stack)
@@ -648,9 +662,6 @@ namespace TerraScience {
 			//People who don't use the exact call name are dumb.  We shouldn't have to make sure they typed the name correctly
 
 			switch((string)args[0]){
-				case "Get Machine Entity":
-					MiscUtils.TryGetTileEntity((Point16)args[1], out MachineEntity entity);
-					return entity;
 				case "Register Blast Furnace Recipe":
 					if(args[1] is int ingredientType && args[2] is int ingredientStack && args[3] is int resultType && args[4] is int resultStack){
 						BlastFurnaceEntity.ingredientToResult.Add(ingredientType, (ingredientStack, resultType, resultStack));

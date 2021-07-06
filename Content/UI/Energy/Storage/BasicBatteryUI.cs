@@ -1,11 +1,9 @@
 ﻿using System.Collections.Generic;
-using Terraria;
 using Terraria.GameContent.UI.Elements;
 using Terraria.ModLoader;
-using TerraScience.Content.API.UI;
+using TerraScience.API.UI;
 using TerraScience.Content.Tiles.Multitiles.EnergyMachines.Storage;
 using TerraScience.Content.UI.Energy.Generators;
-using TerraScience.Utilities;
 
 namespace TerraScience.Content.UI.Energy.Storage{
 	public class BasicBatteryUI : GeneratorUI{

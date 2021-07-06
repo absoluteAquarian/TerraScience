@@ -1,7 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
 using Terraria;
 using Terraria.DataStructures;
@@ -10,7 +9,7 @@ using Terraria.ModLoader;
 using TerraScience.Content.ID;
 using TerraScience.Content.Items.Materials;
 using TerraScience.Content.TileEntities;
-using TerraScience.Content.TileEntities.Energy;
+using TerraScience.Content.Tiles.Multitiles;
 using TerraScience.Content.UI;
 
 namespace TerraScience.Utilities {
@@ -72,7 +71,10 @@ namespace TerraScience.Utilities {
 			return doOffset ? new Vector2(12) * 16 : Vector2.Zero;
 		}
 
-		public static int GetIconType(this MachineUI ui) => TechMod.Instance.ItemType(ui.MachineName + "Item");
+		public static int GetIconType(this Machine machine){
+			machine.GetDefaultParams(out _, out _, out _, out int type);
+			return type;
+		}
 
 		public static Item RetrieveItem(this MachineEntity entity, int slot)
 			=> !(entity.ParentState?.Active ?? false) ? entity.GetItem(slot) : entity.ParentState.GetSlot(slot).StoredItem;

@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Audio;
 using Terraria;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
-using TerraScience.Content.API.UI;
+using TerraScience.API.UI;
 using TerraScience.Content.Tiles.Multitiles;
 using TerraScience.Content.UI;
 using TerraScience.Utilities;

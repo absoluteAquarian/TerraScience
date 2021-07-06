@@ -1,6 +1,4 @@
-﻿using TerraScience.API.Classes;
-using TerraScience.API.Classes.ModLiquid;
-using TerraScience.Systems;
+﻿using TerraScience.API.Classes.ModLiquid;
 using TerraScience.Systems.TemperatureSystem;
 
 namespace TerraScience {

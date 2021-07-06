@@ -148,25 +148,52 @@ namespace TerraScience.Content.Tiles.Multitiles.EnergyMachines{
 
 						growFrame = new Rectangle(2, 0, 12, 10 * cactusY);
 						break;
-				}
+					case ItemID.PumpkinSeed:
+						growTileType = TileID.Pumpkins;
 
+						int pumpkinX = (int)(entity.ReactionProgress / 20f);
+
+						growFrame = new Rectangle(pumpkinX * 36, entity.saplingRand * 36, 36, 36);
+						break;
+				}
+				
 				Vector2 growBottom = drawPos + new Vector2(16, 34);
-				Vector2 growFrameOffset = new Vector2(growFrame.Width / 2f, growFrame.Height);
 
 				var color = Lighting.GetColor(i, j);
 
 				if(growTileType >= 0){
 					Main.instance.LoadTiles(growTileType);
 
-					float scale;
-					if(growTileType == TileID.Saplings)
-						scale = 0.7f;
-					else if(growTileType == TileID.Cactus)
-						scale = 0.6f;
-					else
-						scale = 1f;
+					var texture = Main.tileTexture[growTileType];
 
-					spriteBatch.Draw(Main.tileTexture[growTileType], growBottom, growFrame, color, 0f, growFrameOffset, scale, SpriteEffects.None, 0);
+					if(growTileType != TileID.Pumpkins){
+						Vector2 growFrameOffset = new Vector2(growFrame.Width / 2f, growFrame.Height);
+
+						float scale;
+						if(growTileType == TileID.Saplings)
+							scale = 0.7f;
+						else if(growTileType == TileID.Cactus)
+							scale = 0.6f;
+						else
+							scale = 1f;
+
+						spriteBatch.Draw(texture, growBottom, growFrame, color, 0f, growFrameOffset, scale, SpriteEffects.None, 0);
+					}else{
+						//Pumpkins are 2x2, so their frames need to be stitched together
+						float scale = 0.8f;
+						Vector2 growFrameOffset = new Vector2(-8, -8) * scale;
+						Vector2 scaleOrig = new Vector2(8, 16);
+						
+						spriteBatch.Draw(texture, growBottom + growFrameOffset, new Rectangle(growFrame.X, growFrame.Y, 16, 16), color, 0f, scaleOrig, scale, SpriteEffects.None, 0);
+						growFrameOffset = new Vector2(8, -8) * scale;
+						spriteBatch.Draw(texture, growBottom + growFrameOffset, new Rectangle(growFrame.X + 18, growFrame.Y, 16, 16), color, 0f, scaleOrig, scale, SpriteEffects.None, 0);
+						growFrameOffset = new Vector2(-8, 0) * scale;
+						spriteBatch.Draw(texture, growBottom + growFrameOffset, new Rectangle(growFrame.X, growFrame.Y + 18, 16, 16), color, 0f, scaleOrig, scale, SpriteEffects.None, 0);
+						growFrameOffset = new Vector2(8, 0) * scale;
+						spriteBatch.Draw(texture, growBottom + growFrameOffset, new Rectangle(growFrame.X + 18, growFrame.Y + 18, 16, 16), color, 0f, scaleOrig, scale, SpriteEffects.None, 0);
+					}
+
+					// TODO: networks aren't working anymore and any placed pump tiles disappear
 				}
 
 				if(effect != null)

@@ -9,7 +9,6 @@ using Terraria.ModLoader.IO;
 using Terraria.Utilities;
 using TerraScience.Content.TileEntities;
 using TerraScience.Content.Tiles;
-using TerraScience.Content.Tiles.Multitiles;
 using TerraScience.Systems.Pathfinding;
 using TerraScience.Systems.Pipes;
 using TerraScience.Utilities;
@@ -439,7 +438,8 @@ namespace TerraScience.Systems{
 					//Snap the tile back to the center, get a new movement direction, then apply the overstep
 					worldCenter = worldTile.ToWorldCoordinates();
 					
-					dequeuedPoint = currentPath.Dequeue();
+					if(currentPath.Count > 0)
+						dequeuedPoint = currentPath.Dequeue();
 
 					//If this is the last point, then the machine or chest will be connected to this pipe (prioritize machines first)
 					//Otherwise, there are still more pipes to move through

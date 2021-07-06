@@ -1,13 +1,11 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 using System.Collections.Generic;
+using System.IO;
 using Terraria;
 using Terraria.DataStructures;
-using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
-using Terraria.UI;
 using Terraria.World.Generation;
 using TerraScience.API.Interfaces;
 using TerraScience.Content.ID;
@@ -39,6 +37,19 @@ namespace TerraScience.World{
 
 			if(tag.GetList<Point16>("mufflers") is List<Point16> list)
 				MachineMufflerTile.mufflers = list;
+		}
+
+		public override void NetSend(BinaryWriter writer){
+			TagIO.Write(Save(), writer);
+		}
+
+		public override void NetReceive(BinaryReader reader){
+			Load(TagIO.Read(reader));
+		}
+
+		public override void Initialize(){
+			NetworkCollection.Unload();
+			NetworkCollection.EnsureNetworkIsInitialized();
 		}
 
 		public override void PreUpdate(){

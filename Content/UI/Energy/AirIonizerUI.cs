@@ -1,12 +1,10 @@
 ﻿using System.Collections.Generic;
-using Terraria;
 using Terraria.GameContent.UI.Elements;
 using Terraria.ModLoader;
-using TerraScience.Content.API.UI;
+using TerraScience.API.UI;
 using TerraScience.Content.Items.Tools;
 using TerraScience.Content.TileEntities.Energy;
 using TerraScience.Content.Tiles.Multitiles.EnergyMachines;
-using TerraScience.Utilities;
 
 namespace TerraScience.Content.UI.Energy{
 	public class AirIonizerUI : PoweredMachineUI{

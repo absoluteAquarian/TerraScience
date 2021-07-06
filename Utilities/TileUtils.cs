@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.Enums;
@@ -118,7 +117,7 @@ namespace TerraScience.Utilities{
 			Main.tileNoAttach[type] = true;
 			Main.tileFrameImportant[type] = true;
 
-			TileObjectData.newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.SolidWithTop, (int)width, 0);
+			TileObjectData.newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.SolidWithTop | AnchorType.SolidBottom, (int)width, 0);
 			TileObjectData.newTile.CoordinateHeights = MiscUtils.Create1DArray(16, height);
 			TileObjectData.newTile.CoordinateWidth = 16;
 			TileObjectData.newTile.Height = (int)height;

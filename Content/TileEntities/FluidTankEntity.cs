@@ -2,7 +2,6 @@
 using Terraria.DataStructures;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
-using TerraScience.Content.ID;
 using TerraScience.Content.Tiles.Multitiles;
 using TerraScience.Utilities;
 

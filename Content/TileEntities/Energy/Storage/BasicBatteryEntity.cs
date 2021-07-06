@@ -1,15 +1,16 @@
 ﻿using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ModLoader;
+using TerraScience.Content.Tiles.Energy;
 using TerraScience.Content.Tiles.Multitiles.EnergyMachines.Storage;
 using TerraScience.Systems.Energy;
 using TerraScience.Utilities;
 
 namespace TerraScience.Content.TileEntities.Energy.Storage{
 	public class BasicBatteryEntity : Battery{
-		public override TerraFlux ImportRate => new TerraFlux(800f / 60f);
+		public override TerraFlux ImportRate => ModContent.GetInstance<TFWireTile>().ExportRate;
 
-		public override TerraFlux ExportRate => new TerraFlux(2000f / 60f);
+		public override TerraFlux ExportRate => ModContent.GetInstance<TFWireTile>().ImportRate * 0.75f;
 
 		public override TerraFlux FluxCap => new TerraFlux(50000f);
 

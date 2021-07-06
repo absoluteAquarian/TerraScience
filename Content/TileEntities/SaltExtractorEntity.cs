@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Terraria;
+﻿using Terraria;
 using Terraria.Audio;
 using Terraria.DataStructures;
 using Terraria.ID;
@@ -8,7 +6,6 @@ using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using TerraScience.Content.ID;
 using TerraScience.Content.Items.Materials;
-using TerraScience.Content.Tiles;
 using TerraScience.Content.Tiles.Multitiles;
 using TerraScience.Utilities;
 

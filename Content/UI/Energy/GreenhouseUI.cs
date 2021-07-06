@@ -3,7 +3,7 @@ using Terraria;
 using Terraria.GameContent.UI.Elements;
 using Terraria.ID;
 using Terraria.ModLoader;
-using TerraScience.Content.API.UI;
+using TerraScience.API.UI;
 using TerraScience.Content.Items.Materials;
 using TerraScience.Content.Tiles.Multitiles.EnergyMachines;
 using TerraScience.Utilities;
@@ -47,7 +47,7 @@ namespace TerraScience.Content.UI.Energy{
 			modifier.Left.Set(leftOrig + Main.inventoryBack9Texture.Width / 2 + 10, 0f);
 
 			input.ValidItemFunc = item => item.stack <= 1
-				&& (item.IsAir || item.type == ItemID.Acorn || item.type == ItemID.DaybloomSeeds || item.type == ItemID.BlinkrootSeeds || item.type == ItemID.WaterleafSeeds || item.type == ItemID.DeathweedSeeds || item.type == ItemID.MoonglowSeeds || item.type == ItemID.ShiverthornSeeds || item.type == ItemID.FireblossomSeeds || item.type == ItemID.MushroomGrassSeeds || item.type == ItemID.Cactus)
+				&& (item.IsAir || item.type == ItemID.Acorn || item.type == ItemID.DaybloomSeeds || item.type == ItemID.BlinkrootSeeds || item.type == ItemID.WaterleafSeeds || item.type == ItemID.DeathweedSeeds || item.type == ItemID.MoonglowSeeds || item.type == ItemID.ShiverthornSeeds || item.type == ItemID.FireblossomSeeds || item.type == ItemID.MushroomGrassSeeds || item.type == ItemID.Cactus || item.type == ItemID.PumpkinSeed)
 				&& VerifySlots(item, block.StoredItem, modifier.StoredItem);
 			block.ValidItemFunc = item => item.stack <= 1
 				&& ((input.StoredItem.IsAir && item.IsAir) || item.type == ItemID.DirtBlock || item.type == ItemID.MudBlock || item.type == ItemID.SandBlock || item.type == ItemID.SnowBlock || item.type == ItemID.AshBlock)
@@ -133,6 +133,9 @@ namespace TerraScience.Content.UI.Energy{
 
 				case ItemID.Cactus:
 					return block.type == ItemID.SandBlock && modifier.IsAir;
+
+				case ItemID.PumpkinSeed:
+					return block.type == ItemID.DirtBlock && modifier.type == ItemID.GrassSeeds;
 			}
 
 			//Input was air.  Check the modifier

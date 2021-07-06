@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using Terraria;
 using Terraria.ModLoader;
-using TerraScience.Content.Items;
 using TerraScience.Content.Items.Materials;
 using TerraScience.Content.Items.Placeable.Machines;
 using TerraScience.Content.Tiles.Multitiles;

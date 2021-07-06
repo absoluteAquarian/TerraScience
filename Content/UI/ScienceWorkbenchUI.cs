@@ -6,8 +6,6 @@ using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
 using TerraScience.API.UI;
-using TerraScience.Content.API.UI;
-using TerraScience.Content.Items;
 using TerraScience.Content.TileEntities;
 using TerraScience.Content.Tiles.Multitiles;
 using TerraScience.Utilities;

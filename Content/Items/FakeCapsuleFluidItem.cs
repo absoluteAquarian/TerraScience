@@ -3,8 +3,6 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using Terraria;
-using Terraria.ID;
-using Terraria.ModLoader;
 using TerraScience.Content.ID;
 using TerraScience.Content.Items.Tools;
 using TerraScience.Utilities;

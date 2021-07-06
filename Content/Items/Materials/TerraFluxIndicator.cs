@@ -1,7 +1,6 @@
 ﻿using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
-using TerraScience.Content.Tiles.Multitiles;
 using TerraScience.Content.Tiles.Multitiles.EnergyMachines.Basic;
 using TerraScience.Utilities;
 

@@ -136,7 +136,13 @@ namespace TerraScience.Systems.Pipes{
 		}
 
 		public override TagCompound CombineSave()
-			=> Save();
+			=> new TagCompound(){
+				["gas"] = gasType.EnumName(),
+				["liquid"] = liquidType.EnumName(),
+				["stored"] = StoredFluid,
+				["pumpTimerLocations"] = pumpTimers.Keys.ToList(),
+				["pumpTimerValues"] = pumpTimers.Values.Select(t => (byte)t.value).ToList()
+			};
 
 		public override void LoadCombinedData(TagCompound up, TagCompound left, TagCompound right, TagCompound down){
 			if(up?.GetString("gas") is string upGas)
@@ -161,6 +167,18 @@ namespace TerraScience.Systems.Pipes{
 				+ (left?.GetFloat("stored") ?? 0)
 				+ (right?.GetFloat("stored") ?? 0)
 				+ (down?.GetFloat("stored") ?? 0);
+
+			LoadCombinedPumps(up);
+			LoadCombinedPumps(left);
+			LoadCombinedPumps(right);
+			LoadCombinedPumps(down);
+		}
+
+		private void LoadCombinedPumps(TagCompound tag){
+			if(tag?.GetList<Point16>("pumpTimerLocations") is List<Point16> pumps && tag?.GetList<byte>("pumpTimerValues") is List<byte> timers)
+				for(int i = 0; i < pumps.Count; i++)
+					if(!pumpTimers.ContainsKey(pumps[i]))
+						pumpTimers.Add(pumps[i], new Timer(){ value = timers[i] });
 		}
 
 		public override bool CanCombine(Point16 orig, Point16 dir){
@@ -190,5 +208,23 @@ namespace TerraScience.Systems.Pipes{
 				&& (!hasConnAxis || (axisNet.liquidType == thisNet.liquidType && axisNet.gasType == thisNet.gasType))
 				&& (!hasConnAxisOther || (otherAxisNet.liquidType == thisNet.liquidType && otherAxisNet.gasType == thisNet.gasType));
 		}
+
+		public override void SplitDataAcrossNetworks(Point16 splitOrig){
+			if(Capacity <= 0)
+				return;  //Uh oh
+
+			float factor = StoredFluid / Capacity;
+
+			if(NetworkCollection.HasFluidPipeAt(splitOrig + new Point16(0, -1), out FluidNetwork up))
+				up.StoredFluid = up.Capacity * factor;
+			if(NetworkCollection.HasFluidPipeAt(splitOrig + new Point16(-1, 0), out FluidNetwork left))
+				left.StoredFluid = left.Capacity * factor;
+			if(NetworkCollection.HasFluidPipeAt(splitOrig + new Point16(1, 0), out FluidNetwork right))
+				right.StoredFluid = right.Capacity * factor;
+			if(NetworkCollection.HasFluidPipeAt(splitOrig + new Point16(0, 1), out FluidNetwork down))
+				down.StoredFluid = down.Capacity * factor;
+		}
+
+		public override string ToString() => $"ID: {ID}, Fluid: {StoredFluid} / {Capacity} L, Gas Type: {gasType}, Liquid Type: {liquidType}";
 	}
 }

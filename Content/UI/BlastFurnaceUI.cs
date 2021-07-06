@@ -2,8 +2,7 @@
 using Terraria;
 using Terraria.GameContent.UI.Elements;
 using Terraria.ModLoader;
-using TerraScience.Content.API.UI;
-using TerraScience.Content.Items;
+using TerraScience.API.UI;
 using TerraScience.Content.Items.Materials;
 using TerraScience.Content.Tiles.Multitiles;
 using TerraScience.Utilities;

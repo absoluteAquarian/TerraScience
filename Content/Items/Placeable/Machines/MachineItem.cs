@@ -1,7 +1,5 @@
-﻿using Microsoft.Xna.Framework;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
@@ -107,7 +105,11 @@ namespace TerraScience.Content.Items.Placeable.Machines{
 		}
 
 		public override void AddRecipes(){
-			DatalessMachineInfo.recipes[ModContent.ItemType<T>()](mod);
+			try{
+				DatalessMachineInfo.recipes[ModContent.ItemType<T>()](mod);
+			}catch(KeyNotFoundException){
+				throw new Exception($"Machine \"{typeof(T).Name}\" does not have a recipe");
+			}
 		}
 	}
 }

@@ -1,5 +1,4 @@
-﻿using Terraria;
-using Terraria.DataStructures;
+﻿using Terraria.DataStructures;
 using Terraria.ObjectData;
 using TerraScience.Systems;
 using TerraScience.Systems.Pipes;

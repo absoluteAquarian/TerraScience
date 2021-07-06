@@ -26,5 +26,7 @@ namespace TerraScience.Systems.Energy{
 
 		public static bool operator !=(TFWire first, TFWire second)
 			=> first.Position != second.Position;
+
+		public override string ToString() => $"Pos: (X: {Position.X}, Y: {Position.Y}), Parent: {ParentNetwork?.ID.ToString() ?? "n/a"}";
 	}
 }

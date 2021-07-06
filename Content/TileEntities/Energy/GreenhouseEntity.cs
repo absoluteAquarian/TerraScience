@@ -21,9 +21,6 @@ namespace TerraScience.Content.TileEntities.Energy{
 		public int saplingRand = -1;
 
 		public override void PreUpdateReaction(){
-			if(saplingRand == -1)
-				saplingRand = Main.rand.Next(3);
-
 			ReactionSpeed = !CheckFluxRequirement(FluxUsage, use: false) ? 0.05f : 1f;
 
 			//Check that all slots aren't full.  If they are, abort early
@@ -34,19 +31,24 @@ namespace TerraScience.Content.TileEntities.Energy{
 
 			//Slot 0 = acorn or seed
 			//Slot 1 = block
-			bool hasInput = !this.RetrieveItem(0).IsAir;
+			var input = this.RetrieveItem(0);
+			bool hasInput = !input.IsAir;
 			bool hasBlock = !this.RetrieveItem(1).IsAir;
 			ReactionInProgress = hasInput && hasBlock && !allFull;
 
 			if(!hasInput)
 				ReactionProgress = 0;
+
+			if(saplingRand == -1)
+				saplingRand = Main.rand.Next(input.type == ItemID.PumpkinSeed ? 6 : 3);
 		}
 
 		public override bool UpdateReaction(){
 			CheckFluxRequirement(FluxUsage, use: true);
 
-			//2min to grow saplings, 1min 15s to grow herbs
-			float time = this.RetrieveItem(0).type == ItemID.Acorn ? 2 : 1.25f;
+			//2min to grow saplings, 1min 15s to grow herbs, 3min to grow pumpkins
+			var input = this.RetrieveItem(0);
+			float time = input.type == ItemID.Acorn ? 2 : (input.type == ItemID.PumpkinSeed ? 3 : 1.25f);
 			time *= 3600;
 			ReactionProgress += 100f / time * ReactionSpeed;
 
@@ -56,11 +58,11 @@ namespace TerraScience.Content.TileEntities.Energy{
 		public override void ReactionComplete(){
 			ReactionProgress = 0;
 
-			saplingRand = Main.rand.Next(3);
-
 			Item input = this.RetrieveItem(0);
 			Item block = this.RetrieveItem(1);
 			Item modifier = this.RetrieveItem(2);
+			
+			saplingRand = Main.rand.Next(input.type == ItemID.PumpkinSeed ? 6 : 3);
 
 			int resultType = -1, resultStack;
 			switch(input.type){
@@ -123,12 +125,20 @@ namespace TerraScience.Content.TileEntities.Energy{
 				case ItemID.Cactus:
 					resultType = ItemID.Cactus;
 					break;
+				case ItemID.PumpkinSeed:
+					resultType = ItemID.Pumpkin;
+					break;
 			}
 
-			if(input.type == ItemID.Acorn)
-				resultStack = Main.rand.Next(10, 46);
-			else if(input.type == ItemID.Cactus)
+			if(input.type == ItemID.Acorn){
+				resultStack = Main.rand.Next(10, 21);
+
+				if(Main.rand.NextFloat() < 0.03f)
+					resultStack = Main.rand.Next(21, 36);
+			}else if(input.type == ItemID.Cactus)
 				resultStack = Main.rand.Next(2, 21);
+			else if(input.type == ItemID.PumpkinSeed)
+				resultStack = Main.rand.Next(5, 16);
 			else{
 				WeightedRandom<int> wRand = new WeightedRandom<int>(Main.rand);
 				wRand.Add(1, 95d);

@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Terraria.ModLoader.IO;
-using TerraScience.Content.ID;
 using TerraScience.Content.TileEntities;
 
 namespace TerraScience.Utilities{

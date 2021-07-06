@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.ID;
@@ -52,7 +51,7 @@ namespace TerraScience.Content.Tiles.Multitiles{
 				player.mouseInterface = true;
 				player.noThrow = 2;
 				player.showItemIcon = true;
-				player.showItemIcon2 = TechMod.Instance.machineLoader.GetState<MachineUI>(entity.MachineName).GetIconType();
+				player.showItemIcon2 = this.GetIconType();
 			}
 		}
 

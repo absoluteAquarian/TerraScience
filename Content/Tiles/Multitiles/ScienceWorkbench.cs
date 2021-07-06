@@ -1,5 +1,4 @@
-﻿using Terraria;
-using Terraria.DataStructures;
+﻿using Terraria.DataStructures;
 using Terraria.ModLoader;
 using TerraScience.Content.Items.Placeable.Machines;
 using TerraScience.Content.TileEntities;

@@ -6,14 +6,6 @@ using Terraria;
 using Terraria.ModLoader;
 using Terraria.UI;
 using TerraScience.Content.TileEntities;
-using TerraScience.Content.Tiles.Multitiles;
-using TerraScience.Content.Tiles.Multitiles.EnergyMachines;
-using TerraScience.Content.Tiles.Multitiles.EnergyMachines.Basic;
-using TerraScience.Content.Tiles.Multitiles.EnergyMachines.Storage;
-using TerraScience.Content.UI.Energy;
-using TerraScience.Content.UI.Energy.Generators;
-using TerraScience.Content.UI.Energy.Storage;
-using TerraScience.Utilities;
 
 namespace TerraScience.Content.UI {
 	public class MachineUILoader {

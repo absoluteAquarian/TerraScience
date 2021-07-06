@@ -2,7 +2,6 @@
 using Terraria.ModLoader;
 using TerraScience.Content.Items.Materials;
 using TerraScience.Content.Tiles.Multitiles;
-using TerraScience.Utilities;
 
 namespace TerraScience.Content.Items.Placeable{
 	public class BlastBrick : ModItem{
