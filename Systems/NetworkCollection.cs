@@ -5,13 +5,16 @@ using Terraria;
 using Terraria.DataStructures;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
+using TerraScience.API.CrossMod.MagicStorage;
 using TerraScience.API.Interfaces;
 using TerraScience.Content.TileEntities;
 using TerraScience.Content.TileEntities.Energy;
 using TerraScience.Content.TileEntities.Energy.Generators;
 using TerraScience.Content.Tiles;
 using TerraScience.Content.Tiles.Multitiles;
+using TerraScience.Content.UI;
 using TerraScience.Systems.Energy;
+using TerraScience.Systems.Pathfinding;
 using TerraScience.Systems.Pipes;
 using TerraScience.Utilities;
 
@@ -260,26 +263,35 @@ forceNextCheck: ;
 						if(!(mTile is ItemPumpTile pump))
 							continue;
 
+						//Check MagicStorage compatability
 						Item[] inventory;
-						if(pump.GetConnectedMachine(timer.Key) is MachineEntity entity){
+						MachineEntity entity;
+						if((entity = pump.GetConnectedMachine(timer.Key)) != null){
 							var inputs = entity.GetOutputSlots();
 
 							//No output slots?  Can't pump items out of this...
-							if(inputs.Length == 0)
+							bool hijacked;
+							if(!(hijacked = entity.HijackGetItemInventory(out inventory)) && inputs.Length == 0)
 								continue;
 
-							inventory = new Item[inputs.Length];
+							//If the inventory getting was hijacked, but the inventory is null, then abort immediately
+							if(hijacked && inventory is null)
+								continue;
 
-							for(int i = 0; i < inventory.Length; i++)
-								inventory[i] = entity.RetrieveItem(inputs[i]);
+							if(!hijacked){
+								inventory = new Item[inputs.Length];
+
+								for(int i = 0; i < inventory.Length; i++)
+									inventory[i] = entity.RetrieveItem(inputs[i]);
+							}
 						}else if(pump.GetConnectedChest(timer.Key) is Chest chest)
 							inventory = chest.item;
 						else
 							continue;
 
-						if(!(network.pumpPathsToMachines.TryGetValue(timer.Key, out List<(float time, List<Point16> list)> path) && CheckItemInsertion(network, inventory, timer.Key, pump, path))){
+						if(!(network.pumpPathsToMachines.TryGetValue(timer.Key, out List<ItemPathResult> path) && CheckItemInsertion(network, inventory, timer.Key, pump, path, inputMachine: entity))){
 							if(network.pumpPathsToChests.TryGetValue(timer.Key, out path))
-								CheckItemInsertion(network, inventory, timer.Key, pump, path);
+								CheckItemInsertion(network, inventory, timer.Key, pump, path, inputMachine: null);
 						}
 					}
 				}
@@ -294,7 +306,7 @@ forceNextCheck: ;
 			}
 		}
 
-		private static bool CheckItemInsertion(ItemNetwork network, Item[] extractInventory, Point16 pumpTile, ItemPumpTile pump, List<(float time, List<Point16> list)> pathfinding){
+		private static bool CheckItemInsertion(ItemNetwork network, Item[] extractInventory, Point16 pumpTile, ItemPumpTile pump, List<ItemPathResult> pathfinding, MachineEntity inputMachine){
 			var list = pathfinding.OrderBy(t => t.time).ToList();
 			int stack = pump.StackPerExtraction;
 
@@ -304,7 +316,9 @@ forceNextCheck: ;
 				Item original = extractInventory[i];
 
 				Item item = extractInventory[i].Clone();
-				item.stack = stack;
+
+				//Prevent extracting more items than exist in a stack
+				item.stack = Math.Min(stack, item.maxStack);
 
 				if(original.IsAir)
 					continue;
@@ -328,12 +342,21 @@ forceNextCheck: ;
 						: ItemNetworkPath.SimulateChestInput(targetChest, item, usepaths);
 
 					//If it was successful, do the things
+					// TODO: move the item extraction code to MachineEntity
 					if(successful){
-						int stackToExtract = stack - item.stack;
-						item.stack = stackToExtract;
-						original.stack -= stackToExtract;
+						int stackToExtract = item.stack;
+						ItemNetworkPath newPath;
+						if(inputMachine != null && inputMachine.HijackExtractItem(extractInventory, i, stackToExtract, out Item extracted)){
+							//Hijacked, but couldn't extract anything
+							if(extracted is null)
+								return false;
 
-						ItemNetworkPath newPath = ItemNetworkPath.CreateObject(item, network, pumpTile, pathOverride: list[m].list);
+							newPath = ItemNetworkPath.CreateObject(extracted, network, pumpTile, pathOverride: list[m].list);
+						}else{
+							original.stack -= stackToExtract;
+
+							newPath = ItemNetworkPath.CreateObject(item, network, pumpTile, pathOverride: list[m].list);
+						}
 
 						if(newPath?.Path != null){
 							newPath.moveDir = -(pump.GetBackwardsOffset(pumpTile) - pumpTile).ToVector2();

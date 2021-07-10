@@ -1,3 +1,4 @@
 displayName = Terraria Tech Mod
 author = absoluteAquarian, GoodPro712
 version = 1.0
+weakReferences = MagicStorage@0.4.3.5

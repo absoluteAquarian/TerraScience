@@ -217,11 +217,12 @@ namespace TerraScience.Content.Tiles{
 				return ((int)otherMerge & mask) != 0;
 			}else if(targetModTile is Machine && TileUtils.tileToEntity.TryGetValue(targetModTile.Type, out MachineEntity entity)){
 				return (MergeType == JunctionType.Wires && entity is PoweredMachineEntity)
-					|| (MergeType == JunctionType.Items && (entity.GetInputSlots().Length > 0 || entity.GetOutputSlots().Length > 0))
+					|| (MergeType == JunctionType.Items && ((entity.HijackCanBeInteractedWithItemNetworks(out bool canInteract) && canInteract) || entity.GetInputSlots().Length > 0 || entity.GetOutputSlots().Length > 0))
 					|| (MergeType == JunctionType.Fluids && (entity is ILiquidMachine || entity is IGasMachine));
 			}else if(((MergeType == JunctionType.Items && targetModTile is ItemPumpTile) || (MergeType == JunctionType.Fluids && targetModTile is FluidPumpTile)) && ((dirX == -1 && target.frameX / 18 == 3) || (dirX == 1 && target.frameX / 18 == 1) || (dirY == -1 && target.frameX / 18 == 2) || (dirY == 1 && target.frameX / 18 == 0)))
 				return true;
-
+			else if(MergeType == JunctionType.Items && targetModTile is MagicStorageConnector)
+				return true;
 
 			//Tile wasn't a junction-mergeable tile
 			return false;

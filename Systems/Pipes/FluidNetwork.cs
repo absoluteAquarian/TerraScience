@@ -5,6 +5,7 @@ using Terraria;
 using Terraria.DataStructures;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
+using TerraScience.API.Interfaces;
 using TerraScience.Content.ID;
 using TerraScience.Content.TileEntities;
 using TerraScience.Content.Tiles;
@@ -224,6 +225,12 @@ namespace TerraScience.Systems.Pipes{
 			if(NetworkCollection.HasFluidPipeAt(splitOrig + new Point16(0, 1), out FluidNetwork down))
 				down.StoredFluid = down.Capacity * factor;
 		}
+
+		public override INetwork Clone()
+			=> new FluidNetwork(){
+				Hash = new HashSet<FluidPipe>(this.Hash),
+				ConnectedMachines = new List<MachineEntity>(this.ConnectedMachines)
+			};
 
 		public override string ToString() => $"ID: {ID}, Fluid: {StoredFluid} / {Capacity} L, Gas Type: {gasType}, Liquid Type: {liquidType}";
 	}

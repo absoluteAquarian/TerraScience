@@ -62,6 +62,14 @@ namespace TerraScience.Content.TileEntities{
 				fuel = ParentState.GetSlot(1).StoredItem;
 			}
 
+			//Failsafe
+			if(!ingredientToResult.ContainsKey(input.type)){
+				ReactionProgress = 0;
+				ReactionInProgress = false;
+				ForceNoReaction = true;
+				return;
+			}
+
 			(int requireStack, int resultType, int resultStack) = ingredientToResult[input.type];
 
 			if(input.stack < requireStack){

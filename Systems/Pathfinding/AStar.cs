@@ -23,6 +23,19 @@ namespace TerraScience.Systems.Pathfinding{
 				//How many tiles need to be iterated over to reach the target
 				distance = Math.Abs(target.X - location.X) + Math.Abs(target.Y - location.Y);
 			}
+
+			public override bool Equals(object obj)
+				=> obj is Entry entry && entry.location == location;
+
+			public override int GetHashCode() => base.GetHashCode();
+
+			public static bool operator ==(Entry first, Entry second)
+				=> first?.location == second?.location;
+
+			public static bool operator !=(Entry first, Entry second)
+				=> first?.location != second?.location;
+
+			public override string ToString() => $"Heuristic: {Heuristic}, Location: (X: {location.X}, Y: {location.Y})";
 		}
 		
 		/// <summary>
@@ -40,10 +53,9 @@ namespace TerraScience.Systems.Pathfinding{
 			if(source == target)
 				return new List<Point16>(){ source };
 
-			//Make a copy of the network with its root entry at "source"
-			ItemNetwork copy = new ItemNetwork(ignoreID: true);
-			copy.AddEntry(new ItemPipe(source, copy));
-			copy.RefreshConnections(NetworkCollection.ignoreCheckLocation);
+			//Make a copy of the network
+			//All that matters is we get the entries, connected chests and connected machines
+			ItemNetwork copy = net.Clone() as ItemNetwork;
 
 			//Search through the network until a path to "target" is found
 			var netEntries = copy.GetEntries();
@@ -52,7 +64,7 @@ namespace TerraScience.Systems.Pathfinding{
 			List<Entry> visitedMaze = new List<Entry>();
 			
 			//Add the root entry
-			Entry root = new Entry(){ location = netEntries[0].Position };
+			Entry root = new Entry(){ location = source };
 			activeMaze.Add(root);
 
 			//Keep looping while there's still entries to check
@@ -85,7 +97,12 @@ namespace TerraScience.Systems.Pathfinding{
 
 					//If this walkable entry is already in the active list, but the existing entry has a worse heuristic, replace it
 					//Otherwise, just add the walkable entry to the active list
-					if((activeCheck = activeMaze.FirstOrDefault(e => e.location.X == walkable.location.X && e.location.Y == walkable.location.Y)) != null){
+
+					//List.IndexOf() ends up using the == and != operators for comparing values, which is good for this scenario
+					int index = activeMaze.IndexOf(walkable);
+					
+					if(index >= 0){
+						activeCheck = activeMaze[index];
 						if(activeCheck.Heuristic > check.Heuristic){
 							activeMaze.Remove(activeCheck);
 							activeMaze.Add(walkable);
@@ -130,12 +147,21 @@ namespace TerraScience.Systems.Pathfinding{
 
 			for(int i = 0; i < possible.Count; i++){
 				var possibleLoc = possible[i].location;
-				if((!net.HasEntryAt(possibleLoc) && !net.HasMachineAt(possibleLoc) && !net.HasChestAt(possibleLoc)) || ModContent.GetModTile(Framing.GetTileSafely(possibleLoc).type) is ItemPumpTile || existing.Any(e => e.location == possibleLoc)){
+				Tile tile = Framing.GetTileSafely(possibleLoc);
+
+				if(!tile.active() || existing.IndexOf(possible[i]) >= 0 || (!net.HasEntryAt(possibleLoc) && !net.HasMachineAt(possibleLoc) && !net.HasChestAt(possibleLoc)) || ModContent.GetModTile(tile.type) is ItemPumpTile){
 					possible.RemoveAt(i);
 					i--;
 				}else{
-					possible[i].travelTime = parent.travelTime + GetItemTravelTime(possibleLoc);
-					possible[i].SetDistance(target);
+					float time = GetItemTravelTime(possibleLoc);
+
+					if(time < 0){
+						possible.RemoveAt(i);
+						i--;
+					}else{
+						possible[i].travelTime = parent.travelTime + time;
+						possible[i].SetDistance(target);
+					}
 				}
 			}
 

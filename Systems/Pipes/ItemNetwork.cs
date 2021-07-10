@@ -5,6 +5,7 @@ using Terraria;
 using Terraria.DataStructures;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
+using TerraScience.API.Interfaces;
 using TerraScience.Content.TileEntities;
 using TerraScience.Content.Tiles;
 using TerraScience.Systems.Pathfinding;
@@ -28,8 +29,8 @@ namespace TerraScience.Systems.Pipes{
 
 		internal Dictionary<Point16, Timer> pumpTimers;
 
-		internal Dictionary<Point16, List<(float time, List<Point16> list)>> pumpPathsToMachines;
-		internal Dictionary<Point16, List<(float time, List<Point16> list)>> pumpPathsToChests;
+		internal Dictionary<Point16, List<ItemPathResult>> pumpPathsToMachines;
+		internal Dictionary<Point16, List<ItemPathResult>> pumpPathsToChests;
 
 		private HashSet<Point16> pumpsToRefresh;
 
@@ -49,11 +50,11 @@ namespace TerraScience.Systems.Pipes{
 			pipesConnectedToMachines = new List<Point16>();
 			pumpTimers = new Dictionary<Point16, Timer>();
 			chests = new List<int>();
-			pumpPathsToMachines = new Dictionary<Point16, List<(float time, List<Point16> list)>>();
-			pumpPathsToChests = new Dictionary<Point16, List<(float time, List<Point16> list)>>();
+			pumpPathsToMachines = new Dictionary<Point16, List<ItemPathResult>>();
+			pumpPathsToChests = new Dictionary<Point16, List<ItemPathResult>>();
 			pumpsToRefresh = new HashSet<Point16>();
 
-			OnEntryPlace += pos => {
+			OnInitialPlace += pos => {
 				Tile tile = Framing.GetTileSafely(pos);
 				if(!(ModContent.GetModTile(tile.type) is ItemPumpTile))
 					InformPathsOfNetUpdate(pos);
@@ -208,7 +209,7 @@ namespace TerraScience.Systems.Pipes{
 			};
 		}
 
-		private static List<Point16> FilterPumps(Dictionary<Point16, List<(float time, List<Point16> list)>> dictionary, Point16 pos)
+		private static List<Point16> FilterPumps(Dictionary<Point16, List<ItemPathResult>> dictionary, Point16 pos)
 			=> dictionary.Where(kvp => kvp.Value.Any(t => t.list.Any(p => pos == p)))  //Only update paths that have this tile to speed up processing time
 				.Select(kvp => kvp.Key)
 				.ToList();
@@ -219,7 +220,7 @@ namespace TerraScience.Systems.Pipes{
 				return;
 
 			if(!pumpPathsToMachines.ContainsKey(pump))
-				pumpPathsToMachines.Add(pump, new List<(float time, List<Point16> list)>());
+				pumpPathsToMachines.Add(pump, new List<ItemPathResult>());
 			else
 				pumpPathsToMachines[pump].Clear();
 
@@ -229,12 +230,12 @@ namespace TerraScience.Systems.Pipes{
 				if(path != null && travelTime > 0){
 					path.Reverse();
 
-					pumpPathsToMachines[pump].Add((travelTime, path));
+					pumpPathsToMachines[pump].Add(new ItemPathResult(){ time = travelTime, list = path });
 				}
 			}
 
 			if(!pumpPathsToChests.ContainsKey(pump))
-				pumpPathsToChests.Add(pump, new List<(float time, List<Point16> list)>());
+				pumpPathsToChests.Add(pump, new List<ItemPathResult>());
 			else
 				pumpPathsToChests[pump].Clear();
 
@@ -244,7 +245,7 @@ namespace TerraScience.Systems.Pipes{
 				if(path != null && travelTime > 0){
 					path.Reverse();
 
-					pumpPathsToChests[pump].Add((travelTime, path));
+					pumpPathsToChests[pump].Add(new ItemPathResult(){ time = travelTime, list = path });
 				}
 			}
 		}
@@ -393,6 +394,14 @@ namespace TerraScience.Systems.Pipes{
 			//  before checking the connected chests
 			return ConnectedMachines.Select(machine => (Func<Item, bool>)(item => machine.CanBeInput(item))).ToList();
 		}
+
+		//Used by Pathfinding.AStar, so we only need to copy the important data
+		public override INetwork Clone()
+			=> new ItemNetwork(ignoreID: true){
+				Hash = new HashSet<ItemPipe>(this.Hash),
+				ConnectedMachines = new List<MachineEntity>(this.ConnectedMachines),
+				chests = new List<int>(this.chests)
+			};
 
 		public override string ToString() => $"ID: {ID}, Items: {paths.Count}, Pumps: {pumpTimers.Count}";
 	}

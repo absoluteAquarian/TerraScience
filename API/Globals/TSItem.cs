@@ -1,4 +1,5 @@
-﻿using Terraria;
+﻿using System.Collections.Generic;
+using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Utilities;
@@ -61,6 +62,15 @@ namespace TerraScience.API.Globals{
 			}else{
 				resultType = type;
 				resultStack = Main.rand.Next(stackMin, stackMax + 1);
+			}
+		}
+
+		public override void ModifyTooltips(Item item, List<TooltipLine> tooltips){
+			//Add to the tooltip description if it's a Golden Key
+			if(item.type == ItemID.GoldenKey){
+				int index = tooltips.FindLastIndex(line => line.mod == "Terraria" && line.Name.StartsWith("Tooltip"));
+
+				tooltips.Insert(++index, new TooltipLine(TechMod.Instance, "ItemCacheUse", "Right click an Item Cache machine while holding this to lock/unlock it"));
 			}
 		}
 	}

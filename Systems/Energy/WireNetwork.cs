@@ -4,6 +4,8 @@ using Terraria;
 using Terraria.DataStructures;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
+using TerraScience.API.Interfaces;
+using TerraScience.Content.TileEntities;
 using TerraScience.Content.TileEntities.Energy;
 using TerraScience.Content.TileEntities.Energy.Generators;
 using TerraScience.Content.TileEntities.Energy.Storage;
@@ -235,6 +237,13 @@ namespace TerraScience.Systems.Energy{
 			if(StoredFlux > Capacity)
 				StoredFlux = Capacity;
 		}
+
+		public override INetwork Clone()
+			=> new WireNetwork(){
+				Hash = new HashSet<TFWire>(this.Hash),
+				ConnectedMachines = new List<MachineEntity>(ConnectedMachines),
+				needsRateRefresh = true
+			};
 
 		public override string ToString() => $"ID: {ID}, Flux: {StoredFlux} / {Capacity} TF, Exported Flux: {totalExportedFlux} TF";
 	}

@@ -24,22 +24,45 @@ namespace TerraScience.Utilities{
 
 		public static bool TryInsertItems(this Chest chest, Item data){
 			int stack = data.stack;
+			Item clone = data.Clone();
 			for(int i = 0; i < chest.item.Length; i++){
 				Item item = chest.item[i];
 
 				if(item.IsAir || data.type == item.type){
 					if(item.IsAir){
-						chest.item[i] = data.Clone();
-						data.stack = 0;
-
+						chest.item[i] = clone;
 						return true;
 					}else if(item.stack + data.stack <= item.maxStack){
-						item.stack += data.stack;
-						data.stack = 0;
-
+						item.stack += clone.stack;
 						return true;
 					}else{
-						data.stack -= item.maxStack - item.stack;
+						clone.stack -= item.maxStack - item.stack;
+						item.stack = item.maxStack;
+					}
+				}
+			}
+
+			return data.stack < stack;
+		}
+
+		public static bool TryInsertItemsIntoMachineSimulation(this Chest chest, Item data, int[] inputSlots, Func<int, Item, bool> validItemFunc){
+			int stack = data.stack;
+			Item clone = data.Clone();
+			for(int i = 0; i < chest.item.Length; i++){
+				if(!validItemFunc(inputSlots[i], clone))
+					continue;
+
+				Item item = chest.item[i];
+
+				if(item.IsAir || data.type == item.type){
+					if(item.IsAir){
+						chest.item[i] = clone;
+						return true;
+					}else if(item.stack + data.stack <= item.maxStack){
+						item.stack += clone.stack;
+						return true;
+					}else{
+						clone.stack -= item.maxStack - item.stack;
 						item.stack = item.maxStack;
 					}
 				}

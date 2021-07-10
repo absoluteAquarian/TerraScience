@@ -11,6 +11,8 @@ Current Multitiles:
 - powered by coal, increases the gains from smelting ores
 [c/dddd00:Basic Solar Panel]
 - generates [c/dd3333:Terra Flux (TF)] based on the time of day and weather
+[c/dddd00:Basic Thermal Generator]
+- generates [c/dd3333:Terra Flux (TF)] by burning certain organic compounds, such as wood and food items
 [c/dddd00:Basic Wind Turbine]
 - generates [c/dd3333:Terra Flux (TF)] based on the current wind speed and weather
 [c/dddd00:Electrolyzer]
@@ -18,7 +20,14 @@ Current Multitiles:
 [c/dddd00:Fluid Tank]
 - stores one liquid and one gas
 [c/dddd00:Greenhouse]
-- grows and automatically harvests herbs, mushroom grass cacti and saplings
+- grows and automatically harvests herbs, mushroom grass, cacti, saplings and pumpkins
+[c/dddd00:Item Cache]
+- can store a large quantity of a single item and can be locked to only store a certain item
+- this machine is useful for making sure only one type of item ends up going into a machine
+[c/dddd00:Liquid Duplicator]
+- consumes [c/dd3333:Terra Flux (TF)] to duplicate certain liquids
+[c/dddd00:Magic Storage Connector]
+- allows importing and exporting items from a Magic Storage storage system
 [c/dddd00:Matter Energizer]
 - consumes [c/dd3333:Terra Flux (TF)] to convert certain items into other items
 [c/dddd00:Reinforced Furnace]

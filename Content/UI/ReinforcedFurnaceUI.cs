@@ -53,10 +53,8 @@ namespace TerraScience.Content.UI{
 			text[2].SetText($"Progress: {(int)entity.ReactionProgress}%");
 		}
 
-		public static bool ValidItem(Item item){
-			string name = Lang.GetItemNameValue(item.type);
-			return item.IsAir || name.Contains("Wood") || name.Contains("wood");
-		}
+		public static bool ValidItem(Item item)
+			=> ReinforcedFurnaceEntity.woodTypes.Contains(item.type);
 
 		internal override void InitializeSlots(List<UIItemSlot> slots){
 			UIItemSlot input = new UIItemSlot(){

@@ -77,7 +77,11 @@ namespace TerraScience.Utilities {
 		}
 
 		public static Item RetrieveItem(this MachineEntity entity, int slot)
-			=> !(entity.ParentState?.Active ?? false) ? entity.GetItem(slot) : entity.ParentState.GetSlot(slot).StoredItem;
+			=> entity.HijackRetrieveItem(slot, out Item item)
+				? item
+				: !(entity.ParentState?.Active ?? false)
+					? entity.GetItem(slot)
+					: entity.ParentState.GetSlot(slot).StoredItem;
 
 		public static void ClearItem(this MachineEntity entity, int slot)
 			=> entity.RetrieveItem(slot).TurnToAir();
@@ -114,6 +118,18 @@ namespace TerraScience.Utilities {
 			}
 
 			return false;
+		}
+
+		public static T[] Populate<T>(this T[] arr, Func<T> defaultValue) where T : class{
+			for(int i = 0; i < arr.Length; i++)
+				arr[i] = defaultValue();
+			return arr;
+		}
+
+		public static T[] Populate<T>(this T[] arr, T defaultValue) where T : struct{
+			for(int i = 0; i < arr.Length; i++)
+				arr[i] = defaultValue;
+			return arr;
 		}
 	}
 }

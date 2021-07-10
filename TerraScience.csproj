@@ -18,6 +18,8 @@
     <PackageReference Include="tModLoader.CodeAssist" Version="0.1.*" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="API\CrossMod\" />
+    <Reference Include="MagicStorage">
+      <HintPath>lib\MagicStorage.dll</HintPath>
+    </Reference>
   </ItemGroup>
 </Project>

@@ -10,6 +10,8 @@ namespace TerraScience.API.Interfaces{
 		void Load(TagCompound tag);
 
 		void InvokePostEntryKill();
+
+		INetwork Clone();
 	}
 
 	public interface INetwork<T> : INetwork where T : struct, INetworkable<T>{

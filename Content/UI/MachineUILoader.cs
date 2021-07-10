@@ -109,6 +109,8 @@ namespace TerraScience.Content.UI {
 
 			machineState.PlayOpenSound();
 
+			machineState.PreOpen();
+
 			machineState.Active = true;
 			machineState.UIEntity = entity;
 			machineState.UIEntity.ParentState = machineState;
@@ -124,6 +126,8 @@ namespace TerraScience.Content.UI {
 			}
 
 			interfaces[name].SetState(machineState);
+
+			machineState.PostOpen();
 		}
 
 		public void HideUI(string name) {
@@ -142,6 +146,8 @@ namespace TerraScience.Content.UI {
 			machineState.Active = false;
 
 			interfaces[name].SetState(null);
+
+			machineState.PostClose();
 		}
 	}
 }

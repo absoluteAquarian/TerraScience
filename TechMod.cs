@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.ID;
@@ -8,6 +9,8 @@ using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.UI;
 using Terraria.Utilities;
+using TerraScience.API.CrossMod;
+using TerraScience.API.CrossMod.MagicStorage;
 using TerraScience.Content.ID;
 using TerraScience.Content.Items;
 using TerraScience.Content.Items.Energy;
@@ -198,6 +201,16 @@ namespace TerraScience {
 				[ItemID.CrimtaneOre] = (3, ItemID.CrimtaneOre,  2)
 			};
 
+			ReinforcedFurnaceEntity.woodTypes = new List<int>(){
+				ItemID.Wood,
+				ItemID.BorealWood,
+				ItemID.RichMahogany,
+				ItemID.Shadewood,
+				ItemID.Ebonwood,
+				ItemID.Pearlwood,
+				ItemID.PalmWood
+			};
+
 			//SendPowerToMachines needs to run after the generators have exported their power to the networks, but before the rest of the machines update
 			TileEntity._UpdateStart += NetworkCollection.SendPowerToMachines;
 
@@ -212,6 +225,11 @@ namespace TerraScience {
 			API.Edits.MSIL.ILHelper.DeInitMonoModDumps();
 
 			API.Edits.Detours.Vanilla.Load();
+
+			Logger.Debug("Loading Cross-Mod Capabilities...");
+
+			MagicStorageHandler.handler = new ModHandler();
+			MagicStorageHandler.handler.Load("MagicStorage");
 		}
 
 		public static int GetCapsuleType(MachineGasID gas){
@@ -277,6 +295,11 @@ namespace TerraScience {
 		public override void MidUpdateProjectileItem(){
 			NetworkCollection.UpdateItemNetworks();
 			NetworkCollection.UpdateFluidNetworks();
+
+			if(MagicStorageHandler.GUIRefreshPending && Main.GameUpdateCount % 120 == 0){
+				//A return of "true" means the GUIs were refreshed
+				MagicStorageHandler.GUIRefreshPending = !MagicStorageHandler.RefreshGUIs();
+			}
 		}
 
 		public override void Unload() {
@@ -316,11 +339,18 @@ namespace TerraScience {
 
 			BlastFurnaceEntity.ingredientToResult = null;
 
+			ReinforcedFurnaceEntity.woodTypes = null;
+
 			NetworkCollection.Unload();
 
 			TileEntity._UpdateStart -= NetworkCollection.SendPowerToMachines;
 
 			types = null;
+
+			Logger.DebugFormat("Unloading Cross-Mod Capabilities...");
+
+			MagicStorageHandler.handler?.Unload();
+			MagicStorageHandler.handler = null;
 		}
 
 		public override void PostSetupContent() {
@@ -433,6 +463,25 @@ namespace TerraScience {
 				(ItemID.IronBar, 2),   (ItemID.OutletPump, 1),                       (ItemID.IronBar, 2),
 				(ItemID.InletPump, 1), (ModContent.ItemType<BasicMachineCore>(), 1), (ItemID.InletPump, 1),
 				(ItemID.IronBar, 2),   (ModContent.ItemType<TFWireItem>(), 6),       (ItemID.IronBar, 2)
+			});
+
+			DatalessMachineInfo.recipes.Add(ModContent.ItemType<MagicStorageConnectorItem>(), mod => {
+				if(!MagicStorageHandler.handler.ModIsActive)
+					return;
+
+				ModRecipe recipe = new ModRecipe(mod);
+				recipe.AddIngredient(MagicStorageHandler.ItemType("StorageAccess"));
+				recipe.AddIngredient(ModContent.ItemType<Silicon>(), 30);
+				recipe.AddIngredient(ModContent.ItemType<ItemPump>(), 2);
+				recipe.AddTile(TileID.Anvils);
+				recipe.SetResult(mod.ItemType("DatalessMagicStorageConnector"), 1);
+				recipe.AddRecipe();
+			});
+
+			DatalessMachineInfo.Register<ItemCacheItem>(new[]{
+				(ItemID.IronBar, 1),                  (ItemID.IronBar, 1), (ItemID.IronBar, 1),
+				(ItemID.IronBar, 1),                  (ItemID.Chest, 1),   (ItemID.IronBar, 1),
+				(ModContent.ItemType<ItemPump>(), 1), (ItemID.IronBar, 1), (ModContent.ItemType<ItemPump>(), 1)
 			});
 
 			//Loading merge data here instead of <tile>.SetDefaults()

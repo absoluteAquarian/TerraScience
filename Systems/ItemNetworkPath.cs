@@ -7,8 +7,10 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using Terraria.Utilities;
+using TerraScience.API.CrossMod.MagicStorage;
 using TerraScience.Content.TileEntities;
 using TerraScience.Content.Tiles;
+using TerraScience.Content.UI;
 using TerraScience.Systems.Pathfinding;
 using TerraScience.Systems.Pipes;
 using TerraScience.Utilities;
@@ -99,10 +101,19 @@ namespace TerraScience.Systems{
 			return path;
 		}
 
+		internal static ItemNetworkPath CreateDummyObject(Item item)
+			=> new ItemNetworkPath(){
+				removed = true,
+				itemData = ItemIO.Save(item)
+			};
+
 		/// <summary>
 		/// Attempts to move the item in this object along the <seealso cref="itemNetwork"/>
 		/// </summary>
 		public void Update(){
+			if(removed)
+				return;
+
 			oldCenter = worldCenter;
 
 			var newTilePos = worldCenter.ToTileCoordinates16();
@@ -120,6 +131,12 @@ namespace TerraScience.Systems{
 			if(ModContent.GetModTile(sourceTile.type) is ItemPumpTile pump){
 				//Force the move direction to be away from the pump
 				moveDir = -(pump.GetBackwardsOffset(newTilePos) - newTilePos).ToVector2();
+
+				if(wander){
+					//Get a new path
+					needsPathRefresh = true;
+					delayPathCalc = false;
+				}
 			}
 
 			if(!delayPathCalc && (!sourceTile.active() || !itemNetwork.HasEntryAt(newTilePos))){
@@ -148,7 +165,7 @@ namespace TerraScience.Systems{
 						delayPathCalc = true;
 					}
 				}else{
-					if(FindConnectedChest(itemNetwork, newTilePos, data, out _) is null && !(TileEntityUtils.TryFindMachineEntity(newTilePos + new Point16(0, -1), out _) || TileEntityUtils.TryFindMachineEntity(newTilePos + new Point16(-1, 0), out _) || TileEntityUtils.TryFindMachineEntity(newTilePos + new Point16(0, 1), out _) || TileEntityUtils.TryFindMachineEntity(newTilePos + new Point16(1, 0), out _)))
+					if(FindConnectedChest(itemNetwork, newTilePos, data, out _) is null && FindConnectedMachine(itemNetwork, newTilePos, data) is null)
 						SpawnInWorld();
 					else{
 						wander = true;
@@ -243,6 +260,17 @@ namespace TerraScience.Systems{
 			return null;
 		}
 
+		internal static bool ConnectedToMagicStorageSystem(ItemNetwork network, Point16 location, out Point16 dirPos)
+			=> DirConnectedToMagicStorageSystem(network, location, new Point16(0, -1), out dirPos)
+				|| DirConnectedToMagicStorageSystem(network, location, new Point16(-1, 0), out dirPos)
+				|| DirConnectedToMagicStorageSystem(network, location, new Point16(1, 0), out dirPos)
+				|| DirConnectedToMagicStorageSystem(network, location, new Point16(0, 1), out dirPos);
+
+		private static bool DirConnectedToMagicStorageSystem(ItemNetwork network, Point16 location, Point16 dir, out Point16 dirPos){
+			dirPos = location + dir;
+			return network.HasEntryAt(location) && MagicStorageHandler.HasStorageHeartAt(dirPos) || MagicStorageHandler.HasStorageAccessAt(dirPos) || MagicStorageHandler.HasRemoteStorageAccessAt(dirPos);
+		}
+
 		private static bool TileMachineCanBeInputInto(ItemNetwork network, Point16 position, Item incoming, out MachineEntity machineEntity){
 			machineEntity = null;
 			return network.HasMachineAt(position) && TileEntityUtils.TryFindMachineEntity(position, out machineEntity) && machineEntity.CanBeInput(incoming);
@@ -270,7 +298,7 @@ namespace TerraScience.Systems{
 		}
 
 		internal void SetMovementPath(){
-			List<(float time, List<Point16> list)> pathToTargets = new List<(float time, List<Point16> list)>();
+			List<ItemPathResult> pathToTargets = new List<ItemPathResult>();
 
 			var worldTile = worldCenter.ToTileCoordinates16();
 			Item item = ItemIO.Load(itemData);
@@ -282,7 +310,7 @@ namespace TerraScience.Systems{
 
 				var path = AStar.SimulateItemNetwork(itemNetwork, worldTile, location, out float travelTime);
 				if(path != null)
-					pathToTargets.Add((travelTime, path));
+					pathToTargets.Add(new ItemPathResult(){ time = travelTime, list = path });
 			}
 
 			foreach(var pos in itemNetwork.pipesConnectedToMachines){
@@ -294,7 +322,7 @@ namespace TerraScience.Systems{
 				//At least one machine can be input into.  Add the pipe to the calculation
 				var path = AStar.SimulateItemNetwork(itemNetwork, worldTile, pos, out float travelTime);
 				if(path != null)
-					pathToTargets.Add((travelTime, path));
+					pathToTargets.Add(new ItemPathResult(){ time = travelTime, list = path });
 			}
 
 			if(pathToTargets.Count == 0){
@@ -333,8 +361,9 @@ namespace TerraScience.Systems{
 		}
 
 		internal static bool SimulateChestInput(Chest chest, Item incoming, List<ItemNetworkPath> paths){
+			//Entries need to be populated or Chest.ToString() throws in the debugger
 			Chest simulation = new Chest(){
-				item = new Item[chest.item.Length]
+				item = new Item[chest.item.Length].Populate(() => new Item())
 			};
 
 			for(int i = 0; i < chest.item.Length; i++)
@@ -352,36 +381,43 @@ namespace TerraScience.Systems{
 		}
 
 		internal static bool SimulateMachineInput(MachineEntity entity, Item incoming, List<ItemNetworkPath> paths){
+			if(entity.HijackSimulateInput(incoming, paths, out bool successful))
+				return successful;
+
 			var inputs = entity.GetInputSlots();
 
 			if(inputs.Length == 0)
 				return false;
 
+			//Entries need to be populated or Chest.ToString() throws in the debugger
 			Chest simulation = new Chest(){
-				item = new Item[inputs.Length]
+				item = new Item[inputs.Length].Populate(() => new Item())
 			};
 
 			for(int i = 0; i < simulation.item.Length; i++)
 				simulation.item[i] = entity.RetrieveItem(inputs[i]).Clone();
 
 			//Insert the other items
-			bool successful = true;
+			successful = true;
 			foreach(var path in paths){
 				var item = ItemIO.Load(path.itemData);
 
-				successful &= entity.CanBeInput(item) && simulation.TryInsertItems(item);
+				successful &= entity.CanBeInput(item) && simulation.TryInsertItemsIntoMachineSimulation(item, inputs, (slot, data) => entity.CanInputItem(slot, data));
 
 				if(!successful)
 					return false;
 			}
 
 			//Then this one
-			successful &= entity.CanBeInput(incoming) && simulation.TryInsertItems(incoming);
+			successful &= entity.CanBeInput(incoming) && simulation.TryInsertItemsIntoMachineSimulation(incoming, inputs, (slot, data) => entity.CanInputItem(slot, data));
 
 			return successful;
 		}
 
 		private void MoveAlongNetwork(){
+			// TODO: item pathfinding has become dumb.  make it smart and fix it.  also, items tend to get stuck on the edge of pipes and seem to not be able to determine the correct path... why???
+
+
 			//Items will move from tile center to tile center
 			//The movement speed will be based on the pipe the item is currently inside of
 			Point16 worldTile = worldCenter.ToTileCoordinates16();
@@ -397,14 +433,20 @@ namespace TerraScience.Systems{
 				if(target == nextTile){
 					int chestID;
 					Item data = ItemIO.Load(itemData);
-					if((TileEntityUtils.TryFindMachineEntity(target, out MachineEntity machine) && machine.CanBeInput(data)) || ((chestID = ChestUtils.FindChestByGuessingImproved(target.X, target.Y)) > -1 && !Main.chest[chestID].IsFull(data)))
+
+					if((MagicStorageHandler.handler.ModIsActive && ConnectedToMagicStorageSystem(itemNetwork, target, out Point16 msPos) && MagicStorageHandler.TryDepositItem(data, msPos, checkOnly: true, out _))
+							|| (TileEntityUtils.TryFindMachineEntity(target, out MachineEntity machine) && machine.CanBeInput(data))
+							|| ((chestID = ChestUtils.FindChestByGuessingImproved(target.X, target.Y)) > -1 && !Main.chest[chestID].IsFull(data)))
 						moveDir = finalDir;
-					else
+					else{
 						moveDir = Vector2.Zero;
+
+						finalDir = Vector2.Zero;
+
+						wander = true;
+					}
 				}else
 					moveDir = finalDir;
-
-				/// TODO: make the item path spawning code better (hint: try and predict if a container in the network can have the item beforehand, taking the other paths into account)
 
 				worldCenter += finalMove * moveDir;
 
@@ -418,7 +460,16 @@ namespace TerraScience.Systems{
 			float move = 16 * AStar.GetItemMovementProgressFactorAt(worldTile);
 
 			if(!wander){
-				Point16 next;
+				//If, for whatever reason, this item isn't moving, make it wander and give it a random direction
+				if(moveDir == Vector2.Zero){
+					SetRandomMoveDir();
+
+					//Call this method again so that the proper logic can be done
+					MoveAlongNetwork();
+					return;
+				}
+				
+				Point16 next = default;
 				Vector2 currentWorld;
 				Vector2 nextWorld;
 				if(currentPath.Count > 0){
@@ -434,7 +485,11 @@ namespace TerraScience.Systems{
 
 				worldCenter += move * moveDir;
 
-				if(MovedPastPipeCenter(out Vector2 overStep)){
+				Point16 nextMove = (worldCenter + moveDir).ToTileCoordinates16();
+
+				//Get the next point if the item moved past the pipe center
+				//  OR if the item's position somehow ended up being not the current point and the next point
+				if(MovedPastPipeCenter(out Vector2 overStep) || (nextMove != dequeuedPoint && (currentPath.Count == 0 || nextMove != next))){
 					//Snap the tile back to the center, get a new movement direction, then apply the overstep
 					worldCenter = worldTile.ToWorldCoordinates();
 					
@@ -461,6 +516,10 @@ namespace TerraScience.Systems{
 			}else{
 				//Make the item wander around the network since it has no valid target positions
 				//Have an equally random chance to move in any direction that wouldn't make the item move backwards
+				//If the item, for some reason, has no movement direction, make it a random one and make it wander
+				if(moveDir == Vector2.Zero)
+					SetRandomMoveDir();
+
 				worldCenter += move * moveDir;
 
 				if(MovedPastPipeCenter(out Vector2 overStep)){
@@ -490,28 +549,36 @@ namespace TerraScience.Systems{
 			Point16 right = dequeuedPoint + new Point16(1, 0);
 			Point16 down = dequeuedPoint + new Point16(0, 1);
 
-			if(HasMachine(up) && Framing.GetTileSafely(up).active())
+			Tile tileUp = Framing.GetTileSafely(up);
+			Tile tileLeft = Framing.GetTileSafely(left);
+			Tile tileRight = Framing.GetTileSafely(right);
+			Tile tileDown = Framing.GetTileSafely(down);
+
+			if(HasMachine(up) && tileUp.active())
 				finalDir = new Vector2(0, -1);
-			else if(HasMachine(left) && Framing.GetTileSafely(left).active())
+			else if(HasMachine(left) && tileLeft.active())
 				finalDir = new Vector2(-1, 0);
-			else if(HasMachine(right) && Framing.GetTileSafely(right).active())
+			else if(HasMachine(right) && tileRight.active())
 				finalDir = new Vector2(1, 0);
-			else if(HasMachine(down) && Framing.GetTileSafely(down).active())
+			else if(HasMachine(down) && tileDown.active())
 				finalDir = new Vector2(0, 1);
-			else if(HasChest(up) && Framing.GetTileSafely(up).active())
+			else if(HasChest(up) && tileUp.active())
 				finalDir = new Vector2(0, -1);
-			else if(HasChest(left) && Framing.GetTileSafely(left).active())
+			else if(HasChest(left) && tileLeft.active())
 				finalDir = new Vector2(-1, 0);
-			else if(HasChest(right) && Framing.GetTileSafely(right).active())
+			else if(HasChest(right) && tileRight.active())
 				finalDir = new Vector2(1, 0);
-			else if(HasChest(down) && Framing.GetTileSafely(down).active())
+			else if(HasChest(down) && tileDown.active())
 				finalDir = new Vector2(0, 1);
 		}
 
 		private bool MovedPastPipeCenter(out Vector2 overStep){
 			Vector2 worldTileCenter = worldCenter.ToTileCoordinates16().ToWorldCoordinates();
 
-			if((moveDir.X == -1 && worldCenter.X < worldTileCenter.X && oldCenter.X > worldTileCenter.X) || (moveDir.X == 1 && worldCenter.X > worldTileCenter.X && oldCenter.X < worldTileCenter.X) || (moveDir.Y == -1 && worldCenter.Y < worldTileCenter.Y && oldCenter.Y > worldTileCenter.Y) || (moveDir.Y == 1 && worldCenter.Y > worldTileCenter.Y && oldCenter.Y < worldTileCenter.Y)){
+			if((moveDir.X == -1 && worldCenter.X < worldTileCenter.X && oldCenter.X > worldTileCenter.X)
+					|| (moveDir.X == 1 && worldCenter.X > worldTileCenter.X && oldCenter.X < worldTileCenter.X)
+					|| (moveDir.Y == -1 && worldCenter.Y < worldTileCenter.Y && oldCenter.Y > worldTileCenter.Y)
+					|| (moveDir.Y == 1 && worldCenter.Y > worldTileCenter.Y && oldCenter.Y < worldTileCenter.Y)){
 				overStep = worldCenter - worldTileCenter;
 				return true;
 			}
@@ -527,5 +594,64 @@ namespace TerraScience.Systems{
 
 		private bool HasChest(Point16 position)
 			=> itemNetwork.HasChestAt(position);
+
+		private void SetRandomMoveDir(){
+			//Get a random move direction that still keeps this item in the network
+			bool valid = false;
+			Point16 tileOrig = worldCenter.ToTileCoordinates16();
+
+			int checkCount = 0;
+			do{
+				switch(Main.rand.Next(4)){
+					case 0:
+						if(itemNetwork.HasEntryAt(tileOrig + new Point16(0, -1))){
+							moveDir = new Vector2(0, -1);
+							valid = true;
+						}
+						break;
+					case 1:
+						if(itemNetwork.HasEntryAt(tileOrig + new Point16(-1, 0))){
+							moveDir = new Vector2(-1, 0);
+							valid = true;
+						}
+						break;
+					case 2:
+						if(itemNetwork.HasEntryAt(tileOrig + new Point16(1, 0))){
+							moveDir = new Vector2(1, 0);
+							valid = true;
+						}
+						break;
+					case 3:
+						if(itemNetwork.HasEntryAt(tileOrig + new Point16(0, 1))){
+							moveDir = new Vector2(0, 1);
+							valid = true;
+						}
+						break;
+				}
+
+				//Prevent infinite loops
+				checkCount++;
+			}while(!valid && checkCount < 100);
+
+			if(checkCount >= 100){
+				//Infinite loop happened.  Just set a random direction
+				switch(Main.rand.Next(4)){
+					case 0:
+						moveDir = new Vector2(0, -1);
+						break;
+					case 1:
+						moveDir = new Vector2(-1, 0);
+						break;
+					case 2:
+						moveDir = new Vector2(1, 0);
+						break;
+					case 3:
+						moveDir = new Vector2(0, 1);
+						break;
+				}
+			}
+
+			wander = true;
+		}
 	}
 }

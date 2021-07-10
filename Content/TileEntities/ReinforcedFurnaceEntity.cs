@@ -8,6 +8,7 @@ using TerraScience.Content.Tiles.Multitiles;
 using TerraScience.Content.UI;
 using TerraScience.Utilities;
 using TerraScience.Content.Items.Materials;
+using System.Collections.Generic;
 
 namespace TerraScience.Content.TileEntities{
 	public class ReinforcedFurnaceEntity : MachineEntity{
@@ -33,6 +34,8 @@ namespace TerraScience.Content.TileEntities{
 		private SoundEffectInstance burning;
 
 		public override int SlotsCount => 2;
+
+		public static List<int> woodTypes;
 
 		public override TagCompound ExtraSave(){
 			//Save() is called when the world is exited, so stop the sound if it's playing

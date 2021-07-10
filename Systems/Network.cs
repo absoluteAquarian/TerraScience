@@ -24,7 +24,17 @@ namespace TerraScience.Systems{
 		private static int nextID = 0;
 
 		internal event Action OnClear;
+		/// <summary>
+		/// Called only once on the entry being directly placed by the player
+		/// </summary>
+		internal event Action<Point16> OnInitialPlace;
+		/// <summary>
+		/// Called for each entry in the network when refreshing its paths and connections
+		/// </summary>
 		internal event Action<Point16> OnEntryPlace;
+		/// <summary>
+		/// Called only once for the entry being directly removed by the player
+		/// </summary>
 		internal event Action<Point16> OnEntryKill;
 		internal event Action PostEntryKill;
 		internal event Action PostRefreshConnections;
@@ -64,8 +74,10 @@ namespace TerraScience.Systems{
 		internal abstract JunctionType Type{ get; }
 
 		public void AddEntry(T entry){
-			if(Hash.Add(entry))
+			if(Hash.Add(entry)){
+				OnInitialPlace?.Invoke(entry.Position);
 				OnEntryPlace?.Invoke(entry.Position);
+			}
 		}
 
 		public void AddMachine(MachineEntity entity){
@@ -211,7 +223,7 @@ namespace TerraScience.Systems{
 				if(!tiles.Contains(origin) && TileEntity.ByPosition.ContainsKey(origin)){
 					var entity = TileEntity.ByPosition[origin] as MachineEntity;
 
-					if((entity is PoweredMachineEntity && Type == JunctionType.Wires) || ((entity.GetInputSlots().Length > 0 || entity.GetOutputSlots().Length > 0) && Type == JunctionType.Items) || ((entity is ILiquidMachine || entity is IGasMachine) && Type == JunctionType.Fluids))
+					if((entity is PoweredMachineEntity && Type == JunctionType.Wires) || (((entity.HijackCanBeInteractedWithItemNetworks(out bool canInteract) && canInteract) || entity.GetInputSlots().Length > 0 || entity.GetOutputSlots().Length > 0) && Type == JunctionType.Items) || ((entity is ILiquidMachine || entity is IGasMachine) && Type == JunctionType.Fluids))
 						tiles.Add(origin);
 				}
 			}
@@ -295,5 +307,7 @@ namespace TerraScience.Systems{
 
 			Hash = new HashSet<T>(entries);
 		}
+
+		public abstract INetwork Clone();
 	}
 }

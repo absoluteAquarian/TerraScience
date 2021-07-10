@@ -22,11 +22,24 @@ namespace TerraScience.Content.Items.Tools{
 			if(TechMod.debugging && Main.mouseRight && Main.mouseRightRelease && player.inventory[58] != item){
 				var pos = Main.MouseWorld.ToTileCoordinates16();
 				var tile = Framing.GetTileSafely(pos.X, pos.Y);
+				var mTile = ModContent.GetModTile(tile.type);
 
-				if(tile.type == ModContent.TileType<MachineMufflerTile>()){
+				if(mTile is MachineMufflerTile){
 					MachineMufflerTile.mufflers.Clear();
 
 					Main.NewText("Cleared muffler reference list");
+					return;
+				}
+
+				if(mTile is ItemTransportTile && Systems.NetworkCollection.HasItemPipeAt(pos, out Systems.Pipes.ItemNetwork net)){
+					for(int i = 0; i < net.paths.Count; i++){
+						var path = net.paths[i];
+						path.needsPathRefresh = true;
+						path.delayPathCalc = false;
+						path.wander = false;
+					}
+
+					Main.NewText("Force Item Network items to refresh their pathfinding");
 					return;
 				}
 

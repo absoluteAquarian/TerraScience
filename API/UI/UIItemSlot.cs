@@ -62,9 +62,8 @@ namespace TerraScience.API.UI {
 			Main.inventoryScale = oldScale;
 		}
 
-		public void SetItem(Item item, int stack = 1) {
-			storedItem.SetDefaults(item.type);
-			storedItem.stack = stack;
+		public void SetItem(Item item){
+			storedItem = item.Clone();
 		}
 
 		public void SetItem(int itemType, int stack = 1){

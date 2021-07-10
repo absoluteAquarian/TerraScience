@@ -42,6 +42,12 @@ namespace TerraScience.Content.UI{
 
 		public virtual void PreClose(){ }
 
+		public virtual void PostClose(){ }
+
+		public virtual void PreOpen(){ }
+
+		public virtual void PostOpen(){ }
+
 		internal UIItemSlot GetSlot(int index) => ItemSlots[index];
 
 		public abstract int TileType{ get; }
@@ -64,7 +70,7 @@ namespace TerraScience.Content.UI{
 				return;
 
 			for(int i = 0; i < SlotsLength; i++)
-				ItemSlots[i].SetItem(slots[i], slots[i].stack);
+				ItemSlots[i].SetItem(slots[i]);
 		}
 
 		public sealed override void OnInitialize(){
