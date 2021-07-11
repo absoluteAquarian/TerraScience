@@ -336,7 +336,7 @@ forceNextCheck: ;
 						continue;
 
 					//"item.stack" is modified here, hence the need to clone it earlier
-					var usepaths = network.paths.Where(p => p.wander || (p?.Path?.Count > 0 && p.Path.Last() == target)).ToList();
+					var usepaths = network.paths.Where(p => p.wander || p.finalTarget == target || (p?.Path?.Count > 0 && p.Path.Last() == target)).ToList();
 					successful = machine != null
 						? ItemNetworkPath.SimulateMachineInput(machine, item, usepaths)
 						: ItemNetworkPath.SimulateChestInput(targetChest, item, usepaths);

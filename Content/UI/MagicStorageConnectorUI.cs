@@ -42,6 +42,11 @@ namespace TerraScience.Content.UI{
 		private void StrongRef_UpdateText(List<UIText> text){
 			var entityPos = UIEntity.Position;
 
+			if(MagicStorageHandler.DelayInteractionsDueToWorldSaving){
+				text[0].SetText("World is saving, cannot interact");
+				return;
+			}
+
 			//The machine isn't considered a valid MS system tile, obviously, so we need to check for a heart on the connected tiles instead
 			Point16 center = FindMagicStorageSystem(entityPos);
 

@@ -14,12 +14,14 @@ namespace TerraScience.API.CrossMod.MagicStorage{
 
 		public static bool GUIRefreshPending;
 
+		public static bool DelayInteractionsDueToWorldSaving;
+
 		public static int ItemType(string name) => handler.Instance?.ItemType(name) ?? 0;
 
 		public static int TileType(string name) => handler.Instance?.TileType(name) ?? 0;
 
 		public static IEnumerable<Item> TryGetItems(Point16 tileCoord)
-			=> handler.ModIsActive ? StrongRef_TryGetItems(tileCoord) : null;
+			=> handler.ModIsActive && !DelayInteractionsDueToWorldSaving ? StrongRef_TryGetItems(tileCoord) : null;
 
 		private static IEnumerable<Item> StrongRef_TryGetItems(Point16 tileCoord){
 			if(!(StrongRef_HasStorageHeartAt(tileCoord) || StrongRef_HasStorageAccessAt(tileCoord) || StrongRef_HasRemoteStorageAccessAt(tileCoord)))
@@ -114,7 +116,7 @@ namespace TerraScience.API.CrossMod.MagicStorage{
 		/// <returns>If the item was able to at least be partially deposited into the Magic Storage system</returns>
 		public static bool TryDepositItem(Item item, Point16 tileCoord, bool checkOnly, out bool completeDeposit){
 			completeDeposit = false;
-			return handler.ModIsActive && StrongRef_TryDepositItem(item, tileCoord, checkOnly, out completeDeposit);
+			return handler.ModIsActive && !DelayInteractionsDueToWorldSaving && StrongRef_TryDepositItem(item, tileCoord, checkOnly, out completeDeposit);
 		}
 
 		private static bool StrongRef_TryDepositItem(Item item, Point16 tileCoord, bool checkOnly, out bool completeDeposit){
@@ -154,7 +156,7 @@ namespace TerraScience.API.CrossMod.MagicStorage{
 
 		public static bool TryWithdrawItems(Point16 tileCoord, Item item, bool checkOnly, out Item withdrawn){
 			withdrawn = null;
-			return handler.ModIsActive && StrongRef_TryWithdrawItems(tileCoord, item, checkOnly, out withdrawn);
+			return handler.ModIsActive && !DelayInteractionsDueToWorldSaving && StrongRef_TryWithdrawItems(tileCoord, item, checkOnly, out withdrawn);
 		}
 
 		private static bool StrongRef_TryWithdrawItems(Point16 tileCoord, Item item, bool checkOnly, out Item withdrawn){
@@ -185,7 +187,7 @@ namespace TerraScience.API.CrossMod.MagicStorage{
 		public static bool TryWithdrawItemsToMachine(Point16 tileCoord, MachineEntity entity, Chest simulation, bool checkOnly, int stackExtracted, out Item toWithdraw){
 			//Only support withdrawing to machines
 			toWithdraw = null;
-			return handler.ModIsActive && StrongRef_TryWithdrawItems(tileCoord, entity, simulation, checkOnly, stackExtracted, out toWithdraw);
+			return handler.ModIsActive && !DelayInteractionsDueToWorldSaving && StrongRef_TryWithdrawItems(tileCoord, entity, simulation, checkOnly, stackExtracted, out toWithdraw);
 		}
 
 		private static bool StrongRef_TryWithdrawItems(Point16 tileCoord, MachineEntity entity, Chest simulation, bool checkOnly, int stackExtracted, out Item toWithdraw){

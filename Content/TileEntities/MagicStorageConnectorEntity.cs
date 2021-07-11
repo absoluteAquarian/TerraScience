@@ -29,7 +29,9 @@ namespace TerraScience.Content.TileEntities{
 		internal override int[] GetOutputSlots() => new int[0];
 
 		public Point16 GetConnectedMagicStorageSystem()
-			=> MagicStorageHandler.handler.ModIsActive ? MagicStorageConnectorUI.FindMagicStorageSystem(Position) : MagicStorageConnectorUI.badCheck;
+			=> MagicStorageHandler.handler.ModIsActive && !MagicStorageHandler.DelayInteractionsDueToWorldSaving
+				? MagicStorageConnectorUI.FindMagicStorageSystem(Position)
+				: MagicStorageConnectorUI.badCheck;
 
 		public override bool HijackCanBeInteractedWithItemNetworks(out bool canInteract){
 			canInteract = MagicStorageHandler.handler.ModIsActive;
@@ -37,7 +39,7 @@ namespace TerraScience.Content.TileEntities{
 		}
 
 		public override bool HijackCanBeInput(Item item, out bool canInput){
-			canInput = MagicStorageHandler.handler.ModIsActive && StrongRef_MagicStorageCanBeInput(item);
+			canInput = MagicStorageHandler.handler.ModIsActive && !MagicStorageHandler.DelayInteractionsDueToWorldSaving && StrongRef_MagicStorageCanBeInput(item);
 			return true;
 		}
 
@@ -57,7 +59,7 @@ namespace TerraScience.Content.TileEntities{
 			if(pos == MagicStorageConnectorUI.badCheck)
 				return true;
 
-			inventory = MagicStorageHandler.TryGetItems(pos).ToArray();
+			inventory = MagicStorageHandler.TryGetItems(pos)?.ToArray();
 			return true;
 		}
 

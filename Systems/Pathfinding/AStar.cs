@@ -126,23 +126,29 @@ namespace TerraScience.Systems.Pathfinding{
 
 			Tile parentTile = Framing.GetTileSafely(parent.location);
 			if(ModContent.GetModTile(parentTile.type) is ItemPumpTile){
+				//Only one direction should be accounted for
 				int frameX = parentTile.frameX / 18;
+
+				Entry keep;
 				switch(frameX){
 					case 0:
-						possible.RemoveAt(3);
+						keep = possible[0];
 						break;
 					case 1:
-						possible.RemoveAt(2);
+						keep = possible[1];
 						break;
 					case 2:
-						possible.RemoveAt(0);
+						keep = possible[3];
 						break;
 					case 3:
-						possible.RemoveAt(1);
+						keep = possible[2];
 						break;
 					default:
 						throw new Exception($"Inner TerraScience error -- Unexpected pump tile frame (ID: {frameX})");
 				}
+
+				possible.Clear();
+				possible.Add(keep);
 			}
 
 			for(int i = 0; i < possible.Count; i++){

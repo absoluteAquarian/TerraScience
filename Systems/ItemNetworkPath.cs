@@ -107,6 +107,10 @@ namespace TerraScience.Systems{
 				itemData = ItemIO.Save(item)
 			};
 
+		private int sendBackCounts = 10;
+
+		public Point16 finalTarget;
+
 		/// <summary>
 		/// Attempts to move the item in this object along the <seealso cref="itemNetwork"/>
 		/// </summary>
@@ -159,10 +163,19 @@ namespace TerraScience.Systems{
 					if(!sendBack)
 						itemNetwork.RemovePath(this.id);
 					else{
-						//Send the item back into the network and force it to create a new path
-						needsPathRefresh = true;
+						sendBackCounts--;
+						
 						moveDir *= -1;
 						delayPathCalc = true;
+
+						if(sendBackCounts > 0){
+							//Send the item back into the network and force it to create a new path
+							needsPathRefresh = true;
+						}else{
+							//Tried and repeatedly failed to get in the same machine.  Wander around
+							sendBackCounts = 10;
+							wander = true;
+						}
 					}
 				}else{
 					if(FindConnectedChest(itemNetwork, newTilePos, data, out _) is null && FindConnectedMachine(itemNetwork, newTilePos, data) is null)
@@ -177,6 +190,9 @@ namespace TerraScience.Systems{
 					}
 				}
 			}
+
+			if(wander)
+				finalTarget = Point16.Zero;
 		}
 
 		internal void SpawnInWorld(){
@@ -415,9 +431,6 @@ namespace TerraScience.Systems{
 		}
 
 		private void MoveAlongNetwork(){
-			// TODO: item pathfinding has become dumb.  make it smart and fix it.  also, items tend to get stuck on the edge of pipes and seem to not be able to determine the correct path... why???
-
-
 			//Items will move from tile center to tile center
 			//The movement speed will be based on the pipe the item is currently inside of
 			Point16 worldTile = worldCenter.ToTileCoordinates16();
@@ -570,6 +583,8 @@ namespace TerraScience.Systems{
 				finalDir = new Vector2(1, 0);
 			else if(HasChest(down) && tileDown.active())
 				finalDir = new Vector2(0, 1);
+
+			finalTarget = dequeuedPoint + finalDir.ToPoint16();
 		}
 
 		private bool MovedPastPipeCenter(out Vector2 overStep){

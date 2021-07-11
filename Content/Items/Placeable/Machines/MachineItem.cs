@@ -69,6 +69,8 @@ namespace TerraScience.Content.Items.Placeable.Machines{
 			item.createTile = TileType;
 			item.maxStack = 1;
 			item.consumable = true;
+			item.autoReuse = true;
+			item.useTurn = true;
 		}
 	}
 

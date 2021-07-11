@@ -14,7 +14,7 @@ namespace TerraScience.Utilities{
 				Rectangle rect = Main.itemAnimations[item.type] != null ? Main.itemAnimations[item.type].GetFrame(itemTexture) : itemTexture.Frame();
 				Color newColor = Color.White;
 				float pulseScale = 1f;
-				ItemSlot.GetItemLight(ref newColor, ref pulseScale, item);
+				ItemSlot.GetItemLight(ref newColor, ref pulseScale, item, outInTheWorld: true);
 
 				float availableWidth = size.X;
 				int width = rect.Width;
