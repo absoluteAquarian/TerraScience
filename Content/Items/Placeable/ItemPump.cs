@@ -15,6 +15,7 @@ namespace TerraScience.Content.Items.Placeable{
 		}
 
 		public override void SetDefaults(){
+			// useless comment so i can push a commit
 			item.width = 34;
 			item.height = 8;
 			item.scale = 0.75f;
