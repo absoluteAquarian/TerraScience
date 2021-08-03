@@ -1,4 +1,5 @@
-﻿using Terraria;
+﻿using System.IO;
+using Terraria;
 using Terraria.Audio;
 using Terraria.DataStructures;
 using Terraria.ID;
@@ -23,6 +24,14 @@ namespace TerraScience.Content.TileEntities{
 			this.SaveLiquids(tag);
 
 			return tag;
+		}
+
+		public override void ExtraNetSend(BinaryWriter writer){
+			this.SendLiquids(writer);
+		}
+
+		public override void ExtraNetReceive(BinaryReader reader){
+			this.ReceiveLiquids(reader);
 		}
 
 		public override int MachineTile => ModContent.TileType<SaltExtractor>();

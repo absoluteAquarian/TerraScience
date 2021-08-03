@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -30,6 +31,18 @@ namespace TerraScience.Content.TileEntities.Energy{
 		public override void ExtraLoad(TagCompound tag){
 			base.ExtraLoad(tag);
 			compostProgress = tag.GetFloat("compost");
+		}
+
+		public override void ExtraNetSend(BinaryWriter writer){
+			base.ExtraNetSend(writer);
+
+			writer.Write(compostProgress);
+		}
+
+		public override void ExtraNetReceive(BinaryReader reader){
+			base.ExtraNetReceive(reader);
+
+			compostProgress = reader.ReadSingle();
 		}
 
 		public override void PreUpdateReaction(){

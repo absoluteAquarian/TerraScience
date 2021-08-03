@@ -1,8 +1,10 @@
 ﻿using System;
+using System.IO;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.ModLoader.IO;
 using TerraScience.Content.ID;
 using TerraScience.Content.Tiles.Multitiles.EnergyMachines;
 using TerraScience.Systems.Energy;
@@ -23,6 +25,32 @@ namespace TerraScience.Content.TileEntities.Energy{
 			new LiquidEntry(max: 10f, isInput: false, null)
 		};
 		public int LiquidPlaceDelay{ get; set; }
+
+		public override void ExtraLoad(TagCompound tag){
+			base.ExtraLoad(tag);
+
+			this.LoadLiquids(tag);
+		}
+
+		public override TagCompound ExtraSave(){
+			var tag = base.ExtraSave();
+
+			this.SaveLiquids(tag);
+
+			return tag;
+		}
+
+		public override void ExtraNetSend(BinaryWriter writer){
+			base.ExtraNetSend(writer);
+
+			this.SendLiquids(writer);
+		}
+
+		public override void ExtraNetReceive(BinaryReader reader){
+			base.ExtraNetReceive(reader);
+
+			this.ReceiveLiquids(reader);
+		}
 
 		public override void PreUpdateReaction(){
 			Item input = this.RetrieveItem(0);

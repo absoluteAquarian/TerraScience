@@ -1,4 +1,5 @@
-﻿using Terraria.ModLoader.IO;
+﻿using System.IO;
+using Terraria.ModLoader.IO;
 using TerraScience.Systems.Energy;
 
 namespace TerraScience.Content.TileEntities.Energy{
@@ -10,6 +11,14 @@ namespace TerraScience.Content.TileEntities.Energy{
 
 		public override void ExtraLoad(TagCompound tag){
 			StoredFlux = new TerraFlux(tag.GetFloat("flux"));
+		}
+
+		public override void ExtraNetSend(BinaryWriter writer){
+			writer.Write((float)StoredFlux);
+		}
+
+		public override void ExtraNetReceive(BinaryReader reader){
+			StoredFlux = new TerraFlux(reader.ReadSingle());
 		}
 
 		public TerraFlux StoredFlux{ get; set; }

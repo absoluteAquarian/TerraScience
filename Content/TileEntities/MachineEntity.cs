@@ -9,6 +9,7 @@ using Terraria.DataStructures;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using TerraScience.API.CrossMod.MagicStorage;
+using TerraScience.API.Networking;
 using TerraScience.Content.TileEntities.Energy.Generators;
 using TerraScience.Content.Tiles;
 using TerraScience.Content.UI;
@@ -175,15 +176,48 @@ namespace TerraScience.Content.TileEntities{
 				TechMod.Instance.machineLoader.HideUI(MachineName);
 		}
 
-		public override void NetSend(BinaryWriter writer, bool lightSend){
-			var pair = TileUtils.tileToEntity.First(p => p.Value.GetType() == this.GetType());
-			int entity = pair.Key;
-			TagIO.WriteTag(TileUtils.tileToStructureName[entity], pair.Value.Save(), writer);
+		public sealed override void NetSend(BinaryWriter writer, bool lightSend){
+			writer.Write(ReactionInProgress);
+			writer.Write(ReactionSpeed);
+			writer.Write(ReactionProgress);
+
+			writer.Write((short)slots.Count);
+			for(int i = 0; i < slots.Count; i++)
+				ItemIO.Send(slots[i], writer, writeStack: true);
+
+			ExtraNetSend(writer);
 		}
 
-		public override void NetReceive(BinaryReader reader, bool lightReceive){
-			Load(TagIO.Read(reader));
+		/// <summary>
+		/// Write extra data for net syncing, <seealso cref="Message.SyncTileEntity"/> and <seealso cref="Message.SyncMachineInfo"/>
+		/// </summary>
+		/// <param name="writer">The writer</param>
+		public virtual void ExtraNetSend(BinaryWriter writer){ }
+
+		public sealed override void NetReceive(BinaryReader reader, bool lightReceive){
+			ReactionInProgress = reader.ReadBoolean();
+			ReactionSpeed = reader.ReadSingle();
+			ReactionProgress = reader.ReadSingle();
+
+			short count = reader.ReadInt16();
+
+			if(slots.Count < count){
+				for(int c = slots.Count; c < count; c++)
+					slots.Add(new Item());
+			}else if(slots.Count > count)
+				slots.RemoveRange(count, slots.Count - count);
+
+			for(int i = 0; i < count; i++)
+				ItemIO.Receive(slots[i], reader, readStack: true);
+
+			ExtraNetReceive(reader);
 		}
+
+		/// <summary>
+		/// Read extra data for net syncing, <seealso cref="Message.SyncTileEntity"/> and <seealso cref="Message.SyncMachineInfo"/>
+		/// </summary>
+		/// <param name="reader">The reader</param>
+		public virtual void ExtraNetReceive(BinaryReader reader){ }
 
 		internal SoundEffectInstance PlayCustomSound(Vector2 position, string path){
 			bool nearbyMuffler = WorldGen.InWorld((int)position.X >> 4, (int)position.Y >> 4) && MachineMufflerTile.AnyMufflersNearby(position);

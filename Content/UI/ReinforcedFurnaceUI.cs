@@ -72,15 +72,5 @@ namespace TerraScience.Content.UI{
 			carbons.Top.Set(152, 0);
 			slots.Add(carbons);
 		}
-
-		internal override void UpdateEntity(){
-			ReinforcedFurnaceEntity furnace = UIEntity as ReinforcedFurnaceEntity;
-			UIItemSlot fuel = GetSlot(0);
-
-			furnace.Heating = !fuel.StoredItem.IsAir;
-
-			if(!furnace.Heating)
-				furnace.ReactionProgress = 0f;
-		}
 	}
 }

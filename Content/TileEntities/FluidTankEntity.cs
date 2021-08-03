@@ -1,4 +1,5 @@
-﻿using Terraria;
+﻿using System.IO;
+using Terraria;
 using Terraria.DataStructures;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
@@ -37,6 +38,16 @@ namespace TerraScience.Content.TileEntities{
 		public override void ExtraLoad(TagCompound tag){
 			this.LoadLiquids(tag);
 			this.LoadGases(tag);
+		}
+
+		public override void ExtraNetSend(BinaryWriter writer){
+			this.SendLiquids(writer);
+			this.SendGases(writer);
+		}
+
+		public override void ExtraNetReceive(BinaryReader reader){
+			this.ReceiveLiquids(reader);
+			this.ReceiveGases(reader);
 		}
 
 		public override void ReactionComplete(){ }

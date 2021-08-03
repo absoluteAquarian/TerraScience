@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using System.IO;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -33,6 +34,18 @@ namespace TerraScience.Content.TileEntities.Energy{
 		public override void ExtraLoad(TagCompound tag){
 			base.ExtraLoad(tag);
 			storedCoins = tag.GetLong("coins");
+		}
+
+		public override void ExtraNetSend(BinaryWriter writer){
+			base.ExtraNetSend(writer);
+
+			writer.Write(storedCoins);
+		}
+
+		public override void ExtraNetReceive(BinaryReader reader){
+			base.ExtraNetReceive(reader);
+
+			storedCoins = reader.ReadInt64();
 		}
 
 		public override void PreUpdateReaction(){

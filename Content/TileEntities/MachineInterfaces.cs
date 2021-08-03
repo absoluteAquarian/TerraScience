@@ -1,4 +1,5 @@
-﻿using Terraria.DataStructures;
+﻿using System.IO;
+using Terraria.DataStructures;
 using Terraria.ModLoader.IO;
 using TerraScience.Content.ID;
 
@@ -28,6 +29,18 @@ namespace TerraScience.Content.TileEntities{
 			current = tag.GetFloat("cur");
 			id = (MachineLiquidID)tag.GetInt("id");
 		}
+
+		public void NetSend(BinaryWriter writer){
+			writer.Write((ushort)id);
+			writer.Write(current);
+			writer.Write(max);
+		}
+
+		public void NetReceive(BinaryReader reader){
+			id = (MachineLiquidID)reader.ReadUInt16();
+			current = reader.ReadSingle();
+			max = reader.ReadSingle();
+		}
 	}
 
 	public class GasEntry{
@@ -54,6 +67,18 @@ namespace TerraScience.Content.TileEntities{
 		public void Load(TagCompound tag){
 			current = tag.GetFloat("cur");
 			id = (MachineGasID)tag.GetInt("id");
+		}
+
+		public void NetSend(BinaryWriter writer){
+			writer.Write((ushort)id);
+			writer.Write(current);
+			writer.Write(max);
+		}
+
+		public void NetReceive(BinaryReader reader){
+			id = (MachineGasID)reader.ReadUInt16();
+			current = reader.ReadSingle();
+			max = reader.ReadSingle();
 		}
 	}
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.ModLoader;
@@ -238,6 +239,42 @@ namespace TerraScience.Utilities{
 
 			if(entry.current <= 0)
 				entry.id = MachineGasID.None;
+		}
+
+		public static void SendLiquids<T>(this T entity, BinaryWriter writer) where T : MachineEntity, ILiquidMachine{
+			writer.Write((short)entity.LiquidPlaceDelay);
+
+			writer.Write((byte)entity.LiquidEntries.Length);
+
+			for(int i = 0; i < entity.LiquidEntries.Length; i++)
+				entity.LiquidEntries[i].NetSend(writer);
+		}
+
+		public static void ReceiveLiquids<T>(this T entity, BinaryReader reader) where T : MachineEntity, ILiquidMachine{
+			entity.LiquidPlaceDelay = reader.ReadInt16();
+
+			byte liquids = reader.ReadByte();
+
+			for(int i = 0; i < liquids; i++)
+				entity.LiquidEntries[i].NetReceive(reader);
+		}
+
+		public static void SendGases<T>(this T entity, BinaryWriter writer) where T : MachineEntity, IGasMachine{
+			writer.Write((short)entity.GasPlaceDelay);
+
+			writer.Write((byte)entity.GasEntries.Length);
+
+			for(int i = 0; i < entity.GasEntries.Length; i++)
+				entity.GasEntries[i].NetSend(writer);
+		}
+
+		public static void ReceiveGases<T>(this T entity, BinaryReader reader) where T : MachineEntity, IGasMachine{
+			entity.GasPlaceDelay = reader.ReadInt16();
+
+			byte gases = reader.ReadByte();
+
+			for(int i = 0; i < gases; i++)
+				entity.GasEntries[i].NetReceive(reader);
 		}
 	}
 }

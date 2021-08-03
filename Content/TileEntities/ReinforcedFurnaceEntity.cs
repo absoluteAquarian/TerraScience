@@ -9,6 +9,7 @@ using TerraScience.Content.UI;
 using TerraScience.Utilities;
 using TerraScience.Content.Items.Materials;
 using System.Collections.Generic;
+using System.IO;
 
 namespace TerraScience.Content.TileEntities{
 	public class ReinforcedFurnaceEntity : MachineEntity{
@@ -52,6 +53,18 @@ namespace TerraScience.Content.TileEntities{
 			Heating = tag.GetBool("furn_heat");
 		}
 
+		public override void ExtraNetSend(BinaryWriter writer){
+			writer.Write(Heat);
+			writer.Write(targetHeat);
+			writer.Write(Heating);
+		}
+
+		public override void ExtraNetReceive(BinaryReader reader){
+			Heat = reader.ReadSingle();
+			targetHeat = reader.ReadSingle();
+			Heating = reader.ReadBoolean();
+		}
+
 		public override void PreUpdateReaction(){
 			if(Heating){
 				targetHeat = HeatMax;
@@ -69,7 +82,7 @@ namespace TerraScience.Content.TileEntities{
 			if(!Main.hasFocus)
 				burning?.Stop();
 
-			ReactionInProgress = true;
+			Heating = ReactionInProgress = !this.RetrieveItem(0).IsAir;
 		}
 
 		public override bool UpdateReaction(){
@@ -125,30 +138,9 @@ namespace TerraScience.Content.TileEntities{
 		}
 
 		public override void ReactionComplete(){
-			//If the parent isn't loaded, save the changes in our own slots
-			//Otherwise, modify the parent MachineUI directly
-			ReinforcedFurnaceUI ui = ParentState as ReinforcedFurnaceUI;
-			if(!(ui?.Active ?? false)){
-				Item input = GetItem(0);
-				Item result = GetItem(1);
-				Do_Reaction(input, result);
+			Item input = this.RetrieveItem(0);
+			Item result = this.RetrieveItem(1);
 
-			//	Main.NewText($"Edited entity slots: \"{Lang.GetItemNameValue(fuel.type)}\" ({fuel.stack}), \"{Lang.GetItemNameValue(result.type)}\" ({result.stack})");
-			}else{
-				UIItemSlot input = ui.GetSlot(0);
-				UIItemSlot resultSlot = ui.GetSlot(1);
-
-				Do_Reaction(input.StoredItem, resultSlot.StoredItem);
-
-			//	Main.NewText($"Edited UI slots: \"{Lang.GetItemNameValue(fuel.StoredItem.type)}\" ({fuel.StoredItem.stack}), \"{Lang.GetItemNameValue(resultSlot.StoredItem.type)}\" ({resultSlot.StoredItem.stack})");
-			}
-
-			Vector2 center = TileUtils.TileEntityCenter(this, MachineTile);
-
-			this.PlayCustomSound(center, "Flame Arrow");
-		}
-
-		private void Do_Reaction(Item input, Item result){
 			input.stack--;
 
 			if(input.stack <= 0){
@@ -168,6 +160,10 @@ namespace TerraScience.Content.TileEntities{
 				result.stack = result.maxStack;
 				Heating = false;
 			}
+
+			Vector2 center = TileUtils.TileEntityCenter(this, MachineTile);
+
+			this.PlayCustomSound(center, "Flame Arrow");
 		}
 
 		internal override int[] GetInputSlots() => new int[]{ 0 };

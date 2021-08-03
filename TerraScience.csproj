@@ -22,4 +22,7 @@
       <HintPath>lib\MagicStorage.dll</HintPath>
     </Reference>
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="API\Networking\" />
+  </ItemGroup>
 </Project>

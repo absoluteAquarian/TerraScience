@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using System.Collections.Generic;
+using System.IO;
 using Terraria;
 using Terraria.ModLoader;
 using TerraScience.Content.Items.Materials;
@@ -19,6 +20,14 @@ namespace TerraScience.Content.TileEntities{
 
 		//Used for sound stuff
 		private SoundEffectInstance burning;
+
+		public override void ExtraNetSend(BinaryWriter writer){
+			writer.Write(ForceNoReaction);
+		}
+
+		public override void ExtraNetReceive(BinaryReader reader){
+			ForceNoReaction = reader.ReadBoolean();
+		}
 
 		public override void PreUpdateReaction(){
 			Item input = ParentState?.GetSlot(0).StoredItem ?? GetItem(0);

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using Terraria;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
@@ -44,6 +45,24 @@ namespace TerraScience.Content.TileEntities.Energy{
 			baseTag.Add("convert", ItemIO.Save(convertItem));
 
 			return baseTag;
+		}
+
+		public override void ExtraNetSend(BinaryWriter writer){
+			base.ExtraNetSend(writer);
+
+			writer.Write(CurBatteryCharge);
+			writer.Write(currentConvertTime);
+			writer.Write(currentConvertTimeMax);
+			ItemIO.Send(convertItem, writer, writeStack: true);
+		}
+
+		public override void ExtraNetReceive(BinaryReader reader){
+			base.ExtraNetReceive(reader);
+
+			CurBatteryCharge = reader.ReadSingle();
+			currentConvertTime = reader.ReadSingle();
+			currentConvertTimeMax = reader.ReadSingle();
+			ItemIO.Receive(convertItem, reader, readStack: true);
 		}
 
 		public override void PreUpdateReaction(){

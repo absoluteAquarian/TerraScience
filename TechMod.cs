@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.ID;
@@ -10,6 +11,7 @@ using Terraria.UI;
 using Terraria.Utilities;
 using TerraScience.API.CrossMod;
 using TerraScience.API.CrossMod.MagicStorage;
+using TerraScience.API.Networking;
 using TerraScience.Content.ID;
 using TerraScience.Content.Items;
 using TerraScience.Content.Items.Materials;
@@ -358,6 +360,10 @@ namespace TerraScience {
 
 		public override void ModifyInterfaceLayers(List<GameInterfaceLayer> layers) {
 			machineLoader.ModifyInterfaceLayers(layers);
+		}
+
+		public override void HandlePacket(BinaryReader reader, int whoAmI){
+			NetHandler.HandlePacket(reader, whoAmI);
 		}
 
 		// -- Types --

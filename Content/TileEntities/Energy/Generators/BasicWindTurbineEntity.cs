@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
+using System.IO;
 using Terraria;
 using Terraria.GameContent.Events;
 using Terraria.ModLoader;
@@ -19,6 +20,20 @@ namespace TerraScience.Content.TileEntities.Energy.Generators{
 
 		public bool rainBoost;
 		public bool sandstormBoost;
+
+		public override void ExtraNetSend(BinaryWriter writer){
+			base.ExtraNetSend(writer);
+
+			BitsByte bb = new BitsByte(rainBoost, sandstormBoost);
+			writer.Write(bb);
+		}
+
+		public override void ExtraNetReceive(BinaryReader reader){
+			base.ExtraNetReceive(reader);
+
+			BitsByte bb = reader.ReadByte();
+			bb.Retrieve(ref rainBoost, ref sandstormBoost);
+		}
 
 		public override void ReactionComplete(){
 			TerraFlux flux = GetPowerGeneration(ticks: 1);

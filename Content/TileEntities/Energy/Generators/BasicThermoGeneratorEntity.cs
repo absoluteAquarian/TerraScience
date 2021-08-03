@@ -1,4 +1,5 @@
-﻿using Terraria;
+﻿using System.IO;
+using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
@@ -34,6 +35,26 @@ namespace TerraScience.Content.TileEntities.Energy.Generators{
 			base.ExtraLoad(tag);
 			fuelLeft = tag.GetFloat("fuelLeft");
 			cachedFuelItem = tag.GetCompound("cache") is TagCompound cache ? ItemIO.Load(cache) : null;
+		}
+
+		public override void ExtraNetSend(BinaryWriter writer){
+			base.ExtraNetSend(writer);
+
+			writer.Write(fuelLeft);
+			writer.Write(cachedFuelItem is null);
+			if(!(cachedFuelItem is null))
+				ItemIO.Send(cachedFuelItem, writer, writeStack: true);
+		}
+
+		public override void ExtraNetReceive(BinaryReader reader){
+			base.ExtraNetReceive(reader);
+
+			fuelLeft = reader.ReadSingle();
+
+			if(reader.ReadBoolean())
+				ItemIO.Receive(cachedFuelItem, reader, readStack: true);
+			else
+				cachedFuelItem = null;
 		}
 
 		public override void PreUpdateReaction(){

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.ID;
@@ -57,6 +58,24 @@ namespace TerraScience.Content.TileEntities.Energy{
 			this.SaveGases(baseTag);
 
 			return baseTag;
+		}
+
+		public override void ExtraNetSend(BinaryWriter writer){
+			base.ExtraNetSend(writer);
+
+			this.SendLiquids(writer);
+			this.SendGases(writer);
+
+			writer.Write(CurBatteryCharge);
+		}
+
+		public override void ExtraNetReceive(BinaryReader reader){
+			base.ExtraNetReceive(reader);
+
+			this.ReceiveLiquids(reader);
+			this.ReceiveGases(reader);
+
+			CurBatteryCharge = reader.ReadSingle();
 		}
 
 		public override bool UpdateReaction(){

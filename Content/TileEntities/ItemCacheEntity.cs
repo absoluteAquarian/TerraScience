@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Terraria;
 using Terraria.ID;
@@ -91,6 +92,40 @@ namespace TerraScience.Content.TileEntities{
 				return tag.GetInt("id");
 
 			return ModLoader.GetMod(modString).ItemType(tag.GetString("name"));
+		}
+
+		public override void ExtraNetReceive(BinaryReader reader){
+			locked = reader.ReadBoolean();
+
+			lockItemType = reader.ReadUInt16();
+
+			ItemIndex = reader.ReadUInt16();
+
+			ushort count = reader.ReadUInt16();
+
+			if(items.Count < count){
+				//Add dummy items
+				for(int c = items.Count; c < count; c++)
+					items.Add(new Item());
+			}else{
+				//Remove extra items
+				items.RemoveRange(count, items.Count - count);
+			}
+
+			for(int i = 0; i < count; i++)
+				ItemIO.Receive(items[i], reader, readStack: true);
+		}
+
+		public override void ExtraNetSend(BinaryWriter writer){
+			writer.Write(locked);
+
+			writer.Write((ushort)lockItemType);
+
+			writer.Write((ushort)ItemIndex);
+
+			writer.Write((ushort)items.Count);
+			for(int i = 0; i < items.Count; i++)
+				ItemIO.Send(items[i], writer, writeStack: true);
 		}
 
 		//These two methods have their use overwritten by the Hijack hooks
