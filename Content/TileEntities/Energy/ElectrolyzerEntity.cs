@@ -105,7 +105,7 @@ namespace TerraScience.Content.TileEntities.Energy{
 			if(LiquidEntries[0].current == 0)
 				LiquidEntries[0].id = MachineLiquidID.None;
 
-			this.PlaySound(SoundID.Item85, TileUtils.TileEntityCenter(this, MachineTile));
+			PlaySound(SoundID.Item85, TileUtils.TileEntityCenter(this, MachineTile));
 		}
 
 		public override void PreUpdateReaction(){
@@ -131,8 +131,8 @@ namespace TerraScience.Content.TileEntities.Energy{
 			Item gas1Out = this.RetrieveItem(2);
 			Item gas2Out = this.RetrieveItem(4);
 
-			bool canOutput1 = gas1Out.IsAir || GasEntries[0].id == MachineGasID.None || (GasEntries[0].id != MachineGasID.None && gas1Out.modItem is Capsule capsule && capsule.GasType == GasEntries[0].id);
-			bool canOutput2 = gas2Out.IsAir || GasEntries[1].id == MachineGasID.None || (GasEntries[1].id != MachineGasID.None && gas2Out.modItem is Capsule capsule2 && capsule2.GasType == GasEntries[1].id);
+			bool canOutput1 = gas1Out.IsAir || GasEntries[0].id == MachineGasID.None || (GasEntries[0].id != MachineGasID.None && gas1Out.ModItem is Capsule capsule && capsule.GasType == GasEntries[0].id);
+			bool canOutput2 = gas2Out.IsAir || GasEntries[1].id == MachineGasID.None || (GasEntries[1].id != MachineGasID.None && gas2Out.ModItem is Capsule capsule2 && capsule2.GasType == GasEntries[1].id);
 
 			ReactionInProgress = CurBatteryCharge > 0
 				&& LiquidEntries[0].current > 0
@@ -155,14 +155,14 @@ namespace TerraScience.Content.TileEntities.Energy{
 			//Check whether a capsule can be filled or not
 			Item gas1Input = this.RetrieveItem(1);
 			Item gas1Output = this.RetrieveItem(2);
-			TileEntityUtils.UpdateOutputSlot(gas, gas1Input, gas1Output, ref GasEntries[0].current);
+			TileEntityUtilities.UpdateOutputSlot(gas, gas1Input, gas1Output, ref GasEntries[0].current);
 
 			if(GasEntries[0].current <= 0)
 				GasEntries[0].id = MachineGasID.None;
 
 			Item gas2Input = this.RetrieveItem(3);
 			Item gas2Output = this.RetrieveItem(4);
-			TileEntityUtils.UpdateOutputSlot(gas2, gas2Input, gas2Output, ref GasEntries[1].current);
+			TileEntityUtilities.UpdateOutputSlot(gas2, gas2Input, gas2Output, ref GasEntries[1].current);
 
 			if(GasEntries[1].current <= 0)
 				GasEntries[1].id = MachineGasID.None;
@@ -173,7 +173,7 @@ namespace TerraScience.Content.TileEntities.Energy{
 		internal override int[] GetOutputSlots() => new int[]{ 2, 4 };
 
 		internal override bool CanInputItem(int slot, Item item)
-			=> (slot == 0 && item.type == ModContent.ItemType<Battery9V>()) || ((slot == 1 || slot == 3) && item.modItem is Capsule capsule && capsule.GasType == MachineGasID.None);
+			=> (slot == 0 && item.type == ModContent.ItemType<Battery9V>()) || ((slot == 1 || slot == 3) && item.ModItem is Capsule capsule && capsule.GasType == MachineGasID.None);
 
 		public void TryExportLiquid(Point16 pumpPos){ }
 

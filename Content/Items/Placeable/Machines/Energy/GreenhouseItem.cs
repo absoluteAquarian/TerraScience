@@ -9,11 +9,11 @@ namespace TerraScience.Content.Items.Placeable.Machines.Energy{
 			"\nDoes not require TF to function";
 
 		public override void SafeSetDefaults(){
-			item.width = 20;
-			item.height = 38;
-			item.scale = 0.78f;
-			item.rare = ItemRarityID.Green;
-			item.value = Item.buyPrice(silver: 2, copper: 10);
+			Item.width = 20;
+			Item.height = 38;
+			Item.scale = 0.78f;
+			Item.rare = ItemRarityID.Green;
+			Item.value = Item.buyPrice(silver: 2, copper: 10);
 		}
 	}
 }

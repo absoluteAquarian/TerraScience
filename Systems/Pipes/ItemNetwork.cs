@@ -107,22 +107,22 @@ namespace TerraScience.Systems.Pipes{
 						chests.Add(chestDown);
 				}
 
-				if(TileEntityUtils.TryFindMachineEntity(pos + new Point16(0, -1), out MachineEntity _)){
+				if(TileEntityUtilities.TryFindMachineEntity(pos + new Point16(0, -1), out MachineEntity _)){
 					if(!pipesConnectedToMachines.Contains(pos))
 						pipesConnectedToMachines.Add(pos);
 				}
 
-				if(TileEntityUtils.TryFindMachineEntity(pos + new Point16(-1, 0), out MachineEntity _)){
+				if(TileEntityUtilities.TryFindMachineEntity(pos + new Point16(-1, 0), out MachineEntity _)){
 					if(!pipesConnectedToMachines.Contains(pos))
 						pipesConnectedToMachines.Add(pos);
 				}
 
-				if(TileEntityUtils.TryFindMachineEntity(pos + new Point16(1, 0), out MachineEntity _)){
+				if(TileEntityUtilities.TryFindMachineEntity(pos + new Point16(1, 0), out MachineEntity _)){
 					if(!pipesConnectedToMachines.Contains(pos))
 						pipesConnectedToMachines.Add(pos);
 				}
 
-				if(TileEntityUtils.TryFindMachineEntity(pos + new Point16(0, 1), out MachineEntity _)){
+				if(TileEntityUtilities.TryFindMachineEntity(pos + new Point16(0, 1), out MachineEntity _)){
 					if(!pipesConnectedToMachines.Contains(pos))
 						pipesConnectedToMachines.Add(pos);
 				}
@@ -386,7 +386,7 @@ namespace TerraScience.Systems.Pipes{
 		public bool HasChestAt(Point16 tilePos){
 			//ChestUtils.FindChestByGuessingImproved searches a 2x2 area and returns the ID if any of the 4 tiles in that area have a chest
 			int chestID = ChestUtils.FindChestByGuessingImproved(tilePos.X, tilePos.Y);
-			return Framing.GetTileSafely(tilePos).active() && chestID != -1 && chests.Contains(chestID);
+			return Framing.GetTileSafely(tilePos).IsActive && chestID != -1 && chests.Contains(chestID);
 		}
 
 		public List<Func<Item, bool>> ValidMachineInputFuncs(){

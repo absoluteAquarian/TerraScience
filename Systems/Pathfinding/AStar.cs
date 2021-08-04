@@ -155,7 +155,7 @@ namespace TerraScience.Systems.Pathfinding{
 				var possibleLoc = possible[i].location;
 				Tile tile = Framing.GetTileSafely(possibleLoc);
 
-				if(!tile.active() || existing.IndexOf(possible[i]) >= 0 || (!net.HasEntryAt(possibleLoc) && !net.HasMachineAt(possibleLoc) && !net.HasChestAt(possibleLoc)) || ModContent.GetModTile(tile.type) is ItemPumpTile){
+				if(!tile.IsActive || existing.IndexOf(possible[i]) >= 0 || (!net.HasEntryAt(possibleLoc) && !net.HasMachineAt(possibleLoc) && !net.HasChestAt(possibleLoc)) || ModContent.GetModTile(tile.type) is ItemPumpTile){
 					possible.RemoveAt(i);
 					i--;
 				}else{

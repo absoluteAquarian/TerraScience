@@ -42,20 +42,20 @@ namespace TerraScience.Systems.Pipes{
 				}else if(ModContent.GetModTile(tile.type) is FluidTransportTile transport)
 					Capacity += transport.Capacity;
 
-				if(TileEntityUtils.TryFindMachineEntity(pos + new Point16(0, -1), out MachineEntity entity) && (entity is ILiquidMachine || entity is IGasMachine))
+				if(TileEntityUtilities.TryFindMachineEntity(pos + new Point16(0, -1), out MachineEntity entity) && (entity is ILiquidMachine || entity is IGasMachine))
 					pipesConnectedToMachines.Add(pos);
 
-				if(TileEntityUtils.TryFindMachineEntity(pos + new Point16(-1, 0), out entity) && (entity is ILiquidMachine || entity is IGasMachine)){
+				if(TileEntityUtilities.TryFindMachineEntity(pos + new Point16(-1, 0), out entity) && (entity is ILiquidMachine || entity is IGasMachine)){
 					if(!pipesConnectedToMachines.Contains(pos))
 						pipesConnectedToMachines.Add(pos);
 				}
 
-				if(TileEntityUtils.TryFindMachineEntity(pos + new Point16(1, 0), out entity) && (entity is ILiquidMachine || entity is IGasMachine)){
+				if(TileEntityUtilities.TryFindMachineEntity(pos + new Point16(1, 0), out entity) && (entity is ILiquidMachine || entity is IGasMachine)){
 					if(!pipesConnectedToMachines.Contains(pos))
 						pipesConnectedToMachines.Add(pos);
 				}
 
-				if(TileEntityUtils.TryFindMachineEntity(pos + new Point16(0, 1), out entity) && (entity is ILiquidMachine || entity is IGasMachine)){
+				if(TileEntityUtilities.TryFindMachineEntity(pos + new Point16(0, 1), out entity) && (entity is ILiquidMachine || entity is IGasMachine)){
 					if(!pipesConnectedToMachines.Contains(pos))
 						pipesConnectedToMachines.Add(pos);
 				}

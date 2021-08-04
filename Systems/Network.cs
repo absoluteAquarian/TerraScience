@@ -286,7 +286,7 @@ namespace TerraScience.Systems{
 		}
 
 		private bool ValidTile(Tile tile){
-			if(!tile.active() || tile.type < TileID.Count)
+			if(!tile.IsActive || tile.type < TileID.Count)
 				return false;
 
 			var modTile = ModContent.GetModTile(tile.type);

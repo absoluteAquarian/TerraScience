@@ -12,13 +12,13 @@ using TerraScience.Systems;
 using TerraScience.Systems.Pipes;
 
 namespace TerraScience.Utilities{
-	public static class TileEntityUtils{
+	public static class TileEntityUtilities{
 		public static void UpdateOutputSlot(MachineGasID intendedGas, Item input, Item output, ref float storedGas){
 			if(storedGas <= 0 || input.IsAir)
 				return;
 
 			//Check that the output is either 1) air or 2) is storing the same type of gas as "intendedGas"
-			if(output.IsAir || (output.modItem is Capsule capsule && capsule.GasType == intendedGas)){
+			if(output.IsAir || (output.ModItem is Capsule capsule && capsule.GasType == intendedGas)){
 				do{
 					if(output.IsAir){
 						output.SetDefaults(TechMod.GetCapsuleType(intendedGas));
@@ -145,7 +145,7 @@ namespace TerraScience.Utilities{
 			Tile tile = Framing.GetTileSafely(pumpPos);
 			ModTile modTile = ModContent.GetModTile(tile.type);
 
-			if(!(modTile is FluidPumpTile pump) || pump.GetConnectedMachine(pumpPos) != entity)
+			if(modTile is not FluidPumpTile pump || FluidPumpTile.GetConnectedMachine(pumpPos) != entity)
 				return;
 
 			float rate = pump.CapacityExtractedPerPump;
@@ -221,7 +221,7 @@ namespace TerraScience.Utilities{
 			Tile tile = Framing.GetTileSafely(pumpPos);
 			ModTile modTile = ModContent.GetModTile(tile.type);
 
-			if(!(modTile is FluidPumpTile pump) || pump.GetConnectedMachine(pumpPos) != entity)
+			if(modTile is not FluidPumpTile pump || FluidPumpTile.GetConnectedMachine(pumpPos) != entity)
 				return;
 
 			float rate = pump.CapacityExtractedPerPump;

@@ -2,13 +2,14 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
+using Terraria.GameContent;
 using Terraria.GameInput;
 using Terraria.UI;
 using TerraScience.Content.UI;
 
 namespace TerraScience.API.UI {
-	public class UIItemSlot : UIElement {
-		// TODO: CaptionedUIItemSlot; inherits from UIItemSlot and displays some text above itself
+	public class UIItemSlotWrapper : UIElement {
+		// TODO: CaptionedUIItemSlot; inherits from UIItemSlotWrapper and displays some text above itself, might be useful for machine slot info
 
 		private int Context { get; set; }
 
@@ -25,15 +26,15 @@ namespace TerraScience.API.UI {
 
 		public Func<Item, bool> ValidItemFunc;
 
-		public UIItemSlot(int context = ItemSlot.Context.BankItem, float scale = 1f) {
+		public UIItemSlotWrapper(int context = ItemSlot.Context.BankItem, float scale = 1f) {
 			Context = context;
 			Scale = scale;
 
 			storedItem = new Item();
 			storedItem.SetDefaults();
 
-			Width.Set(Main.inventoryBack9Texture.Width * scale, 0f);
-			Height.Set(Main.inventoryBack9Texture.Height * scale, 0f);
+			Width.Set(TextureAssets.InventoryBack9.Value.Width * scale, 0f);
+			Height.Set(TextureAssets.InventoryBack9.Value.Height * scale, 0f);
 		}
 
 		protected override void DrawSelf(SpriteBatch spriteBatch) {

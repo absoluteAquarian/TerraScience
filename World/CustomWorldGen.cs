@@ -2,7 +2,8 @@
 using Terraria;
 using Terraria.GameContent.Generation;
 using Terraria.ID;
-using Terraria.World.Generation;
+using Terraria.IO;
+using Terraria.WorldBuilding;
 
 namespace TerraScience.World{
 	public static class CustomWorldGen{
@@ -22,10 +23,10 @@ namespace TerraScience.World{
 			}
 		}
 
-		private static void PlaceOtherCopperTier(GenerationProgress progress){
+		private static void PlaceOtherCopperTier(GenerationProgress progress, GameConfiguration configuration){
 			progress.Message = "Other Copper Tier";
 
-			int oreTier = WorldGen.CopperTierOre == TileID.Copper ? TileID.Tin : TileID.Copper;
+			int oreTier = WorldGen.SavedOreTiers.Copper == TileID.Copper ? TileID.Tin : TileID.Copper;
 
 			for (int k = 0; k < Main.maxTilesX * Main.maxTilesY * 6E-05; k++){
 				WorldGen.TileRunner(WorldGen.genRand.Next(0, Main.maxTilesX), WorldGen.genRand.Next((int)WorldGen.worldSurfaceLow, (int)WorldGen.worldSurfaceHigh), WorldGen.genRand.Next(3, 6), WorldGen.genRand.Next(2, 6), oreTier);
@@ -38,10 +39,10 @@ namespace TerraScience.World{
 			}
 		}
 
-		private static void PlaceOtherIronTier(GenerationProgress progress){
+		private static void PlaceOtherIronTier(GenerationProgress progress, GameConfiguration configuration){
 			progress.Message = "Other Iron Tier";
 
-			int oreTier = WorldGen.IronTierOre == TileID.Iron ? TileID.Lead : TileID.Iron;
+			int oreTier = WorldGen.SavedOreTiers.Iron == TileID.Iron ? TileID.Lead : TileID.Iron;
 
 			for (int n = 0; n < Main.maxTilesX * Main.maxTilesY * 3E-05; n++){
 				WorldGen.TileRunner(WorldGen.genRand.Next(0, Main.maxTilesX), WorldGen.genRand.Next((int)WorldGen.worldSurfaceLow, (int)WorldGen.worldSurfaceHigh), WorldGen.genRand.Next(3, 7), WorldGen.genRand.Next(2, 5), oreTier);
@@ -54,10 +55,10 @@ namespace TerraScience.World{
 			}
 		}
 
-		private static void PlaceOtherSilverTier(GenerationProgress progress){
+		private static void PlaceOtherSilverTier(GenerationProgress progress, GameConfiguration configuration){
 			progress.Message = "Other Silver Tier";
 
-			int oreTier = WorldGen.SilverTierOre == TileID.Silver ? TileID.Tungsten : TileID.Silver;
+			int oreTier = WorldGen.SavedOreTiers.Silver == TileID.Silver ? TileID.Tungsten : TileID.Silver;
 
 			for (int num3 = 0; num3 < Main.maxTilesX * Main.maxTilesY * 2.6E-05; num3++)
 			{
@@ -73,10 +74,10 @@ namespace TerraScience.World{
 			}
 		}
 
-		private static void PlaceOtherGoldTier(GenerationProgress progress){
+		private static void PlaceOtherGoldTier(GenerationProgress progress, GameConfiguration configuration){
 			progress.Message = "Other Gold Tier";
 
-			int oreTier = WorldGen.GoldTierOre == TileID.Gold ? TileID.Platinum : TileID.Gold;
+			int oreTier = WorldGen.SavedOreTiers.Gold == TileID.Gold ? TileID.Platinum : TileID.Gold;
 
 			for (int num6 = 0; num6 < Main.maxTilesX * Main.maxTilesY * 0.00012; num6++)
 			{

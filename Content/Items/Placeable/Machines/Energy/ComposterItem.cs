@@ -9,11 +9,11 @@ namespace TerraScience.Content.Items.Placeable.Machines.Energy{
 		public override string ItemTooltip => "Crushes plants into Dirt";
 
 		public override void SafeSetDefaults(){
-			item.width = 32;
-			item.height = 30;
-			item.scale = 0.9f;
-			item.rare = ItemRarityID.Green;
-			item.value = Item.buyPrice(silver: 1);
+			Item.width = 32;
+			Item.height = 30;
+			Item.scale = 0.9f;
+			Item.rare = ItemRarityID.Green;
+			Item.value = Item.buyPrice(silver: 1);
 		}
 	}
 }

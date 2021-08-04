@@ -156,7 +156,7 @@ namespace TerraScience.Content.TileEntities.Energy{
 			if(Main.rand.NextFloat() < 0.06f)
 				InsertItems(input.type, 1);
 
-			this.PlaySound(SoundID.Grab, TileUtils.TileEntityCenter(this, MachineTile));
+			PlaySound(SoundID.Grab, TileUtils.TileEntityCenter(this, MachineTile));
 		}
 
 		private void InsertItems(int resultType, int resultStack){
@@ -182,7 +182,7 @@ namespace TerraScience.Content.TileEntities.Energy{
 			}
 		}
 
-		internal override int[] GetInputSlots() => new int[0];
+		internal override int[] GetInputSlots() => System.Array.Empty<int>();
 
 		internal override int[] GetOutputSlots() => new int[]{ 3, 4, 5 };
 

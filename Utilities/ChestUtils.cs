@@ -94,7 +94,7 @@ namespace TerraScience.Utilities{
 				}
 			}
 
-			return !(slots is null);
+			return slots is not null;
 		}
 	}
 }

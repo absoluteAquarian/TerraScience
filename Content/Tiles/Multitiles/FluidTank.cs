@@ -25,7 +25,7 @@ namespace TerraScience.Content.Tiles.Multitiles{
 
 		public override bool HandleMouse(Point16 pos){
 			var liquidID = MiscUtils.GetIDFromItem(Main.LocalPlayer.HeldItem.type);
-			var gasID = (Main.LocalPlayer.HeldItem.modItem as Capsule)?.GasType ?? MachineGasID.None;
+			var gasID = (Main.LocalPlayer.HeldItem.ModItem as Capsule)?.GasType ?? MachineGasID.None;
 
 			return TileUtils.HandleMouse<FluidTankEntity>(this, pos, () => liquidID == MachineLiquidID.None && gasID == MachineGasID.None);
 		}

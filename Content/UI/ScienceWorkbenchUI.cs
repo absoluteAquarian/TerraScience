@@ -9,6 +9,8 @@ using TerraScience.API.UI;
 using TerraScience.Content.TileEntities;
 using TerraScience.Content.Tiles.Multitiles;
 using TerraScience.Utilities;
+using Terraria.Audio;
+using Terraria.GameContent;
 
 namespace TerraScience.Content.UI{
 	public class ScienceWorkbenchUI : MachineUI{
@@ -48,7 +50,7 @@ namespace TerraScience.Content.UI{
 				if(CurrentRecipe > entity.curRecipes.Count)
 					CurrentRecipe = entity.curRecipes.Count - 1;
 
-				Main.PlaySound(SoundID.MenuTick);
+				SoundEngine.PlaySound(SoundID.MenuTick);
 			}else if(prevRecipe.LeftClick && GetSlot(SlotsLength - 1).StoredItem.IsAir){
 				CurrentRecipe--;
 
@@ -57,7 +59,7 @@ namespace TerraScience.Content.UI{
 				if(CurrentRecipe < 0)
 					CurrentRecipe = 0;
 
-				Main.PlaySound(SoundID.MenuTick);
+				SoundEngine.PlaySound(SoundID.MenuTick);
 			}
 		}
 
@@ -117,7 +119,7 @@ namespace TerraScience.Content.UI{
 			text.Add(crafting);
 		}
 
-		internal override void InitializeSlots(List<UIItemSlot> slots){
+		internal override void InitializeSlots(List<UIItemSlotWrapper> slots){
 			int top = 100;
 			int origLeft = 80, left;
 			const int buffer = 10;
@@ -126,31 +128,31 @@ namespace TerraScience.Content.UI{
 			for(int r = 0; r < 3; r++){
 				left = origLeft;
 				for(int c = 0; c < 3; c++){
-					UIItemSlot ingredient = new UIItemSlot(){
+					UIItemSlotWrapper ingredient = new UIItemSlotWrapper(){
 						ValidItemFunc = item => true
 					};
 					ingredient.Left.Set(left, 0);
 					ingredient.Top.Set(top, 0);
 
-					left += Main.inventoryBack9Texture.Width + buffer;
+					left += TextureAssets.InventoryBack9.Value.Width + buffer;
 
 					slots.Add(ingredient);
 				}
-				top += Main.inventoryBack9Texture.Height + buffer;
+				top += TextureAssets.InventoryBack9.Value.Height + buffer;
 			}
 
 			top = 300;
-			left = 400 - (Main.inventoryBack9Texture.Width + buffer) - buffer * 2;
+			left = 400 - (TextureAssets.InventoryBack9.Value.Width + buffer) - buffer * 2;
 
 			//1 result slot
 			for(int c = 0; c < 1; c++){
-				UIItemSlot ingredient = new UIItemSlot(){
+				UIItemSlotWrapper ingredient = new UIItemSlotWrapper(){
 					ValidItemFunc = item => item.IsAir
 				};
 				ingredient.Left.Set(left, 0);
 				ingredient.Top.Set(top, 0);
 
-				left += Main.inventoryBack9Texture.Width + buffer;
+				left += TextureAssets.InventoryBack9.Value.Width + buffer;
 
 				slots.Add(ingredient);
 			}

@@ -9,18 +9,21 @@ using TerraScience.Content.ID;
 using TerraScience.Utilities;
 
 namespace TerraScience.Content.Items.Tools{
+	[Autoload(false)]
 	public class Capsule : ModItem{
 		internal static Dictionary<int, MachineGasID> containerTypes;
 
-		public MachineGasID GasType => containerTypes[item.type];
-
-		public override bool Autoload(ref string name) => false;
+		public MachineGasID GasType => containerTypes[Item.type];
 
 		public override string Texture => "TerraScience/Content/Items/Tools/Capsule";
 
-		public override bool CloneNewInstances => true;
+		public override string Name{ get; }
 
 		public Capsule(){ }
+
+		public Capsule(string nameOverride){
+			Name = nameOverride ?? base.Name;
+		}
 
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault(GasType != MachineGasID.None ? "Capsule: " + GasType.ProperEnumName() : "Empty Capsule");
@@ -28,21 +31,20 @@ namespace TerraScience.Content.Items.Tools{
 		}
 
 		public override void SetDefaults(){
-			item.width = 20;
-			item.height = 32;
-			item.scale = 0.6f;
-			item.rare = ItemRarityID.Green;
-			item.value = Item.buyPrice(silver: 3);
-			item.maxStack = 999;
+			Item.width = 20;
+			Item.height = 32;
+			Item.scale = 0.6f;
+			Item.rare = ItemRarityID.Green;
+			Item.value = Item.buyPrice(silver: 3);
+			Item.maxStack = 999;
 		}
 
 		public override void AddRecipes(){
 			if(GasType == MachineGasID.None){
-				ModRecipe recipe = new ModRecipe(mod);
+				Recipe recipe = CreateRecipe(5);
 				recipe.AddIngredient(ItemID.TinBar, 2);
 				recipe.AddIngredient(ItemID.Glass, 1);
-				recipe.SetResult(this, 5);
-				recipe.AddRecipe();
+				recipe.Register();
 			}
 		}
 
@@ -52,7 +54,7 @@ namespace TerraScience.Content.Items.Tools{
 		}
 
 		public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI){
-			DrawBack(spriteBatch, item.Center - Main.screenPosition, lightColor, item.Size / 2f, rotation, scale);
+			DrawBack(spriteBatch, Item.Center - Main.screenPosition, lightColor, Item.Size / 2f, rotation, scale);
 			return true;
 		}
 
@@ -60,7 +62,7 @@ namespace TerraScience.Content.Items.Tools{
 			if(GasType == MachineGasID.None)
 				return;
 
-			var texture = ModContent.GetTexture("TerraScience/Content/Items/Tools/capsule back");
+			var texture = ModContent.Request<Texture2D>("TerraScience/Content/Items/Tools/capsule back").Value;
 
 			Color gasColor = GetBackColor(GasType);
 

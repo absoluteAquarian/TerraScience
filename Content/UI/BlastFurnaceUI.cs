@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Terraria;
+using Terraria.GameContent;
 using Terraria.GameContent.UI.Elements;
 using Terraria.ModLoader;
 using TerraScience.API.UI;
@@ -18,15 +19,15 @@ namespace TerraScience.Content.UI{
 			height = 300;
 		}
 
-		internal override void InitializeSlots(List<UIItemSlot> slots){
-			UIItemSlot ore = new UIItemSlot(){
+		internal override void InitializeSlots(List<UIItemSlotWrapper> slots){
+			UIItemSlotWrapper ore = new UIItemSlotWrapper(){
 				HAlign = 0.1f,
 				ValidItemFunc = item => item.IsAir || ItemUtils.IsOre(item)
 			};
 			ore.Top.Set(150, 0);
 			slots.Add(ore);
 
-			UIItemSlot fuel = new UIItemSlot(){
+			UIItemSlotWrapper fuel = new UIItemSlotWrapper(){
 				HAlign = 0.1f,
 				ValidItemFunc = item => item.IsAir || item.type == ModContent.ItemType<Coal>()
 			};
@@ -41,18 +42,18 @@ namespace TerraScience.Content.UI{
 			for(int r = 0; r < 2; r++){
 				x = origX;
 				for(int c = 0; c < 4; c++){
-					UIItemSlot result = new UIItemSlot(){
+					UIItemSlotWrapper result = new UIItemSlotWrapper(){
 						ValidItemFunc = item => item.IsAir
 					};
 					result.Left.Set(x, 0);
 					result.Top.Set(y, 0);
 
-					x += Main.inventoryBack9Texture.Width + 8;
+					x += TextureAssets.InventoryBack9.Value.Width + 8;
 					
 					slots.Add(result);
 				}
 
-				y += Main.inventoryBack9Texture.Height + 8;
+				y += TextureAssets.InventoryBack9.Value.Height + 8;
 			}
 		}
 

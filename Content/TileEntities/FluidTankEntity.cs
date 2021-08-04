@@ -120,8 +120,8 @@ namespace TerraScience.Content.TileEntities{
 
 		internal override bool CanInputItem(int slot, Item item) => false;
 
-		internal override int[] GetInputSlots() => new int[0];
+		internal override int[] GetInputSlots() => System.Array.Empty<int>();
 
-		internal override int[] GetOutputSlots() => new int[0];
+		internal override int[] GetOutputSlots() => System.Array.Empty<int>();
 	}
 }

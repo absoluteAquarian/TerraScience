@@ -6,11 +6,10 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using TerraScience.Content.Items.Materials;
 using TerraScience.Content.Tiles;
+using Terraria.Audio;
 
 namespace TerraScience.Content.Items.Placeable{
 	public class TransportJunctionItem : ModItem{
-		public override bool CloneNewInstances => true;
-
 		static int style = 0;
 
 		public override void SetStaticDefaults(){
@@ -21,29 +20,28 @@ namespace TerraScience.Content.Items.Placeable{
 		}
 
 		public override void SetDefaults(){
-			item.width = 16;
-			item.height = 16;
-			item.scale = 16f / 14f;
-			item.useStyle = ItemUseStyleID.SwingThrow;
-			item.useTime = 10;
-			item.useAnimation = 15;
-			item.useTurn = true;
-			item.autoReuse = true;
-			item.rare = ItemRarityID.Blue;
-			item.value = Item.buyPrice(copper: 50);
-			item.consumable = true;
-			item.maxStack = 999;
-			item.createTile = ModContent.TileType<TransportJunction>();
-			item.placeStyle = style;
+			Item.width = 16;
+			Item.height = 16;
+			Item.scale = 16f / 14f;
+			Item.useStyle = ItemUseStyleID.Swing;
+			Item.useTime = 10;
+			Item.useAnimation = 15;
+			Item.useTurn = true;
+			Item.autoReuse = true;
+			Item.rare = ItemRarityID.Blue;
+			Item.value = Item.buyPrice(copper: 50);
+			Item.consumable = true;
+			Item.maxStack = 999;
+			Item.createTile = ModContent.TileType<TransportJunction>();
+			Item.placeStyle = style;
 		}
 
 		public override void AddRecipes(){
-			ModRecipe recipe = new ModRecipe(mod);
-			recipe.AddIngredient(ModContent.ItemType<IronPipe>(), 2);
-			recipe.AddRecipeGroup(RecipeGroupID.Wood, 10);
-			recipe.AddTile(TileID.WorkBenches);
-			recipe.SetResult(this, 10);
-			recipe.AddRecipe();
+			CreateRecipe(10)
+				.AddIngredient(ModContent.ItemType<IronPipe>(), 2)
+				.AddRecipeGroup(RecipeGroupID.Wood, 10)
+				.AddTile(TileID.WorkBenches)
+				.Register();
 		}
 
 		internal static string display = null;
@@ -51,17 +49,17 @@ namespace TerraScience.Content.Items.Placeable{
 
 		static uint lastUpdate = 0;
 		public override void HoldItem(Player player){
-			item.placeStyle = style;
+			Item.placeStyle = style;
 
 			if(lastUpdate == Main.GameUpdateCount)
 				return;
 
 			lastUpdate = Main.GameUpdateCount;
 
-			if(!Main.blockMouse && player.inventory[58] != item && Main.mouseRight && Main.mouseRightRelease){
+			if(!Main.blockMouse && player.inventory[58] != Item && Main.mouseRight && Main.mouseRightRelease){
 				style = ++style % 16;
 
-				Main.PlaySound(SoundID.MenuTick);
+				SoundEngine.PlaySound(SoundID.MenuTick);
 
 				if(Main.myPlayer == player.whoAmI){
 					display = "Mode: " + GetModeText(JunctionMergeable.mergeTypes[style]);
@@ -73,7 +71,7 @@ namespace TerraScience.Content.Items.Placeable{
 		public override void ModifyTooltips(List<TooltipLine> tooltips){
 			int index = tooltips.FindIndex(tl => tl.text == "<>");
 			if(index >= 0)
-				tooltips[index].text = $"[c/dddd00:Mode: {GetModeText(JunctionMergeable.mergeTypes[item.placeStyle])}]";
+				tooltips[index].text = $"[c/dddd00:Mode: {GetModeText(JunctionMergeable.mergeTypes[Item.placeStyle])}]";
 		}
 
 		private static string GetModeText(JunctionMerge mode){
@@ -118,16 +116,16 @@ namespace TerraScience.Content.Items.Placeable{
 		}
 
 		public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale){
-			var texture = ModContent.GetTexture("TerraScience/Content/Items/Placeable/TransportJunctionItem_Sheet");
-			frame = texture.Frame(16, 1, item.placeStyle, 0);
+			var texture = ModContent.Request<Texture2D>("TerraScience/Content/Items/Placeable/TransportJunctionItem_Sheet").Value;
+			frame = texture.Frame(16, 1, Item.placeStyle, 0);
 			spriteBatch.Draw(texture, position, frame, drawColor, 0f, origin, scale, SpriteEffects.None, 0);
 			return false;
 		}
 
 		public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI){
-			var texture = ModContent.GetTexture("TerraScience/Content/Items/Placeable/TransportJunctionItem_Sheet");
-			Rectangle frame = texture.Frame(16, 1, item.placeStyle, 0);
-			spriteBatch.Draw(texture, item.Center - Main.screenPosition, frame, lightColor, rotation, frame.Size() / 2f, scale, SpriteEffects.None, 0);
+			var texture = ModContent.Request<Texture2D>("TerraScience/Content/Items/Placeable/TransportJunctionItem_Sheet").Value;
+			Rectangle frame = texture.Frame(16, 1, Item.placeStyle, 0);
+			spriteBatch.Draw(texture, Item.Center - Main.screenPosition, frame, lightColor, rotation, frame.Size() / 2f, scale, SpriteEffects.None, 0);
 			return false;
 		}
 	}

@@ -22,7 +22,7 @@ namespace TerraScience.Content.UI{
 			height = 180;
 		}
 
-		internal override void InitializeSlots(List<UIItemSlot> slots){ }
+		internal override void InitializeSlots(List<UIItemSlotWrapper> slots){ }
 
 		internal override void InitializeText(List<UIText> text){
 			UIText items = new UIText("Not active"){
@@ -59,14 +59,14 @@ namespace TerraScience.Content.UI{
 			Tile tile = Framing.GetTileSafely(center);
 			ModTile mTile = ModContent.GetModTile(tile.type);
 
-			if(!tile.active()){
+			if(!tile.IsActive){
 				text[0].SetText("Not connected");
 				return;
 			}
 
 			Point16 origin = tile.TileCoord();
 
-			if(!(mTile is StorageAccess access)){
+			if(mTile is not StorageAccess access){
 				text[0].SetText("Invalid storage system detected");
 				return;
 			}
@@ -107,7 +107,7 @@ namespace TerraScience.Content.UI{
 				Tile tile = Framing.GetTileSafely(tileOrig + neighbor);
 				ModTile mTile = ModContent.GetModTile(tile.type);
 
-				if(!tile.active() || !(mTile is StorageConnector || mTile is StorageAccess))
+				if(!tile.IsActive || !(mTile is StorageConnector || mTile is StorageAccess))
 					continue;
 
 				var center = TEStorageComponent.FindStorageCenter(tileOrig + neighbor);

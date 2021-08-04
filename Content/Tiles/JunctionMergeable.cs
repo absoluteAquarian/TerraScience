@@ -10,6 +10,7 @@ using TerraScience.Content.TileEntities;
 using TerraScience.Content.TileEntities.Energy;
 using TerraScience.Content.Tiles.Multitiles;
 using TerraScience.Utilities;
+using TerraScience.World;
 
 namespace TerraScience.Content.Tiles{
 	public abstract class JunctionMergeable : ModTile{
@@ -17,9 +18,9 @@ namespace TerraScience.Content.Tiles{
 
 		internal static JunctionMerge[] mergeTypes;
 
-		public sealed override void SetDefaults(){
+		public sealed override void SetStaticDefaults(){
 			SafeSetDefaults();
-			//Non-solid, but this is required.  Explanation is in TechMod.PreUpdateEntities()
+			//Non-solid, but this is required.  Explanation is in TerraScienceWorld.PreUpdateEntities()
 			Main.tileSolid[Type] = false;
 			Main.tileNoSunLight[Type] = false;
 
@@ -34,17 +35,17 @@ namespace TerraScience.Content.Tiles{
 		public virtual void SafeSetDefaults(){ }
 
 		internal static bool AtLeastOneSurroundingTileIsActive(int i, int j)
-			=> (i > 0 && Framing.GetTileSafely(i - 1, j).active()) || (j > 0 && Framing.GetTileSafely(i, j - 1).active()) || (i < Main.maxTilesX - 1 && Framing.GetTileSafely(i + 1, j).active()) || (j < Main.maxTilesY - 1 && Framing.GetTileSafely(i, j + 1).active());
+			=> (i > 0 && Framing.GetTileSafely(i - 1, j).IsActive) || (j > 0 && Framing.GetTileSafely(i, j - 1).IsActive) || (i < Main.maxTilesX - 1 && Framing.GetTileSafely(i + 1, j).IsActive) || (j < Main.maxTilesY - 1 && Framing.GetTileSafely(i, j + 1).IsActive);
 
 		public override bool CanPlace(int i, int j){
 			//This hook is called just before the tile is placed, which means we can fool the game into thinking this tile is solid when it really isn't
-			TechMod.Instance.SetNetworkTilesSolid();
+			TerraScienceWorld.SetNetworkTilesSolid();
 			return AtLeastOneSurroundingTileIsActive(i, j);
 		}
 
 		public override void PlaceInWorld(int i, int j, Item item){
 			//(Continuing from CanPlace)... then I can just set it back to false here
-			TechMod.Instance.ResetNetworkTilesSolid();
+			TerraScienceWorld.ResetNetworkTilesSolid();
 		}
 
 		public override bool TileFrame(int i, int j, ref bool resetFrame, ref bool noBreak){
@@ -159,11 +160,11 @@ namespace TerraScience.Content.Tiles{
 			Tile target = Framing.GetTileSafely(targetX, targetY);
 			ModTile targetModTile = ModContent.GetModTile(target.type);
 
-			if(!target.active())
+			if(!target.IsActive)
 				return false;
 
 			//If this merge type is "Items" and the tile is a chest, merge
-			if(MergeType == JunctionType.Items && (TileID.Sets.BasicChest[target.type] || (targetModTile != null && (targetModTile.adjTiles.Contains(TileID.Containers) || targetModTile.adjTiles.Contains(TileID.Containers2))))){
+			if(MergeType == JunctionType.Items && (TileID.Sets.BasicChest[target.type] || (targetModTile != null && (targetModTile.AdjTiles.Contains(TileID.Containers) || targetModTile.AdjTiles.Contains(TileID.Containers2))))){
 				return true;
 			}
 
@@ -296,6 +297,6 @@ namespace TerraScience.Content.Tiles{
 		Cross_ItemUpDown_WireLeftRight = Items_UpDown | Wires_LeftRight,
 		Cross_ItemUpDown_FluidLeftRight = Items_UpDown | Fluids_LeftRight,
 		Cross_FluidUpDown_WireLeftRight = Fluids_UpDown | Wires_LeftRight,
-		Cross_FluidLeftRight_ItemLeftRight = Fluids_UpDown | Wires_LeftRight
+		Cross_FluidLeftRight_ItemLeftRight = Fluids_UpDown | Items_LeftRight
 	}
 }

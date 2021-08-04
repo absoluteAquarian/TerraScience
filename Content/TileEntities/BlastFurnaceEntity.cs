@@ -56,7 +56,7 @@ namespace TerraScience.Content.TileEntities{
 			if(ReactionInProgress && !ForceNoReaction){
 				Vector2 center = TileUtils.TileEntityCenter(this, MachineTile);
 
-				burning = this.PlayCustomSound(center, "CampfireBurning");
+				burning = PlayCustomSound(center, "CampfireBurning");
 			}else
 				burning?.Stop();
 		}
@@ -99,7 +99,7 @@ namespace TerraScience.Content.TileEntities{
 
 			Vector2 center = TileUtils.TileEntityCenter(this, MachineTile);
 
-			this.PlayCustomSound(center, "Flame Arrow");
+			PlayCustomSound(center, "Flame Arrow");
 
 			//Find the first available slot to put the item in
 			for(int i = 2; i < SlotsCount; i++){

@@ -7,7 +7,7 @@ namespace TerraScience.API.CrossMod{
 		public bool ModIsActive => Instance != null;
 
 		public void Load(string mod){
-			Instance = ModLoader.GetMod(mod);
+			Instance = ModLoader.TryGetMod(mod, out Mod instance) ? instance : null;
 		}
 
 		public void Unload(){

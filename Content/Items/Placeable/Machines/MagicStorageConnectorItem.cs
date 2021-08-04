@@ -12,11 +12,11 @@ namespace TerraScience.Content.Items.Placeable.Machines{
 			"\nHowever, it cannot be the bridge between two system nets";
 
 		public override void SafeSetDefaults(){
-			item.width = 32;
-			item.height = 32;
-			item.scale = 0.82f;
-			item.rare = ItemRarityID.Orange;
-			item.value = Item.buyPrice(silver: 50, copper: 10);
+			Item.width = 32;
+			Item.height = 32;
+			Item.scale = 0.82f;
+			Item.rare = ItemRarityID.Orange;
+			Item.value = Item.buyPrice(silver: 50, copper: 10);
 		}
 	}
 }

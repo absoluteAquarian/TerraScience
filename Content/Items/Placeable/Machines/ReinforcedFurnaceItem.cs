@@ -8,11 +8,11 @@ namespace TerraScience.Content.Items.Placeable.Machines{
 		public override string ItemTooltip => "Burns wooden items into Coal";
 
 		public override void SafeSetDefaults(){
-			item.width = 40;
-			item.height = 46;
-			item.scale = 0.62f;
-			item.rare = ItemRarityID.Blue;
-			item.value = Item.buyPrice(silver: 8, copper: 70);
+			Item.width = 40;
+			Item.height = 46;
+			Item.scale = 0.62f;
+			Item.rare = ItemRarityID.Blue;
+			Item.value = Item.buyPrice(silver: 8, copper: 70);
 		}
 	}
 }

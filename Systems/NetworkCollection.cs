@@ -266,7 +266,7 @@ forceNextCheck: ;
 						//Check MagicStorage compatability
 						Item[] inventory;
 						MachineEntity entity;
-						if((entity = pump.GetConnectedMachine(timer.Key)) != null){
+						if((entity = ItemPumpTile.GetConnectedMachine(timer.Key)) != null){
 							var inputs = entity.GetOutputSlots();
 
 							//No output slots?  Can't pump items out of this...
@@ -284,7 +284,7 @@ forceNextCheck: ;
 								for(int i = 0; i < inventory.Length; i++)
 									inventory[i] = entity.RetrieveItem(inputs[i]);
 							}
-						}else if(pump.GetConnectedChest(timer.Key) is Chest chest)
+						}else if(ItemPumpTile.GetConnectedChest(timer.Key) is Chest chest)
 							inventory = chest.item;
 						else
 							continue;
@@ -359,7 +359,7 @@ forceNextCheck: ;
 						}
 
 						if(newPath?.Path != null){
-							newPath.moveDir = -(pump.GetBackwardsOffset(pumpTile) - pumpTile).ToVector2();
+							newPath.moveDir = -(ItemPumpTile.GetBackwardsOffset(pumpTile) - pumpTile).ToVector2();
 							network.paths.Add(newPath);
 						}
 
@@ -384,7 +384,7 @@ forceNextCheck: ;
 						if(!(mTile is FluidPumpTile pump))
 							continue;
 
-						if(pump.GetConnectedMachine(timer.Key) is MachineEntity entity){
+						if(FluidPumpTile.GetConnectedMachine(timer.Key) is MachineEntity entity){
 							(entity as ILiquidMachine)?.TryExportLiquid(timer.Key);
 							(entity as IGasMachine)?.TryExportGas(timer.Key);
 						}
@@ -395,19 +395,19 @@ forceNextCheck: ;
 					if(!(ModContent.GetModTile(Framing.GetTileSafely(pipe).type) is FluidTransportTile))
 						continue;
 
-					if(TileEntityUtils.TryFindMachineEntity(pipe + new Point16(0, -1), out MachineEntity entity) && network.ConnectedMachines.Contains(entity)){
+					if(TileEntityUtilities.TryFindMachineEntity(pipe + new Point16(0, -1), out MachineEntity entity) && network.ConnectedMachines.Contains(entity)){
 						(entity as ILiquidMachine)?.TryImportLiquid(pipe);
 						(entity as IGasMachine)?.TryImportGas(pipe);
 					}
-					if(TileEntityUtils.TryFindMachineEntity(pipe + new Point16(-1, 0), out entity) && network.ConnectedMachines.Contains(entity)){
+					if(TileEntityUtilities.TryFindMachineEntity(pipe + new Point16(-1, 0), out entity) && network.ConnectedMachines.Contains(entity)){
 						(entity as ILiquidMachine)?.TryImportLiquid(pipe);
 						(entity as IGasMachine)?.TryImportGas(pipe);
 					}
-					if(TileEntityUtils.TryFindMachineEntity(pipe + new Point16(1, 0), out entity) && network.ConnectedMachines.Contains(entity)){
+					if(TileEntityUtilities.TryFindMachineEntity(pipe + new Point16(1, 0), out entity) && network.ConnectedMachines.Contains(entity)){
 						(entity as ILiquidMachine)?.TryImportLiquid(pipe);
 						(entity as IGasMachine)?.TryImportGas(pipe);
 					}
-					if(TileEntityUtils.TryFindMachineEntity(pipe + new Point16(0, 1), out entity) && network.ConnectedMachines.Contains(entity)){
+					if(TileEntityUtilities.TryFindMachineEntity(pipe + new Point16(0, 1), out entity) && network.ConnectedMachines.Contains(entity)){
 						(entity as ILiquidMachine)?.TryImportLiquid(pipe);
 						(entity as IGasMachine)?.TryImportGas(pipe);
 					}

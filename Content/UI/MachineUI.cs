@@ -10,6 +10,7 @@ using TerraScience.API.UI;
 using TerraScience.Content.TileEntities;
 using TerraScience.Content.Tiles.Multitiles;
 using TerraScience.Utilities;
+using Terraria.Audio;
 
 namespace TerraScience.Content.UI{
 	public abstract class MachineUI : UIState{
@@ -27,11 +28,11 @@ namespace TerraScience.Content.UI{
 
 		private List<UIText> Text;
 
-		private List<UIItemSlot> ItemSlots;
+		private List<UIItemSlotWrapper> ItemSlots;
 
 		public abstract string Header{ get; }
 		internal abstract void InitializeText(List<UIText> text);
-		internal abstract void InitializeSlots(List<UIItemSlot> slots);
+		internal abstract void InitializeSlots(List<UIItemSlotWrapper> slots);
 		internal abstract void PanelSize(out int width, out int height);
 
 		internal virtual void InitializeOther(UIPanel panel){ }
@@ -48,14 +49,14 @@ namespace TerraScience.Content.UI{
 
 		public virtual void PostOpen(){ }
 
-		internal UIItemSlot GetSlot(int index) => ItemSlots[index];
+		internal UIItemSlotWrapper GetSlot(int index) => ItemSlots[index];
 
 		public abstract int TileType{ get; }
 
 		public int SlotsLength => ItemSlots.Count;
 
-		public virtual void PlayOpenSound() => Main.PlaySound(SoundID.MenuOpen);
-		public virtual void PlayCloseSound() => Main.PlaySound(SoundID.MenuClose);
+		public virtual void PlayOpenSound() => SoundEngine.PlaySound(SoundID.MenuOpen);
+		public virtual void PlayCloseSound() => SoundEngine.PlaySound(SoundID.MenuClose);
 
 		public int UIDelay = -1;
 
@@ -98,7 +99,7 @@ namespace TerraScience.Content.UI{
 				panel.Append(text);
 
 			//Make the item slots
-			ItemSlots = new List<UIItemSlot>();
+			ItemSlots = new List<UIItemSlotWrapper>();
 			InitializeSlots(ItemSlots);
 			foreach(var slot in ItemSlots)
 				panel.Append(slot);

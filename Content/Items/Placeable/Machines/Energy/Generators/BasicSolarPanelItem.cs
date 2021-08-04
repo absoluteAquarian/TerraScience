@@ -10,11 +10,11 @@ namespace TerraScience.Content.Items.Placeable.Machines.Energy.Generators{
 		public override string ItemTooltip => "Generates electricity based on the time of day and weather";
 
 		public override void SafeSetDefaults(){
-			item.width = 24;
-			item.height = 24;
-			item.scale = 0.82f;
-			item.rare = ItemRarityID.Orange;
-			item.value = Item.buyPrice(silver: 6, copper: 50);
+			Item.width = 24;
+			Item.height = 24;
+			Item.scale = 0.82f;
+			Item.rare = ItemRarityID.Orange;
+			Item.value = Item.buyPrice(silver: 6, copper: 50);
 		}
 	}
 }

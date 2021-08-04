@@ -12,18 +12,17 @@ namespace TerraScience.Content.Items.Placeable{
 
 		public override void SetDefaults(){
 			base.SetDefaults();
-			item.rare = ItemRarityID.Green;
-			item.createTile = ModContent.TileType<AdvancedItemTransportTile>();
-			item.value = Item.buyPrice(silver: 5);
+			Item.rare = ItemRarityID.Green;
+			Item.createTile = ModContent.TileType<AdvancedItemTransportTile>();
+			Item.value = Item.buyPrice(silver: 5);
 		}
 
 		public override void AddRecipes(){
-			ModRecipe recipe = new ModRecipe(mod);
-			recipe.AddRecipeGroup(TechMod.ScienceRecipeGroups.EvilBars, 1);
-			recipe.AddIngredient(ModContent.ItemType<ItemTransport>(), 25);
-			recipe.AddTile(TileID.Anvils);
-			recipe.SetResult(this, 25);
-			recipe.AddRecipe();
+			CreateRecipe(25)
+				.AddRecipeGroup(TechMod.ScienceRecipeGroups.EvilBars, 1)
+				.AddIngredient(ModContent.ItemType<ItemTransport>(), 25)
+				.AddTile(TileID.Anvils)
+				.Register();
 		}
 	}
 }

@@ -3,19 +3,19 @@ using Terraria.ModLoader;
 using TerraScience.Utilities;
 
 namespace TerraScience.Content.Projectiles{
+	[Autoload(false)]
 	public class ShakerDust : ModProjectile{
 		public override string Texture => $"TerraScience/Content/Projectiles/ShakerDust";
-
-		public override bool CloneNewInstances => true;
-
-		public override bool Autoload(ref string name) => false;
 
 		private readonly string displayName;
 		private readonly Color drawColor;
 
+		public override string Name{ get; }
+
 		public ShakerDust(){ }
 
-		public ShakerDust(string name, Color color){
+		public ShakerDust(string internalName, string name, Color color){
+			Name = internalName ?? base.Name;
 			displayName = name;
 			drawColor = color;
 		}
@@ -25,13 +25,13 @@ namespace TerraScience.Content.Projectiles{
 		}
 
 		public override void SetDefaults(){
-			projectile.width = 2;
-			projectile.height = 2;
-			projectile.penetrate = 1;
-			projectile.friendly = true;
-			projectile.timeLeft = 180;
-			projectile.usesLocalNPCImmunity = true;
-			projectile.localNPCHitCooldown = 5;
+			Projectile.width = 2;
+			Projectile.height = 2;
+			Projectile.penetrate = 1;
+			Projectile.friendly = true;
+			Projectile.timeLeft = 180;
+			Projectile.usesLocalNPCImmunity = true;
+			Projectile.localNPCHitCooldown = 5;
 		}
 
 		public override Color? GetAlpha(Color lightColor)
@@ -40,22 +40,22 @@ namespace TerraScience.Content.Projectiles{
 		public override void AI(){
 			//ai[0] == 0, waiting to hit a tile; apply slight gravity and friction
 			//ai[0] == 1, hit a tile, start to fade out slowly and die once invisible
-			if(projectile.ai[0] == 0){
-				projectile.velocity.X *= 1f - 0.678f / 60f;
-				projectile.velocity.Y += 6.528f / 60f;
-			}else if(projectile.ai[0] == 1){
-				projectile.alpha += 3;
+			if(Projectile.ai[0] == 0){
+				Projectile.velocity.X *= 1f - 0.678f / 60f;
+				Projectile.velocity.Y += 6.528f / 60f;
+			}else if(Projectile.ai[0] == 1){
+				Projectile.alpha += 3;
 
-				if(projectile.alpha >= 255)
-					projectile.Kill();
+				if(Projectile.alpha >= 255)
+					Projectile.Kill();
 			}
 		}
 
 		public override bool OnTileCollide(Vector2 oldVelocity){
-			if(projectile.ai[0] == 0){
-				projectile.ai[0] = 1;
-				projectile.velocity = Vector2.Zero;
-				projectile.position = projectile.oldPosition;
+			if(Projectile.ai[0] == 0){
+				Projectile.ai[0] = 1;
+				Projectile.velocity = Vector2.Zero;
+				Projectile.position = Projectile.oldPosition;
 			}
 
 			return false;

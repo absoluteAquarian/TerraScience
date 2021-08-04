@@ -22,7 +22,7 @@ namespace TerraScience.Content.UI{
 			height = 300;
 		}
 
-		internal override void InitializeSlots(List<UIItemSlot> slots){ }
+		internal override void InitializeSlots(List<UIItemSlotWrapper> slots){ }
 
 		internal override void InitializeText(List<UIText> text){ }
 

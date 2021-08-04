@@ -38,8 +38,8 @@ namespace TerraScience.Content.UI{
 			text.Add(reactionSpeed);
 		}
 
-		internal override void InitializeSlots(List<UIItemSlot> slots){
-			UIItemSlot itemSlot_Salt = new UIItemSlot {
+		internal override void InitializeSlots(List<UIItemSlotWrapper> slots){
+			UIItemSlotWrapper itemSlot_Salt = new UIItemSlotWrapper {
 				HAlign = 0.3333f,
 				ValidItemFunc = item => item.IsAir
 			};

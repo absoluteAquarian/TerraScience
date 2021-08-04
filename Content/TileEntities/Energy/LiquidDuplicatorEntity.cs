@@ -111,14 +111,14 @@ namespace TerraScience.Content.TileEntities.Energy{
 
 			entry.current++;
 
-			this.PlaySound(SoundID.Splash, TileUtils.TileEntityCenter(this, MachineTile));
+			PlaySound(SoundID.Splash, TileUtils.TileEntityCenter(this, MachineTile));
 		}
 
 		internal override bool CanInputItem(int slot, Item item) => false;
 
-		internal override int[] GetInputSlots() => new int[0];
+		internal override int[] GetInputSlots() => Array.Empty<int>();
 
-		internal override int[] GetOutputSlots() => new int[0];
+		internal override int[] GetOutputSlots() => Array.Empty<int>();
 
 		public void TryExportLiquid(Point16 pumpPos)
 			=> this.TryExportLiquids(pumpPos, 0);

@@ -4,6 +4,7 @@ using System;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.Enums;
+using Terraria.GameContent;
 using Terraria.ModLoader;
 using Terraria.ObjectData;
 using TerraScience.Content.Items.Placeable;
@@ -31,7 +32,7 @@ namespace TerraScience.Content.Tiles{
 			TileObjectData.addTile(Type);
 
 			AddMapEntry(Color.LightBlue);
-			drop = ModContent.ItemType<FluidPump>();
+			ItemDrop = ModContent.ItemType<FluidPump>();
 		}
 
 		public override void PlaceInWorld(int i, int j, Item item){
@@ -55,7 +56,7 @@ namespace TerraScience.Content.Tiles{
 
 		public override bool TileFrame(int i, int j, ref bool resetFrame, ref bool noBreak) => false;
 
-		internal Point16 GetBackwardsOffset(Point16 orig){
+		internal static Point16 GetBackwardsOffset(Point16 orig){
 			Tile tile = Framing.GetTileSafely(orig);
 			Point16 dir;
 			switch(tile.frameX / 18){
@@ -78,7 +79,7 @@ namespace TerraScience.Content.Tiles{
 			return orig + dir;
 		}
 
-		public MachineEntity GetConnectedMachine(Point16 location){
+		public static MachineEntity GetConnectedMachine(Point16 location){
 			var actualLocation = GetBackwardsOffset(location);
 			Tile tile = Framing.GetTileSafely(actualLocation);
 
@@ -91,7 +92,7 @@ namespace TerraScience.Content.Tiles{
 		}
 
 		public override bool PreDraw(int i, int j, SpriteBatch spriteBatch){
-			FluidTransportTile.DrawFluid(new Point16(i, j), ModContent.GetTexture("TerraScience/Content/Tiles/Effect_FluidPumpTile_fluid"), spriteBatch);
+			FluidTransportTile.DrawFluid(new Point16(i, j), ModContent.Request<Texture2D>("TerraScience/Content/Tiles/Effect_FluidPumpTile_fluid").Value, spriteBatch);
 
 			//Pump draws itself
 			return false;
@@ -149,8 +150,8 @@ namespace TerraScience.Content.Tiles{
 					throw new Exception($"Inner TerraScience error -- Unexpected pump tile frame (ID: {tileFrame})");
 			}
 
-			Texture2D tileTexture = Main.tileTexture[Type];
-			Texture2D texture = ModContent.GetTexture("TerraScience/Content/Tiles/Effect_FluidPumpTile_bar");
+			Texture2D tileTexture = TextureAssets.Tile[Type].Value;
+			Texture2D texture = ModContent.Request<Texture2D>("TerraScience/Content/Tiles/Effect_FluidPumpTile_bar").Value;
 			Rectangle tileSource = tileTexture.Frame(4, 1, tileFrame, 0);
 			Rectangle frame = texture.Frame(4, 1, tileFrame, 0);
 			frame.Width -= 2;

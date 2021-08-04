@@ -8,11 +8,11 @@ namespace TerraScience.Content.Items.Placeable.Machines{
 		public override string ItemTooltip => "Processes water-based liquids and extracts the salt from them";
 
 		public override void SafeSetDefaults(){
-			item.width = 34;
-			item.height = 20;
-			item.scale = 0.82f;
-			item.rare = ItemRarityID.Green;
-			item.value = Item.buyPrice(silver: 20, copper: 15);
+			Item.width = 34;
+			Item.height = 20;
+			Item.scale = 0.82f;
+			Item.rare = ItemRarityID.Green;
+			Item.value = Item.buyPrice(silver: 20, copper: 15);
 		}
 	}
 }

@@ -10,9 +10,9 @@ namespace TerraScience.Content.Items.Materials{
 		}
 
 		public override void SetDefaults(){
-			item.rare = ItemRarityID.Blue;
-			item.value = Item.sellPrice(silver: 1);
-			TechMod.VialDefaults(item);
+			Item.rare = ItemRarityID.Blue;
+			Item.value = Item.sellPrice(silver: 1);
+			TechMod.VialDefaults(Item);
 		}
 	}
 }

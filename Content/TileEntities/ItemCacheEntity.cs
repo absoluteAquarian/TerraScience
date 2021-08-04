@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Terraria;
@@ -59,7 +60,7 @@ namespace TerraScience.Content.TileEntities{
 			return tag;
 		}
 
-		private TagCompound SaveType(int type){
+		private static TagCompound SaveType(int type){
 			ModItem mItem;
 			return type < ItemID.Count
 				? new TagCompound(){
@@ -67,7 +68,7 @@ namespace TerraScience.Content.TileEntities{
 					["id"] = type
 				}
 				: new TagCompound(){
-					["mod"] = (mItem = ModContent.GetModItem(type)).mod.Name,
+					["mod"] = (mItem = ModContent.GetModItem(type)).Mod.Name,
 					["name"] = mItem.Name
 				};
 		}
@@ -86,12 +87,12 @@ namespace TerraScience.Content.TileEntities{
 			ItemIndex = tag.GetInt("idx");
 		}
 
-		private int LoadType(TagCompound tag){
+		private static int LoadType(TagCompound tag){
 			var modString = tag.GetString("mod");
 			if(modString == "Terraria")
 				return tag.GetInt("id");
 
-			return ModLoader.GetMod(modString).ItemType(tag.GetString("name"));
+			return ModLoader.GetMod(modString).Find<ModItem>(tag.GetString("name")).Type;
 		}
 
 		public override void ExtraNetReceive(BinaryReader reader){
@@ -129,9 +130,9 @@ namespace TerraScience.Content.TileEntities{
 		}
 
 		//These two methods have their use overwritten by the Hijack hooks
-		internal override int[] GetInputSlots() => new int[0];
+		internal override int[] GetInputSlots() => Array.Empty<int>();
 
-		internal override int[] GetOutputSlots() => new int[0];
+		internal override int[] GetOutputSlots() => Array.Empty<int>();
 
 		public override void PreUpdateReaction(){
 			if(items is null)

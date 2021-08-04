@@ -4,9 +4,12 @@ using System.Collections.Generic;
 using System.IO;
 using Terraria;
 using Terraria.DataStructures;
+using Terraria.GameContent;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
-using Terraria.World.Generation;
+using Terraria.UI;
+using Terraria.WorldBuilding;
+using TerraScience.API.CrossMod.MagicStorage;
 using TerraScience.API.Interfaces;
 using TerraScience.Content.ID;
 using TerraScience.Content.Items.Placeable;
@@ -18,18 +21,18 @@ using TerraScience.Systems.Pipes;
 using TerraScience.Utilities;
 
 namespace TerraScience.World{
-	public class TerraScienceWorld : ModWorld{
+	public class TerraScienceWorld : ModSystem{
 		public override void ModifyWorldGenTasks(List<GenPass> tasks, ref float totalWeight){
 			CustomWorldGen.MoreShinies(tasks);
 		}
 
-		public override TagCompound Save()
+		public override TagCompound SaveWorldData()
 			=> new TagCompound(){
 				["networks"] = NetworkCollection.Save(),
 				["mufflers"] = MachineMufflerTile.mufflers
 			};
 
-		public override void Load(TagCompound tag){
+		public override void LoadWorldData(TagCompound tag){
 			NetworkCollection.EnsureNetworkIsInitialized();
 
 			if(tag.ContainsKey("networks"))
@@ -40,28 +43,87 @@ namespace TerraScience.World{
 		}
 
 		public override void NetSend(BinaryWriter writer){
-			TagIO.Write(Save(), writer);
+			TagIO.Write(SaveWorldData(), writer);
 		}
 
 		public override void NetReceive(BinaryReader reader){
-			Load(TagIO.Read(reader));
+			LoadWorldData(TagIO.Read(reader));
 		}
 
-		public override void Initialize(){
+		public override void OnWorldLoad(){
 			NetworkCollection.Unload();
 			NetworkCollection.EnsureNetworkIsInitialized();
 		}
 
-		public override void PreUpdate(){
+		public override void PreUpdateWorld(){
 			NetworkCollection.EnsureNetworkIsInitialized();
 		}
 
-		public override void PostUpdate(){
+		internal static void SetNetworkTilesSolid(){
+			Main.tileSolid[ModContent.TileType<TransportJunction>()] = true;
+
+			foreach(var type in TechMod.types){
+				if(type.IsAbstract)
+					continue;
+
+				if(typeof(JunctionMergeable).IsAssignableFrom(type)){
+					int tileType = TechMod.Instance.Find<ModTile>(type.Name).Type;
+
+					Main.tileSolid[tileType] = true;
+				}
+			}
+		}
+
+		internal static void ResetNetworkTilesSolid(){
+			Main.tileSolid[ModContent.TileType<TransportJunction>()] = false;
+
+			foreach(var type in TechMod.types){
+				if(type.IsAbstract)
+					continue;
+
+				if(typeof(JunctionMergeable).IsAssignableFrom(type)){
+					int tileType = TechMod.Instance.Find<ModTile>(type.Name).Type;
+
+					Main.tileSolid[tileType] = false;
+				}
+			}
+		}
+
+		public override void PreUpdateEntities(){
+			//ModHooks.PreUpdateEntities() is called before WorldGen.UpdateWorld, which updates the tile entities
+			//So this is a good place to have the tile stuff update
+
+			//Sanity check
+			ResetNetworkTilesSolid();
+
+			//Reset the wire network export counts
+			NetworkCollection.ResetNetworkInfo();
+		}
+
+		public override void PreUpdateItems() {
+			NetworkCollection.UpdateItemNetworks();
+			NetworkCollection.UpdateFluidNetworks();
+
+			if(MagicStorageHandler.GUIRefreshPending && Main.GameUpdateCount % 120 == 0){
+				//A return of "true" means the GUIs were refreshed
+				MagicStorageHandler.GUIRefreshPending = !MagicStorageHandler.RefreshGUIs();
+			}
+		}
+
+		public override void PostUpdateWorld(){
 			NetworkCollection.CleanupNetworks();
 		}
 
-		private void DrawNetTiles<TEntry>(List<TEntry> entries, Color drawColor) where TEntry : struct, INetworkable, INetworkable<TEntry>{
-			var texture = ModContent.GetTexture("TerraScience/Content/Items/FakeCapsuleFluidItem");
+		public override void UpdateUI(GameTime gameTime) {
+			TechMod.Instance.machineLoader.UpdateUI(gameTime);
+		}
+
+		public override void ModifyInterfaceLayers(List<GameInterfaceLayer> layers) {
+			TechMod.Instance.machineLoader.ModifyInterfaceLayers(layers);
+		}
+
+		private static void DrawNetTiles<TEntry>(List<TEntry> entries, Color drawColor) where TEntry : struct, INetworkable, INetworkable<TEntry>{
+			var texture = ModContent.Request<Texture2D>("TerraScience/Content/Items/FakeCapsuleFluidItem").Value;
 
 			Rectangle screen = new Rectangle((int)Main.screenPosition.X - 4, (int)Main.screenPosition.Y - 4, (int)(Main.screenWidth * Main.GameZoomTarget) + 8, (int)(Main.screenHeight * Main.GameZoomTarget) + 8);
 			foreach(var wire in entries){
@@ -90,15 +152,15 @@ namespace TerraScience.World{
 			bool began = false;
 
 			//Draw any junction stuff
-			if(Main.LocalPlayer.HeldItem.modItem is TransportJunctionItem){
+			if(Main.LocalPlayer.HeldItem.ModItem is TransportJunctionItem){
 				if(!string.IsNullOrWhiteSpace(TransportJunctionItem.display) && TransportJunctionItem.displayTimer >= 0){
-					Vector2 measure = Main.fontMouseText.MeasureString(TransportJunctionItem.display);
+					Vector2 measure = FontAssets.MouseText.Value.MeasureString(TransportJunctionItem.display);
 					Vector2 position = Main.LocalPlayer.Top - new Vector2(0, 20) - Main.screenPosition;
 
 					Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullNone, null);
 					began = true;
 
-					Utils.DrawBorderStringFourWay(Main.spriteBatch, Main.fontMouseText,
+					Utils.DrawBorderStringFourWay(Main.spriteBatch, FontAssets.MouseText.Value,
 						TransportJunctionItem.display,
 						position.X,
 						position.Y,
@@ -158,7 +220,7 @@ namespace TerraScience.World{
 			if(wireNet != null){
 				hasOffset = true;
 
-				Utils.DrawBorderStringFourWay(Main.spriteBatch, Main.fontMouseText,
+				Utils.DrawBorderStringFourWay(Main.spriteBatch, FontAssets.MouseText.Value,
 					$"Targeting Wire Network (ID: {wireNet.ID})",
 					offset.X,
 					offset.Y,
@@ -166,7 +228,7 @@ namespace TerraScience.World{
 					Color.Black,
 					Vector2.Zero);
 
-				Utils.DrawBorderStringFourWay(Main.spriteBatch, Main.fontMouseText,
+				Utils.DrawBorderStringFourWay(Main.spriteBatch, FontAssets.MouseText.Value,
 					$"Stored TF: {(float)wireNet.StoredFlux :0.##} / {(float)wireNet.Capacity :0.##} TF",
 					offset.X,
 					offset.Y += 20,
@@ -174,7 +236,7 @@ namespace TerraScience.World{
 					Color.Black,
 					Vector2.Zero);
 
-				Utils.DrawBorderStringFourWay(Main.spriteBatch, Main.fontMouseText,
+				Utils.DrawBorderStringFourWay(Main.spriteBatch, FontAssets.MouseText.Value,
 					$"Exported Flux: {(float)wireNet.totalExportedFlux :0.##} TF/t ({(float)wireNet.totalExportedFlux * 60 :0.##} TF/s)",
 					offset.X,
 					offset.Y += 20,
@@ -183,7 +245,7 @@ namespace TerraScience.World{
 					Vector2.Zero);
 			}
 			if(itemNet != null){
-				Utils.DrawBorderStringFourWay(Main.spriteBatch, Main.fontMouseText,
+				Utils.DrawBorderStringFourWay(Main.spriteBatch, FontAssets.MouseText.Value,
 					$"Targeting Item Network (ID: {itemNet.ID})",
 					offset.X,
 					!hasOffset ? offset.Y : (offset.Y += 20),
@@ -193,7 +255,7 @@ namespace TerraScience.World{
 
 				hasOffset = true;
 
-				Utils.DrawBorderStringFourWay(Main.spriteBatch, Main.fontMouseText,
+				Utils.DrawBorderStringFourWay(Main.spriteBatch, FontAssets.MouseText.Value,
 					$"Item Stacks in Network: {itemNet.paths.Count}",
 					offset.X,
 					offset.Y += 20,
@@ -201,7 +263,7 @@ namespace TerraScience.World{
 					Color.Black,
 					Vector2.Zero);
 
-				Utils.DrawBorderStringFourWay(Main.spriteBatch, Main.fontMouseText,
+				Utils.DrawBorderStringFourWay(Main.spriteBatch, FontAssets.MouseText.Value,
 					$"Connected Chests: {itemNet.chests.Count}",
 					offset.X,
 					offset.Y += 20,
@@ -209,7 +271,7 @@ namespace TerraScience.World{
 					Color.Black,
 					Vector2.Zero);
 
-				Utils.DrawBorderStringFourWay(Main.spriteBatch, Main.fontMouseText,
+				Utils.DrawBorderStringFourWay(Main.spriteBatch, FontAssets.MouseText.Value,
 					$"Pipes Connected to Chests: {itemNet.pipesConnectedToChests.Count}",
 					offset.X,
 					offset.Y += 20,
@@ -217,7 +279,7 @@ namespace TerraScience.World{
 					Color.Black,
 					Vector2.Zero);
 
-				Utils.DrawBorderStringFourWay(Main.spriteBatch, Main.fontMouseText,
+				Utils.DrawBorderStringFourWay(Main.spriteBatch, FontAssets.MouseText.Value,
 					$"Pipes Connected to Machines: {itemNet.pipesConnectedToMachines.Count}",
 					offset.X,
 					offset.Y += 20,
@@ -226,7 +288,7 @@ namespace TerraScience.World{
 					Vector2.Zero);
 			}
 			if(fluidNet != null){
-				Utils.DrawBorderStringFourWay(Main.spriteBatch, Main.fontMouseText,
+				Utils.DrawBorderStringFourWay(Main.spriteBatch, FontAssets.MouseText.Value,
 					$"Targeting Fluid Network (ID: {fluidNet.ID})",
 					offset.X,
 					!hasOffset ? offset.Y : (offset.Y += 20),
@@ -234,7 +296,7 @@ namespace TerraScience.World{
 					Color.Black,
 					Vector2.Zero);
 
-				Utils.DrawBorderStringFourWay(Main.spriteBatch, Main.fontMouseText,
+				Utils.DrawBorderStringFourWay(Main.spriteBatch, FontAssets.MouseText.Value,
 					$"Fluid Type: {(fluidNet.liquidType != MachineLiquidID.None ? fluidNet.liquidType.ProperEnumName() : fluidNet.gasType.ProperEnumName())}",
 					offset.X,
 					offset.Y += 20,
@@ -242,7 +304,7 @@ namespace TerraScience.World{
 					Color.Black,
 					Vector2.Zero);
 
-				Utils.DrawBorderStringFourWay(Main.spriteBatch, Main.fontMouseText,
+				Utils.DrawBorderStringFourWay(Main.spriteBatch, FontAssets.MouseText.Value,
 					$"Stored Fluid: {fluidNet.StoredFluid :0.##} / {fluidNet.Capacity :0.##} L",
 					offset.X,
 					offset.Y += 20,

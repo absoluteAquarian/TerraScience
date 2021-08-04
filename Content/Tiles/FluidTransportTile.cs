@@ -22,7 +22,7 @@ namespace TerraScience.Content.Tiles{
 
 		public override void SafeSetDefaults(){
 			AddMapEntry(Color.DarkBlue);
-			drop = ModContent.ItemType<FluidTransport>();
+			ItemDrop = ModContent.ItemType<FluidTransport>();
 		}
 
 		public override void PlaceInWorld(int i, int j, Item item){
@@ -39,7 +39,7 @@ namespace TerraScience.Content.Tiles{
 		}
 
 		public override bool PreDraw(int i, int j, SpriteBatch spriteBatch){
-			DrawFluid(new Point16(i, j), ModContent.GetTexture("TerraScience/Content/Tiles/Effect_FluidTransportTile_fluid"), spriteBatch);
+			DrawFluid(new Point16(i, j), ModContent.Request<Texture2D>("TerraScience/Content/Tiles/Effect_FluidTransportTile_fluid").Value, spriteBatch);
 
 			return true;
 		}

@@ -16,9 +16,9 @@ namespace TerraScience.API.CrossMod.MagicStorage{
 
 		public static bool DelayInteractionsDueToWorldSaving;
 
-		public static int ItemType(string name) => handler.Instance?.ItemType(name) ?? 0;
+		public static int ItemType(string name) => handler.Instance?.Find<ModItem>(name).Type ?? 0;
 
-		public static int TileType(string name) => handler.Instance?.TileType(name) ?? 0;
+		public static int TileType(string name) => handler.Instance?.Find<ModTile>(name).Type ?? 0;
 
 		public static IEnumerable<Item> TryGetItems(Point16 tileCoord)
 			=> handler.ModIsActive && !DelayInteractionsDueToWorldSaving ? StrongRef_TryGetItems(tileCoord) : null;
@@ -30,12 +30,12 @@ namespace TerraScience.API.CrossMod.MagicStorage{
 			Tile tile = Framing.GetTileSafely(tileCoord);
 			ModTile mTile = ModContent.GetModTile(tile.type);
 
-			if(!tile.active())
+			if(!tile.IsActive)
 				return null;
 
 			Point16 origin = tile.TileCoord();
 
-			if(!(mTile is StorageAccess access))
+			if(mTile is not StorageAccess access)
 				return null;
 
 			return access.GetHeart(tileCoord.X - origin.X, tileCoord.Y - origin.Y).GetStoredItems();
@@ -60,7 +60,7 @@ namespace TerraScience.API.CrossMod.MagicStorage{
 			Tile tile = Framing.GetTileSafely(tileCoord);
 			ModTile mTile = ModContent.GetModTile(tile.type);
 
-			if(!tile.active())
+			if(!tile.IsActive)
 				return false;
 
 			return mTile is StorageHeart;
@@ -73,7 +73,7 @@ namespace TerraScience.API.CrossMod.MagicStorage{
 			Tile tile = Framing.GetTileSafely(tileCoord);
 			ModTile mTile = ModContent.GetModTile(tile.type);
 
-			if(!tile.active())
+			if(!tile.IsActive)
 				return false;
 
 			return mTile is StorageAccess access && access.ItemType(0, 0) == ItemType("StorageAccess");
@@ -86,7 +86,7 @@ namespace TerraScience.API.CrossMod.MagicStorage{
 			Tile tile = Framing.GetTileSafely(tileCoord);
 			ModTile mTile = ModContent.GetModTile(tile.type);
 
-			if(!tile.active())
+			if(!tile.IsActive)
 				return false;
 
 			return mTile is RemoteAccess access && access.ItemType(0, 0) == ItemType("RemoteAccess");
@@ -99,7 +99,7 @@ namespace TerraScience.API.CrossMod.MagicStorage{
 			Tile tile = Framing.GetTileSafely(tileCoord);
 			ModTile mTile = ModContent.GetModTile(tile.type);
 
-			if(!tile.active())
+			if(!tile.IsActive)
 				return false;
 
 			return mTile is StorageUnit;
@@ -127,12 +127,12 @@ namespace TerraScience.API.CrossMod.MagicStorage{
 			Tile tile = Framing.GetTileSafely(tileCoord);
 			ModTile mTile = ModContent.GetModTile(tile.type);
 
-			if(!tile.active())
+			if(!tile.IsActive)
 				return false;
 
 			Point16 origin = tile.TileCoord();
 
-			if(!(mTile is StorageAccess access))
+			if(mTile is not StorageAccess access)
 				return false;
 
 			Item clone = item.Clone();
@@ -167,12 +167,12 @@ namespace TerraScience.API.CrossMod.MagicStorage{
 			Tile tile = Framing.GetTileSafely(tileCoord);
 			ModTile mTile = ModContent.GetModTile(tile.type);
 
-			if(!tile.active())
+			if(!tile.IsActive)
 				return false;
 
 			Point16 origin = tile.TileCoord();
 
-			if(!(mTile is StorageAccess access))
+			if(mTile is not StorageAccess access)
 				return false;
 
 			var heart = access.GetHeart(tileCoord.X - origin.X, tileCoord.Y - origin.Y);
@@ -198,12 +198,12 @@ namespace TerraScience.API.CrossMod.MagicStorage{
 			Tile tile = Framing.GetTileSafely(tileCoord);
 			ModTile mTile = ModContent.GetModTile(tile.type);
 
-			if(!tile.active())
+			if(!tile.IsActive)
 				return false;
 
 			Point16 origin = tile.TileCoord();
 
-			if(!(mTile is StorageAccess access))
+			if(mTile is not StorageAccess access)
 				return false;
 
 			var heart = access.GetHeart(tileCoord.X - origin.X, tileCoord.Y - origin.Y);

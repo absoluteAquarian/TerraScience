@@ -48,7 +48,7 @@ namespace TerraScience.Content.TileEntities.Energy.Generators{
 			ReactionProgress = 100;
 			ReactionInProgress = true;
 
-			bladeRotation += MathHelper.ToRadians(Main.windSpeed * 6f);
+			bladeRotation += MathHelper.ToRadians(Main.windSpeedCurrent * 6f);
 
 			rainBoost = Main.raining;
 			sandstormBoost = Sandstorm.Happening;
@@ -57,30 +57,29 @@ namespace TerraScience.Content.TileEntities.Energy.Generators{
 		public override TerraFlux GetPowerGeneration(int ticks){
 			/*  Notes about wind speed:
 			 *  
-			 *  Main.windSpeed       | The current wind speed.  Always tries to increment/decrement towards Main.windSpeedSet by a
-			 *                         factor of `0.001f * Main.dayRate` per tick
+			 *  Main.windSpeedCurrent   | The current wind speed.  Always tries to increment/decrement towards Main.windSpeedSet by a
+			 *                            factor of `0.001f * Main.dayRate` per tick
 			 *  
-			 *  Main.windSpeedSet    | The target wind speed.  Set to Main.windSpeedTemp when Main.weatherCounter is <= 0.  Value is
-			 *                         set to `genRand.Next(-100, 101) * 0.01f` on world load/generation.
+			 *  Main.windSpeedTarget    | The target wind speed.  Set to Main.windSpeedTemp when Main.weatherCounter is <= 0.  Value is
+			 *                            set to `genRand.Next(-100, 101) * 0.01f` on world load/generation.
 			 *  
-			 *  Main.windSpeedSpeed  | The rate at which Main.windSpeedTemp is changed.  Starts at 0, then is incremented by
-			 *                         `rand.Next(-10, 11) * 0.0001f` every tick.  Value is clamped to +/- 0.002f
+			 *  Main.weatherCounter     | The timer used for sending net messages for syncing world data.  It is decremented by Main.dayRate
+			 *                            every tick.  Value is initialized to `rand.Next(3600, 18000)` -- when Main.windSpeedSet is set
+			 *                            -- or `genRand.Next(3600, 18000)` -- during worldgen.
+			 *                          
+			 *  Main.windCounter        | The timer used for updating Main.windSpeedTarget.  Frozen when the FreezeWindDirectionAndStrength
+			 *                            Journey Mode power is active.
+			 *                          
+			 *  Main.extremeWindCounter | The timer used for "extreme" winds.  Used to control Main.windSpeedTarget randomly.  Has a random
+			 *                            chance to stop immediately every tick.  Stronger winds result in a longer "extreme" duration on
+			 *                            average.  Only updates while Main.windCounter <= 0.
 			 *  
-			 *  Main.windSpeedTemp   | The next value that Main.windSpeedSet will be set to.  Modified by Main.windSpeedSpeed.
-			 *                         If it's currently raining, then this variable is modified by Main.windSpeedSpeed * 2 instead.
-			 *                         Value is clamped to +/- `(0.3f + 0.5f * Main.cloudAlpha)`
-			 *  
-			 *  Main.weatherCounter  | The timer used for modifying Main.windSpeedSet and also sending net messages for syncing
-			 *                         world data.  It is decremented by Main.dayRate every tick.  Value is initialized to
-			 *                         `rand.Next(3600, 18000)` -- when Main.windSpeedSet is set -- or `genRand.Next(3600, 18000)`
-			 *                         -- during worldgen.
-			 *  
-			 *  Weathe Radio Display | Displayed wind speed is `Math.Abs(Main.windSpeed) * 100`
+			 *  Weather Radio Display   | Displayed wind speed is `(int)(Math.Abs(Main.windSpeedCurrent) * 50)`
 			 */
 
 			TerraFlux flux = new TerraFlux(0f);
 
-			float realWind = Math.Abs(Main.windSpeed) * 100;
+			float realWind = Math.Abs(Main.windSpeedCurrent) * 100;
 
 			//Flux = 1TF/t multiplied by a factor of Wind Speed / 28mph
 			float tfPerTick = 1f;

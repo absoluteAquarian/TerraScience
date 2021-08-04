@@ -4,6 +4,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using TerraScience.Content.Tiles;
+using Terraria.Audio;
 
 namespace TerraScience.Content.Items.Placeable{
 	public class FluidPump : ModItem{
@@ -15,50 +16,49 @@ namespace TerraScience.Content.Items.Placeable{
 		}
 
 		public override void SetDefaults(){
-			item.width = 34;
-			item.height = 8;
-			item.scale = 0.75f;
-			item.rare = ItemRarityID.Blue;
-			item.maxStack = 999;
-			item.useStyle = ItemUseStyleID.SwingThrow;
-			item.useTime = 10;
-			item.useAnimation = 15;
-			item.createTile = ModContent.TileType<FluidPumpTile>();
-			item.value = 70;
-			item.consumable = true;
-			item.autoReuse = true;
-			item.useTurn = true;
+			Item.width = 34;
+			Item.height = 8;
+			Item.scale = 0.75f;
+			Item.rare = ItemRarityID.Blue;
+			Item.maxStack = 999;
+			Item.useStyle = ItemUseStyleID.Swing;
+			Item.useTime = 10;
+			Item.useAnimation = 15;
+			Item.createTile = ModContent.TileType<FluidPumpTile>();
+			Item.value = 70;
+			Item.consumable = true;
+			Item.autoReuse = true;
+			Item.useTurn = true;
 		}
 
 		public override void AddRecipes(){
-			ModRecipe recipe = new ModRecipe(mod);
-			recipe.AddIngredient(ModContent.ItemType<FluidTransport>(), 5);
-			recipe.AddRecipeGroup(RecipeGroupID.IronBar, 3);
-			recipe.AddIngredient(ItemID.Gel, 20);
-			recipe.AddTile(TileID.Anvils);
-			recipe.SetResult(this, 5);
-			recipe.AddRecipe();
+			CreateRecipe(5)
+				.AddIngredient(ModContent.ItemType<FluidTransport>(), 5)
+				.AddRecipeGroup(RecipeGroupID.IronBar, 3)
+				.AddIngredient(ItemID.Gel, 20)
+				.AddTile(TileID.Anvils)
+				.Register();
 		}
 
 		static uint lastUpdate = 0;
 		public override void HoldItem(Player player){
-			item.placeStyle = style;
+			Item.placeStyle = style;
 
 			if(lastUpdate == Main.GameUpdateCount)
 				return;
 
 			lastUpdate = Main.GameUpdateCount;
 
-			if(!Main.blockMouse && player.inventory[58] != item && Main.mouseRight && Main.mouseRightRelease){
+			if(!Main.blockMouse && player.inventory[58] != Item && Main.mouseRight && Main.mouseRightRelease){
 				style = ++style % 4;
 
-				Main.PlaySound(SoundID.MenuTick);
+				SoundEngine.PlaySound(SoundID.MenuTick);
 			}
 		}
 
 		public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale){
-			var texture = ModContent.GetTexture("TerraScience/Content/Items/Placeable/FluidPump_Sheet");
-			var source = texture.Frame(4, 1, item.placeStyle, 0);
+			var texture = ModContent.Request<Texture2D>("TerraScience/Content/Items/Placeable/FluidPump_Sheet").Value;
+			var source = texture.Frame(4, 1, Item.placeStyle, 0);
 
 			spriteBatch.Draw(texture, position + origin, source, drawColor, 0f, origin, scale, SpriteEffects.None, 0);
 

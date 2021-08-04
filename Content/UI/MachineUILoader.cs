@@ -64,7 +64,7 @@ namespace TerraScience.Content.UI {
 		}
 
 		/// <summary>
-		/// Called on Mod.UpdateUI
+		/// Called on ModSystem.UpdateUI
 		/// </summary>
 		public void UpdateUI(GameTime gameTime) {
 			lastUpdateUIGameTime = gameTime;
@@ -78,7 +78,7 @@ namespace TerraScience.Content.UI {
 		}
 
 		/// <summary>
-		/// Called on Mod.ModifyInterfaceLayers
+		/// Called on ModSystem.ModifyInterfaceLayers
 		/// </summary>
 		public void ModifyInterfaceLayers(List<GameInterfaceLayer> layers) {
 			int mouseTextIndex = layers.FindIndex(layer => layer.Name.Equals("Vanilla: Mouse Text"));

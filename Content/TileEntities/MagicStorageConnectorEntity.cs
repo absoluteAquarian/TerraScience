@@ -25,9 +25,9 @@ namespace TerraScience.Content.TileEntities{
 		//This tile needs a special use case for these methods
 		internal override bool CanInputItem(int slot, Item item) => false;
 
-		internal override int[] GetInputSlots() => new int[0];
+		internal override int[] GetInputSlots() => Array.Empty<int>();
 
-		internal override int[] GetOutputSlots() => new int[0];
+		internal override int[] GetOutputSlots() => Array.Empty<int>();
 
 		public Point16 GetConnectedMagicStorageSystem()
 			=> MagicStorageHandler.handler.ModIsActive && !MagicStorageHandler.DelayInteractionsDueToWorldSaving

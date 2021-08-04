@@ -104,7 +104,7 @@ namespace TerraScience.Content.TileEntities.Energy{
 			else if(type > 0 && stack > 0){
 				this.TryInsertOutput(1, SlotsCount - 1, type, stack);
 
-				this.PlaySound(SoundID.Grab, TileUtils.TileEntityCenter(this, MachineTile));
+				PlaySound(SoundID.Grab, TileUtils.TileEntityCenter(this, MachineTile));
 			}
 
 			frameRand = frameRand2;

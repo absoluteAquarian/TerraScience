@@ -9,21 +9,20 @@ namespace TerraScience.Content.Items.Materials{
 		}
 
 		public override void SetDefaults(){
-			item.maxStack = 99;
-			item.width = 28;
-			item.height = 28;
-			item.rare = ItemRarityID.White;
-			item.value = Item.sellPrice(silver: 1, copper: 15);
+			Item.maxStack = 99;
+			Item.width = 28;
+			Item.height = 28;
+			Item.rare = ItemRarityID.White;
+			Item.value = Item.sellPrice(silver: 1, copper: 15);
 		}
 
 		public override bool CanUseItem(Player player) => false;
 
 		public override void AddRecipes(){
-			ModRecipe recipe = new ModRecipe(mod);
-			recipe.AddRecipeGroup("IronBar", 1);
-			recipe.AddTile(TileID.Anvils);
-			recipe.SetResult(this, 2);
-			recipe.AddRecipe();
+			CreateRecipe(2)
+				.AddRecipeGroup(RecipeGroupID.IronBar, 1)
+				.AddTile(TileID.Anvils)
+				.Register();
 		}
 	}
 }

@@ -10,7 +10,7 @@ namespace TerraScience.Content.Tiles{
 
 		public override void SafeSetDefaults(){
 			AddMapEntry(Color.MediumPurple);
-			drop = ModContent.ItemType<AdvancedItemTransport>();
+			ItemDrop = ModContent.ItemType<AdvancedItemTransport>();
 
 			Main.tileMerge[TileID.Containers][Type] = true;
 			Main.tileMerge[TileID.Containers2][Type] = true;

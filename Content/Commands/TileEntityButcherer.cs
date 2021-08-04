@@ -32,7 +32,7 @@ namespace TerraScience.Content.Commands{
 
 				caller.Reply("Success! All TerraScience tile entities were killed.", Color.Green);
 			}else{
-				var entityType = mod.GetTileEntity(args[0]);
+				var entityType = TechMod.Instance.Find<ModTileEntity>(args[0]);
 
 				//We tried to get an invalid ModTileEntity.  Tell the player
 				if(entityType is null){

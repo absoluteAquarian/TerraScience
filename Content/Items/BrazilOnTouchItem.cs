@@ -8,18 +8,18 @@ namespace TerraScience.Content.Items{
 	/// </summary>
 	public abstract class BrazilOnTouchItem : ModItem{
 		public sealed override void HoldItem(Player player){
-			item.type = ItemID.None;
-			item.stack = 0;
+			Item.type = ItemID.None;
+			Item.stack = 0;
 		}
 
 		public sealed override void Update(ref float gravity, ref float maxFallSpeed){
-			item.type = ItemID.None;
-			item.stack = 0;
+			Item.type = ItemID.None;
+			Item.stack = 0;
 		}
 
 		public sealed override void UpdateInventory(Player player){
-			item.type = ItemID.None;
-			item.stack = 0;
+			Item.type = ItemID.None;
+			Item.stack = 0;
 		}
 	}
 }

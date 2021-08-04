@@ -8,11 +8,11 @@ namespace TerraScience.Content.Items.Placeable.Machines{
 		public override string ItemTooltip => "Doubles ore smelted";
 
 		public override void SafeSetDefaults(){
-			item.width = 20;
-			item.height = 20;
-			item.scale = 0.82f;
-			item.rare = ItemRarityID.Green;
-			item.value = Item.buyPrice(silver: 8, copper: 70);
+			Item.width = 20;
+			Item.height = 20;
+			Item.scale = 0.82f;
+			Item.rare = ItemRarityID.Green;
+			Item.value = Item.buyPrice(silver: 8, copper: 70);
 		}
 	}
 }

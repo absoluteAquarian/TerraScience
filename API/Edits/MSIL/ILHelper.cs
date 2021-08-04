@@ -13,7 +13,6 @@ namespace TerraScience.API.Edits.MSIL{
 		public static readonly bool LogILEdits = false;
 
 		public static ConstructorInfo Nullable_Rectangle_ctor_Rectangle;
-		public static FieldInfo Main_itemTexture;
 		public static FieldInfo Main_screenPosition;
 		public static ConstructorInfo Rectangle_ctor_int_int_int_int;
 		public static MethodInfo Texture2D_get_Width;
@@ -24,7 +23,6 @@ namespace TerraScience.API.Edits.MSIL{
 
 		internal static void Load(){
 			Nullable_Rectangle_ctor_Rectangle = typeof(Rectangle?).GetConstructor(new Type[]{ typeof(Rectangle) });
-			Main_itemTexture                  = typeof(Main)      .GetField("itemTexture",    BindingFlags.Public | BindingFlags.Static);
 			Main_screenPosition               = typeof(Main)      .GetField("screenPosition", BindingFlags.Public | BindingFlags.Static);
 			Rectangle_ctor_int_int_int_int    = typeof(Rectangle) .GetConstructor(new Type[]{ typeof(int), typeof(int), typeof(int), typeof(int) });
 			Texture2D_get_Width               = typeof(Texture2D) .GetMethod("get_Width",     BindingFlags.Public | BindingFlags.Instance);
@@ -56,9 +54,9 @@ namespace TerraScience.API.Edits.MSIL{
 			//Get the method name
 			string method = c.Method.Name;
 			if(!method.Contains("ctor"))
-				method = method.Substring(method.LastIndexOf(':') + 1);
+				method = method[(method.LastIndexOf(':') + 1)..];
 			else
-				method = method.Substring(method.LastIndexOf('.'));
+				method = method[method.LastIndexOf('.')..];
 
 			if(beforeEdit)
 				method += " - Before";
@@ -66,14 +64,14 @@ namespace TerraScience.API.Edits.MSIL{
 				method += " - After";
 
 			//And the storage path
-			string path = Platform.Current.GetStoragePath();
-			path = Path.Combine(path, "Terraria", "ModLoader", "TechMod");
+			string path = Platform.Get<IPathService>().GetStoragePath();
+			path = Path.Combine(path, "Terraria", "ModLoader", "Beta", "TechMod");
 			Directory.CreateDirectory(path);
 
 			//Get the class name
 			string type = c.Method.Name;
 			type = type.Substring(0, type.IndexOf(':'));
-			type = type.Substring(type.LastIndexOf('.') + 1);
+			type = type[(type.LastIndexOf('.') + 1)..];
 
 			FileStream file = File.Open(Path.Combine(path, $"{type}.{method}.txt"), FileMode.Create);
 			using(StreamWriter writer = new StreamWriter(file)){
@@ -95,7 +93,7 @@ namespace TerraScience.API.Edits.MSIL{
 			var instrs = c.Instrs;
 			int curOffset = 0;
 
-			Instruction[] ConvertToInstructions(ILLabel[] labels){
+			static Instruction[] ConvertToInstructions(ILLabel[] labels){
 				Instruction[] ret = new Instruction[labels.Length];
 				for(int i = 0; i < labels.Length; i++)
 					ret[i] = labels[i].Target;

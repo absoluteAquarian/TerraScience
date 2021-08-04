@@ -1,8 +1,10 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Terraria;
+using Terraria.Audio;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -14,6 +16,16 @@ using TerraScience.Content.UI;
 
 namespace TerraScience.Utilities {
 	public static class MiscUtils {
+		public static SoundEffectInstance PlayCustomSound(this TechMod mod, Vector2 position, string path, float volume = 1f){
+#if MERGEDTESTING
+			var sound = mod.soundTracker.GetSound($"TerraScience/Sounds/Custom/{path}");
+			sound.Volume = volume;
+			return SoundEngine.PlaySound(sound, position);
+#else
+			return SoundEngine.PlaySound(SoundLoader.customSoundType, (int)position.X, (int)position.Y, mod.GetSoundSlot(Terraria.ModLoader.SoundType.Custom, $"Sounds/Custom/{path}"));
+#endif
+		}
+
 		/// <summary>
 		/// Blends the two colours together with a 50% bias.
 		/// </summary>

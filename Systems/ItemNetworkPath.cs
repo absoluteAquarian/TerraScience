@@ -5,6 +5,9 @@ using Terraria;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
+#if MERGEDTESTING
+using Terraria.ModLoader.Container;
+#endif
 using Terraria.ModLoader.IO;
 using Terraria.Utilities;
 using TerraScience.API.CrossMod.MagicStorage;
@@ -134,7 +137,7 @@ namespace TerraScience.Systems{
 
 			if(ModContent.GetModTile(sourceTile.type) is ItemPumpTile pump){
 				//Force the move direction to be away from the pump
-				moveDir = -(pump.GetBackwardsOffset(newTilePos) - newTilePos).ToVector2();
+				moveDir = -(ItemPumpTile.GetBackwardsOffset(newTilePos) - newTilePos).ToVector2();
 
 				if(wander){
 					//Get a new path
@@ -143,7 +146,7 @@ namespace TerraScience.Systems{
 				}
 			}
 
-			if(!delayPathCalc && (!sourceTile.active() || !itemNetwork.HasEntryAt(newTilePos))){
+			if(!delayPathCalc && (!sourceTile.IsActive || !itemNetwork.HasEntryAt(newTilePos))){
 				Item data = ItemIO.Load(itemData);
 
 				//If the tile is a machine or chest, try to put this item in there
@@ -289,7 +292,7 @@ namespace TerraScience.Systems{
 
 		private static bool TileMachineCanBeInputInto(ItemNetwork network, Point16 position, Item incoming, out MachineEntity machineEntity){
 			machineEntity = null;
-			return network.HasMachineAt(position) && TileEntityUtils.TryFindMachineEntity(position, out machineEntity) && machineEntity.CanBeInput(incoming);
+			return network.HasMachineAt(position) && TileEntityUtilities.TryFindMachineEntity(position, out machineEntity) && machineEntity.CanBeInput(incoming);
 		}
 
 		private void CalculatePath(){
@@ -379,8 +382,17 @@ namespace TerraScience.Systems{
 		internal static bool SimulateChestInput(Chest chest, Item incoming, List<ItemNetworkPath> paths){
 			//Entries need to be populated or Chest.ToString() throws in the debugger
 			Chest simulation = new Chest(){
+#if MERGEDTESTING
+				item = new TerrariaInventory(chest.item.Length)
+#else
 				item = new Item[chest.item.Length].Populate(() => new Item())
+#endif
 			};
+
+#if MERGEDTESTING
+			ref var inv = ref simulation.item.GetItemArray();
+			inv = inv.Populate(() => new Item());
+#endif
 
 			for(int i = 0; i < chest.item.Length; i++)
 				simulation.item[i] = chest.item[i].Clone();
@@ -407,8 +419,17 @@ namespace TerraScience.Systems{
 
 			//Entries need to be populated or Chest.ToString() throws in the debugger
 			Chest simulation = new Chest(){
+#if MERGEDTESTING
+				item = new TerrariaInventory(inputs.Length)
+#else
 				item = new Item[inputs.Length].Populate(() => new Item())
+#endif
 			};
+
+#if MERGEDTESTING
+			ref var inv = ref simulation.item.GetItemArray();
+			inv = inv.Populate(() => new Item());
+#endif
 
 			for(int i = 0; i < simulation.item.Length; i++)
 				simulation.item[i] = entity.RetrieveItem(inputs[i]).Clone();
@@ -448,7 +469,7 @@ namespace TerraScience.Systems{
 					Item data = ItemIO.Load(itemData);
 
 					if((MagicStorageHandler.handler.ModIsActive && ConnectedToMagicStorageSystem(itemNetwork, target, out Point16 msPos) && MagicStorageHandler.TryDepositItem(data, msPos, checkOnly: true, out _))
-							|| (TileEntityUtils.TryFindMachineEntity(target, out MachineEntity machine) && machine.CanBeInput(data))
+							|| (TileEntityUtilities.TryFindMachineEntity(target, out MachineEntity machine) && machine.CanBeInput(data))
 							|| ((chestID = ChestUtils.FindChestByGuessingImproved(target.X, target.Y)) > -1 && !Main.chest[chestID].IsFull(data)))
 						moveDir = finalDir;
 					else{
@@ -567,21 +588,21 @@ namespace TerraScience.Systems{
 			Tile tileRight = Framing.GetTileSafely(right);
 			Tile tileDown = Framing.GetTileSafely(down);
 
-			if(HasMachine(up) && tileUp.active())
+			if(HasMachine(up) && tileUp.IsActive)
 				finalDir = new Vector2(0, -1);
-			else if(HasMachine(left) && tileLeft.active())
+			else if(HasMachine(left) && tileLeft.IsActive)
 				finalDir = new Vector2(-1, 0);
-			else if(HasMachine(right) && tileRight.active())
+			else if(HasMachine(right) && tileRight.IsActive)
 				finalDir = new Vector2(1, 0);
-			else if(HasMachine(down) && tileDown.active())
+			else if(HasMachine(down) && tileDown.IsActive)
 				finalDir = new Vector2(0, 1);
-			else if(HasChest(up) && tileUp.active())
+			else if(HasChest(up) && tileUp.IsActive)
 				finalDir = new Vector2(0, -1);
-			else if(HasChest(left) && tileLeft.active())
+			else if(HasChest(left) && tileLeft.IsActive)
 				finalDir = new Vector2(-1, 0);
-			else if(HasChest(right) && tileRight.active())
+			else if(HasChest(right) && tileRight.IsActive)
 				finalDir = new Vector2(1, 0);
-			else if(HasChest(down) && tileDown.active())
+			else if(HasChest(down) && tileDown.IsActive)
 				finalDir = new Vector2(0, 1);
 
 			finalTarget = dequeuedPoint + finalDir.ToPoint16();
@@ -604,7 +625,7 @@ namespace TerraScience.Systems{
 
 		private bool HasMachine(Point16 position){
 			var item = ItemIO.Load(itemData);
-			return itemNetwork.HasMachineAt(position) && TileEntityUtils.TryFindMachineEntity(position, out MachineEntity entity) && entity.CanBeInput(item);
+			return itemNetwork.HasMachineAt(position) && TileEntityUtilities.TryFindMachineEntity(position, out MachineEntity entity) && entity.CanBeInput(item);
 		}
 
 		private bool HasChest(Point16 position)

@@ -1,11 +1,12 @@
 ﻿using Terraria.ID;
+using Terraria.Localization;
 using Terraria.ModLoader;
 using TerraScience.Content.Tiles.Multitiles;
 using TerraScience.Utilities;
 
 namespace TerraScience.Content.Items.Materials{
 	public class Coal : ModItem{
-		public override string Texture => "Terraria/Item_" + ItemID.Coal;
+		public override string Texture => "Terraria/Images/Item_" + ItemID.Coal;
 
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Charcoal");
@@ -13,19 +14,19 @@ namespace TerraScience.Content.Items.Materials{
 		}
 
 		public override void SetDefaults(){
-			item.width = 18;
-			item.height = 18;
-			item.rare = ItemRarityID.Blue;
-			item.maxStack = 999;
-			item.value = 10;
+			Item.width = 18;
+			Item.height = 18;
+			Item.rare = ItemRarityID.Blue;
+			Item.maxStack = 999;
+			Item.value = 10;
 		}
 
 		public override void AddRecipes(){
-			ScienceRecipe recipe = new ScienceRecipe(mod);
-			recipe.AddRecipeGroup(RecipeGroupID.Wood);
-			recipe.AddTile(ModContent.TileType<ReinforcedFurnace>());
-			recipe.SetResult(this);
-			recipe.AddRecipe();
+			CreateRecipe(1)
+				.AddRecipeGroup(RecipeGroupID.Wood)
+				.AddTile(ModContent.TileType<ReinforcedFurnace>())
+				.AddCondition(NetworkText.FromLiteral(TechMod.RecipeDescription_MadeAtMachine), recipe => false)
+				.Register();
 		}
 	}
 }

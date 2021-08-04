@@ -15,6 +15,7 @@ using TerraScience.Content.Tiles;
 using TerraScience.Content.UI;
 using TerraScience.Systems;
 using TerraScience.Utilities;
+using Terraria.Audio;
 
 namespace TerraScience.Content.TileEntities{
 	public abstract class MachineEntity : ModTileEntity{
@@ -56,7 +57,7 @@ namespace TerraScience.Content.TileEntities{
 
 		public sealed override bool ValidTile(int i, int j){
 			Tile tile = Framing.GetTileSafely(i, j);
-			return tile.active() && tile.type == MachineTile && tile.frameX == 0 && tile.frameY == 0;
+			return tile.IsActive && tile.type == MachineTile && tile.frameX == 0 && tile.frameY == 0;
 		}
 
 		public virtual void PreUpdateReaction(){ }
@@ -176,7 +177,7 @@ namespace TerraScience.Content.TileEntities{
 				TechMod.Instance.machineLoader.HideUI(MachineName);
 		}
 
-		public sealed override void NetSend(BinaryWriter writer, bool lightSend){
+		public sealed override void NetSend(BinaryWriter writer){
 			writer.Write(ReactionInProgress);
 			writer.Write(ReactionSpeed);
 			writer.Write(ReactionProgress);
@@ -194,7 +195,7 @@ namespace TerraScience.Content.TileEntities{
 		/// <param name="writer">The writer</param>
 		public virtual void ExtraNetSend(BinaryWriter writer){ }
 
-		public sealed override void NetReceive(BinaryReader reader, bool lightReceive){
+		public sealed override void NetReceive(BinaryReader reader){
 			ReactionInProgress = reader.ReadBoolean();
 			ReactionSpeed = reader.ReadSingle();
 			ReactionProgress = reader.ReadSingle();
@@ -219,28 +220,29 @@ namespace TerraScience.Content.TileEntities{
 		/// <param name="reader">The reader</param>
 		public virtual void ExtraNetReceive(BinaryReader reader){ }
 
-		internal SoundEffectInstance PlayCustomSound(Vector2 position, string path){
+		internal static SoundEffectInstance PlayCustomSound(Vector2 position, string path){
 			bool nearbyMuffler = WorldGen.InWorld((int)position.X >> 4, (int)position.Y >> 4) && MachineMufflerTile.AnyMufflersNearby(position);
 
-			return Main.PlaySound(SoundLoader.customSoundType, (int)position.X, (int)position.Y, TechMod.Instance.GetSoundSlot(SoundType.Custom, $"Sounds/Custom/{path}"), volumeScale: nearbyMuffler ? 0.1f : 1f);
+			return TechMod.Instance.PlayCustomSound(position, path, volume: nearbyMuffler ? 0.1f : 1f);
+			//return SoundEngine.PlaySound(SoundLoader.customSoundType, (int)position.X, (int)position.Y, TechMod.Instance.GetSoundSlot(Terraria.ModLoader.SoundType.Custom, $"Sounds/Custom/{path}"), volumeScale: nearbyMuffler ? 0.1f : 1f);
 		}
 
-		internal void PlaySound(int type, Vector2 position, int style = 1){
+		internal static void PlaySound(int type, Vector2 position, int style = 1){
 			bool nearbyMuffler = WorldGen.InWorld((int)position.X >> 4, (int)position.Y >> 4) && MachineMufflerTile.AnyMufflersNearby(position);
 
-			Main.PlaySound(type, (int)position.X, (int)position.Y, style, volumeScale: nearbyMuffler ? 0.1f : 1f);
+			SoundEngine.PlaySound(type, (int)position.X, (int)position.Y, style, volumeScale: nearbyMuffler ? 0.1f : 1f);
 		}
 
-		internal void PlaySound(Terraria.Audio.LegacySoundStyle type, Vector2 position){
+		internal static void PlaySound(LegacySoundStyle type, Vector2 position){
 			bool nearbyMuffler = WorldGen.InWorld((int)position.X >> 4, (int)position.Y >> 4) && MachineMufflerTile.AnyMufflersNearby(position);
 
-			Main.PlaySound(type.SoundId, (int)position.X, (int)position.Y, type.Style, volumeScale: nearbyMuffler ? 0.1f : 1f);
+			SoundEngine.PlaySound(type.SoundId, (int)position.X, (int)position.Y, type.Style, volumeScale: nearbyMuffler ? 0.1f : 1f);
 		}
 
-		internal void PlaySound(int type, int x = -1, int y = -1, int style = 1){
+		internal static void PlaySound(int type, int x = -1, int y = -1, int style = 1){
 			bool nearbyMuffler = WorldGen.InWorld(x, y) && MachineMufflerTile.AnyMufflersNearby(new Vector2(x, y));
 
-			Main.PlaySound(type, x, y, style, volumeScale: nearbyMuffler ? 0.1f : 1f);
+			SoundEngine.PlaySound(type, x, y, style, volumeScale: nearbyMuffler ? 0.1f : 1f);
 		}
 
 		internal abstract int[] GetInputSlots();

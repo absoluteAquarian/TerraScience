@@ -4,6 +4,7 @@ using System;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.Enums;
+using Terraria.GameContent;
 using Terraria.ModLoader;
 using Terraria.ObjectData;
 using TerraScience.API.CrossMod.MagicStorage;
@@ -33,7 +34,7 @@ namespace TerraScience.Content.Tiles{
 			TileObjectData.addTile(Type);
 
 			AddMapEntry(Color.LightGray);
-			drop = ModContent.ItemType<ItemPump>();
+			ItemDrop = ModContent.ItemType<ItemPump>();
 		}
 
 		public override void PlaceInWorld(int i, int j, Item item){
@@ -57,7 +58,7 @@ namespace TerraScience.Content.Tiles{
 
 		public override bool TileFrame(int i, int j, ref bool resetFrame, ref bool noBreak) => false;
 
-		internal Point16 GetBackwardsOffset(Point16 orig){
+		internal static Point16 GetBackwardsOffset(Point16 orig){
 			Tile tile = Framing.GetTileSafely(orig);
 			Point16 dir;
 			switch(tile.frameX / 18){
@@ -80,7 +81,7 @@ namespace TerraScience.Content.Tiles{
 			return orig + dir;
 		}
 
-		public MachineEntity GetConnectedMachine(Point16 location){
+		public static MachineEntity GetConnectedMachine(Point16 location){
 			var actualLocation = GetBackwardsOffset(location);
 			Tile tile = Framing.GetTileSafely(actualLocation);
 
@@ -92,14 +93,14 @@ namespace TerraScience.Content.Tiles{
 			return TileEntity.ByPosition.TryGetValue(origin, out TileEntity entity) && entity is MachineEntity machineEntity ? machineEntity : null;
 		}
 
-		public Chest GetConnectedChest(Point16 location){
+		public static Chest GetConnectedChest(Point16 location){
 			Point16 back = GetBackwardsOffset(location);
 			int index = ChestUtils.FindChestByGuessingImproved(back.X, back.Y);
 
 			return index > -1 ? Main.chest[index] : null;
 		}
 
-		public bool IsConnectedToMagicStorageAccess(Point16 location, out Point16 connectLocation){
+		public static bool IsConnectedToMagicStorageAccess(Point16 location, out Point16 connectLocation){
 			connectLocation = GetBackwardsOffset(location);
 
 			return MagicStorageHandler.HasStorageHeartAt(connectLocation) || MagicStorageHandler.HasStorageAccessAt(connectLocation) || MagicStorageHandler.HasRemoteStorageAccessAt(connectLocation);
@@ -162,8 +163,8 @@ namespace TerraScience.Content.Tiles{
 					throw new Exception($"Inner TerraScience error -- Unexpected pump tile frame (ID: {tileFrame})");
 			}
 
-			Texture2D tileTexture = Main.tileTexture[Type];
-			Texture2D texture = ModContent.GetTexture("TerraScience/Content/Tiles/Effect_ItemPumpTile_bar");
+			Texture2D tileTexture = TextureAssets.Tile[Type].Value;
+			Texture2D texture = ModContent.Request<Texture2D>("TerraScience/Content/Tiles/Effect_ItemPumpTile_bar").Value;
 			Rectangle tileSource = tileTexture.Frame(4, 1, tileFrame, 0);
 			Rectangle frame = texture.Frame(4, 1, tileFrame, 0);
 			frame.Width -= 2;

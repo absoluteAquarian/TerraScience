@@ -29,7 +29,7 @@ namespace TerraScience.Content.Tiles{
 		public static bool AnyMufflersNearby(MachineEntity entity)
 			=> AnyMufflersNearby(TileUtils.TileEntityCenter(entity, entity.MachineTile));
 
-		public override void SetDefaults(){
+		public override void SetStaticDefaults(){
 			Main.tileNoAttach[Type] = true;
 			Main.tileFrameImportant[Type] = true;
 			Main.tileBlockLight[Type] = true;

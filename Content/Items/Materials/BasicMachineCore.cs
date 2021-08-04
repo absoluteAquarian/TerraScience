@@ -1,5 +1,6 @@
 ﻿using Terraria;
 using Terraria.ID;
+using Terraria.Localization;
 using Terraria.ModLoader;
 using TerraScience.Content.Items.Energy;
 using TerraScience.Content.Tiles.Multitiles;
@@ -13,23 +14,23 @@ namespace TerraScience.Content.Items.Materials{
 		}
 
 		public override void SetDefaults(){
-			item.width = 22;
-			item.height = 28;
-			item.scale = 0.8f;
-			item.rare = ItemRarityID.Blue;
-			item.value = Item.buyPrice(silver: 3, copper: 20);
-			item.maxStack = 999;
+			Item.width = 22;
+			Item.height = 28;
+			Item.scale = 0.8f;
+			Item.rare = ItemRarityID.Blue;
+			Item.value = Item.buyPrice(silver: 3, copper: 20);
+			Item.maxStack = 999;
 		}
 
 		public override void AddRecipes(){
-			ScienceRecipe recipe = new ScienceRecipe(mod);
-			recipe.AddIngredient(ItemID.GoldBar, 2);
-			recipe.AddIngredient(ItemID.IronBar, 5);
-			recipe.AddIngredient(ModContent.ItemType<TFWireItem>(), 8);
-			recipe.AddIngredient(ModContent.ItemType<Silicon>(), 15);
-			recipe.AddTile(ModContent.TileType<ScienceWorkbench>());
-			recipe.SetResult(this, 1);
-			recipe.AddRecipe();
+			CreateRecipe(1)
+				.AddIngredient(ItemID.GoldBar, 2)
+				.AddIngredient(ItemID.IronBar, 5)
+				.AddIngredient(ModContent.ItemType<TFWireItem>(), 8)
+				.AddIngredient(ModContent.ItemType<Silicon>(), 15)
+				.AddTile(ModContent.TileType<ScienceWorkbench>())
+				.AddCondition(NetworkText.FromLiteral(TechMod.RecipeDescription_MadeAtMachine), recipe => false)
+				.Register();
 		}
 	}
 }

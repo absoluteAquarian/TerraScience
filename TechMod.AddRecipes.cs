@@ -1,5 +1,6 @@
 ﻿using Terraria;
 using Terraria.ID;
+using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.Utilities;
 using TerraScience.Content.ID;
@@ -25,21 +26,21 @@ namespace TerraScience{
 
 			//Blast furnace recipes
 			foreach(var entry in BlastFurnaceEntity.ingredientToResult){
-				ScienceRecipe recipe = new ScienceRecipe(this);
+				Recipe recipe = CreateRecipe(entry.Value.resultType, entry.Value.resultStack);
 				recipe.AddIngredient(entry.Key, entry.Value.requireStack);
 				recipe.AddTile(ModContent.TileType<BlastFurnace>());
-				recipe.SetResult(entry.Value.resultType, entry.Value.resultStack);
-				recipe.AddRecipe();
+				recipe.AddCondition(NetworkText.FromLiteral(RecipeDescription_MadeAtMachine), recipe => false);
+				recipe.Register();
 			}
 
 			//Matter Energizer recipes
 			foreach(var entry in AirIonizerEntity.recipes){
-				ScienceRecipe recipe = new ScienceRecipe(this);
+				Recipe recipe = CreateRecipe(entry.Value.resultType, entry.Value.resultStack);
 				recipe.AddIngredient(entry.Key, entry.Value.requireStack);
 				recipe.AddIngredient(ModContent.ItemType<TerraFluxIndicator>());
 				recipe.AddTile(ModContent.TileType<AirIonizer>());
-				recipe.SetResult(entry.Value.resultType, entry.Value.resultStack);
-				recipe.AddRecipe();
+				recipe.AddCondition(NetworkText.FromLiteral(RecipeDescription_MadeAtMachine), recipe => false);
+				recipe.Register();
 			}
 
 			//Additional Extractinator recipes
@@ -128,12 +129,12 @@ namespace TerraScience{
 
 				int fakeItem = GetFakeIngredientType(id);
 
-				ScienceRecipe recipe = new ScienceRecipe(this);
+				Recipe recipe = CreateRecipe(fakeItem, 1);
 				recipe.AddIngredient(i, 1);
 				recipe.AddIngredient(ModContent.ItemType<TerraFluxIndicator>(), 1);
 				recipe.AddTile(ModContent.TileType<LiquidDuplicator>());
-				recipe.SetResult(fakeItem, 1);
-				recipe.AddRecipe();
+				recipe.AddCondition(NetworkText.FromLiteral(RecipeDescription_MadeAtMachine), recipe => false);
+				recipe.Register();
 			}
 
 			AddComposterEntry(ItemID.Acorn, 4, 1);
@@ -164,47 +165,46 @@ namespace TerraScience{
 		}
 
 		private void AddElectrolyzerRecipe(MachineLiquidID input, MachineGasID output){
-			ScienceRecipe recipe = new ScienceRecipe(this);
+			Recipe recipe = CreateRecipe(GetFakeIngredientType(output), 1);
 			recipe.AddIngredient(GetFakeIngredientType(input), 1);
 			recipe.AddIngredient(ModContent.ItemType<TerraFluxIndicator>());
 			recipe.AddTile(ModContent.TileType<Electrolyzer>());
-			recipe.SetResult(GetFakeIngredientType(output), 1);
-			recipe.AddRecipe();
+			recipe.AddCondition(NetworkText.FromLiteral(RecipeDescription_MadeAtMachine), recipe => false);
+			recipe.Register();
 		}
 
 		private void AddElectrolyzerRecipe(MachineGasID capsuleGasType){
-			ScienceRecipe recipe = new ScienceRecipe(this);
-			recipe.AddIngredient(ItemType("Capsule"), 1);
+			Recipe recipe = CreateRecipe(GetCapsuleType(capsuleGasType), 1);
+			recipe.AddIngredient(Find<ModItem>("Capsule").Type, 1);
 			recipe.AddIngredient(GetFakeIngredientType(capsuleGasType), 1);
 			recipe.AddTile(ModContent.TileType<Electrolyzer>());
-			recipe.SetResult(GetCapsuleType(capsuleGasType), 1);
-			recipe.AddRecipe();
+			recipe.AddCondition(NetworkText.FromLiteral(RecipeDescription_MadeAtMachine), recipe => false);
+			recipe.Register();
 		}
 
 		private void AddGreenhouseRecipe(int inputType, int blockType, int? modifierType, int resultType){
-			ScienceRecipe recipe = new ScienceRecipe(this);
+			Recipe recipe = CreateRecipe(resultType, 1);
 			recipe.AddIngredient(inputType, 1);
 			recipe.AddIngredient(blockType, 1);
 			if(modifierType is int modifier)
 				recipe.AddIngredient(modifier, 1);
 			recipe.AddTile(ModContent.TileType<Greenhouse>());
-			recipe.SetResult(resultType, 1);
-			recipe.AddRecipe();
+			recipe.AddCondition(NetworkText.FromLiteral(RecipeDescription_MadeAtMachine), recipe => false);
+			recipe.Register();
 		}
 
 		private void AddExtractinatorRecipe(int inputType, int outputType){
-			ScienceRecipe recipe = new ScienceRecipe(this);
+			Recipe recipe = CreateRecipe(outputType, 1);
 			recipe.AddIngredient(inputType, 1);
 			recipe.AddTile(TileID.Extractinator);
-			recipe.SetResult(outputType, 1);
-			recipe.AddRecipe();
+			recipe.Register();
 
-			recipe = new ScienceRecipe(this);
+			recipe = CreateRecipe(outputType, 1);
 			recipe.AddIngredient(inputType, 1);
 			recipe.AddIngredient(ModContent.ItemType<TerraFluxIndicator>());
 			recipe.AddTile(ModContent.TileType<AutoExtractinator>());
-			recipe.SetResult(outputType, 1);
-			recipe.AddRecipe();
+			recipe.AddCondition(NetworkText.FromLiteral(RecipeDescription_MadeAtMachine), recipe => false);
+			recipe.Register();
 		}
 
 		private void AddPulverizerEntry(int inputItem, params (int type, int stack, double weight)[] outputs){
@@ -216,12 +216,12 @@ namespace TerraScience{
 				remaining -= weight;
 
 				//Add a recipe for the thing
-				ScienceRecipe recipe = new ScienceRecipe(this);
+				Recipe recipe = CreateRecipe(type, stack);
 				recipe.AddIngredient(inputItem);
 				recipe.AddIngredient(ModContent.ItemType<TerraFluxIndicator>());
 				recipe.AddTile(ModContent.TileType<Pulverizer>());
-				recipe.SetResult(type, stack);
-				recipe.AddRecipe();
+				recipe.AddCondition(NetworkText.FromLiteral(RecipeDescription_MadeAtMachine), recipe => false);
+				recipe.Register();
 			}
 
 			if(remaining > 0)
@@ -231,12 +231,12 @@ namespace TerraScience{
 		}
 
 		private void AddComposterEntry(int inputItem, int inputStack, int resultStack){
-			ScienceRecipe recipe = new ScienceRecipe(this);
+			Recipe recipe = CreateRecipe(ItemID.DirtBlock, resultStack);
 			recipe.AddIngredient(inputItem, inputStack);
 			recipe.AddIngredient(ModContent.ItemType<TerraFluxIndicator>());
 			recipe.AddTile(ModContent.TileType<Composter>());
-			recipe.SetResult(ItemID.DirtBlock, resultStack);
-			recipe.AddRecipe();
+			recipe.AddCondition(NetworkText.FromLiteral(RecipeDescription_MadeAtMachine), recipe => false);
+			recipe.Register();
 
 			ComposterEntity.ingredients.Add((inputItem, (float)resultStack / inputStack));
 		}

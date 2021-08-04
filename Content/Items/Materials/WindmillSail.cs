@@ -8,21 +8,20 @@ namespace TerraScience.Content.Items.Materials{
 		}
 
 		public override void SetDefaults(){
-			item.width = 44;
-			item.height = 30;
-			item.scale = 0.4f;
-			item.rare = ItemRarityID.White;
-			item.maxStack = 999;
-			item.value = 22;
+			Item.width = 44;
+			Item.height = 30;
+			Item.scale = 0.4f;
+			Item.rare = ItemRarityID.White;
+			Item.maxStack = 999;
+			Item.value = 22;
 		}
 
 		public override void AddRecipes(){
-			ModRecipe recipe = new ModRecipe(mod);
-			recipe.AddRecipeGroup(RecipeGroupID.Wood, 25);
-			recipe.AddIngredient(ItemID.Silk, 10);
-			recipe.AddTile(TileID.WorkBenches);
-			recipe.SetResult(this, 1);
-			recipe.AddRecipe();
+			CreateRecipe(1)
+				.AddRecipeGroup(RecipeGroupID.Wood, 25)
+				.AddIngredient(ItemID.Silk, 10)
+				.AddTile(TileID.WorkBenches)
+				.Register();
 		}
 	}
 }

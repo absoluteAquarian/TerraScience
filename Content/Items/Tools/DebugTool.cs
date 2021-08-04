@@ -8,18 +8,18 @@ using TerraScience.Utilities;
 
 namespace TerraScience.Content.Items.Tools{
 	public class DebugTool : ModItem{
-		public override string Texture => "Terraria/Item_" + ItemID.IronPickaxe;
+		public override string Texture => "Terraria/Images/Item_" + ItemID.IronPickaxe;
 
 		public override void SetDefaults(){
-			item.CloneDefaults(ItemID.IronPickaxe);
-			item.pick = 0;
-			item.value = 0;
+			Item.CloneDefaults(ItemID.IronPickaxe);
+			Item.pick = 0;
+			Item.value = 0;
 		}
 
 		static uint oldUpdate = 0;
 
 		public override void HoldItem(Player player){
-			if(TechMod.debugging && Main.mouseRight && Main.mouseRightRelease && player.inventory[58] != item){
+			if(TechMod.debugging && Main.mouseRight && Main.mouseRightRelease && player.inventory[58] != Item){
 				var pos = Main.MouseWorld.ToTileCoordinates16();
 				var tile = Framing.GetTileSafely(pos.X, pos.Y);
 				var mTile = ModContent.GetModTile(tile.type);

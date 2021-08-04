@@ -6,10 +6,11 @@ using Terraria.ModLoader;
 using Terraria.ObjectData;
 using TerraScience.Content.Items.Placeable;
 using TerraScience.Systems;
+using TerraScience.World;
 
 namespace TerraScience.Content.Tiles{
 	public class TransportJunction : ModTile{
-		public override void SetDefaults(){
+		public override void SetStaticDefaults(){
 			//Non-solid, but this is required.  Explanation is in TechMod.PreUpdateEntities()
 			Main.tileSolid[Type] = false;
 			Main.tileNoSunLight[Type] = false;
@@ -25,18 +26,18 @@ namespace TerraScience.Content.Tiles{
 			TileObjectData.addTile(Type);
 
 			AddMapEntry(Color.LightGray);
-			drop = ModContent.ItemType<TransportJunctionItem>();
+			ItemDrop = ModContent.ItemType<TransportJunctionItem>();
 		}
 
 		public override bool CanPlace(int i, int j){
 			//This hook is called just before the tile is placed, which means we can fool the game into thinking this tile is solid when it really isn't
-			TechMod.Instance.SetNetworkTilesSolid();
+			TerraScienceWorld.SetNetworkTilesSolid();
 			return JunctionMergeable.AtLeastOneSurroundingTileIsActive(i, j);
 		}
 
 		public override void PlaceInWorld(int i, int j, Item item){
 			//(Continuing from CanPlace)... then I can just set it back to false here
-			TechMod.Instance.ResetNetworkTilesSolid();
+			TerraScienceWorld.ResetNetworkTilesSolid();
 
 			var tile = Framing.GetTileSafely(i, j);
 			//Sanity check; TileObjectData should already handle this

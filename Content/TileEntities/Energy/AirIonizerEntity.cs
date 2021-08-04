@@ -141,7 +141,7 @@ namespace TerraScience.Content.TileEntities.Energy{
 
 				convertItem = input.Clone();
 
-				this.PlayCustomSound(TileUtils.TileEntityCenter(this, MachineTile), "Zap");
+				PlayCustomSound(TileUtils.TileEntityCenter(this, MachineTile), "Zap");
 			}else{
 				currentConvertTimeMax = 0;
 				convertItem.TurnToAir();

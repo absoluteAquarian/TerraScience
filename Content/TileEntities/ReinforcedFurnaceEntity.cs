@@ -71,7 +71,7 @@ namespace TerraScience.Content.TileEntities{
 
 				Vector2 center = TileUtils.TileEntityCenter(this, MachineTile);
 
-				burning = this.PlayCustomSound(center, "CampfireBurning");
+				burning = PlayCustomSound(center, "CampfireBurning");
 			}else{
 				targetHeat = HeatMin;
 				burning?.Stop();
@@ -163,7 +163,7 @@ namespace TerraScience.Content.TileEntities{
 
 			Vector2 center = TileUtils.TileEntityCenter(this, MachineTile);
 
-			this.PlayCustomSound(center, "Flame Arrow");
+			PlayCustomSound(center, "Flame Arrow");
 		}
 
 		internal override int[] GetInputSlots() => new int[]{ 0 };

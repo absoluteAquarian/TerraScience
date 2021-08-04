@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text;
 using Terraria;
+using Terraria.GameContent;
 using Terraria.GameContent.UI.Elements;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -40,13 +41,13 @@ namespace TerraScience.Content.UI.Energy{
 			text.Add(coinCounts);
 		}
 
-		internal override void InitializeSlots(List<UIItemSlot> slots){
+		internal override void InitializeSlots(List<UIItemSlotWrapper> slots){
 			//Copied from ScienceWorkbenchUI lul
 			int top = 150;
 			int origLeft = 30 + 200, left;
 			const int buffer = 8;
 
-			UIItemSlot input = new UIItemSlot(){
+			UIItemSlotWrapper input = new UIItemSlotWrapper(){
 				ValidItemFunc = item => item.IsAir || ItemID.Sets.ExtractinatorMode[item.type] >= 0,
 				VAlign = 0.5f
 			};
@@ -58,17 +59,17 @@ namespace TerraScience.Content.UI.Energy{
 				left = origLeft;
 				for(int c = 0; c < 5; c++){
 					//Can't place items, only remove them
-					UIItemSlot slot = new UIItemSlot(){
+					UIItemSlotWrapper slot = new UIItemSlotWrapper(){
 						ValidItemFunc = item => item.IsAir
 					};
 					slot.Left.Set(left, 0);
 					slot.Top.Set(top, 0);
 
-					left += Main.inventoryBack9Texture.Width + buffer;
+					left += TextureAssets.InventoryBack9.Value.Width + buffer;
 
 					slots.Add(slot);
 				}
-				top += Main.inventoryBack9Texture.Height + buffer;
+				top += TextureAssets.InventoryBack9.Value.Height + buffer;
 			}
 		}
 

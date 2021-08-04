@@ -1,5 +1,6 @@
 ﻿using Terraria;
 using Terraria.ID;
+using Terraria.Localization;
 using Terraria.ModLoader;
 using TerraScience.API.CrossMod.MagicStorage;
 using TerraScience.Content.Items.Energy;
@@ -16,6 +17,8 @@ using TerraScience.Utilities;
 
 namespace TerraScience{
 	public partial class TechMod{
+		public const string RecipeDescription_MadeAtMachine = "This recipe displays results from a machine and cannot be used by the Crafting interface.";
+
 		public override void PostSetupContent() {
 			Logger.DebugFormat("Loading tile data and machine structures...");
 
@@ -28,14 +31,13 @@ namespace TerraScience{
 			});
 
 			DatalessMachineInfo.recipes.Add(ModContent.ItemType<ScienceWorkbenchItem>(), mod => {
-				ModRecipe recipe = new ModRecipe(mod);
+				Recipe recipe = mod.CreateRecipe(ModContent.ItemType<ScienceWorkbenchItem>(), 1);
 				recipe.AddRecipeGroup(RecipeGroupID.Wood, 20);
 				recipe.AddIngredient(ItemID.CopperBar, 5);
 				recipe.AddIngredient(ItemID.Glass, 8);
 				recipe.AddIngredient(ItemID.GrayBrick, 30);
 				recipe.AddTile(TileID.WorkBenches);
-				recipe.SetResult(ModContent.ItemType<ScienceWorkbenchItem>(), 1);
-				recipe.AddRecipe();
+				recipe.Register();
 			});
 
 			DatalessMachineInfo.Register<ReinforcedFurnaceItem>(new[]{
@@ -86,7 +88,7 @@ namespace TerraScience{
 			});
 
 			DatalessMachineInfo.recipes.Add(ModContent.ItemType<GreenhouseItem>(), mod => {
-				ScienceRecipe recipe = new ScienceRecipe(mod);
+				Recipe recipe = mod.CreateRecipe(mod.Find<ModItem>("DatalessGreenhouse").Type, 1);
 				recipe.AddIngredient(ItemID.Glass, 4);
 				recipe.AddIngredient(ItemID.Glass, 4);
 				recipe.AddIngredient(ItemID.Glass, 4);
@@ -100,8 +102,9 @@ namespace TerraScience{
 				recipe.AddRecipeGroup(RecipeGroupID.Wood, 30);
 
 				recipe.AddTile(ModContent.TileType<ScienceWorkbench>());
-				recipe.SetResult(mod.ItemType("DatalessGreenhouse"), 1);
-				recipe.AddRecipe();
+				
+				recipe.AddCondition(NetworkText.FromLiteral(RecipeDescription_MadeAtMachine), recipe => false);
+				recipe.Register();
 			});
 
 			DatalessMachineInfo.Register<BasicThermoGeneratorItem>(new[]{
@@ -132,13 +135,13 @@ namespace TerraScience{
 				if(!MagicStorageHandler.handler.ModIsActive)
 					return;
 
-				ModRecipe recipe = new ModRecipe(mod);
+				Recipe recipe = mod.CreateRecipe(mod.Find<ModItem>("DatalessMagicStorageConnector").Type, 1);
 				recipe.AddIngredient(MagicStorageHandler.ItemType("StorageAccess"));
 				recipe.AddIngredient(ModContent.ItemType<Silicon>(), 30);
 				recipe.AddIngredient(ModContent.ItemType<ItemPump>(), 2);
 				recipe.AddTile(TileID.Anvils);
-				recipe.SetResult(mod.ItemType("DatalessMagicStorageConnector"), 1);
-				recipe.AddRecipe();
+				recipe.AddCondition(NetworkText.FromLiteral(RecipeDescription_MadeAtMachine), recipe => false);
+				recipe.Register();
 			});
 
 			DatalessMachineInfo.Register<ItemCacheItem>(new[]{
@@ -159,7 +162,7 @@ namespace TerraScience{
 					continue;
 
 				if(typeof(JunctionMergeable).IsAssignableFrom(type)){
-					int tileType = GetTile(type.Name).Type;
+					int tileType = Find<ModTile>(type.Name).Type;
 
 					foreach(var pair in TileUtils.tileToEntity){
 						if(pair.Value is PoweredMachineEntity){

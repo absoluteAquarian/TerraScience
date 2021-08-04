@@ -6,6 +6,7 @@ using Terraria.ModLoader;
 using TerraScience.Content.Tiles.Multitiles;
 using TerraScience.Content.UI;
 using TerraScience.Utilities;
+using Terraria.Audio;
 
 namespace TerraScience.Content.TileEntities{
 	public class ScienceWorkbenchEntity : MachineEntity{
@@ -53,10 +54,10 @@ namespace TerraScience.Content.TileEntities{
 
 			HasRecipe = RecipeUtils.HasRecipe(ui, out curRecipeType, out curRecipeStack, curRecipes);
 
-			Main.PlaySound(SoundID.Grab);
+			SoundEngine.PlaySound(SoundID.Grab);
 		}
 
-		internal override int[] GetInputSlots() => new int[0];
+		internal override int[] GetInputSlots() => System.Array.Empty<int>();
 
 		internal override int[] GetOutputSlots() => new int[]{ SlotsCount - 1 };
 

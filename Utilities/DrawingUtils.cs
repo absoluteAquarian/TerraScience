@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
+using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.UI;
@@ -10,7 +11,7 @@ namespace TerraScience.Utilities{
 		//Yoinked and edited from https://github.com/Eternal-Team/BaseLibrary/blob/1.3/Utility/RenderingUtility.cs
 		public static void DrawItemInWorld(this SpriteBatch spriteBatch, Item item, Vector2 position, Vector2 size, float rotation = 0f){
 			if(!item.IsAir){
-				Texture2D itemTexture = Main.itemTexture[item.type];
+				Texture2D itemTexture = TextureAssets.Item[item.type].Value;
 				Rectangle rect = Main.itemAnimations[item.type] != null ? Main.itemAnimations[item.type].GetFrame(itemTexture) : itemTexture.Frame();
 				Color newColor = Color.White;
 				float pulseScale = 1f;
@@ -41,7 +42,7 @@ namespace TerraScience.Utilities{
 				ItemLoader.PostDrawInWorld(item, spriteBatch, item.GetColor(Color.White), item.GetAlpha(newColor), rotation, totalScale, item.whoAmI);
 
 				if(ItemID.Sets.TrapSigned[item.type])
-					spriteBatch.Draw(Main.wireTexture, position + new Vector2(40f, 40f) * drawScale, new Rectangle(4, 58, 8, 8), Color.White, 0f, new Vector2(4f), drawScale, SpriteEffects.None, 0f);
+					spriteBatch.Draw(TextureAssets.Wire.Value, position + new Vector2(40f, 40f) * drawScale, new Rectangle(4, 58, 8, 8), Color.White, 0f, new Vector2(4f), drawScale, SpriteEffects.None, 0f);
 			}
 		}
 	}

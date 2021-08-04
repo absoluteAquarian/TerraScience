@@ -12,13 +12,13 @@ namespace TerraScience.Content.Items.Materials{
 		}
 
 		public override void SetDefaults(){
-			item.width = 36;
-			item.height = 28;
-			item.scale = 0.8f;
+			Item.width = 36;
+			Item.height = 28;
+			Item.scale = 0.8f;
 
-			item.maxStack = 999;
+			Item.maxStack = 999;
 
-			item.rare = ItemRarityID.Red;
+			Item.rare = ItemRarityID.Red;
 		}
 
 		public override void AddRecipes(){
@@ -35,7 +35,7 @@ namespace TerraScience.Content.Items.Materials{
 				Item thing = new Item();
 				thing.SetDefaults(i);
 
-				if(thing.buffType == BuffID.WellFed || thing.buffType == BuffID.Tipsy)
+				if(thing.buffType == BuffID.WellFed || thing.buffType == BuffID.Tipsy || thing.buffType == BuffID.WellFed2 || thing.buffType == BuffID.WellFed3 || thing.buffType == BuffID.SugarRush)
 					RecipeUtils.CreateTFRecipe<BasicThermoGenerator>(i);
 			}
 

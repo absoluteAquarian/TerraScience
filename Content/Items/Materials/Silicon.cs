@@ -1,4 +1,5 @@
 ﻿using Terraria.ID;
+using Terraria.Localization;
 using Terraria.ModLoader;
 using TerraScience.Utilities;
 
@@ -10,20 +11,20 @@ namespace TerraScience.Content.Items.Materials{
 		}
 
 		public override void SetDefaults(){
-			item.width = 26;
-			item.height = 20;
-			item.scale = 0.9f;
-			item.rare = ItemRarityID.White;
-			item.value = 2;
-			item.maxStack = 999;
+			Item.width = 26;
+			Item.height = 20;
+			Item.scale = 0.9f;
+			Item.rare = ItemRarityID.White;
+			Item.value = 2;
+			Item.maxStack = 999;
 		}
 
 		public override void AddRecipes(){
-			ScienceRecipe recipe = new ScienceRecipe(mod);
-			recipe.AddRecipeGroup(TechMod.ScienceRecipeGroups.Sand, 1);
-			recipe.AddTile(TileID.Extractinator);
-			recipe.SetResult(this, 1);
-			recipe.AddRecipe();
+			CreateRecipe(1)
+				.AddRecipeGroup(TechMod.ScienceRecipeGroups.Sand, 1)
+				.AddTile(TileID.Extractinator)
+				.AddCondition(NetworkText.FromLiteral(TechMod.RecipeDescription_MadeAtMachine), recipe => false)
+				.Register();
 		}
 	}
 }

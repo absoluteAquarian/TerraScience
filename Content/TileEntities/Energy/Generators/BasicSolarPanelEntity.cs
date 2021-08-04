@@ -49,7 +49,7 @@ namespace TerraScience.Content.TileEntities.Energy.Generators{
 			}
 
 			eclipseReduce = Main.eclipse;
-			rainReduce = Main.raining && Main.windSpeed != 0;
+			rainReduce = Main.raining && Main.windSpeedCurrent != 0;
 		}
 
 		public override TerraFlux GetPowerGeneration(int ticks){
@@ -70,7 +70,7 @@ namespace TerraScience.Content.TileEntities.Energy.Generators{
 			if(rainReduce){
 				//Rain blockage is dependent on wind speed
 				//Get a factor of (current speed) / 28mph
-				float realWind = Math.Abs(Main.windSpeed) * 100;
+				float realWind = Math.Abs(Main.windSpeedCurrent) * 100;
 				float reduce = 0.12f * realWind / 28f;
 
 				if(reduce > 0.5f)

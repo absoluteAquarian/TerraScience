@@ -76,7 +76,7 @@ namespace TerraScience.Content.TileEntities{
 
 			salt.stack++;
 
-			Main.PlaySound(new LegacySoundStyle(SoundID.Grab, 0).WithVolume(0.5f), Position.ToWorldCoordinates());
+			SoundEngine.PlaySound(new LegacySoundStyle(SoundID.Grab, 0).WithVolume(0.5f), Position.ToWorldCoordinates());
 		}
 
 		public override void PostUpdateReaction(){
@@ -114,7 +114,7 @@ namespace TerraScience.Content.TileEntities{
 				LiquidPlaceDelay--;
 		}
 
-		internal override int[] GetInputSlots() => new int[0];
+		internal override int[] GetInputSlots() => System.Array.Empty<int>();
 
 		internal override int[] GetOutputSlots() => new int[]{ SlotsCount - 1 };
 

@@ -1,14 +1,18 @@
 ﻿using System;
+using System.Collections.Generic;
+using Terraria.ModLoader.IO;
 using TerraScience.API.CrossMod.MagicStorage;
 
 namespace TerraScience.API.Edits.Detours{
 	public static partial class TML{
-		internal static void TileIO_SaveTileEntities(Action orig){
+		internal static List<TagCompound> TileIO_SaveTileEntities(Func<List<TagCompound>> orig){
 			MagicStorageHandler.DelayInteractionsDueToWorldSaving = true;
 
-			orig();
+			var list = orig();
 
 			MagicStorageHandler.DelayInteractionsDueToWorldSaving = false;
+
+			return list;
 		}
 	}
 }

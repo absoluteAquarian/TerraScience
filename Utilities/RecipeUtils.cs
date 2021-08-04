@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Terraria;
+using Terraria.Localization;
 using Terraria.ModLoader;
 using TerraScience.Content.Items.Materials;
 using TerraScience.Content.Items.Placeable.Machines;
@@ -12,41 +13,37 @@ using TerraScience.Content.UI;
 namespace TerraScience.Utilities{
 	public static class RecipeUtils{
 		public static void SimpleRecipe(int itemID, int stack, int tileID, int resultID, int resultStack){
-			ModRecipe recipe = new ModRecipe(TechMod.Instance);
+			Recipe recipe = TechMod.Instance.CreateRecipe(resultID, resultStack);
 
 			recipe.AddIngredient(itemID, stack);
 			recipe.AddTile(tileID);
-			recipe.SetResult(resultID, resultStack);
-			recipe.AddRecipe();
+			recipe.Register();
 		}
 
 		public static void SimpleRecipe(int itemID, int stack, int tileID, ModItem result, int resultStack){
-			ModRecipe recipe = new ModRecipe(TechMod.Instance);
+			Recipe recipe = TechMod.Instance.CreateRecipe(result.Type, resultStack);
 
 			recipe.AddIngredient(itemID, stack);
 			recipe.AddTile(tileID);
-			recipe.SetResult(result, resultStack);
-			recipe.AddRecipe();
+			recipe.Register();
 		}
 
 		/// <param name="group">Vanilla recipe groups consist of "Wood", "IronBar", "PresurePlate", "Sand", and "Fragment".</param>
 		public static void SimpleRecipe(string group, int stack, int tileID, int resultID, int resultStack){
-			ModRecipe recipe = new ModRecipe(TechMod.Instance);
+			Recipe recipe = TechMod.Instance.CreateRecipe(resultID, resultStack);
 
 			recipe.AddRecipeGroup(group, stack);
 			recipe.AddTile(tileID);
-			recipe.SetResult(resultID, resultStack);
-			recipe.AddRecipe();
+			recipe.Register();
 		}
 
 		/// <param name="group">Vanilla recipe groups consist of "Wood", "IronBar", "PresurePlate", "Sand", and "Fragment".</param>
 		public static void SimpleRecipe(string group, int stack, int tileID, ModItem result, int resultStack){
-			ModRecipe recipe = new ModRecipe(TechMod.Instance);
+			Recipe recipe = TechMod.Instance.CreateRecipe(result.Type, resultStack);
 
 			recipe.AddRecipeGroup(group, stack);
 			recipe.AddTile(tileID);
-			recipe.SetResult(result, resultStack);
-			recipe.AddRecipe();
+			recipe.Register();
 		}
 
 		public static void ScienceWorkbenchRecipe<T>(Mod mod, (short type, int stack)[] ingredients) where T : MachineItem{
@@ -57,7 +54,7 @@ namespace TerraScience.Utilities{
 			if(!name.EndsWith("Item"))
 				throw new ArgumentException("Expected a name that ends with \"Item\", found \"" + name + "\" instead.");
 
-			ScienceRecipe recipe = new ScienceRecipe(mod);
+			Recipe recipe = mod.CreateRecipe(mod.Find<ModItem>("Dataless" + name.Substring(0, name.LastIndexOf("Item"))).Type, 1);
 			
 			recipe.AddIngredient(ingredients[0].type, ingredients[0].stack);
 			recipe.AddIngredient(ingredients[1].type, ingredients[1].stack);
@@ -72,8 +69,8 @@ namespace TerraScience.Utilities{
 			recipe.AddIngredient(ingredients[8].type, ingredients[8].stack);
 
 			recipe.AddTile(ModContent.TileType<ScienceWorkbench>());
-			recipe.SetResult(mod.ItemType("Dataless" + name.Substring(0, name.LastIndexOf("Item"))), 1);
-			recipe.AddRecipe();
+			recipe.AddCondition(NetworkText.FromLiteral(TechMod.RecipeDescription_MadeAtMachine), recipe => false);
+			recipe.Register();
 		}
 
 		public static void ScienceWorkbenchRecipe<T>(Mod mod, (int type, int stack)[] ingredients) where T : MachineItem{
@@ -84,7 +81,7 @@ namespace TerraScience.Utilities{
 			if(!name.EndsWith("Item"))
 				throw new ArgumentException("Expected a name that ends with \"Item\", found \"" + name + "\" instead.");
 
-			ScienceRecipe recipe = new ScienceRecipe(mod);
+			Recipe recipe = mod.CreateRecipe(mod.Find<ModItem>("Dataless" + name.Substring(0, name.LastIndexOf("Item"))).Type, 1);
 			
 			recipe.AddIngredient(ingredients[0].type, ingredients[0].stack);
 			recipe.AddIngredient(ingredients[1].type, ingredients[1].stack);
@@ -99,20 +96,18 @@ namespace TerraScience.Utilities{
 			recipe.AddIngredient(ingredients[8].type, ingredients[8].stack);
 
 			recipe.AddTile(ModContent.TileType<ScienceWorkbench>());
-			recipe.SetResult(mod.ItemType("Dataless" + name.Substring(0, name.LastIndexOf("Item"))), 1);
-			recipe.AddRecipe();
+			recipe.AddCondition(NetworkText.FromLiteral(TechMod.RecipeDescription_MadeAtMachine), recipe => false);
+			recipe.Register();
 		}
 
 		public static bool HasRecipe(ScienceWorkbenchUI ui, out int resultType, out int resultStack, List<Recipe> newRecipes){
 			newRecipes.Clear();
 
-			FieldInfo field = typeof(TechMod).GetField("recipes", BindingFlags.Instance | BindingFlags.NonPublic);
-			IList<ModRecipe> allRecipes = (IList<ModRecipe>)field.GetValue(ModContent.GetInstance<TechMod>());
-			List<ModRecipe> workbenchRecipes = allRecipes.Where(r => r.requiredTile.Contains(ModContent.TileType<ScienceWorkbench>())).ToList();
+			List<Recipe> workbenchRecipes = Main.recipe.Where(r => r.requiredTile.Contains(ModContent.TileType<ScienceWorkbench>())).ToList();
 
 			List<Item> items = new List<Item>();
 			bool recipeFound = false;
-			foreach(ModRecipe recipe in workbenchRecipes){
+			foreach(Recipe recipe in workbenchRecipes){
 				recipeFound = false;
 
 				items.Clear();
@@ -169,27 +164,27 @@ namespace TerraScience.Utilities{
 		}
 
 		public static void CreateTFRecipe<TMachine>(int input) where TMachine : Machine{
-			ScienceRecipe recipe = new ScienceRecipe(TechMod.Instance);
+			Recipe recipe = TechMod.Instance.CreateRecipe(ModContent.ItemType<TerraFluxIndicator>(), 1);
 			recipe.AddIngredient(input, 1);
 			recipe.AddTile(ModContent.TileType<TMachine>());
-			recipe.SetResult(ModContent.ItemType<TerraFluxIndicator>(), 1);
-			recipe.AddRecipe();
+			recipe.AddCondition(NetworkText.FromLiteral(TechMod.RecipeDescription_MadeAtMachine), recipe => false);
+			recipe.Register();
 		}
 
 		public static void CreateTFRecipeWithRecipeGroupIngredient<TMachine>(int recipeGroup) where TMachine : Machine{
-			ScienceRecipe recipe = new ScienceRecipe(TechMod.Instance);
+			Recipe recipe = TechMod.Instance.CreateRecipe(ModContent.ItemType<TerraFluxIndicator>(), 1);
 			recipe.AddRecipeGroup(recipeGroup, 1);
 			recipe.AddTile(ModContent.TileType<TMachine>());
-			recipe.SetResult(ModContent.ItemType<TerraFluxIndicator>(), 1);
-			recipe.AddRecipe();
+			recipe.AddCondition(NetworkText.FromLiteral(TechMod.RecipeDescription_MadeAtMachine), recipe => false);
+			recipe.Register();
 		}
 
 		public static void CreateTFRecipeWithRecipeGroupIngredient<TMachine>(string recipeGroup) where TMachine : Machine{
-			ScienceRecipe recipe = new ScienceRecipe(TechMod.Instance);
+			Recipe recipe = TechMod.Instance.CreateRecipe(ModContent.ItemType<TerraFluxIndicator>(), 1);
 			recipe.AddRecipeGroup(recipeGroup, 1);
 			recipe.AddTile(ModContent.TileType<TMachine>());
-			recipe.SetResult(ModContent.ItemType<TerraFluxIndicator>(), 1);
-			recipe.AddRecipe();
+			recipe.AddCondition(NetworkText.FromLiteral(TechMod.RecipeDescription_MadeAtMachine), recipe => false);
+			recipe.Register();
 		}
 	}
 }

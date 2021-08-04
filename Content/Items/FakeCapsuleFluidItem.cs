@@ -3,34 +3,37 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using Terraria;
+using Terraria.GameContent;
+using Terraria.ModLoader;
 using TerraScience.Content.ID;
 using TerraScience.Content.Items.Tools;
 using TerraScience.Utilities;
 
 namespace TerraScience.Content.Items{
+	[Autoload(false)]
 	public class FakeCapsuleFluidItem : BrazilOnTouchItem{
 		internal static Dictionary<int, (MachineGasID?, MachineLiquidID?)> containerTypes;
 
-		public MachineGasID? Gas => containerTypes[item.type].Item1;
-		public MachineLiquidID? Liquid => containerTypes[item.type].Item2;
-
-		public override bool Autoload(ref string name) => false;
+		public MachineGasID? Gas => containerTypes[Item.type].Item1;
+		public MachineLiquidID? Liquid => containerTypes[Item.type].Item2;
 
 		public override string Texture => "TerraScience/Content/Items/FakeCapsuleFluidItem";
 
-		public override bool CloneNewInstances => true;
+		public override string Name{ get; }
 
 		public FakeCapsuleFluidItem(){ }
+
+		public FakeCapsuleFluidItem(string nameOverride) => Name = nameOverride ?? base.Name;
 
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault(Gas?.ProperEnumName() ?? Liquid?.ProperEnumName() ?? throw new Exception("Item instance was not set to a valid liquid or gas ID"));
 		}
 
 		public override void SetDefaults(){
-			item.width = 16;
-			item.height = 16;
+			Item.width = 16;
+			Item.height = 16;
 
-			item.maxStack = 999;
+			Item.maxStack = 999;
 		}
 
 		public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale){
@@ -39,7 +42,7 @@ namespace TerraScience.Content.Items{
 		}
 
 		public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI){
-			Draw(spriteBatch, item.Center - Main.screenPosition, lightColor, item.Size / 2f, rotation, scale);
+			Draw(spriteBatch, Item.Center - Main.screenPosition, lightColor, Item.Size / 2f, rotation, scale);
 			return false;
 		}
 
@@ -52,7 +55,7 @@ namespace TerraScience.Content.Items{
 
 			color = MiscUtils.MixLightColors(lightColor, color);
 
-			spriteBatch.Draw(Main.itemTexture[item.type], position, null, color, rotation, origin, scale, SpriteEffects.None, 0);
+			spriteBatch.Draw(TextureAssets.Item[Item.type].Value, position, null, color, rotation, origin, scale, SpriteEffects.None, 0);
 		}
 	}
 }

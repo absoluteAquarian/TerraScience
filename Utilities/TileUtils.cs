@@ -19,6 +19,7 @@ using TerraScience.Content.TileEntities.Energy;
 using TerraScience.Content.Tiles.Multitiles;
 using TerraScience.Content.UI;
 using TerraScience.Systems;
+using Terraria.Audio;
 
 namespace TerraScience.Utilities{
 	public static class TileUtils{
@@ -36,7 +37,7 @@ namespace TerraScience.Utilities{
 					continue;
 
 				if(typeof(MachineEntity).IsAssignableFrom(type)){
-					var entity = TechMod.Instance.GetTileEntity(type.Name) as MachineEntity;
+					var entity = TechMod.Instance.Find<ModTileEntity>(type.Name) as MachineEntity;
 					var tileType = entity.MachineTile;
 
 					Type tileTypeInst = TileLoader.GetTile(tileType).GetType();
@@ -67,7 +68,7 @@ namespace TerraScience.Utilities{
 
 		public static Texture2D GetEffectTexture(this ModTile multitile, string effect){
 			try{
-				return ModContent.GetTexture($"TerraScience/Content/Tiles/Multitiles/Overlays/Effect_{multitile.Name}_{effect}");
+				return ModContent.Request<Texture2D>($"TerraScience/Content/Tiles/Multitiles/Overlays/Effect_{multitile.Name}_{effect}").Value;
 			}catch{
 				throw new ContentLoadException($"Could not find overlay texture \"{effect}\" for machine \"{multitile.Name}\"");
 			}
@@ -79,7 +80,7 @@ namespace TerraScience.Utilities{
 			mTile.GetDefaultParams(out _, out _, out _, out int itemType);
 
 			int itemIndex = Item.NewItem(i * 16, j * 16, 16, 16, itemType);
-			MachineItem item = Main.item[itemIndex].modItem as MachineItem;
+			MachineItem item = Main.item[itemIndex].ModItem as MachineItem;
 
 			Point16 tePos = new Point16(i, j) - tile.TileCoord();
 			if(TileEntity.ByPosition.ContainsKey(tePos)){
@@ -92,8 +93,8 @@ namespace TerraScience.Utilities{
 						//Drop the item and copy over any important data
 						if(drop.type > ItemID.None && drop.stack > 0){
 							int dropIndex = Item.NewItem(i * 16, j * 16, 16, 16, drop.type, drop.stack);
-							if(drop.modItem != null)
-								Main.item[dropIndex].modItem.Load(drop.modItem.Save());
+							if(drop.ModItem != null)
+								Main.item[dropIndex].ModItem.Load(drop.ModItem.Save());
 						}
 
 						tileEntity.ClearItem(slot);
@@ -136,16 +137,16 @@ namespace TerraScience.Utilities{
 			name.SetDefault(mapName);
 			tile.AddMapEntry(new Color(0xd1, 0x89, 0x32), name);
 
-			tile.mineResist = 3f;
+			tile.MineResist = 3f;
 			//Metal sound
-			tile.soundType = SoundID.Tink;
-			tile.soundStyle = 1;
+			tile.SoundType = SoundID.Tink;
+			tile.SoundStyle = 1;
 		}
 
 		public static bool HandleMouse<TEntity>(Machine machine, Point16 tilePos, Func<bool> additionalCondition) where TEntity : MachineEntity{
 			if(MiscUtils.TryGetTileEntity(tilePos, out TEntity entity) && additionalCondition()){
 				TechMod instance = TechMod.Instance;
-				string name = tileToStructureName[instance.TileType(machine.Name)];
+				string name = tileToStructureName[instance.Find<ModTile>(machine.Name).Type];
 
 				UserInterface ui = instance.machineLoader.GetInterface(name);
 
@@ -268,7 +269,7 @@ namespace TerraScience.Utilities{
 
 				entity.LiquidPlaceDelay = ElectrolyzerEntity.MaxPlaceDelay;
 
-				Main.PlaySound(SoundID.Splash, TileEntityCenter(entity, machine.Type));
+				SoundEngine.PlaySound(SoundID.Splash, TileEntityCenter(entity, machine.Type));
 
 				Item heldItem = Main.LocalPlayer.HeldItem;
 
@@ -294,7 +295,7 @@ namespace TerraScience.Utilities{
 			Point16 orig = pos - tile.TileCoord();
 
 			if(MiscUtils.TryGetTileEntity(orig, out T entity) && entity.GasPlaceDelay <= 0){
-				if(!(Main.LocalPlayer.HeldItem.modItem is Capsule capsule))
+				if(Main.LocalPlayer.HeldItem.ModItem is not Capsule capsule)
 					return false;
 				
 				var id = capsule.GasType;
@@ -322,7 +323,7 @@ namespace TerraScience.Utilities{
 
 				entity.GasPlaceDelay = ElectrolyzerEntity.MaxPlaceDelay;
 
-				Main.PlaySound(SoundID.Splash, TileEntityCenter(entity, machine.Type));
+				SoundEngine.PlaySound(SoundID.Splash, TileEntityCenter(entity, machine.Type));
 
 				Main.LocalPlayer.HeldItem.stack--;
 				Main.LocalPlayer.QuickSpawnItem(TechMod.GetCapsuleType(MachineGasID.None));

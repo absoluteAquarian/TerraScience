@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
@@ -10,8 +11,6 @@ using TerraScience.Utilities;
 namespace TerraScience.Content.Items.Placeable.Machines{
 	public abstract class MachineItem : ModItem{
 		public TagCompound entityData;
-
-		public override bool CloneNewInstances => true;
 
 		public abstract int TileType{ get; }
 
@@ -43,11 +42,17 @@ namespace TerraScience.Content.Items.Placeable.Machines{
 
 					if(TileUtils.tileToEntity[TileType] is PoweredMachineEntity pme){
 						// root -> "extra" -> "flux"
-						tooltips.Insert(++index, new TooltipLine(mod, "PowerDescription", $"[c/dddd00:{entityData.GetCompound("extra").GetFloat("flux")} / {(float)pme.FluxCap} TF]"));
+						tooltips.Insert(++index, new TooltipLine(Mod, "PowerDescription", $"[c/dddd00:{entityData.GetCompound("extra").GetFloat("flux")} / {(float)pme.FluxCap} TF]"));
 					}
 				}else
 					tooltips.RemoveAt(index);
 			}
+		}
+
+		public override ModItem Clone(Item item){
+			MachineItem clone = (MachineItem)base.Clone(item);
+			clone.entityData = entityData;
+			return clone;
 		}
 	}
 
@@ -58,19 +63,19 @@ namespace TerraScience.Content.Items.Placeable.Machines{
 
 		public sealed override void SetDefaults(){
 			SafeSetDefaults();
-			item.melee = false;
-			item.magic = false;
-			item.ranged = false;
-			item.summon = false;
-			item.thrown = false;
-			item.useTime = 10;
-			item.useAnimation = 15;
-			item.useStyle = ItemUseStyleID.SwingThrow;
-			item.createTile = TileType;
-			item.maxStack = 1;
-			item.consumable = true;
-			item.autoReuse = true;
-			item.useTurn = true;
+			// item.melee = false;
+			// item.magic = false;
+			// item.ranged = false;
+			// item.summon = false;
+			// item.thrown = false;
+			Item.useTime = 10;
+			Item.useAnimation = 15;
+			Item.useStyle = ItemUseStyleID.Swing;
+			Item.createTile = TileType;
+			Item.maxStack = 1;
+			Item.consumable = true;
+			Item.autoReuse = true;
+			Item.useTurn = true;
 		}
 	}
 
@@ -86,11 +91,13 @@ namespace TerraScience.Content.Items.Placeable.Machines{
 		}
 	}
 
+	[Autoload(false)]
 	public sealed class DatalessMachineItem<T> : MachineItem where T : MachineItem{
-		//Need a parametered ctor here to prevent tModLoader from trying to autoload this item, even with Autoload returning false
-#pragma warning disable IDE0060
-		public DatalessMachineItem(bool b = false){ }
-#pragma warning restore IDE0060
+		public override string Name{ get; }
+
+		public DatalessMachineItem(string nameOverride){
+			Name = nameOverride ?? base.Name;
+		}
 
 		public override string Texture => ModContent.GetInstance<T>().Texture;
 
@@ -99,16 +106,14 @@ namespace TerraScience.Content.Items.Placeable.Machines{
 
 		public override int TileType => ModContent.GetInstance<T>().TileType;
 
-		public sealed override bool Autoload(ref string name) => false;
-
 		public sealed override void SetDefaults(){
-			item.CloneDefaults(ModContent.ItemType<T>());
-			item.maxStack = 99;
+			Item.CloneDefaults(ModContent.ItemType<T>());
+			Item.maxStack = 99;
 		}
 
 		public override void AddRecipes(){
 			try{
-				DatalessMachineInfo.recipes[ModContent.ItemType<T>()](mod);
+				DatalessMachineInfo.recipes[ModContent.ItemType<T>()](Mod);
 			}catch(KeyNotFoundException){
 				throw new Exception($"Machine \"{typeof(T).Name}\" does not have a recipe");
 			}

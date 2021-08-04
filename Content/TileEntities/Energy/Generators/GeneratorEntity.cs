@@ -37,9 +37,9 @@ namespace TerraScience.Content.TileEntities.Energy.Generators{
 				ExportFlux(network);
 		}
 
-		internal override int[] GetInputSlots() => new int[0];
+		internal override int[] GetInputSlots() => Array.Empty<int>();
 
-		internal sealed override int[] GetOutputSlots() => new int[0];
+		internal sealed override int[] GetOutputSlots() => Array.Empty<int>();
 
 		internal override bool CanInputItem(int slot, Item item) => false;
 	}

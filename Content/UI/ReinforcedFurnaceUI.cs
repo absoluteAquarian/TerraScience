@@ -5,6 +5,9 @@ using Terraria.ModLoader;
 using TerraScience.API.UI;
 using TerraScience.Content.TileEntities;
 using TerraScience.Content.Tiles.Multitiles;
+using Terraria.Audio;
+using TerraScience.Utilities;
+using Microsoft.Xna.Framework;
 
 namespace TerraScience.Content.UI{
 	public class ReinforcedFurnaceUI : MachineUI{
@@ -15,10 +18,10 @@ namespace TerraScience.Content.UI{
 		public override int TileType => ModContent.TileType<ReinforcedFurnace>();
 
 		public override void PlayOpenSound()
-			=> Main.PlaySound(SoundLoader.customSoundType, Style: TechMod.Instance.GetSoundSlot(SoundType.Custom, "Sounds/Custom/SFX chest open"));
+			=> TechMod.Instance.PlayCustomSound(-Vector2.One, "SFX chest open");
 
 		public override void PlayCloseSound()
-			=> Main.PlaySound(SoundLoader.customSoundType, Style: TechMod.Instance.GetSoundSlot(SoundType.Custom, "Sounds/Custom/SFX chest close"));
+			=> TechMod.Instance.PlayCustomSound(-Vector2.One, "SFX chest close");
 
 		internal override void PanelSize(out int width, out int height){
 			width = 420;
@@ -56,8 +59,8 @@ namespace TerraScience.Content.UI{
 		public static bool ValidItem(Item item)
 			=> ReinforcedFurnaceEntity.woodTypes.Contains(item.type);
 
-		internal override void InitializeSlots(List<UIItemSlot> slots){
-			UIItemSlot input = new UIItemSlot(){
+		internal override void InitializeSlots(List<UIItemSlotWrapper> slots){
+			UIItemSlotWrapper input = new UIItemSlotWrapper(){
 				//Wood items burn
 				ValidItemFunc = item => ValidItem(item),
 				HAlign = 0.345f
@@ -65,7 +68,7 @@ namespace TerraScience.Content.UI{
 			input.Top.Set(152, 0);
 			slots.Add(input);
 
-			UIItemSlot carbons = new UIItemSlot(){
+			UIItemSlotWrapper carbons = new UIItemSlotWrapper(){
 				ValidItemFunc = item => item.IsAir,
 				HAlign = 0.655f
 			};
