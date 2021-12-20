@@ -1,4 +1,5 @@
-﻿using Terraria;
+﻿using System.Runtime.CompilerServices;
+using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using TerraScience.API.CrossMod.MagicStorage;
@@ -11,21 +12,20 @@ using TerraScience.Content.Items.Placeable.Machines.Energy.Generators;
 using TerraScience.Content.Items.Placeable.Machines.Energy.Storage;
 using TerraScience.Content.TileEntities.Energy;
 using TerraScience.Content.Tiles;
-using TerraScience.Content.Tiles.Multitiles;
 using TerraScience.Utilities;
 
-namespace TerraScience{
+namespace TerraScience {
 	public partial class TechMod{
 		public override void PostSetupContent() {
 			Logger.DebugFormat("Loading tile data and machine structures...");
 
 			TileUtils.RegisterAllEntities();
 
-			DatalessMachineInfo.Register<SaltExtractorItem>(new[]{
-				(ItemID.Glass, 10),                    (ModContent.ItemType<MachineSupportItem>(), 5), (ItemID.Glass, 10),
-				(ModContent.ItemType<EmptyVial>(), 3), (ItemID.Torch, 30),                             (ModContent.ItemType<EmptyVial>(), 3),
-				(ItemID.IronBar, 2),                   (ModContent.ItemType<TFWireItem>(), 5),         (ItemID.IronBar, 2)
-			});
+			DatalessMachineInfo.Register<SaltExtractorItem>(new RecipeIngredientSet()
+				.AddIngredient(ItemID.Glass, 25)
+				.AddIngredient<EmptyVial>(5)
+				.AddIngredient(ItemID.Torch, 30)
+				.AddRecipeGroup(RecipeGroupID.IronBar, 4));
 
 			DatalessMachineInfo.recipes.Add(ModContent.ItemType<ScienceWorkbenchItem>(), mod => {
 				ModRecipe recipe = new ModRecipe(mod);
@@ -34,124 +34,101 @@ namespace TerraScience{
 				recipe.AddIngredient(ItemID.Glass, 8);
 				recipe.AddIngredient(ItemID.GrayBrick, 30);
 				recipe.AddTile(TileID.WorkBenches);
-				recipe.SetResult(ModContent.ItemType<ScienceWorkbenchItem>(), 1);
+				recipe.SetResult(ItemType("DatalessScienceWorkbench"), 1);
 				recipe.AddRecipe();
 			});
 
-			DatalessMachineInfo.Register<ReinforcedFurnaceItem>(new[]{
-				(ItemID.GrayBrick, 5), (ItemID.RedBrick, 5), (ItemID.GrayBrick, 5),
-				(ItemID.RedBrick, 5),  (ItemID.TinBar, 8),   (ItemID.RedBrick, 5),
-				(ItemID.GrayBrick, 5), (ItemID.RedBrick, 5), (ItemID.GrayBrick, 5)
-			});
+			DatalessMachineInfo.Register<ReinforcedFurnaceItem>(new RecipeIngredientSet()
+				.AddIngredient(ItemID.GrayBrick, 40)
+				.AddIngredient(ItemID.RedBrick, 40)
+				.AddRecipeGroup(ScienceRecipeGroups.PreHmBarsTier1, 8));
 
-			DatalessMachineInfo.Register<AirIonizerItem>(new[]{
-				(ItemID.TinBar, 3),    (ItemID.TinBar, 3),                           (ItemID.TinBar, 3),
-				(ItemID.TinBar, 3),    (ModContent.ItemType<BasicMachineCore>(), 1), (ItemID.TinBar, 3),
-				(ItemID.GrayBrick, 8), (ItemID.GrayBrick, 8),                        (ItemID.GrayBrick, 8)
-			});
+			DatalessMachineInfo.Register<AirIonizerItem>(new RecipeIngredientSet()
+				.AddRecipeGroup(ScienceRecipeGroups.PreHmBarsTier1, 20)
+				.AddIngredient(ItemID.GrayBrick, 15)
+				.AddIngredient<BasicMachineCore>());
 
-			DatalessMachineInfo.Register<ElectrolyzerItem>(new[]{
-				(ItemID.IronBar, 5), (ModContent.ItemType<IronPipe>(), 2),         (ItemID.IronBar, 5),
-				(ItemID.Glass, 20),  (ModContent.ItemType<BasicMachineCore>(), 1), (ItemID.Glass, 20),
-				(ItemID.IronBar, 5), (ItemID.IronBar, 5),                          (ItemID.IronBar, 5)
-			});
+			DatalessMachineInfo.Register<ElectrolyzerItem>(new RecipeIngredientSet()
+				.AddRecipeGroup(RecipeGroupID.IronBar, 16)
+				.AddIngredient(ItemID.Glass, 40)
+				.AddIngredient<IronPipe>(2)
+				.AddIngredient<BasicMachineCore>());
 
-			DatalessMachineInfo.Register<BlastFurnaceItem>(new[]{
-				(ModContent.ItemType<BlastBrick>(), 5), (ModContent.ItemType<BlastBrick>(), 5), (ModContent.ItemType<BlastBrick>(), 5),
-				(ModContent.ItemType<BlastBrick>(), 5), (ModContent.ItemType<BlastBrick>(), 5), (ModContent.ItemType<BlastBrick>(), 5),
-				(ModContent.ItemType<BlastBrick>(), 5), (ModContent.ItemType<BlastBrick>(), 5), (ModContent.ItemType<BlastBrick>(), 5)
-			});
+			DatalessMachineInfo.Register<BlastFurnaceItem>(new RecipeIngredientSet()
+				.AddIngredient<BlastBrick>(50)
+				.AddIngredient(ItemID.Furnace, 2));
 
-			DatalessMachineInfo.Register<BasicWindTurbineItem>(new[]{
-				(ModContent.ItemType<MachineSupportItem>(), 5), (ModContent.ItemType<WindmillSail>(), 4),     (ModContent.ItemType<MachineSupportItem>(), 5),
-				(ItemID.IronBar, 6),                            (ModContent.ItemType<BasicMachineCore>(), 1), (ItemID.IronBar, 6),
-				(ItemID.IronBar, 6),                            (ModContent.ItemType<TFWireItem>(), 10),      (ItemID.IronBar, 6)
-			});
-			DatalessMachineInfo.Register<BasicBatteryItem>(new[]{
-				(ItemID.IronBar, 5),   (ItemID.CopperBar, 4),                        (ItemID.IronBar, 5),
-				(ItemID.TinBar, 4),    (ModContent.ItemType<BasicMachineCore>(), 1), (ItemID.TinBar, 4),
-				(ItemID.IronBar, 5),   (ItemID.CopperBar, 4),                        (ItemID.IronBar, 5)
-			});
+			DatalessMachineInfo.Register<BasicWindTurbineItem>(new RecipeIngredientSet()
+				.AddRecipeGroup(RecipeGroupID.IronBar, 15)
+				.AddIngredient<WindmillSail>(4)
+				.AddIngredient<BasicMachineCore>()
+				.AddIngredient<TFWireItem>(10));
 
-			DatalessMachineInfo.Register<AutoExtractinatorItem>(new[]{
-				(ModContent.ItemType<Silicon>(), 10), (ItemID.IronBar, 8),                          (ModContent.ItemType<Silicon>(), 10),
-				(ItemID.WaterBucket, 2),              (ItemID.Extractinator, 1),                    (ItemID.WaterBucket, 2),
-				(ItemID.IronBar, 8),                  (ModContent.ItemType<BasicMachineCore>(), 1), (ItemID.IronBar, 8)
-			});
+			DatalessMachineInfo.Register<BasicBatteryItem>(new RecipeIngredientSet()
+				.AddRecipeGroup(RecipeGroupID.IronBar, 16)
+				.AddIngredient(ItemID.CopperBar, 8)
+				.AddIngredient(ItemID.TinBar, 8)
+				.AddIngredient<BasicMachineCore>());
 
-			DatalessMachineInfo.Register<BasicSolarPanelItem>(new[]{
-				(ItemID.Glass, 5),                    (ItemID.Glass, 8),                            (ItemID.Glass, 5),
-				(ModContent.ItemType<Silicon>(), 5),  (ModContent.ItemType<BasicMachineCore>(), 1), (ModContent.ItemType<Silicon>(), 5),
-				(ItemID.IronBar, 4),                  (ModContent.ItemType<TFWireItem>(), 10),      (ItemID.IronBar, 4)
-			});
+			DatalessMachineInfo.Register<AutoExtractinatorItem>(new RecipeIngredientSet()
+				.AddIngredient<Silicon>(20)
+				.AddIngredient(RecipeGroupID.IronBar, 16)
+				.AddIngredient(ItemID.WaterBucket, 4)
+				.AddIngredient(ItemID.Extractinator)
+				.AddIngredient<BasicMachineCore>());
 
-			DatalessMachineInfo.recipes.Add(ModContent.ItemType<GreenhouseItem>(), mod => {
-				ScienceRecipe recipe = new ScienceRecipe(mod);
-				recipe.AddIngredient(ItemID.Glass, 4);
-				recipe.AddIngredient(ItemID.Glass, 4);
-				recipe.AddIngredient(ItemID.Glass, 4);
+			DatalessMachineInfo.Register<BasicSolarPanelItem>(new RecipeIngredientSet()
+				.AddIngredient(ItemID.Glass, 12)
+				.AddIngredient<Silicon>(8)
+				.AddRecipeGroup(RecipeGroupID.IronBar, 8)
+				.AddIngredient<BasicMachineCore>()
+				.AddIngredient<TFWireItem>(10));
 
-				recipe.AddIngredient(ItemID.Glass, 4);
-				recipe.AddIngredient(ModContent.ItemType<BasicMachineCore>(), 1);
-				recipe.AddIngredient(ItemID.Glass, 4);
-					
-				recipe.AddRecipeGroup(RecipeGroupID.Wood, 30);
-				recipe.AddIngredient(ModContent.ItemType<TFWireItem>(), 8);
-				recipe.AddRecipeGroup(RecipeGroupID.Wood, 30);
+			DatalessMachineInfo.Register<GreenhouseItem>(new RecipeIngredientSet()
+				.AddIngredient(ItemID.Glass, 20)
+				.AddRecipeGroup(RecipeGroupID.Wood, 50)
+				.AddIngredient<BasicMachineCore>()
+				.AddIngredient<TFWireItem>(4));
 
-				recipe.AddTile(ModContent.TileType<ScienceWorkbench>());
-				recipe.SetResult(mod.ItemType("DatalessGreenhouse"), 1);
-				recipe.AddRecipe();
-			});
+			DatalessMachineInfo.Register<BasicThermoGeneratorItem>(new RecipeIngredientSet()
+				.AddIngredient(ItemID.RedBrick, 12)
+				.AddIngredient(ItemID.Glass, 6)
+				.AddRecipeGroup(ScienceRecipeGroups.PreHmBarsTier1, 2)
+				.AddIngredient(ItemID.Torch, 10)
+				.AddIngredient(ItemID.WaterBucket, 1)
+				.AddIngredient<TFWireItem>(4));
 
-			DatalessMachineInfo.Register<BasicThermoGeneratorItem>(new[]{
-				(ItemID.Glass, 3),    (ItemID.CopperBar, 2),                  (ItemID.Glass, 4),
-				(ItemID.RedBrick, 5), (ItemID.Torch, 10),                     (ItemID.WaterBucket, 3),
-				(ItemID.RedBrick, 5), (ModContent.ItemType<TFWireItem>(), 6), (ItemID.GrayBrick, 3)
-			});
+			DatalessMachineInfo.Register<PulverizerItem>(new RecipeIngredientSet()
+				.AddRecipeGroup(RecipeGroupID.IronBar, 10)
+				.AddIngredient<IronPipe>(6)
+				.AddIngredient<BasicMachineCore>()
+				.AddIngredient<TFWireItem>(6));
 
-			DatalessMachineInfo.Register<PulverizerItem>(new[]{
-				(ItemID.IronBar, 2),                  (ModContent.ItemType<IronPipe>(), 1),         (ItemID.IronBar, 2),
-				(ModContent.ItemType<IronPipe>(), 1), (ModContent.ItemType<BasicMachineCore>(), 1), (ModContent.ItemType<IronPipe>(), 1),
-				(ItemID.IronBar, 2),                  (ModContent.ItemType<TFWireItem>(), 6),       (ItemID.IronBar, 2)
-			});
+			DatalessMachineInfo.Register<FluidTankItem>(new RecipeIngredientSet()
+				.AddRecipeGroup(RecipeGroupID.IronBar, 12)
+				.AddIngredient(ItemID.Glass, 20)
+				.AddIngredient<FluidPump>(2));
 
-			DatalessMachineInfo.Register<FluidTankItem>(new[]{
-				(ItemID.IronBar, 5), (ModContent.ItemType<FluidPump>(), 1), (ItemID.IronBar, 5),
-				(ItemID.Glass, 10),  (ItemID.IronBar, 5),                   (ItemID.Glass, 10),
-				(ItemID.IronBar, 5), (ModContent.ItemType<FluidPump>(), 1), (ItemID.IronBar, 5)
-			});
+			DatalessMachineInfo.Register<LiquidDuplicatorItem>(new RecipeIngredientSet()
+				.AddRecipeGroup(RecipeGroupID.IronBar, 12)
+				.AddIngredient(ItemID.OutletPump)
+				.AddIngredient(ItemID.InletPump, 2)
+				.AddIngredient<BasicMachineCore>()
+				.AddIngredient<TFWireItem>(4));
 
-			DatalessMachineInfo.Register<LiquidDuplicatorItem>(new[]{
-				(ItemID.IronBar, 2),   (ItemID.OutletPump, 1),                       (ItemID.IronBar, 2),
-				(ItemID.InletPump, 1), (ModContent.ItemType<BasicMachineCore>(), 1), (ItemID.InletPump, 1),
-				(ItemID.IronBar, 2),   (ModContent.ItemType<TFWireItem>(), 6),       (ItemID.IronBar, 2)
-			});
+			if(MagicStorageHandler.handler.ModIsActive)
+				InitializeMagicStorageMachineRecipes();
 
-			DatalessMachineInfo.recipes.Add(ModContent.ItemType<MagicStorageConnectorItem>(), mod => {
-				if(!MagicStorageHandler.handler.ModIsActive)
-					return;
+			DatalessMachineInfo.Register<ItemCacheItem>(new RecipeIngredientSet()
+				.AddRecipeGroup(RecipeGroupID.IronBar, 5)
+				.AddRecipeGroup(ScienceRecipeGroups.Chest)
+				.AddIngredient<ItemPump>(2));
 
-				ModRecipe recipe = new ModRecipe(mod);
-				recipe.AddIngredient(MagicStorageHandler.ItemType("StorageAccess"));
-				recipe.AddIngredient(ModContent.ItemType<Silicon>(), 30);
-				recipe.AddIngredient(ModContent.ItemType<ItemPump>(), 2);
-				recipe.AddTile(TileID.Anvils);
-				recipe.SetResult(mod.ItemType("DatalessMagicStorageConnector"), 1);
-				recipe.AddRecipe();
-			});
-
-			DatalessMachineInfo.Register<ItemCacheItem>(new[]{
-				(ItemID.IronBar, 1),                  (ItemID.IronBar, 1), (ItemID.IronBar, 1),
-				(ItemID.IronBar, 1),                  (ItemID.Chest, 1),   (ItemID.IronBar, 1),
-				(ModContent.ItemType<ItemPump>(), 1), (ItemID.IronBar, 1), (ModContent.ItemType<ItemPump>(), 1)
-			});
-
-			DatalessMachineInfo.Register<ComposterItem>(new[]{
-				(ItemID.IronBar, 1),                  (ModContent.ItemType<IronPipe>(), 1),           (ModContent.ItemType<MachineSupportItem>(), 1),
-				(ModContent.ItemType<IronPipe>(), 1), (ModContent.ItemType<MachineSupportItem>(), 1), (ModContent.ItemType<IronPipe>(), 1),
-				(ItemID.Barrel, 1),                   (ModContent.ItemType<MachineSupportItem>(), 1), (ItemID.IronBar, 1)
-			});
+			DatalessMachineInfo.Register<ComposterItem>(new RecipeIngredientSet()
+				.AddRecipeGroup(RecipeGroupID.IronBar, 5)
+				.AddIngredient(ItemID.Barrel)
+				.AddIngredient<IronPipe>(3)
+				.AddIngredient<BasicMachineCore>());
 
 			//Loading merge data here instead of <tile>.SetDefaults()
 			foreach(var type in types){
@@ -169,6 +146,14 @@ namespace TerraScience{
 					}
 				}
 			}
+		}
+
+		[MethodImpl(MethodImplOptions.NoInlining)]
+		private void InitializeMagicStorageMachineRecipes(){
+			DatalessMachineInfo.Register<MagicStorageConnectorItem>(new RecipeIngredientSet()
+				.AddIngredient(MagicStorageHandler.ItemType("StorageAccess"))
+				.AddIngredient<Silicon>(30)
+				.AddIngredient<ItemPump>(2));
 		}
 	}
 }

@@ -33,6 +33,12 @@ namespace TerraScience {
 		public static class ScienceRecipeGroups{
 			public const string Sand = "TerraScience: Sand Blocks";
 			public const string EvilBars = "TerraScience: Evil Bars";
+
+			public const string PreHmBarsTier1 = "TerraScience: Copper/Tin Bars";
+			public const string PreHmBarsTier3 = "TerraScience: Silver/Tungsten Bars";
+			public const string PreHmBarsTier4 = "TerraScience: Gold/Platinum Bars";
+
+			public const string Chest = "TerraScience: Chests";
 		}
 
 		/// <summary>
@@ -40,31 +46,15 @@ namespace TerraScience {
 		/// </summary>
 		public static TechMod Instance => ModContent.GetInstance<TechMod>();
 
-		public static readonly Action<ModRecipe> NoRecipe = r => { };
-		public static readonly Action<ModRecipe> OnlyWorkBench = r => { r.AddTile(TileID.WorkBenches); };
-
-		// TODO: Move this into a MaterialLoader?
-		public static readonly Action<Item> VialDefaults = i => {
-			i.maxStack = 99;
-			i.width = 26;
-			i.height = 26;
-			i.useStyle = ItemUseStyleID.SwingThrow;
-			i.useTime = 15;
-			i.useAnimation = 10;
-			i.autoReuse = true;
-			i.useTurn = true;
-			i.noMelee = true;
-		};
-
 		internal MachineUILoader machineLoader;
 
 		public static ModHotKey DebugHotkey;
 
-		public const string WarningWaterExplode = "[c/bb3300:WARNING:] exposure to water may cause spontaneous combustion!";
-
 		public static bool debugging;
 
 		internal static Type[] types;
+
+		public const bool Release = false;
 
 		public override void Load(){
 			Logger.DebugFormat("Loading Factories and System Loaders...");
@@ -84,6 +74,7 @@ namespace TerraScience {
 			};
 
 			DatalessMachineInfo.recipes = new Dictionary<int, Action<Mod>>();
+			DatalessMachineInfo.recipeIngredients = new Dictionary<int, RecipeIngredientSet>();
 
 			Capsule.containerTypes = new Dictionary<int, MachineGasID>();
 			FakeCapsuleFluidItem.containerTypes = new Dictionary<int, (MachineGasID?, MachineLiquidID?)>();
@@ -245,6 +236,53 @@ namespace TerraScience {
 			RegisterRecipeGroup(ScienceRecipeGroups.Sand, ItemID.SandBlock, new int[]{ ItemID.SandBlock, ItemID.CrimsandBlock, ItemID.EbonsandBlock, ItemID.PearlsandBlock });
 
 			RegisterRecipeGroup(ScienceRecipeGroups.EvilBars, ItemID.DemoniteBar, new int[]{ ItemID.DemoniteBar, ItemID.CrimtaneBar });
+
+			RegisterRecipeGroup(ScienceRecipeGroups.PreHmBarsTier1, ItemID.CopperBar, new int[]{ ItemID.CopperBar, ItemID.TinBar });
+			RegisterRecipeGroup(ScienceRecipeGroups.PreHmBarsTier3, ItemID.SilverBar, new int[]{ ItemID.SilverBar, ItemID.TungstenBar });
+			RegisterRecipeGroup(ScienceRecipeGroups.PreHmBarsTier4, ItemID.GoldBar, new int[]{ ItemID.GoldBar, ItemID.PlatinumBar });
+
+			RegisterRecipeGroup(ScienceRecipeGroups.Chest, ItemID.Chest, new int[]{
+				ItemID.Chest,
+				ItemID.GoldChest,
+				ItemID.ShadowChest,
+				ItemID.EbonwoodChest,
+				ItemID.RichMahoganyChest,
+				ItemID.PearlwoodChest,
+				ItemID.IvyChest,
+				ItemID.IceChest,
+				ItemID.LivingWoodChest,
+				ItemID.SkywareChest,
+				ItemID.ShadewoodChest,
+				ItemID.WebCoveredChest,
+				ItemID.LihzahrdChest,
+				ItemID.WaterChest,
+				ItemID.JungleChest,
+				ItemID.CorruptionChest,
+				ItemID.CrimsonChest,
+				ItemID.HallowedChest,
+				ItemID.FrozenChest,
+				ItemID.DynastyChest,
+				ItemID.HoneyChest,
+				ItemID.SteampunkChest,
+				ItemID.PalmWoodChest,
+				ItemID.MushroomChest,
+				ItemID.BorealWoodChest,
+				ItemID.SlimeChest,
+				ItemID.GreenDungeonChest,
+				ItemID.PinkDungeonChest,
+				ItemID.BlueDungeonChest,
+				ItemID.BoneChest,
+				ItemID.CactusChest,
+				ItemID.FleshChest,
+				ItemID.ObsidianChest,
+				ItemID.PumpkinChest,
+				ItemID.SpookyChest,
+				ItemID.GlassChest,
+				ItemID.MartianChest,
+				ItemID.GraniteChest,
+				ItemID.MeteoriteChest,
+				ItemID.MarbleChest
+			});
 		}
 
 		private static void RegisterRecipeGroup(string groupName, int itemForAnyName, int[] validTypes)
@@ -316,6 +354,7 @@ namespace TerraScience {
 			ElectrolyzerEntity.liquidToGas = null;
 
 			DatalessMachineInfo.recipes = null;
+			DatalessMachineInfo.recipeIngredients = null;
 
 			Capsule.containerTypes = null;
 			FakeCapsuleFluidItem.containerTypes = null;

@@ -3,9 +3,8 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using TerraScience.Content.Items.Energy;
 using TerraScience.Content.Tiles.Multitiles;
-using TerraScience.Utilities;
 
-namespace TerraScience.Content.Items.Materials{
+namespace TerraScience.Content.Items.Materials {
 	public class BasicMachineCore : ModItem{
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Basic Machine Core");
@@ -22,7 +21,7 @@ namespace TerraScience.Content.Items.Materials{
 		}
 
 		public override void AddRecipes(){
-			ScienceRecipe recipe = new ScienceRecipe(mod);
+			ModRecipe recipe = new ModRecipe(mod);
 			recipe.AddIngredient(ItemID.GoldBar, 2);
 			recipe.AddIngredient(ItemID.IronBar, 5);
 			recipe.AddIngredient(ModContent.ItemType<TFWireItem>(), 8);

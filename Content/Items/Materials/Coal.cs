@@ -1,9 +1,8 @@
 ﻿using Terraria.ID;
 using Terraria.ModLoader;
 using TerraScience.Content.Tiles.Multitiles;
-using TerraScience.Utilities;
 
-namespace TerraScience.Content.Items.Materials{
+namespace TerraScience.Content.Items.Materials {
 	public class Coal : ModItem{
 		public override string Texture => "Terraria/Item_" + ItemID.Coal;
 
@@ -21,7 +20,7 @@ namespace TerraScience.Content.Items.Materials{
 		}
 
 		public override void AddRecipes(){
-			ScienceRecipe recipe = new ScienceRecipe(mod);
+			ModRecipe recipe = new ModRecipe(mod);
 			recipe.AddRecipeGroup(RecipeGroupID.Wood);
 			recipe.AddTile(ModContent.TileType<ReinforcedFurnace>());
 			recipe.SetResult(this);

@@ -17,6 +17,8 @@ Current Multitiles:
 - generates [c/dd3333:Terra Flux (TF)] based on the current wind speed and weather
 [c/dddd00:Composter]
 - consumes [c/dd3333:Terra Flux (TF)] to compress plant material into dirt
+[c/dddd00:Connector (Magic Storage)]
+- allows importing and exporting items from a Magic Storage storage system
 [c/dddd00:Electrolyzer]
 - consumes [c/dd3333:Terra Flux (TF)] to chemically separate certain liquids into their gaseous components
 [c/dddd00:Fluid Tank]
@@ -28,15 +30,14 @@ Current Multitiles:
 - this machine is useful for making sure only one type of item ends up going into a machine
 [c/dddd00:Liquid Duplicator]
 - consumes [c/dd3333:Terra Flux (TF)] to duplicate certain liquids
-[c/dddd00:Magic Storage Connector]
-- allows importing and exporting items from a Magic Storage storage system
 [c/dddd00:Matter Energizer]
 - consumes [c/dd3333:Terra Flux (TF)] to convert certain items into other items
+[c/dddd00:Pulverizer]
+- consumes [c/dd3333:Terra Flux (TF)] to crush certain blocks into materials
 [c/dddd00:Reinforced Furnace]
 - burn wooden items to produce Coal
 [c/dddd00:Salt Extractor]
 - consumes Water or Saltwater to produce Salt
 [c/dddd00:Science Workbench]
-- constructs machinery
-[c/dddd00:Pulverizer]
-- consumes [c/dd3333:Terra Flux (TF)] to crush certain blocks into materials
+- the crafting station for making machines
+- can be opened to view information about a particlar machine

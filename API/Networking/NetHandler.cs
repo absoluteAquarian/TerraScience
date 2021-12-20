@@ -1,12 +1,11 @@
 ﻿using System.IO;
 using Terraria.DataStructures;
 using Terraria.ModLoader;
-using TerraScience.API.Interfaces;
 using TerraScience.Systems;
 using TerraScience.Systems.Energy;
 using TerraScience.Systems.Pipes;
 
-namespace TerraScience.API.Networking{
+namespace TerraScience.API.Networking {
 	public static class NetHandler{
 		/// <summary>
 		/// Called whenever a net message / packet is received from a client (if this is a server) or the server (if this is a client). whoAmI is the ID of whomever sent the packet (equivalent to the Main.myPlayer of the sender), and reader is used to read the binary data of the packet.

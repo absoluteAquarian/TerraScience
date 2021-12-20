@@ -1,12 +1,19 @@
 ﻿using Terraria;
 using Terraria.ID;
 using TerraScience.Content.Tiles.Multitiles;
+using TerraScience.Content.UI;
+using TerraScience.Utilities;
 
 namespace TerraScience.Content.Items.Placeable.Machines{
 	public class FluidTankItem : MachineItem<FluidTank>{
 		public override string ItemName => "Fluid Tank";
 
 		public override string ItemTooltip => "Stores liquids and gases";
+
+		internal override ScienceWorkbenchItemRegistry GetRegistry()
+			=> new ScienceWorkbenchItemRegistry(tick => MachineTile.GetExampleTexturePath("full"),
+				tick => MachineTile.GetExampleTexturePath("empty"),
+				ItemTooltip);
 
 		public override void SafeSetDefaults(){
 			item.width = 26;

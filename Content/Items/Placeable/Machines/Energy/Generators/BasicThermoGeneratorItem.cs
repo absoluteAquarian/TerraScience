@@ -1,12 +1,19 @@
 ﻿using Terraria;
 using Terraria.ID;
 using TerraScience.Content.Tiles.Multitiles.EnergyMachines.Basic;
+using TerraScience.Content.UI;
+using TerraScience.Utilities;
 
 namespace TerraScience.Content.Items.Placeable.Machines.Energy.Generators{
 	public class BasicThermoGeneratorItem : MachineItem<BasicThermoGenerator>{
 		public override string ItemName => "Basic Thermal Generator";
 
 		public override string ItemTooltip => "Converts certain foods and wooden items into Terra Flux (TF)";
+
+		internal override ScienceWorkbenchItemRegistry GetRegistry()
+			=> new ScienceWorkbenchItemRegistry(tick => MachineTile.GetExampleTexturePath("on"),
+				tick => MachineTile.GetExampleTexturePath("off"),
+				"Burns food and wood into Terra Flux (TF)");
 
 		public override void SafeSetDefaults(){
 			item.width = 30;

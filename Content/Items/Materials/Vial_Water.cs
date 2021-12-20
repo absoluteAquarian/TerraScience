@@ -12,7 +12,15 @@ namespace TerraScience.Content.Items.Materials{
 		public override void SetDefaults(){
 			item.rare = ItemRarityID.Blue;
 			item.value = Item.sellPrice(silver: 1);
-			TechMod.VialDefaults(item);
+			item.maxStack = 99;
+			item.width = 26;
+			item.height = 26;
+			item.useStyle = ItemUseStyleID.SwingThrow;
+			item.useTime = 15;
+			item.useAnimation = 10;
+			item.autoReuse = true;
+			item.useTurn = true;
+			item.noMelee = true;
 		}
 	}
 }

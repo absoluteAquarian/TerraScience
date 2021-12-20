@@ -10,7 +10,6 @@ using TerraScience.Content.ID;
 using TerraScience.Content.Items.Materials;
 using TerraScience.Content.TileEntities;
 using TerraScience.Content.Tiles.Multitiles;
-using TerraScience.Content.UI;
 
 namespace TerraScience.Utilities {
 	public static class MiscUtils {

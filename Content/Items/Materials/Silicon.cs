@@ -1,8 +1,7 @@
 ﻿using Terraria.ID;
 using Terraria.ModLoader;
-using TerraScience.Utilities;
 
-namespace TerraScience.Content.Items.Materials{
+namespace TerraScience.Content.Items.Materials {
 	public class Silicon : ModItem{
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Silicon");
@@ -19,7 +18,7 @@ namespace TerraScience.Content.Items.Materials{
 		}
 
 		public override void AddRecipes(){
-			ScienceRecipe recipe = new ScienceRecipe(mod);
+			ModRecipe recipe = new ModRecipe(mod);
 			recipe.AddRecipeGroup(TechMod.ScienceRecipeGroups.Sand, 1);
 			recipe.AddTile(TileID.Extractinator);
 			recipe.SetResult(this, 1);

@@ -1,5 +1,4 @@
-﻿using MagicStorage;
-using MagicStorage.Components;
+﻿using MagicStorage.Components;
 using System.Collections.Generic;
 using Terraria;
 using Terraria.DataStructures;
@@ -8,10 +7,9 @@ using Terraria.ModLoader;
 using TerraScience.API.CrossMod.MagicStorage;
 using TerraScience.API.UI;
 using TerraScience.Content.Tiles.Multitiles;
-using TerraScience.Systems;
 using TerraScience.Utilities;
 
-namespace TerraScience.Content.UI{
+namespace TerraScience.Content.UI {
 	public class MagicStorageConnectorUI : MachineUI{
 		public override string Header => "Connector";
 

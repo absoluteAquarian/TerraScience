@@ -6,13 +6,12 @@ using Terraria.ModLoader;
 using TerraScience.Content.Items.Placeable.Machines;
 using TerraScience.Content.TileEntities;
 using TerraScience.Content.TileEntities.Energy;
-using TerraScience.Content.UI;
 using TerraScience.Systems;
 using TerraScience.Systems.Energy;
 using TerraScience.Systems.Pipes;
 using TerraScience.Utilities;
 
-namespace TerraScience.Content.Tiles.Multitiles{
+namespace TerraScience.Content.Tiles.Multitiles {
 	public abstract class Machine : ModTile{
 		public sealed override void SetDefaults(){
 			GetDefaultParams(out string mapName, out uint width, out uint height, out _);

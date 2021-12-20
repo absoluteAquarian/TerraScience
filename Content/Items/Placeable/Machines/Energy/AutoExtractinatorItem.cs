@@ -1,11 +1,19 @@
 ﻿using Terraria;
 using Terraria.ID;
 using TerraScience.Content.Tiles.Multitiles.EnergyMachines;
+using TerraScience.Content.UI;
+using TerraScience.Utilities;
 
 namespace TerraScience.Content.Items.Placeable.Machines.Energy{
 	public class AutoExtractinatorItem : MachineItem<AutoExtractinator>{
 		public override string ItemName => "Auto-Extractinator";
 		public override string ItemTooltip => "Automatically extracts items from blocks that you can put in the Extractinator";
+
+		internal override ScienceWorkbenchItemRegistry GetRegistry()
+			=> new ScienceWorkbenchItemRegistry(tick => MachineTile.GetExampleTexturePath("empty"),
+				tick => MachineTile.GetExampleTexturePath("block"),
+				"Automatically extracts items from blocks that you can put" +
+				"\nin the Extractinator");
 
 		public override void SafeSetDefaults(){
 			item.width = 32;

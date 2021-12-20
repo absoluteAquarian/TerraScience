@@ -73,6 +73,9 @@ namespace TerraScience.Utilities{
 			}
 		}
 
+		public static string GetExampleTexturePath(this ModTile multitile, string example)
+			=> $"TerraScience/Content/Tiles/Multitiles/Examples/Example_{multitile.Name}_{example}";
+
 		public static void KillMachine(int i, int j, int type){
 			Tile tile = Main.tile[i, j];
 			Machine mTile = ModContent.GetModTile(type) as Machine;

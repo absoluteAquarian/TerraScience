@@ -19,14 +19,14 @@ namespace TerraScience.Content.Items.Materials{
 		}
 
 		public override void AddRecipes(){
-			ScienceRecipe recipe = new ScienceRecipe(mod);
+			ModRecipe recipe = new ModRecipe(mod);
 			recipe.AddIngredient(ModContent.ItemType<Vial_Water>(), 2);
 			recipe.AddIngredient(ModContent.ItemType<TerraFluxIndicator>());
 			recipe.AddTile(ModContent.TileType<SaltExtractor>());
 			recipe.SetResult(this, 1);
 			recipe.AddRecipe();
 
-			recipe = new ScienceRecipe(mod);
+			recipe = new NoStationCraftingRecipe(mod);
 			recipe.AddIngredient(ModContent.ItemType<Vial_Saltwater>(), 2);
 			recipe.AddIngredient(ModContent.ItemType<TerraFluxIndicator>());
 			recipe.AddTile(ModContent.TileType<SaltExtractor>());

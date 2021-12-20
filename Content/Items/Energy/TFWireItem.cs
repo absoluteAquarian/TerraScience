@@ -5,7 +5,7 @@ using TerraScience.Content.Tiles.Energy;
 namespace TerraScience.Content.Items.Energy{
 	public class TFWireItem : ModItem{
 		public override void SetStaticDefaults(){
-			DisplayName.SetDefault("Wire");
+			DisplayName.SetDefault("Basic Wire");
 			Tooltip.SetDefault("Used to connect machines to energy sources");
 		}
 

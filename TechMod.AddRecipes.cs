@@ -25,7 +25,7 @@ namespace TerraScience{
 
 			//Blast furnace recipes
 			foreach(var entry in BlastFurnaceEntity.ingredientToResult){
-				ScienceRecipe recipe = new ScienceRecipe(this);
+				NoStationCraftingRecipe recipe = new NoStationCraftingRecipe(this);
 				recipe.AddIngredient(entry.Key, entry.Value.requireStack);
 				recipe.AddTile(ModContent.TileType<BlastFurnace>());
 				recipe.SetResult(entry.Value.resultType, entry.Value.resultStack);
@@ -34,7 +34,7 @@ namespace TerraScience{
 
 			//Matter Energizer recipes
 			foreach(var entry in AirIonizerEntity.recipes){
-				ScienceRecipe recipe = new ScienceRecipe(this);
+				NoStationCraftingRecipe recipe = new NoStationCraftingRecipe(this);
 				recipe.AddIngredient(entry.Key, entry.Value.requireStack);
 				recipe.AddIngredient(ModContent.ItemType<TerraFluxIndicator>());
 				recipe.AddTile(ModContent.TileType<AirIonizer>());
@@ -128,7 +128,7 @@ namespace TerraScience{
 
 				int fakeItem = GetFakeIngredientType(id);
 
-				ScienceRecipe recipe = new ScienceRecipe(this);
+				NoStationCraftingRecipe recipe = new NoStationCraftingRecipe(this);
 				recipe.AddIngredient(i, 1);
 				recipe.AddIngredient(ModContent.ItemType<TerraFluxIndicator>(), 1);
 				recipe.AddTile(ModContent.TileType<LiquidDuplicator>());
@@ -164,7 +164,7 @@ namespace TerraScience{
 		}
 
 		private void AddElectrolyzerRecipe(MachineLiquidID input, MachineGasID output){
-			ScienceRecipe recipe = new ScienceRecipe(this);
+			NoStationCraftingRecipe recipe = new NoStationCraftingRecipe(this);
 			recipe.AddIngredient(GetFakeIngredientType(input), 1);
 			recipe.AddIngredient(ModContent.ItemType<TerraFluxIndicator>());
 			recipe.AddTile(ModContent.TileType<Electrolyzer>());
@@ -173,7 +173,7 @@ namespace TerraScience{
 		}
 
 		private void AddElectrolyzerRecipe(MachineGasID capsuleGasType){
-			ScienceRecipe recipe = new ScienceRecipe(this);
+			NoStationCraftingRecipe recipe = new NoStationCraftingRecipe(this);
 			recipe.AddIngredient(ItemType("Capsule"), 1);
 			recipe.AddIngredient(GetFakeIngredientType(capsuleGasType), 1);
 			recipe.AddTile(ModContent.TileType<Electrolyzer>());
@@ -182,7 +182,7 @@ namespace TerraScience{
 		}
 
 		private void AddGreenhouseRecipe(int inputType, int blockType, int? modifierType, int resultType){
-			ScienceRecipe recipe = new ScienceRecipe(this);
+			NoStationCraftingRecipe recipe = new NoStationCraftingRecipe(this);
 			recipe.AddIngredient(inputType, 1);
 			recipe.AddIngredient(blockType, 1);
 			if(modifierType is int modifier)
@@ -193,13 +193,13 @@ namespace TerraScience{
 		}
 
 		private void AddExtractinatorRecipe(int inputType, int outputType){
-			ScienceRecipe recipe = new ScienceRecipe(this);
+			NoStationCraftingRecipe recipe = new NoStationCraftingRecipe(this);
 			recipe.AddIngredient(inputType, 1);
 			recipe.AddTile(TileID.Extractinator);
 			recipe.SetResult(outputType, 1);
 			recipe.AddRecipe();
 
-			recipe = new ScienceRecipe(this);
+			recipe = new NoStationCraftingRecipe(this);
 			recipe.AddIngredient(inputType, 1);
 			recipe.AddIngredient(ModContent.ItemType<TerraFluxIndicator>());
 			recipe.AddTile(ModContent.TileType<AutoExtractinator>());
@@ -216,7 +216,7 @@ namespace TerraScience{
 				remaining -= weight;
 
 				//Add a recipe for the thing
-				ScienceRecipe recipe = new ScienceRecipe(this);
+				NoStationCraftingRecipe recipe = new NoStationCraftingRecipe(this);
 				recipe.AddIngredient(inputItem);
 				recipe.AddIngredient(ModContent.ItemType<TerraFluxIndicator>());
 				recipe.AddTile(ModContent.TileType<Pulverizer>());
@@ -231,7 +231,7 @@ namespace TerraScience{
 		}
 
 		private void AddComposterEntry(int inputItem, int inputStack, int resultStack){
-			ScienceRecipe recipe = new ScienceRecipe(this);
+			NoStationCraftingRecipe recipe = new NoStationCraftingRecipe(this);
 			recipe.AddIngredient(inputItem, inputStack);
 			recipe.AddIngredient(ModContent.ItemType<TerraFluxIndicator>());
 			recipe.AddTile(ModContent.TileType<Composter>());

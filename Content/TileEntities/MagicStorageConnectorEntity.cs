@@ -1,7 +1,4 @@
-﻿using MagicStorage.Components;
-using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Terraria;
 using Terraria.DataStructures;
@@ -12,7 +9,7 @@ using TerraScience.Content.Tiles.Multitiles;
 using TerraScience.Content.UI;
 using TerraScience.Systems;
 
-namespace TerraScience.Content.TileEntities{
+namespace TerraScience.Content.TileEntities {
 	public class MagicStorageConnectorEntity : MachineEntity{
 		public override int MachineTile => ModContent.TileType<MagicStorageConnector>();
 

@@ -5,20 +5,18 @@ using Terraria;
 using Terraria.DataStructures;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
-using TerraScience.API.CrossMod.MagicStorage;
 using TerraScience.API.Interfaces;
 using TerraScience.Content.TileEntities;
 using TerraScience.Content.TileEntities.Energy;
 using TerraScience.Content.TileEntities.Energy.Generators;
 using TerraScience.Content.Tiles;
 using TerraScience.Content.Tiles.Multitiles;
-using TerraScience.Content.UI;
 using TerraScience.Systems.Energy;
 using TerraScience.Systems.Pathfinding;
 using TerraScience.Systems.Pipes;
 using TerraScience.Utilities;
 
-namespace TerraScience.Systems{
+namespace TerraScience.Systems {
 	public static class NetworkCollection{
 		private static List<WireNetwork> wireNetworks;
 		private static List<ItemNetwork> itemNetworks;

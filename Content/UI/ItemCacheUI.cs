@@ -4,14 +4,13 @@ using Terraria.GameContent.UI.Elements;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
-using Terraria.UI;
 using TerraScience.API.UI;
 using TerraScience.Content.TileEntities;
 using TerraScience.Content.Tiles.Multitiles;
 using TerraScience.Systems;
 using TerraScience.Utilities;
 
-namespace TerraScience.Content.UI{
+namespace TerraScience.Content.UI {
 	public class ItemCacheUI : MachineUI{
 		public override string Header => "Item Cache";
 

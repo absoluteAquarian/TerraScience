@@ -10,12 +10,11 @@ using Terraria.Utilities;
 using TerraScience.API.CrossMod.MagicStorage;
 using TerraScience.Content.TileEntities;
 using TerraScience.Content.Tiles;
-using TerraScience.Content.UI;
 using TerraScience.Systems.Pathfinding;
 using TerraScience.Systems.Pipes;
 using TerraScience.Utilities;
 
-namespace TerraScience.Systems{
+namespace TerraScience.Systems {
 	/// <summary>
 	/// An object representing an item going through an <seealso cref="ItemNetwork"/>
 	/// </summary>

@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework.Audio;
 using Terraria;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
-using TerraScience.API.UI;
 using TerraScience.Content.Tiles.Multitiles;
 using TerraScience.Content.UI;
 using TerraScience.Utilities;
@@ -11,7 +10,7 @@ using TerraScience.Content.Items.Materials;
 using System.Collections.Generic;
 using System.IO;
 
-namespace TerraScience.Content.TileEntities{
+namespace TerraScience.Content.TileEntities {
 	public class ReinforcedFurnaceEntity : MachineEntity{
 		// TODO: make HeatMin fluctuate based on the current season and/or biome
 		public static readonly float HeatMax = 1000f;

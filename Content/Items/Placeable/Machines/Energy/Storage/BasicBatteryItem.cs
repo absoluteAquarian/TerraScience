@@ -1,6 +1,8 @@
 ﻿using Terraria;
 using Terraria.ID;
 using TerraScience.Content.Tiles.Multitiles.EnergyMachines.Storage;
+using TerraScience.Content.UI;
+using TerraScience.Utilities;
 
 namespace TerraScience.Content.Items.Placeable.Machines.Energy.Storage{
 	public class BasicBatteryItem : MachineItem<BasicBattery>{
@@ -8,6 +10,11 @@ namespace TerraScience.Content.Items.Placeable.Machines.Energy.Storage{
 
 		public override string ItemName => "Basic Battery";
 		public override string ItemTooltip => "Stores Terra Flux (TF)";
+
+		internal override ScienceWorkbenchItemRegistry GetRegistry()
+			=> new ScienceWorkbenchItemRegistry(tick => MachineTile.GetExampleTexturePath("tile"),
+				tick => null,
+				ItemTooltip);
 
 		public override void SafeSetDefaults(){
 			item.width = 24;

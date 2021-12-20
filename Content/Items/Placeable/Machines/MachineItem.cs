@@ -5,6 +5,7 @@ using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using TerraScience.Content.TileEntities.Energy;
 using TerraScience.Content.Tiles.Multitiles;
+using TerraScience.Content.UI;
 using TerraScience.Utilities;
 
 namespace TerraScience.Content.Items.Placeable.Machines{
@@ -15,8 +16,14 @@ namespace TerraScience.Content.Items.Placeable.Machines{
 
 		public abstract int TileType{ get; }
 
+		protected ModTile MachineTile => ModContent.GetModTile(TileType);
+
 		public abstract string ItemName{ get; }
 		public abstract string ItemTooltip{ get; }
+
+		public static ScienceWorkbenchItemRegistry ItemRegistry{ get; private set; }
+
+		internal abstract ScienceWorkbenchItemRegistry GetRegistry();
 
 		public sealed override void SetStaticDefaults(){
 			string name = ItemName;
@@ -25,6 +32,8 @@ namespace TerraScience.Content.Items.Placeable.Machines{
 				DisplayName.SetDefault(name);
 			if(tooltip != null)
 				Tooltip.SetDefault(tooltip + "\n<>");
+
+			ItemRegistry = GetRegistry();
 		}
 
 		public sealed override TagCompound Save()
@@ -77,12 +86,11 @@ namespace TerraScience.Content.Items.Placeable.Machines{
 	public static class DatalessMachineInfo{
 		public static Dictionary<int, Action<Mod>> recipes;
 
-		public static void Register<TItem>((int type, int stack)[] items) where TItem : MachineItem{
-			recipes.Add(ModContent.ItemType<TItem>(), mod => RecipeUtils.ScienceWorkbenchRecipe<TItem>(mod, items));
-		}
+		public static Dictionary<int, RecipeIngredientSet> recipeIngredients;
 
-		public static void Register<TItem>((short type, int stack)[] items) where TItem : MachineItem{
-			recipes.Add(ModContent.ItemType<TItem>(), mod => RecipeUtils.ScienceWorkbenchRecipe<TItem>(mod, items));
+		public static void Register<TItem>(RecipeIngredientSet ingredients) where TItem : MachineItem{
+			recipes.Add(ModContent.ItemType<TItem>(), mod => RecipeUtils.ScienceWorkbenchRecipe<TItem>(mod, ingredients));
+			recipeIngredients.Add(ModContent.ItemType<TItem>(), ingredients);
 		}
 	}
 
@@ -98,6 +106,9 @@ namespace TerraScience.Content.Items.Placeable.Machines{
 		public override string ItemTooltip => ModContent.GetInstance<T>().ItemTooltip;
 
 		public override int TileType => ModContent.GetInstance<T>().TileType;
+
+		// TODO: work on science workbench ui
+		internal override ScienceWorkbenchItemRegistry GetRegistry() => ModContent.GetInstance<T>().GetRegistry();
 
 		public sealed override bool Autoload(ref string name) => false;
 

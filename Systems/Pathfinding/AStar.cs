@@ -9,7 +9,7 @@ using TerraScience.Systems.Pipes;
 
 namespace TerraScience.Systems.Pathfinding{
 	public static class AStar{
-		private class Entry{
+		private struct Entry{
 			public Point16 location;
 
 			public float travelTime;
@@ -17,7 +17,8 @@ namespace TerraScience.Systems.Pathfinding{
 
 			public float Heuristic => distance + travelTime;
 
-			public Entry parent;
+			//Ref<T> needed to prevent loadout cycle error
+			public Ref<Entry> parent;
 
 			public void SetDistance(Point16 target){
 				//How many tiles need to be iterated over to reach the target
@@ -30,10 +31,10 @@ namespace TerraScience.Systems.Pathfinding{
 			public override int GetHashCode() => base.GetHashCode();
 
 			public static bool operator ==(Entry first, Entry second)
-				=> first?.location == second?.location;
+				=> first.location == second.location;
 
 			public static bool operator !=(Entry first, Entry second)
-				=> first?.location != second?.location;
+				=> first.location != second.location;
 
 			public override string ToString() => $"Heuristic: {Heuristic}, Location: (X: {location.X}, Y: {location.Y})";
 		}
@@ -79,8 +80,8 @@ namespace TerraScience.Systems.Pathfinding{
 					while(check.parent != null){
 						travelTime += check.travelTime;
 
-						path.Add(check.parent);
-						check = check.parent;
+						path.Add(check.parent.Value);
+						check = check.parent.Value;
 					}
 
 					return path.Select(e => e.location).ToList();
@@ -118,10 +119,10 @@ namespace TerraScience.Systems.Pathfinding{
 
 		private static List<Entry> GetItemWalkableEntires(ItemNetwork net, List<Entry> existing, Entry parent, Point16 target){
 			List<Entry> possible = new List<Entry>(){
-				new Entry(){ location = parent.location + new Point16(0, -1), parent = parent },
-				new Entry(){ location = parent.location + new Point16(-1, 0), parent = parent },
-				new Entry(){ location = parent.location + new Point16(1, 0), parent = parent },
-				new Entry(){ location = parent.location + new Point16(0, 1), parent = parent }
+				new Entry(){ location = parent.location + new Point16(0, -1), parent = new Ref<Entry>(parent) },
+				new Entry(){ location = parent.location + new Point16(-1, 0), parent = new Ref<Entry>(parent) },
+				new Entry(){ location = parent.location + new Point16(1, 0), parent = new Ref<Entry>(parent) },
+				new Entry(){ location = parent.location + new Point16(0, 1), parent = new Ref<Entry>(parent) }
 			};
 
 			Tile parentTile = Framing.GetTileSafely(parent.location);
@@ -165,7 +166,9 @@ namespace TerraScience.Systems.Pathfinding{
 						possible.RemoveAt(i);
 						i--;
 					}else{
-						possible[i].travelTime = parent.travelTime + time;
+						var copy = possible[i];
+						copy.travelTime = parent.travelTime + time;
+						possible[i] = copy;
 						possible[i].SetDistance(target);
 					}
 				}

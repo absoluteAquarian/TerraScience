@@ -1,14 +1,11 @@
-﻿using MagicStorage.Components;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Terraria;
-using Terraria.DataStructures;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
-using TerraScience.API.CrossMod.MagicStorage;
 using TerraScience.API.Networking;
 using TerraScience.Content.TileEntities.Energy.Generators;
 using TerraScience.Content.Tiles;
@@ -16,7 +13,7 @@ using TerraScience.Content.UI;
 using TerraScience.Systems;
 using TerraScience.Utilities;
 
-namespace TerraScience.Content.TileEntities{
+namespace TerraScience.Content.TileEntities {
 	public abstract class MachineEntity : ModTileEntity{
 		private readonly List<Item> slots = new List<Item>();
 
