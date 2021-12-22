@@ -13,7 +13,9 @@ namespace TerraScience.Content.Items.Placeable.Machines.Energy{
 		internal override ScienceWorkbenchItemRegistry GetRegistry()
 			=> new ScienceWorkbenchItemRegistry(tick => MachineTile.GetExampleTexturePath("full"),
 				tick => MachineTile.GetExampleTexturePath("empty"),
-				ItemTooltip);
+				ItemTooltip,
+				consumeTFLine: "Per operation, amount consumed variable",
+				produceTFLine: null);
 
 		public override void SafeSetDefaults(){
 			item.width = 32;

@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using Terraria;
 using Terraria.ModLoader;
+using Terraria.ID;
+using Terraria.Localization;
 
 namespace TerraScience.Utilities{
 	public class RecipeIngredientSet{
@@ -36,25 +38,85 @@ namespace TerraScience.Utilities{
 			}
 		}
 
-		private List<IngredientEntry> entries = new List<IngredientEntry>();
+		private IngredientEntry[] entries = new IngredientEntry[14];
+		private int curIndex = 0;
+
+		internal int recipeIndex;
+
+		public Item this[int index]{
+			get{
+				//Construct the item based on the entry
+				IngredientEntry entry = entries[index];
+
+				Item item = new Item();
+
+				if(!entry.isRecipeGroup)
+					item.SetDefaults(entry.ID);
+				else{
+					RecipeGroup group = RecipeGroup.recipeGroups[entry.ID];
+
+					item.type = group.IconicItemIndex;
+					SetRecipeMaterialDisplayName(item);
+				}
+				
+				item.stack = entry.stack;
+
+				return item;
+			}
+		}
+
+		//Copied from Main.cs
+		private void SetRecipeMaterialDisplayName(Item item){
+			string hoverItemName = item.Name;
+			if(Main.recipe[recipeIndex].ProcessGroupsForText(item.type, out string theText))
+				hoverItemName = theText;
+
+			if(Main.recipe[recipeIndex].anyIronBar && item.type == ItemID.IronBar)
+				hoverItemName = Language.GetTextValue("LegacyMisc.37") + " " + Lang.GetItemNameValue(22);
+			else if(Main.recipe[recipeIndex].anyWood && item.type == ItemID.Wood)
+				hoverItemName = Language.GetTextValue("LegacyMisc.37") + " " + Lang.GetItemNameValue(9);
+			else if(Main.recipe[recipeIndex].anySand && item.type == ItemID.SandBlock)
+				hoverItemName = Language.GetTextValue("LegacyMisc.37") + " " + Lang.GetItemNameValue(169);
+			else if(Main.recipe[recipeIndex].anyFragment && item.type == ItemID.FragmentSolar)
+				hoverItemName = Language.GetTextValue("LegacyMisc.37") + " " + Language.GetTextValue("LegacyMisc.51");
+			else if(Main.recipe[recipeIndex].anyPressurePlate && item.type == ItemID.GrayPressurePlate)
+				hoverItemName = Language.GetTextValue("LegacyMisc.37") + " " + Language.GetTextValue("LegacyMisc.38");
+
+			if(item.stack > 1)
+				hoverItemName = hoverItemName + " (" + item.stack + ")";
+
+			item.SetNameOverride(hoverItemName);
+		}
 
 		public RecipeIngredientSet AddIngredient(int itemType, int stack = 1){
-			entries.Add(IngredientEntry.AddIngredient(itemType, stack));
+			if(curIndex == entries.Length)
+				throw new InvalidOperationException("Too many ingredients added.  Recipes can only have 14 ingredient slots");
+
+			entries[curIndex++] = IngredientEntry.AddIngredient(itemType, stack);
 			return this;
 		}
 
 		public RecipeIngredientSet AddIngredient<T>(int stack = 1) where T : ModItem{
-			entries.Add(IngredientEntry.AddIngredient(ModContent.ItemType<T>(), stack));
+			if(curIndex == entries.Length)
+				throw new InvalidOperationException("Too many ingredients added.  Recipes can only have 14 ingredient slots");
+
+			entries[curIndex++] = IngredientEntry.AddIngredient(ModContent.ItemType<T>(), stack);
 			return this;
 		}
 
 		public RecipeIngredientSet AddRecipeGroup(int group, int stack = 1){
-			entries.Add(IngredientEntry.AddRecipeGroup(group, stack));
+			if(curIndex == entries.Length)
+				throw new InvalidOperationException("Too many ingredients added.  Recipes can only have 14 ingredient slots");
+
+			entries[curIndex++] = IngredientEntry.AddRecipeGroup(group, stack);
 			return this;
 		}
 
 		public RecipeIngredientSet AddRecipeGroup(string group, int stack = 1){
-			entries.Add(IngredientEntry.AddRecipeGroup(group, stack));
+			if(curIndex == entries.Length)
+				throw new InvalidOperationException("Too many ingredients added.  Recipes can only have 14 ingredient slots");
+
+			entries[curIndex++] = IngredientEntry.AddRecipeGroup(group, stack);
 			return this;
 		}
 

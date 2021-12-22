@@ -8,7 +8,7 @@ namespace TerraScience.Content.TileEntities{
 
 		public override int MachineTile => ModContent.TileType<ScienceWorkbench>();
 
-		public override int SlotsCount => 1;
+		public override int SlotsCount => 15;
 
 		public override bool UpdateReaction() => false;
 

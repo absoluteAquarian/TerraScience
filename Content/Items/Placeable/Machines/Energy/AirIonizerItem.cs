@@ -11,8 +11,10 @@ namespace TerraScience.Content.Items.Placeable.Machines.Energy{
 
 		internal override ScienceWorkbenchItemRegistry GetRegistry()
 			=> new ScienceWorkbenchItemRegistry(tick => MachineTile.GetExampleTexturePath("closed"),
-				tick => MachineTile.GetExampleTexturePath("open"),
-				"Consumes Terra Flux (TF) to transmute items into other items");
+				tick => MachineTile.GetExampleTexturePath("open" + Main.rand.Next(2)),
+				"Consumes Terra Flux (TF) to transmute items into other items",
+				consumeTFLine: "Per operation, consumption amount variable",
+				produceTFLine: null);
 
 		public override void SafeSetDefaults(){
 			item.width = 40;

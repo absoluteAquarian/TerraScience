@@ -13,7 +13,9 @@ namespace TerraScience.Content.Items.Placeable.Machines{
 		internal override ScienceWorkbenchItemRegistry GetRegistry()
 			=> new ScienceWorkbenchItemRegistry(tick => MachineTile.GetExampleTexturePath("tile"),
 				tick => null,
-				ItemTooltip);
+				ItemTooltip,
+				consumeTFLine: null,
+				produceTFLine: null);
 
 		public override void SafeSetDefaults(){
 			item.width = 24;

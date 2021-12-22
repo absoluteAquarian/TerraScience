@@ -11,9 +11,11 @@ namespace TerraScience.Content.Items.Placeable.Machines.Energy.Generators{
 		public override string ItemTooltip => "Converts certain foods and wooden items into Terra Flux (TF)";
 
 		internal override ScienceWorkbenchItemRegistry GetRegistry()
-			=> new ScienceWorkbenchItemRegistry(tick => MachineTile.GetExampleTexturePath("on"),
-				tick => MachineTile.GetExampleTexturePath("off"),
-				"Burns food and wood into Terra Flux (TF)");
+			=> new ScienceWorkbenchItemRegistry(tick => MachineTile.GetExampleTexturePath("off"),
+				tick => MachineTile.GetExampleTexturePath("on" + tick % 20 / 10),
+				"Burns food and wood into Terra Flux (TF)",
+				consumeTFLine: null,
+				produceTFLine: "Per game tick, amount production variable");
 
 		public override void SafeSetDefaults(){
 			item.width = 30;

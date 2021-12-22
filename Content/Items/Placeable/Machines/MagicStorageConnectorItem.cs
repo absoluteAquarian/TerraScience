@@ -16,7 +16,9 @@ namespace TerraScience.Content.Items.Placeable.Machines {
 			=> new ScienceWorkbenchItemRegistry(tick => MachineTile.GetExampleTexturePath("tile"),
 				tick => null,
 				"Allows extraction/insertion of items from/into Magic Storage storage" +
-				"\nsystems via Item Pumps and Item Pipes");
+				"\nsystems via Item Pumps and Item Pipes",
+				consumeTFLine: null,
+				produceTFLine: null);
 
 		public override void SafeSetDefaults(){
 			item.width = 32;

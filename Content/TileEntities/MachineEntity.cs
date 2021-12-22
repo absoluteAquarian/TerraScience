@@ -303,8 +303,10 @@ namespace TerraScience.Content.TileEntities {
 		/// </summary>
 		/// <param name="canInteract">Whether this machine should interact with the network</param>
 		/// <returns>Whether the behaviour was overwritten</returns>
-		public virtual bool HijackCanBeInteractedWithItemNetworks(out bool canInteract){
+		public virtual bool HijackCanBeInteractedWithItemNetworks(out bool canInteract, out bool canInput, out bool canOutput){
 			canInteract = false;
+			canInput = false;
+			canOutput = false;
 			return false;
 		}
 

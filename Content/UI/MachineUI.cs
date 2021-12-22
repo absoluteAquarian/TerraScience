@@ -23,6 +23,9 @@ namespace TerraScience.Content.UI{
 
 		public bool Active;
 
+		/// <summary>
+		/// Called before the UI attempts to copy items stored in the entity into the UI, but after the UI state has been activated
+		/// </summary>
 		public virtual void DoSavedItemsCheck(){ }
 
 		private List<UIText> Text;
@@ -30,34 +33,85 @@ namespace TerraScience.Content.UI{
 		private List<UIItemSlot> ItemSlots;
 
 		public abstract string Header{ get; }
+
+		/// <summary>
+		/// Create and append <seealso cref="UIText"/> instances here
+		/// </summary>
+		/// <param name="text">The list of text.  All entries are directly appended to the UI panel</param>
 		internal abstract void InitializeText(List<UIText> text);
+
+		/// <summary>
+		/// Create and append <seealso cref="UIItemSlot"/> instances here
+		/// </summary>
+		/// <param name="slots">The list of item slots.  All entries are directly appended to the UI panel</param>
 		internal abstract void InitializeSlots(List<UIItemSlot> slots);
+
+		/// <summary>
+		/// Gets the size of the UI panel
+		/// </summary>
+		/// <param name="width">The width of the panel in pixels</param>
+		/// <param name="height">The height of the panel in pixels</param>
 		internal abstract void PanelSize(out int width, out int height);
 
+		/// <summary>
+		/// Create and append other UI elements here.  The back panel as a <seealso cref="UIPanel"/> is provided as an argument
+		/// </summary>
+		/// <param name="panel">The back panel, cast to <seealso cref="UIPanel"/></param>
 		internal virtual void InitializeOther(UIPanel panel){ }
 
+		/// <summary>
+		/// Update text here.  The <paramref name="text"/> list is the same list as the one from <seealso cref="InitializeText(List{UIText})"/>
+		/// </summary>
+		/// <param name="text">The list of text</param>
 		internal virtual void UpdateText(List<UIText> text){ }
 
+		/// <summary>
+		/// General update method.  This method is called after <seealso cref="PreUpdateEntity"/>
+		/// </summary>
 		internal virtual void UpdateEntity(){ }
 
+		/// <summary>
+		/// This method is called after <seealso cref="PlayCloseSound"/> and before the slots in the UI state are saved to the entity
+		/// </summary>
 		public virtual void PreClose(){ }
 
+		/// <summary>
+		/// This method is called after the UI state is deactivated
+		/// </summary>
 		public virtual void PostClose(){ }
 
+		/// <summary>
+		/// This method is called after <seealso cref="PlayOpenSound"/> and before the UI state is activated
+		/// </summary>
 		public virtual void PreOpen(){ }
 
+		/// <summary>
+		/// This method is called after the UI state is initialized and its item slots have been loaded
+		/// </summary>
 		public virtual void PostOpen(){ }
 
 		internal UIItemSlot GetSlot(int index) => ItemSlots[index];
 
+		/// <summary>
+		/// The type of the <seealso cref="Machine"/> tile this UI state is bound to
+		/// </summary>
 		public abstract int TileType{ get; }
 
 		public int SlotsLength => ItemSlots.Count;
 
+		/// <summary>
+		/// Called when the UI is opened.  Change what sound is played here
+		/// </summary>
 		public virtual void PlayOpenSound() => Main.PlaySound(SoundID.MenuOpen);
+
+		/// <summary>
+		/// Called when the UI is closed.  Change what sound is played here
+		/// </summary>
 		public virtual void PlayCloseSound() => Main.PlaySound(SoundID.MenuClose);
 
 		public int UIDelay = -1;
+
+		private UIDragablePanel panel;
 
 		internal void ClearSlots(){
 			foreach(var slot in ItemSlots)
@@ -73,9 +127,17 @@ namespace TerraScience.Content.UI{
 				ItemSlots[i].SetItem(slots[i]);
 		}
 
+		protected void AppendElement(UIElement element){
+			panel.Append(element);
+		}
+
+		protected void RemoveElement(UIElement element){
+			panel.Append(element);
+		}
+
 		public sealed override void OnInitialize(){
 			//Make the panel
-			UIDragablePanel panel = new UIDragablePanel();
+			panel = new UIDragablePanel();
 
 			PanelSize(out int width, out int height);
 

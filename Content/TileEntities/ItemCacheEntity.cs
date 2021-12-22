@@ -260,8 +260,8 @@ namespace TerraScience.Content.TileEntities{
 			return true;
 		}
 
-		public override bool HijackCanBeInteractedWithItemNetworks(out bool canInteract)
-			=> canInteract = true;
+		public override bool HijackCanBeInteractedWithItemNetworks(out bool canInteract, out bool canInput, out bool canOutput)
+			=> canInteract = canInput = canOutput = true;
 
 		public override bool HijackGetItemInventory(out Item[] inventory){
 			inventory = items.ToArray();

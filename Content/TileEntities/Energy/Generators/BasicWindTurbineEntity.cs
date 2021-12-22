@@ -57,25 +57,25 @@ namespace TerraScience.Content.TileEntities.Energy.Generators{
 		public override TerraFlux GetPowerGeneration(int ticks){
 			/*  Notes about wind speed:
 			 *  
-			 *  Main.windSpeed       | The current wind speed.  Always tries to increment/decrement towards Main.windSpeedSet by a
-			 *                         factor of `0.001f * Main.dayRate` per tick
+			 *  Main.windSpeed        | The current wind speed.  Always tries to increment/decrement towards Main.windSpeedSet by a
+			 *                          factor of `0.001f * Main.dayRate` per tick
 			 *  
-			 *  Main.windSpeedSet    | The target wind speed.  Set to Main.windSpeedTemp when Main.weatherCounter is <= 0.  Value is
-			 *                         set to `genRand.Next(-100, 101) * 0.01f` on world load/generation.
+			 *  Main.windSpeedSet     | The target wind speed.  Set to Main.windSpeedTemp when Main.weatherCounter is <= 0.  Value is
+			 *                          set to `genRand.Next(-100, 101) * 0.01f` on world load/generation.
 			 *  
-			 *  Main.windSpeedSpeed  | The rate at which Main.windSpeedTemp is changed.  Starts at 0, then is incremented by
-			 *                         `rand.Next(-10, 11) * 0.0001f` every tick.  Value is clamped to +/- 0.002f
+			 *  Main.windSpeedSpeed   | The rate at which Main.windSpeedTemp is changed.  Starts at 0, then is incremented by
+			 *                          `rand.Next(-10, 11) * 0.0001f` every tick.  Value is clamped to +/- 0.002f
 			 *  
-			 *  Main.windSpeedTemp   | The next value that Main.windSpeedSet will be set to.  Modified by Main.windSpeedSpeed.
-			 *                         If it's currently raining, then this variable is modified by Main.windSpeedSpeed * 2 instead.
-			 *                         Value is clamped to +/- `(0.3f + 0.5f * Main.cloudAlpha)`
+			 *  Main.windSpeedTemp    | The next value that Main.windSpeedSet will be set to.  Modified by Main.windSpeedSpeed.
+			 *                          If it's currently raining, then this variable is modified by Main.windSpeedSpeed * 2 instead.
+			 *                          Value is clamped to +/- `(0.3f + 0.5f * Main.cloudAlpha)`
 			 *  
-			 *  Main.weatherCounter  | The timer used for modifying Main.windSpeedSet and also sending net messages for syncing
-			 *                         world data.  It is decremented by Main.dayRate every tick.  Value is initialized to
-			 *                         `rand.Next(3600, 18000)` -- when Main.windSpeedSet is set -- or `genRand.Next(3600, 18000)`
-			 *                         -- during worldgen.
+			 *  Main.weatherCounter   | The timer used for modifying Main.windSpeedSet and also sending net messages for syncing
+			 *                          world data.  It is decremented by Main.dayRate every tick.  Value is initialized to
+			 *                          `rand.Next(3600, 18000)` -- when Main.windSpeedSet is set -- or `genRand.Next(3600, 18000)`
+			 *                          -- during worldgen.
 			 *  
-			 *  Weathe Radio Display | Displayed wind speed is `Math.Abs(Main.windSpeed) * 100`
+			 *  Weather Radio Display | Displayed wind speed is `Math.Abs(Main.windSpeed) * 100`
 			 */
 
 			TerraFlux flux = new TerraFlux(0f);

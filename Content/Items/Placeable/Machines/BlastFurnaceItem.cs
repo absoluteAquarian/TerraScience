@@ -12,7 +12,9 @@ namespace TerraScience.Content.Items.Placeable.Machines{
 		internal override ScienceWorkbenchItemRegistry GetRegistry()
 			=> new ScienceWorkbenchItemRegistry(tick => MachineTile.GetExampleTexturePath("closed"),
 				tick => MachineTile.GetExampleTexturePath("open"),
-				ItemTooltip);
+				ItemTooltip,
+				consumeTFLine: null,
+				produceTFLine: null);
 
 		public override void SafeSetDefaults(){
 			item.width = 20;

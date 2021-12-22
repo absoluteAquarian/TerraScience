@@ -25,6 +25,8 @@ namespace TerraScience.API.UI {
 
 		public Func<Item, bool> ValidItemFunc;
 
+		public bool IgnoreClicks{ get; set; }
+
 		public UIItemSlot(int context = ItemSlot.Context.BankItem, float scale = 1f) {
 			Context = context;
 			Scale = scale;
@@ -42,17 +44,30 @@ namespace TerraScience.API.UI {
 			Rectangle rectangle = GetDimensions().ToRectangle();
 
 			//Lazy hardcoding lol
-			bool ignoreClicks = Parent is UIDragablePanel panel && panel.Parent is MachineUI ui && ui.UIDelay > 0;
+			bool parentWasClicked = Parent is UIDragablePanel panel && panel.Parent is MachineUI ui && ui.UIDelay > 0;
 			if ((ContainsPoint(Main.MouseScreen) && !PlayerInput.IgnoreMouseInterface)) {
 				Main.LocalPlayer.mouseInterface = true;
 
 				if(Parent is UIDragablePanel panel2)
 					panel2.Dragging = false;
 
-				if (!ignoreClicks && (ValidItemFunc == null || ValidItemFunc(Main.mouseItem))) {
+				if (!parentWasClicked && (ValidItemFunc == null || ValidItemFunc(Main.mouseItem))) {
+					bool oldLeft = Main.mouseLeft;
+					bool oldLeftRelease = Main.mouseLeftRelease;
+					bool oldRight = Main.mouseRight;
+					bool oldRightRelease = Main.mouseRightRelease;
+
+					if (IgnoreClicks)
+						Main.mouseLeft = Main.mouseLeftRelease = Main.mouseRight = Main.mouseRightRelease = false;
+
 					// Handle handles all the click and hover actions based on the context.
 					storedItemBeforeHandle = StoredItem.Clone();
 					ItemSlot.Handle(ref storedItem, Context);
+
+					Main.mouseLeft = oldLeft;
+					Main.mouseLeftRelease = oldLeftRelease;
+					Main.mouseRight = oldRight;
+					Main.mouseRightRelease = oldRightRelease;
 				}
 			}
 

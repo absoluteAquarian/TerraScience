@@ -31,8 +31,8 @@ namespace TerraScience.Content.TileEntities {
 				? MagicStorageConnectorUI.FindMagicStorageSystem(Position)
 				: MagicStorageConnectorUI.badCheck;
 
-		public override bool HijackCanBeInteractedWithItemNetworks(out bool canInteract){
-			canInteract = MagicStorageHandler.handler.ModIsActive;
+		public override bool HijackCanBeInteractedWithItemNetworks(out bool canInteract, out bool canInput, out bool canOutput){
+			canInteract = canInput = canOutput = MagicStorageHandler.handler.ModIsActive;
 			return true;
 		}
 

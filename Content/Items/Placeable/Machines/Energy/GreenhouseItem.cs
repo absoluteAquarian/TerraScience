@@ -13,7 +13,9 @@ namespace TerraScience.Content.Items.Placeable.Machines.Energy{
 		internal override ScienceWorkbenchItemRegistry GetRegistry()
 			=> new ScienceWorkbenchItemRegistry(tick => MachineTile.GetExampleTexturePath("empty"),
 				tick => MachineTile.GetExampleTexturePath("grass_sapling"),
-				"Automatically grows and harvests plants");
+				"Automatically grows and harvests plants.  Works faster when powered",
+				consumeTFLine: "Per game tick, " + GetMachineFluxUsageString(perGameTick: true),
+				produceTFLine: null);
 
 		public override void SafeSetDefaults(){
 			item.width = 20;

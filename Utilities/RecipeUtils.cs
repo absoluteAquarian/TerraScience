@@ -56,6 +56,8 @@ namespace TerraScience.Utilities{
 			recipe.AddTile(ModContent.TileType<ScienceWorkbench>());
 			recipe.SetResult(mod.ItemType("Dataless" + name.Substring(0, name.LastIndexOf("Item"))), 1);
 			recipe.AddRecipe();
+
+			ingredients.recipeIndex = recipe.RecipeIndex;
 		}
 
 		public static void CreateTFRecipe<TMachine>(int input) where TMachine : Machine{

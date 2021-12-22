@@ -13,7 +13,9 @@ namespace TerraScience.Content.Items.Placeable.Machines.Energy{
 		internal override ScienceWorkbenchItemRegistry GetRegistry()
 			=> new ScienceWorkbenchItemRegistry(tick => MachineTile.GetExampleTexturePath("up_plant"),
 				tick => MachineTile.GetExampleTexturePath("down"),
-				ItemTooltip);
+				ItemTooltip,
+				consumeTFLine: "Per game tick, " + GetMachineFluxUsageString(perGameTick: true),
+				produceTFLine: null);
 
 		public override void SafeSetDefaults(){
 			item.width = 32;

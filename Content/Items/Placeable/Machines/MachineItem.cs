@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
+using TerraScience.Content.TileEntities;
 using TerraScience.Content.TileEntities.Energy;
+using TerraScience.Content.TileEntities.Energy.Generators;
 using TerraScience.Content.Tiles.Multitiles;
 using TerraScience.Content.UI;
 using TerraScience.Utilities;
@@ -18,10 +20,26 @@ namespace TerraScience.Content.Items.Placeable.Machines{
 
 		protected ModTile MachineTile => ModContent.GetModTile(TileType);
 
+		protected MachineEntity Machine => TileUtils.tileToEntity[TileType];
+
+		/// <summary>
+		/// Gets the flux usage as a string
+		/// </summary>
+		/// <param name="perGameTick">Whether the TF/t and TF/s are displayed (<see langword="true"/>) or the per-operation TF is displayed (<see langword="false"/>)</param>
+		protected string GetMachineFluxUsageString(bool perGameTick){
+			//Ensure that flags/etc. are set properly on the theoretical machine
+			if(!(Machine is PoweredMachineEntity pme))
+				return null;
+
+			float flux = (float)pme.FluxUsage;
+
+			return perGameTick ? $"{flux :0.###} TF/t ({flux * 60 :0.###} TF/s)" : $"{flux :0.###} TF/operation";
+		}
+
 		public abstract string ItemName{ get; }
 		public abstract string ItemTooltip{ get; }
 
-		public static ScienceWorkbenchItemRegistry ItemRegistry{ get; private set; }
+		public ScienceWorkbenchItemRegistry ItemRegistry{ get; private set; }
 
 		internal abstract ScienceWorkbenchItemRegistry GetRegistry();
 

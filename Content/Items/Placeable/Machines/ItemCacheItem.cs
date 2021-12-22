@@ -14,7 +14,9 @@ namespace TerraScience.Content.Items.Placeable.Machines{
 		internal override ScienceWorkbenchItemRegistry GetRegistry()
 			=> new ScienceWorkbenchItemRegistry(tick => MachineTile.GetExampleTexturePath("tile"),
 				tick => null,
-				"Stores large quantities of a singular item type");
+				"Stores large quantities of a singular item type",
+				consumeTFLine: null,
+				produceTFLine: null);
 
 		public override void SafeSetDefaults(){
 			item.width = 32;

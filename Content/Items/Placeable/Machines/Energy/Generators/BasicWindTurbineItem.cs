@@ -14,7 +14,9 @@ namespace TerraScience.Content.Items.Placeable.Machines.Energy.Generators{
 		internal override ScienceWorkbenchItemRegistry GetRegistry()
 			=> new ScienceWorkbenchItemRegistry(tick => MachineTile.GetExampleTexturePath("tile"),
 				tick => null,
-				"Generates Terra Flux based on the weather");
+				"Generates Terra Flux based on the weather",
+				consumeTFLine: null,
+				produceTFLine: "Per game tick, amount produced variable");
 
 		public override void SafeSetDefaults(){
 			item.width = 24;
