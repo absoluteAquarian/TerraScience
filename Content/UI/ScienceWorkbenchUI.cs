@@ -224,7 +224,7 @@ namespace TerraScience.Content.UI {
 			item.Top.Set(70, 0);
 
 			//Recipe slots
-			for(int i = 0; i < UIEntity.SlotsCount - 1; i++){
+			for(int i = 0; i < 14; i++){
 				UIItemSlot slot = new UIItemSlot(scale: 0.8f){
 					IgnoreClicks = true  //Allow the item info to be viewed, just not interacted with
 				};

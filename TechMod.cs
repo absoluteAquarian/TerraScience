@@ -218,6 +218,12 @@ namespace TerraScience {
 
 			MagicStorageHandler.handler = new ModHandler();
 			MagicStorageHandler.handler.Load("MagicStorage");
+
+			//MUST do this here instead of PostSetupContent
+			//  ModItem.SetStaticDefaults is called in SetupContent, which expects the tile entities to be registered already in MachineItem
+			Logger.Debug("Registering machine tile entities...");
+
+			TileUtils.RegisterAllEntities();
 		}
 
 		public static int GetCapsuleType(MachineGasID gas){

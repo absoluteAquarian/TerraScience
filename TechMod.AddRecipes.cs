@@ -11,8 +11,10 @@ using TerraScience.Content.Tiles.Multitiles.EnergyMachines;
 using TerraScience.Utilities;
 
 namespace TerraScience{
-	public partial class TechMod{
+	public partial class TechMod : Mod{
 		public override void AddRecipes(){
+			LoadMachineRecipes();
+
 			//Electrolyzer recipes
 			AddElectrolyzerRecipe(MachineLiquidID.Water, MachineGasID.Hydrogen);
 			AddElectrolyzerRecipe(MachineLiquidID.Water, MachineGasID.Oxygen);

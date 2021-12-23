@@ -15,11 +15,10 @@ using TerraScience.Content.Tiles;
 using TerraScience.Utilities;
 
 namespace TerraScience {
-	public partial class TechMod{
-		public override void PostSetupContent() {
-			Logger.DebugFormat("Loading tile data and machine structures...");
-
-			TileUtils.RegisterAllEntities();
+	public partial class TechMod : Mod{
+		private void LoadMachineRecipes() {
+			//This was previously in PostSetupContent, but recipe groups would be added too late...
+			Logger.DebugFormat("Loading machine recipes...");
 
 			DatalessMachineInfo.Register<SaltExtractorItem>(new RecipeIngredientSet()
 				.AddIngredient(ItemID.Glass, 25)
