@@ -12,7 +12,7 @@ namespace TerraScience.Content.Items.Placeable.Machines.Energy{
 		internal override ScienceWorkbenchItemRegistry GetRegistry()
 			=> new ScienceWorkbenchItemRegistry(
 				tick => new RegistryAnimation(MachineTile.GetExampleTexturePath("empty")),
-				tick => new RegistryAnimation(MachineTile.GetExampleTexturePath("block"), frameY: tick % 45 / 5, rowCount: 9),
+				tick => new RegistryAnimation(MachineTile.GetExampleTexturePath("block"), frameY: tick % 45 / 5, rowCount: 9, buffer: 2),
 				"Automatically extracts items from blocks that you can put" +
 				"\nin the Extractinator",
 				consumeTFLine: "Per game tick, " + GetMachineFluxUsageString(perGameTick: true),

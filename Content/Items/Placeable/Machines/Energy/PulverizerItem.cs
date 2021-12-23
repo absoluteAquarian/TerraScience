@@ -13,7 +13,7 @@ namespace TerraScience.Content.Items.Placeable.Machines.Energy{
 		internal override ScienceWorkbenchItemRegistry GetRegistry()
 			=> new ScienceWorkbenchItemRegistry(
 				tick => new RegistryAnimation(MachineTile.GetExampleTexturePath("tile")),
-				tick => new RegistryAnimation(MachineTile.GetExampleTexturePath("anim"), frameY: tick % 48 / 4, rowCount: 12),
+				tick => new RegistryAnimation(MachineTile.GetExampleTexturePath("anim"), frameY: tick % 48 / 4, rowCount: 12, buffer: 2),
 				ItemTooltip,
 				consumeTFLine: "Per game tick, " + GetMachineFluxUsageString(perGameTick: true),
 				produceTFLine: null);

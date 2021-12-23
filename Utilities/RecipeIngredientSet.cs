@@ -55,7 +55,7 @@ namespace TerraScience.Utilities{
 				else{
 					RecipeGroup group = RecipeGroup.recipeGroups[entry.ID];
 
-					item.type = group.IconicItemIndex;
+					item.SetDefaults(group.ValidItems[0]);
 					SetRecipeMaterialDisplayName(item);
 				}
 				

@@ -11,7 +11,7 @@ namespace TerraScience.API.UI{
 
 		public float Scale{ get; set; } = 1f;
 
-		public Color DrawColor{ get; set; }
+		public Color DrawColor{ get; set; } = Color.White;
 
 		public UIScienceWorkbenchDisplay(string texture, Rectangle? frame){
 			this.texture = ModContent.GetTexture(texture);
@@ -35,6 +35,10 @@ namespace TerraScience.API.UI{
 
 		protected override void DrawSelf(SpriteBatch spriteBatch){
 			var dims = GetDimensions();
+			Vector2 pos = dims.Position();
+			pos.X = (int)pos.X;
+			pos.Y = (int)pos.Y;
+
 			spriteBatch.Draw(texture, dims.Position(), frame, DrawColor, 0, Vector2.Zero, Scale, SpriteEffects.None, 0);
 		}
 	}

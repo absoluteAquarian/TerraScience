@@ -125,7 +125,9 @@ forceNextCheck: ;
 			wireNetworks = null;
 			itemNetworks = null;
 			fluidNetworks = null;
-			MachineMufflerTile.mufflers = null;
+
+			//Setting this to null here causes problems... for whatever reason
+			//MachineMufflerTile.mufflers = null;
 		}
 
 		private static void LoadNetwork<TNet, TEntry>(TagCompound tag, string entry, List<TNet> networks) where TNet : class, INetwork, INetwork<TEntry>, new() where TEntry : struct, INetworkable, INetworkable<TEntry>{

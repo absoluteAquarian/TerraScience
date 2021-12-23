@@ -17,8 +17,8 @@ using TerraScience.Utilities;
 
 namespace TerraScience.Content.UI {
 	public struct RegistryAnimation{
-		public readonly string texture;
-		public readonly Rectangle? frame;
+		public string texture;
+		public Rectangle? frame;
 
 		public RegistryAnimation(string texture){
 			this.texture = texture;
@@ -30,16 +30,18 @@ namespace TerraScience.Content.UI {
 			this.frame = frame;
 		}
 
-		public RegistryAnimation(string texture, int frameX = 0, int frameY = 0, int columnCount = 1, int rowCount = 1){
+		public RegistryAnimation(string texture, int frameX = 0, int frameY = 0, int columnCount = 1, int rowCount = 1, int buffer = 0){
 			this.texture = texture;
 			var tex = ModContent.GetTexture(texture);
 			frame = tex.Frame(columnCount, rowCount, frameX, frameY);
+			frame.Resize(-buffer, -buffer);
 		}
 
-		public RegistryAnimation(string texture, uint frameX = 0, uint frameY = 0, uint columnCount = 1, uint rowCount = 1){
+		public RegistryAnimation(string texture, uint frameX = 0, uint frameY = 0, uint columnCount = 1, uint rowCount = 1, uint buffer = 0){
 			this.texture = texture;
 			var tex = ModContent.GetTexture(texture);
 			frame = tex.Frame((int)columnCount, (int)rowCount, (int)frameX, (int)frameY);
+			frame.Resize(-(int)buffer, -(int)buffer);
 		}
 	}
 
@@ -84,7 +86,7 @@ namespace TerraScience.Content.UI {
 		public override int TileType => ModContent.TileType<ScienceWorkbench>();
 
 		internal override void PanelSize(out int width, out int height){
-			width = 550;
+			width = 700;
 			height = 600;
 		}
 
@@ -93,18 +95,12 @@ namespace TerraScience.Content.UI {
 			Item slot = UIEntity.RetrieveItem(0);
 
 			if(slot.IsAir){
-				if(display1 != null)
-					RemoveDisplay(ref display1);
-				if(display2 != null)
-					RemoveDisplay(ref display2);
+				RemoveDisplay(ref display1);
+				RemoveDisplay(ref display2);
 
-				if(panelStats.HasChild(statsText))
-					panelStats.RemoveChild(statsText);
-				if(panelDescription.HasChild(descriptionText))
-					panelDescription.RemoveChild(descriptionText);
-
-				statsText.SetText("");
-				descriptionText.SetText("");
+				statsText.SetText("Place a machine item in the slot to the left" +
+					"\nto see statistics for its machine");
+				descriptionText.SetText("The description for the machine would go here");
 
 				for(int i = 1; i < 15; i++)
 					GetSlot(i).SetItem(new Item());
@@ -119,12 +115,7 @@ namespace TerraScience.Content.UI {
 			Machine tile = ModContent.GetModTile(machine.TileType) as Machine;
 			tile.GetDefaultParams(out string name, out uint width, out uint height, out int itemType);
 
-			if(statsText.Text == "" || GetSlot(0).ItemTypeChanged){
-				if(!panelStats.HasChild(statsText))
-					panelStats.Append(statsText);
-				if(!panelDescription.HasChild(descriptionText))
-					panelDescription.Append(descriptionText);
-
+			if(GetSlot(0).ItemTypeChanged){
 				//Set the stats
 				statsText.SetText($"Machine: {name}" +
 					$"\nSize: {width} x {height} tiles" +
@@ -157,12 +148,6 @@ namespace TerraScience.Content.UI {
 				
 			if(secondDisplay != null)
 				SetDisplay(ref display2, secondDisplay.Value, leftDisplay: false);
-
-			if(!PanelHasChild(display1))
-				AppendElement(display1);
-
-			if(!PanelHasChild(display2))
-				AppendElement(display2);
 
 			//Update the ingredient slots
 			RecipeIngredientSet set = DatalessMachineInfo.recipeIngredients[itemType];
@@ -210,11 +195,12 @@ namespace TerraScience.Content.UI {
 
 		internal override void InitializeText(List<UIText> text) {
 			// TODO: text for displaying what machine is in the slot
-			statsText = new UIText("");
+			statsText = new UIText("Place a machine item in the slot to the left" +
+				"\nto see statistics for its machine");
 			statsText.Left.Set(0, 0);
 			statsText.Top.Set(0, 0);
 
-			descriptionText = new UIText("");
+			descriptionText = new UIText("The description for the machine would go here");
 			descriptionText.Left.Set(0, 0);
 			descriptionText.Top.Set(0, 0);
 		}
@@ -253,6 +239,9 @@ namespace TerraScience.Content.UI {
 			panelDescription.Left.Set(20, 0);
 			panelDescription.Top.Set(210, 0);
 			panel.Append(panelDescription);
+
+			panelStats.Append(statsText);
+			panelDescription.Append(descriptionText);
 		}
 
 		public override void PreClose(){
@@ -260,28 +249,43 @@ namespace TerraScience.Content.UI {
 				Main.LocalPlayer.QuickSpawnClonedItem(item.StoredItem, item.StoredItem.stack);
 				item.SetItem(new Item());
 			}
+
+			RemoveDisplay(ref display1);
+			RemoveDisplay(ref display2);
+
+			//Force one final update to update the text
+			UpdateEntity();
 		}
 
 		private void SetDisplay(ref UIScienceWorkbenchDisplay display, RegistryAnimation registry, bool leftDisplay){
+			bool newInstance = display is null;
+
 			var texture = ModContent.GetTexture(registry.texture);
 			
-			int maxDim = Math.Max(texture.Width, texture.Height);
+			int width = registry.frame?.Width ?? texture.Width;
+			int height = registry.frame?.Height ?? texture.Height;
+
+			int maxDim = Math.Max(width, height);
 			float scale = maxDim > 80 ? 80f / maxDim : 1f;
 			const int topBase = 500;
-			float top = texture.Height * scale < 80 ? topBase + 80 - texture.Height * scale : topBase;
+			float top = height * scale < 80 ? topBase + 80 - height * scale : topBase;
 
 			if(display is null)
 				display = new UIScienceWorkbenchDisplay(registry.texture, registry.frame);
 			else
 				display.SetImage(registry.texture, registry.frame);
-			display.Left.Set(leftDisplay ? 20 : 120, 0);
+
+			display.Left.Set(leftDisplay ? 60 : 200, 0);
 			display.Top.Set(top, 0);
 			display.Scale = scale;
+
+			if(newInstance)
+				AppendElement(display);
 		}
 
 		private void RemoveDisplay(ref UIScienceWorkbenchDisplay display){
-			if(display != null)
-				RemoveElement(display);
+			display?.Remove();
+			display = null;
 		}
 	}
 }

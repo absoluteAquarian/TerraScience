@@ -26,16 +26,26 @@ namespace TerraScience {
 				.AddIngredient(ItemID.Torch, 30)
 				.AddRecipeGroup(RecipeGroupID.IronBar, 4));
 
+			//Science workbench has a regular recipe, but its recipe set still needs to be added
+			RecipeIngredientSet scienceWorkbenchSet = new RecipeIngredientSet()
+				.AddRecipeGroup(RecipeGroupID.Wood, 20)
+				.AddIngredient(ItemID.CopperBar, 5)
+				.AddIngredient(ItemID.Glass, 8)
+				.AddIngredient(ItemID.GrayBrick, 30);
+
 			DatalessMachineInfo.recipes.Add(ModContent.ItemType<ScienceWorkbenchItem>(), mod => {
 				ModRecipe recipe = new ModRecipe(mod);
-				recipe.AddRecipeGroup(RecipeGroupID.Wood, 20);
-				recipe.AddIngredient(ItemID.CopperBar, 5);
-				recipe.AddIngredient(ItemID.Glass, 8);
-				recipe.AddIngredient(ItemID.GrayBrick, 30);
+
+				scienceWorkbenchSet.Apply(recipe);
+
 				recipe.AddTile(TileID.WorkBenches);
 				recipe.SetResult(ItemType("DatalessScienceWorkbench"), 1);
 				recipe.AddRecipe();
+
+				scienceWorkbenchSet.recipeIndex = recipe.RecipeIndex;
 			});
+
+			DatalessMachineInfo.recipeIngredients[ModContent.ItemType<ScienceWorkbenchItem>()] = scienceWorkbenchSet;
 
 			DatalessMachineInfo.Register<ReinforcedFurnaceItem>(new RecipeIngredientSet()
 				.AddIngredient(ItemID.GrayBrick, 40)

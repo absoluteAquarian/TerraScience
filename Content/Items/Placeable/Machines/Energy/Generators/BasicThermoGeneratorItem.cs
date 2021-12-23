@@ -13,7 +13,7 @@ namespace TerraScience.Content.Items.Placeable.Machines.Energy.Generators{
 		internal override ScienceWorkbenchItemRegistry GetRegistry()
 			=> new ScienceWorkbenchItemRegistry(
 				tick => new RegistryAnimation(MachineTile.GetExampleTexturePath("off")),
-				tick => new RegistryAnimation(MachineTile.GetExampleTexturePath("on"), frameY: tick % 20 / 10, rowCount: 2),
+				tick => new RegistryAnimation(MachineTile.GetExampleTexturePath("on"), frameY: tick % 20 / 10, rowCount: 2, buffer: 2),
 				"Burns food and wood into Terra Flux (TF)",
 				consumeTFLine: null,
 				produceTFLine: "Per game tick, amount production variable");

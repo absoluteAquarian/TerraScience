@@ -15,7 +15,7 @@ namespace TerraScience.Content.Items.Placeable.Machines.Energy{
 
 			return new ScienceWorkbenchItemRegistry(
 				tick => new RegistryAnimation(MachineTile.GetExampleTexturePath("empty")),
-				tick => new RegistryAnimation(MachineTile.GetExampleTexturePath("plants"), frameX: frame % 8, frameY: frame / 8, columnCount: 8, rowCount: 4),
+				tick => new RegistryAnimation(MachineTile.GetExampleTexturePath("plants"), frameX: frame % 8, frameY: frame / 8, columnCount: 8, rowCount: 4, buffer: 2),
 				"Automatically grows and harvests plants.  Works faster when powered",
 				consumeTFLine: "Per game tick, " + GetMachineFluxUsageString(perGameTick: true),
 				produceTFLine: null);

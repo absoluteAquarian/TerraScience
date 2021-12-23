@@ -130,5 +130,10 @@ namespace TerraScience.Utilities {
 				arr[i] = defaultValue;
 			return arr;
 		}
+
+		public static void Resize(this ref Rectangle? rect, int widthOffset = 0, int heightOffset = 0){
+			if(rect is Rectangle r)
+				rect = new Rectangle(r.X, r.Y, r.Width + widthOffset, r.Height + heightOffset);
+		}
 	}
 }
