@@ -84,8 +84,8 @@ namespace TerraScience.Content.UI {
 		public override int TileType => ModContent.TileType<ScienceWorkbench>();
 
 		internal override void PanelSize(out int width, out int height){
-			width = 400;
-			height = 550;
+			width = 550;
+			height = 600;
 		}
 
 		internal override void UpdateEntity(){
@@ -106,8 +106,8 @@ namespace TerraScience.Content.UI {
 				statsText.SetText("");
 				descriptionText.SetText("");
 
-				for(int i = 1; i < UIEntity.SlotsCount; i++)
-					GetSlot(0).SetItem(new Item());
+				for(int i = 1; i < 15; i++)
+					GetSlot(i).SetItem(new Item());
 
 				return;
 			}
@@ -117,7 +117,7 @@ namespace TerraScience.Content.UI {
 
 			var registry = machine.ItemRegistry;
 			Machine tile = ModContent.GetModTile(machine.TileType) as Machine;
-			tile.GetDefaultParams(out _, out uint width, out uint height, out int itemType);
+			tile.GetDefaultParams(out string name, out uint width, out uint height, out int itemType);
 
 			if(statsText.Text == "" || GetSlot(0).ItemTypeChanged){
 				if(!panelStats.HasChild(statsText))
@@ -126,8 +126,8 @@ namespace TerraScience.Content.UI {
 					panelDescription.Append(descriptionText);
 
 				//Set the stats
-				statsText.SetText($"Machine: {machine.Name}" +
-					$"\nSize: {width}x{height} tiles" +
+				statsText.SetText($"Machine: {name}" +
+					$"\nSize: {width} x {height} tiles" +
 					"\n" + GetMachineClassification());
 
 				//Set the description
@@ -158,36 +158,39 @@ namespace TerraScience.Content.UI {
 			if(secondDisplay != null)
 				SetDisplay(ref display2, secondDisplay.Value, leftDisplay: false);
 
-			if(display1 != null)
+			if(!PanelHasChild(display1))
 				AppendElement(display1);
 
-			if(display2 != null)
+			if(!PanelHasChild(display2))
 				AppendElement(display2);
 
 			//Update the ingredient slots
 			RecipeIngredientSet set = DatalessMachineInfo.recipeIngredients[itemType];
 
-			for(int i = 0; i < UIEntity.SlotsCount - 1; i++)
+			for(int i = 0; i < 14; i++)
 				GetSlot(i + 1).SetItem(set[i]);
 		}
 
 		private string GetMachineClassification(){
 			StringBuilder classification = new StringBuilder();
 
-			if(UIEntity is Battery)
+			Item slot = UIEntity.RetrieveItem(0);
+			MachineEntity entity = (slot.modItem as MachineItem).Machine;
+
+			if(entity is Battery)
 				classification.Append("Terra Flux Storage");
-			else if(UIEntity is GeneratorEntity)
+			else if(entity is GeneratorEntity)
 				classification.Append("Terra Flux Generator");
-			else if(UIEntity is PoweredMachineEntity)
+			else if(entity is PoweredMachineEntity)
 				classification.Append("Powered Machine");
 			else
 				classification.Append("Generic Machine");
 
-			bool hasLiquid = UIEntity is ILiquidMachine;
-			bool hasGas = UIEntity is IGasMachine;
-			UIEntity.HijackCanBeInteractedWithItemNetworks(out _, out bool canInput, out bool canOutput);
-			bool hasInput = canInput || UIEntity.GetInputSlots().Length > 0;
-			bool hasOutput = canOutput || UIEntity.GetOutputSlots().Length > 0;
+			bool hasLiquid = entity is ILiquidMachine;
+			bool hasGas = entity is IGasMachine;
+			entity.HijackCanBeInteractedWithItemNetworks(out _, out bool canInput, out bool canOutput);
+			bool hasInput = canInput || entity.GetInputSlots().Length > 0;
+			bool hasOutput = canOutput || entity.GetOutputSlots().Length > 0;
 
 			if(hasInput && hasOutput)
 				classification.Append(", Input/Output");
@@ -208,28 +211,28 @@ namespace TerraScience.Content.UI {
 		internal override void InitializeText(List<UIText> text) {
 			// TODO: text for displaying what machine is in the slot
 			statsText = new UIText("");
-			statsText.Left.Set(100, 0);
-			statsText.Top.Set(90, 0);
+			statsText.Left.Set(0, 0);
+			statsText.Top.Set(0, 0);
 
 			descriptionText = new UIText("");
-			descriptionText.Left.Set(40, 0);
-			descriptionText.Top.Set(230, 0);
+			descriptionText.Left.Set(0, 0);
+			descriptionText.Top.Set(0, 0);
 		}
 
 		internal override void InitializeSlots(List<UIItemSlot> slots){
 			slots.Add(item = new UIItemSlot(){
 				ValidItemFunc = item => item.IsAir || item.modItem is MachineItem
 			});
-			item.Left.Set(40, 0);
+			item.Left.Set(15, 0);
 			item.Top.Set(70, 0);
 
 			//Recipe slots
 			for(int i = 0; i < 14; i++){
-				UIItemSlot slot = new UIItemSlot(scale: 0.8f){
+				UIItemSlot slot = new UIItemSlot(){
 					IgnoreClicks = true  //Allow the item info to be viewed, just not interacted with
 				};
-				slot.Left.Set(20 + i * Main.inventoryBack9Texture.Width * 0.8f, 0);
-				slot.Top.Set(400, 0);
+				slot.Left.Set(10 + (i % 7) * Main.inventoryBack9Texture.Width, 0);
+				slot.Top.Set(400 + Main.inventoryBack9Texture.Height * (i / 7), 0);
 
 				slots.Add(slot);
 			}
@@ -260,14 +263,11 @@ namespace TerraScience.Content.UI {
 		}
 
 		private void SetDisplay(ref UIScienceWorkbenchDisplay display, RegistryAnimation registry, bool leftDisplay){
-			if(display != null)
-				RemoveElement(display);
-
 			var texture = ModContent.GetTexture(registry.texture);
 			
 			int maxDim = Math.Max(texture.Width, texture.Height);
 			float scale = maxDim > 80 ? 80f / maxDim : 1f;
-			const int topBase = 450;
+			const int topBase = 500;
 			float top = texture.Height * scale < 80 ? topBase + 80 - texture.Height * scale : topBase;
 
 			if(display is null)

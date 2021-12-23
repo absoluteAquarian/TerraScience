@@ -9,7 +9,7 @@ namespace TerraScience.API.UI{
 		private Texture2D texture;
 		private Rectangle? frame;
 
-		public float Scale{ get; set; }
+		public float Scale{ get; set; } = 1f;
 
 		public Color DrawColor{ get; set; }
 
@@ -35,7 +35,7 @@ namespace TerraScience.API.UI{
 
 		protected override void DrawSelf(SpriteBatch spriteBatch){
 			var dims = GetDimensions();
-			spriteBatch.Draw(texture, dims.Position(), frame, DrawColor, 0, dims.ToRectangle().Size() / 2f, Scale, SpriteEffects.None, 0);
+			spriteBatch.Draw(texture, dims.Position(), frame, DrawColor, 0, Vector2.Zero, Scale, SpriteEffects.None, 0);
 		}
 	}
 }

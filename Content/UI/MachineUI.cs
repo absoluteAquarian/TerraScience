@@ -135,6 +135,8 @@ namespace TerraScience.Content.UI{
 			panel.Append(element);
 		}
 
+		protected bool PanelHasChild(UIElement element) => panel.HasChild(element);
+
 		public sealed override void OnInitialize(){
 			//Make the panel
 			panel = new UIDragablePanel();

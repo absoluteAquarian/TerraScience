@@ -18,9 +18,9 @@ namespace TerraScience.Content.Items.Placeable.Machines{
 
 		public abstract int TileType{ get; }
 
-		protected ModTile MachineTile => ModContent.GetModTile(TileType);
+		internal ModTile MachineTile => ModContent.GetModTile(TileType);
 
-		protected MachineEntity Machine => TileUtils.tileToEntity[TileType];
+		internal MachineEntity Machine => TileUtils.tileToEntity[TileType];
 
 		/// <summary>
 		/// Gets the flux usage as a string
