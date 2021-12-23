@@ -11,8 +11,9 @@ namespace TerraScience.Content.Items.Placeable.Machines.Energy{
 		public override string ItemTooltip => "Consumes Terra Flux (TF) to duplicate certain liquids";
 
 		internal override ScienceWorkbenchItemRegistry GetRegistry()
-			=> new ScienceWorkbenchItemRegistry(tick => MachineTile.GetExampleTexturePath("full"),
-				tick => MachineTile.GetExampleTexturePath("empty"),
+			=> new ScienceWorkbenchItemRegistry(
+				tick => new RegistryAnimation(MachineTile.GetExampleTexturePath("full")),
+				tick => new RegistryAnimation(MachineTile.GetExampleTexturePath("empty")),
 				ItemTooltip,
 				consumeTFLine: "Per operation, amount consumed variable",
 				produceTFLine: null);

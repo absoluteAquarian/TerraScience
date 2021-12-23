@@ -10,8 +10,9 @@ namespace TerraScience.Content.Items.Placeable.Machines{
 		public override string ItemTooltip => "Processes water-based liquids and extracts the salt from them";
 
 		internal override ScienceWorkbenchItemRegistry GetRegistry()
-			=> new ScienceWorkbenchItemRegistry(tick => MachineTile.GetExampleTexturePath("on"),
-				tick => MachineTile.GetExampleTexturePath("off"),
+			=> new ScienceWorkbenchItemRegistry(
+				tick => new RegistryAnimation(MachineTile.GetExampleTexturePath("off")),
+				tick => new RegistryAnimation(MachineTile.GetExampleTexturePath("on")),
 				ItemTooltip,
 				consumeTFLine: null,
 				produceTFLine: null);

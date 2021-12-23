@@ -10,8 +10,9 @@ namespace TerraScience.Content.Items.Placeable.Machines{
 		public override string ItemTooltip => "Burns wood into Coal";
 
 		internal override ScienceWorkbenchItemRegistry GetRegistry()
-			=> new ScienceWorkbenchItemRegistry(tick => MachineTile.GetExampleTexturePath("closed"),
-				tick => MachineTile.GetExampleTexturePath("openactive"),
+			=> new ScienceWorkbenchItemRegistry(
+				tick => new RegistryAnimation(MachineTile.GetExampleTexturePath("closed")),
+				tick => new RegistryAnimation(MachineTile.GetExampleTexturePath("openactive")),
 				ItemTooltip,
 				consumeTFLine: null,
 				produceTFLine: null);

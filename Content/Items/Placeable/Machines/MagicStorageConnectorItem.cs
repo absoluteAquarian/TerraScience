@@ -13,7 +13,8 @@ namespace TerraScience.Content.Items.Placeable.Machines {
 			"\nHowever, it cannot be the bridge between two system nets";
 
 		internal override ScienceWorkbenchItemRegistry GetRegistry()
-			=> new ScienceWorkbenchItemRegistry(tick => MachineTile.GetExampleTexturePath("tile"),
+			=> new ScienceWorkbenchItemRegistry(
+				tick => new RegistryAnimation(MachineTile.GetExampleTexturePath("tile")),
 				tick => null,
 				"Allows extraction/insertion of items from/into Magic Storage storage" +
 				"\nsystems via Item Pumps and Item Pipes",

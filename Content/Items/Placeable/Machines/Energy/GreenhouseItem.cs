@@ -10,12 +10,16 @@ namespace TerraScience.Content.Items.Placeable.Machines.Energy{
 		public override string ItemTooltip => "Automatically grows and harvests saplings, cacti, mushroom grass and herbs" +
 			"\nDoes not require TF to function";
 
-		internal override ScienceWorkbenchItemRegistry GetRegistry()
-			=> new ScienceWorkbenchItemRegistry(tick => MachineTile.GetExampleTexturePath("empty"),
-				tick => MachineTile.GetExampleTexturePath("grass_sapling"),
+		internal override ScienceWorkbenchItemRegistry GetRegistry(){
+			int frame = Main.rand.Next(30);
+
+			return new ScienceWorkbenchItemRegistry(
+				tick => new RegistryAnimation(MachineTile.GetExampleTexturePath("empty")),
+				tick => new RegistryAnimation(MachineTile.GetExampleTexturePath("plants"), frameX: frame % 8, frameY: frame / 8, columnCount: 8, rowCount: 4),
 				"Automatically grows and harvests plants.  Works faster when powered",
 				consumeTFLine: "Per game tick, " + GetMachineFluxUsageString(perGameTick: true),
 				produceTFLine: null);
+		}
 
 		public override void SafeSetDefaults(){
 			item.width = 20;

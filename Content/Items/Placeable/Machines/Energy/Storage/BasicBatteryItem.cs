@@ -12,7 +12,8 @@ namespace TerraScience.Content.Items.Placeable.Machines.Energy.Storage{
 		public override string ItemTooltip => "Stores Terra Flux (TF)";
 
 		internal override ScienceWorkbenchItemRegistry GetRegistry()
-			=> new ScienceWorkbenchItemRegistry(tick => MachineTile.GetExampleTexturePath("tile"),
+			=> new ScienceWorkbenchItemRegistry(
+				tick => new RegistryAnimation(MachineTile.GetExampleTexturePath("tile")),
 				tick => null,
 				ItemTooltip,
 				consumeTFLine: null,

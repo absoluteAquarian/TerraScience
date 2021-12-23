@@ -12,8 +12,9 @@ namespace TerraScience.Content.Items.Placeable.Machines{
 			"\nCan be \"locked\" to only store one item type, even when running out of actual items";
 
 		internal override ScienceWorkbenchItemRegistry GetRegistry()
-			=> new ScienceWorkbenchItemRegistry(tick => MachineTile.GetExampleTexturePath("tile"),
-				tick => null,
+			=> new ScienceWorkbenchItemRegistry(
+				tick => new RegistryAnimation(MachineTile.GetExampleTexturePath("empty")),
+				tick => new RegistryAnimation(MachineTile.GetExampleTexturePath("locked")),
 				"Stores large quantities of a singular item type",
 				consumeTFLine: null,
 				produceTFLine: null);

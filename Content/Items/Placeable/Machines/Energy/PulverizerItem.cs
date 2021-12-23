@@ -11,8 +11,9 @@ namespace TerraScience.Content.Items.Placeable.Machines.Energy{
 		public override string ItemTooltip => "Crushes certain blocks into powder and other useful materials";
 
 		internal override ScienceWorkbenchItemRegistry GetRegistry()
-			=> new ScienceWorkbenchItemRegistry(tick => MachineTile.GetExampleTexturePath("tile"),
-				tick => null,
+			=> new ScienceWorkbenchItemRegistry(
+				tick => new RegistryAnimation(MachineTile.GetExampleTexturePath("tile")),
+				tick => new RegistryAnimation(MachineTile.GetExampleTexturePath("anim"), frameY: tick % 48 / 4, rowCount: 12),
 				ItemTooltip,
 				consumeTFLine: "Per game tick, " + GetMachineFluxUsageString(perGameTick: true),
 				produceTFLine: null);

@@ -11,8 +11,9 @@ namespace TerraScience.Content.Items.Placeable.Machines{
 		public override string ItemTooltip => "Stores liquids and gases";
 
 		internal override ScienceWorkbenchItemRegistry GetRegistry()
-			=> new ScienceWorkbenchItemRegistry(tick => MachineTile.GetExampleTexturePath("full"),
-				tick => MachineTile.GetExampleTexturePath("empty"),
+			=> new ScienceWorkbenchItemRegistry(
+				tick => new RegistryAnimation(MachineTile.GetExampleTexturePath("empty")),
+				tick => new RegistryAnimation(MachineTile.GetExampleTexturePath("full")),
 				ItemTooltip,
 				consumeTFLine: null,
 				produceTFLine: null);

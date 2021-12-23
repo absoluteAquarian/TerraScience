@@ -11,8 +11,9 @@ namespace TerraScience.Content.Items.Placeable.Machines.Energy{
 		public override string ItemTooltip => "Crushes plants into Dirt";
 
 		internal override ScienceWorkbenchItemRegistry GetRegistry()
-			=> new ScienceWorkbenchItemRegistry(tick => MachineTile.GetExampleTexturePath("up_plant"),
-				tick => MachineTile.GetExampleTexturePath("down"),
+			=> new ScienceWorkbenchItemRegistry(
+				tick => new RegistryAnimation(MachineTile.GetExampleTexturePath("tile")),
+				tick => new RegistryAnimation(MachineTile.GetExampleTexturePath("anim"), frameX: tick % 5, frameY: tick % 30 / 6, columnCount: 5, rowCount: 6),
 				ItemTooltip,
 				consumeTFLine: "Per game tick, " + GetMachineFluxUsageString(perGameTick: true),
 				produceTFLine: null);

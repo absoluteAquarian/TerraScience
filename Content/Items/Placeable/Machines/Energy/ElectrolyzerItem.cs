@@ -10,11 +10,12 @@ namespace TerraScience.Content.Items.Placeable.Machines.Energy{
 		public override string ItemTooltip => "Consumes Terra Flux and certain liquids to produce gases";
 
 		internal override ScienceWorkbenchItemRegistry GetRegistry()
-			=> new ScienceWorkbenchItemRegistry(tick => MachineTile.GetExampleTexturePath("full"),
-				tick => MachineTile.GetExampleTexturePath("empty"),
+			=> new ScienceWorkbenchItemRegistry(
+				tick => new RegistryAnimation(MachineTile.GetExampleTexturePath("empty")),
+				tick => new RegistryAnimation(MachineTile.GetExampleTexturePath("full")),
 				ItemTooltip,
 				consumeTFLine: "Per operation, " + GetMachineFluxUsageString(perGameTick: false),
-				produceTFLine: "");
+				produceTFLine: null);
 
 		public override void SafeSetDefaults(){
 			item.width = 24;

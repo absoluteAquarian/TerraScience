@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Terraria;
@@ -15,8 +16,35 @@ using TerraScience.Content.Tiles.Multitiles;
 using TerraScience.Utilities;
 
 namespace TerraScience.Content.UI {
+	public struct RegistryAnimation{
+		public readonly string texture;
+		public readonly Rectangle? frame;
+
+		public RegistryAnimation(string texture){
+			this.texture = texture;
+			frame = null;
+		}
+
+		public RegistryAnimation(string texture, Rectangle? frame){
+			this.texture = texture;
+			this.frame = frame;
+		}
+
+		public RegistryAnimation(string texture, int frameX = 0, int frameY = 0, int columnCount = 1, int rowCount = 1){
+			this.texture = texture;
+			var tex = ModContent.GetTexture(texture);
+			frame = tex.Frame(columnCount, rowCount, frameX, frameY);
+		}
+
+		public RegistryAnimation(string texture, uint frameX = 0, uint frameY = 0, uint columnCount = 1, uint rowCount = 1){
+			this.texture = texture;
+			var tex = ModContent.GetTexture(texture);
+			frame = tex.Frame((int)columnCount, (int)rowCount, (int)frameX, (int)frameY);
+		}
+	}
+
 	public class ScienceWorkbenchItemRegistry{
-		public delegate string GetDisplay(uint currentTick);
+		public delegate RegistryAnimation? GetDisplay(uint currentTick);
 
 		public readonly GetDisplay GetFirstDisplay;
 		public readonly GetDisplay GetSecondDisplay;
@@ -46,7 +74,7 @@ namespace TerraScience.Content.UI {
 	public class ScienceWorkbenchUI : MachineUI{
 		public UIItemSlot item;
 
-		public UIImage display1, display2;
+		public UIScienceWorkbenchDisplay display1, display2;
 		public UIPanel panelStats, panelDescription;
 
 		public UIText statsText, descriptionText;
@@ -114,21 +142,21 @@ namespace TerraScience.Content.UI {
 				descriptionText.SetText(desc.ToString());
 			}
 
-			string firstDisplay = registry.GetFirstDisplay(Main.GameUpdateCount);
-			string secondDisplay = registry.GetSecondDisplay(Main.GameUpdateCount);
+			var firstDisplay = registry.GetFirstDisplay(Main.GameUpdateCount);
+			var secondDisplay = registry.GetSecondDisplay(Main.GameUpdateCount);
 
 			//If first is null, but second isn't, treat second as first
 			if(firstDisplay is null && secondDisplay != null){
 				firstDisplay = secondDisplay;
-				secondDisplay = null;
+				secondDisplay = default;
 			}
 
 			//Set the displays
 			if(firstDisplay != null)
-				SetDisplay(ref display1, firstDisplay, leftDisplay: true);
+				SetDisplay(ref display1, firstDisplay.Value, leftDisplay: true);
 				
 			if(secondDisplay != null)
-				SetDisplay(ref display2, secondDisplay, leftDisplay: false);
+				SetDisplay(ref display2, secondDisplay.Value, leftDisplay: false);
 
 			if(display1 != null)
 				AppendElement(display1);
@@ -231,28 +259,29 @@ namespace TerraScience.Content.UI {
 			}
 		}
 
-		private void SetDisplay(ref UIImage display, string path, bool leftDisplay){
+		private void SetDisplay(ref UIScienceWorkbenchDisplay display, RegistryAnimation registry, bool leftDisplay){
 			if(display != null)
 				RemoveElement(display);
 
-			var texture = ModContent.GetTexture(path);
+			var texture = ModContent.GetTexture(registry.texture);
 			
 			int maxDim = Math.Max(texture.Width, texture.Height);
 			float scale = maxDim > 80 ? 80f / maxDim : 1f;
 			const int topBase = 450;
 			float top = texture.Height * scale < 80 ? topBase + 80 - texture.Height * scale : topBase;
 
-			display = new UIImage(texture);
+			if(display is null)
+				display = new UIScienceWorkbenchDisplay(registry.texture, registry.frame);
+			else
+				display.SetImage(registry.texture, registry.frame);
 			display.Left.Set(leftDisplay ? 20 : 120, 0);
 			display.Top.Set(top, 0);
-			display.ImageScale = scale;
+			display.Scale = scale;
 		}
 
-		private void RemoveDisplay(ref UIImage display){
+		private void RemoveDisplay(ref UIScienceWorkbenchDisplay display){
 			if(display != null)
 				RemoveElement(display);
-
-			display = null;
 		}
 	}
 }

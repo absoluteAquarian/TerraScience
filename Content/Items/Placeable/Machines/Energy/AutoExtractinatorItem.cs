@@ -10,8 +10,9 @@ namespace TerraScience.Content.Items.Placeable.Machines.Energy{
 		public override string ItemTooltip => "Automatically extracts items from blocks that you can put in the Extractinator";
 
 		internal override ScienceWorkbenchItemRegistry GetRegistry()
-			=> new ScienceWorkbenchItemRegistry(tick => MachineTile.GetExampleTexturePath("empty"),
-				tick => MachineTile.GetExampleTexturePath("block" + tick % 45 / 5),
+			=> new ScienceWorkbenchItemRegistry(
+				tick => new RegistryAnimation(MachineTile.GetExampleTexturePath("empty")),
+				tick => new RegistryAnimation(MachineTile.GetExampleTexturePath("block"), frameY: tick % 45 / 5, rowCount: 9),
 				"Automatically extracts items from blocks that you can put" +
 				"\nin the Extractinator",
 				consumeTFLine: "Per game tick, " + GetMachineFluxUsageString(perGameTick: true),

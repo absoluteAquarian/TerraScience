@@ -12,7 +12,8 @@ namespace TerraScience.Content.Items.Placeable.Machines.Energy.Generators{
 		public override string ItemTooltip => "Generates Terra Flux (TF) based on the time of day and weather";
 
 		internal override ScienceWorkbenchItemRegistry GetRegistry()
-			=> new ScienceWorkbenchItemRegistry(tick => MachineTile.GetExampleTexturePath("turn" + (tick % 60 < 20 ? "left" : tick % 60 < 40 ? "middle" : "right")),
+			=> new ScienceWorkbenchItemRegistry(
+				tick => new RegistryAnimation(MachineTile.GetExampleTexturePath("tile"), frameY: tick % 60 / 20, rowCount: 3),
 				tick => null,
 				ItemTooltip,
 				consumeTFLine: null,

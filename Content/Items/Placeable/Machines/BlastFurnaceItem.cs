@@ -10,8 +10,9 @@ namespace TerraScience.Content.Items.Placeable.Machines{
 		public override string ItemTooltip => "Doubles gains from smelted ores";
 
 		internal override ScienceWorkbenchItemRegistry GetRegistry()
-			=> new ScienceWorkbenchItemRegistry(tick => MachineTile.GetExampleTexturePath("closed"),
-				tick => MachineTile.GetExampleTexturePath("open"),
+			=> new ScienceWorkbenchItemRegistry(
+				tick => new RegistryAnimation(MachineTile.GetExampleTexturePath("closed")),
+				tick => new RegistryAnimation(MachineTile.GetExampleTexturePath("open")),
 				ItemTooltip,
 				consumeTFLine: null,
 				produceTFLine: null);
