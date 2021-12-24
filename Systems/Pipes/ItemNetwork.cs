@@ -263,16 +263,6 @@ namespace TerraScience.Systems.Pipes{
 		}
 
 		public override void Load(TagCompound tag){
-			if(tag.GetList<TagCompound>("paths") is List<TagCompound> tags){
-				paths = tags.Select(t => ItemNetworkPath.Load(t)).ToList();
-
-				foreach(var path in paths){
-					path.itemNetwork = this;
-					path.needsPathRefresh = true;
-				}
-			}else
-				paths = new List<ItemNetworkPath>();
-
 			if(tag.GetList<Point16>("pumpPositions") is List<Point16> dirPos && tag.GetList<short>("pumpDirs") is List<short> dirDirs){
 				if(dirPos.Count == dirDirs.Count)
 					for(int i = 0; i < dirPos.Count; i++)
@@ -291,6 +281,27 @@ namespace TerraScience.Systems.Pipes{
 			}
 
 			RefreshConnections(NetworkCollection.ignoreCheckLocation);
+
+			if(tag.GetList<TagCompound>("paths") is List<TagCompound> tags){
+				paths = tags.Select(t => ItemNetworkPath.Load(t)).ToList();
+
+				foreach(var path in paths){
+					path.itemNetwork = this;
+
+					if(path.Path != null){
+						//Ensure the path is correct.  If it is not, make it be recalculated
+						foreach(var tile in path.Path){
+							if(!HasEntryAt(tile)){
+								path.needsPathRefresh = true;
+								path.delayPathCalc = false;
+
+								break;
+							}
+						}
+					}
+				}
+			}else
+				paths = new List<ItemNetworkPath>();
 		}
 
 		public override TagCompound CombineSave()

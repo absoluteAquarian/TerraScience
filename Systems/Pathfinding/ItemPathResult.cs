@@ -2,7 +2,7 @@
 using Terraria.DataStructures;
 
 namespace TerraScience.Systems.Pathfinding{
-	public class ItemPathResult{
+	public struct ItemPathResult{
 		public float time;
 		public List<Point16> list;
 	}

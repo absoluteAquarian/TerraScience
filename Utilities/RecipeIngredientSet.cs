@@ -72,11 +72,11 @@ namespace TerraScience.Utilities{
 				hoverItemName = theText;
 
 			if(Main.recipe[recipeIndex].anyIronBar && item.type == ItemID.IronBar)
-				hoverItemName = Language.GetTextValue("LegacyMisc.37") + " " + Lang.GetItemNameValue(22);
+				hoverItemName = Language.GetTextValue("LegacyMisc.37") + " " + Lang.GetItemNameValue(ItemID.IronBar);
 			else if(Main.recipe[recipeIndex].anyWood && item.type == ItemID.Wood)
-				hoverItemName = Language.GetTextValue("LegacyMisc.37") + " " + Lang.GetItemNameValue(9);
+				hoverItemName = Language.GetTextValue("LegacyMisc.37") + " " + Lang.GetItemNameValue(ItemID.Wood);
 			else if(Main.recipe[recipeIndex].anySand && item.type == ItemID.SandBlock)
-				hoverItemName = Language.GetTextValue("LegacyMisc.37") + " " + Lang.GetItemNameValue(169);
+				hoverItemName = Language.GetTextValue("LegacyMisc.37") + " " + Lang.GetItemNameValue(ItemID.SandBlock);
 			else if(Main.recipe[recipeIndex].anyFragment && item.type == ItemID.FragmentSolar)
 				hoverItemName = Language.GetTextValue("LegacyMisc.37") + " " + Language.GetTextValue("LegacyMisc.51");
 			else if(Main.recipe[recipeIndex].anyPressurePlate && item.type == ItemID.GrayPressurePlate)

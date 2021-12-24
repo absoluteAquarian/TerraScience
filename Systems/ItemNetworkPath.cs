@@ -48,6 +48,8 @@ namespace TerraScience.Systems {
 
 		public bool removed;
 
+		private bool pumpForcedNewPath;
+
 		private ItemNetworkPath(){
 			id = nextID++;
 		}
@@ -55,14 +57,22 @@ namespace TerraScience.Systems {
 		public TagCompound Save()
 			=> new TagCompound(){
 				["data"] = itemData,
-				["pos"] = worldCenter
+				["pos"] = worldCenter,
+				["path"] = currentPath != null ? new List<Point16>(currentPath) : null
 			};
 
-		public static ItemNetworkPath Load(TagCompound tag)
-			=> new ItemNetworkPath(){
+		public static ItemNetworkPath Load(TagCompound tag){
+			var item = new ItemNetworkPath(){
 				itemData = tag.GetCompound("data"),
-				worldCenter = tag.Get<Vector2>("pos")
+				worldCenter = tag.Get<Vector2>("pos"),
+				currentPath = tag.GetList<Point16>("path") is List<Point16> list ? new Queue<Point16>(list) : null
 			};
+
+			if(item.currentPath?.Count > 0)
+				item.needsPathRefresh = false;
+
+			return item;
+		}
 
 		public void Delete(){
 			currentPath = null;
@@ -87,7 +97,8 @@ namespace TerraScience.Systems {
 			ItemNetworkPath path = new ItemNetworkPath(){
 				itemData = ItemIO.Save(item),
 				itemNetwork = network,
-				worldCenter = pumpSource.ToWorldCoordinates()
+				worldCenter = pumpSource.ToWorldCoordinates(),
+				pumpForcedNewPath = true
 			};
 
 			if(pathOverride?.Count > 0){
@@ -121,25 +132,34 @@ namespace TerraScience.Systems {
 
 			var newTilePos = worldCenter.ToTileCoordinates16();
 
+			Tile sourceTile = Framing.GetTileSafely(newTilePos);
+
 			if(delayPathCalc && itemNetwork.HasEntryAt(newTilePos))
 				delayPathCalc = false;
+
+			if(pumpForcedNewPath && itemNetwork.HasEntryAt(newTilePos) && !(ModContent.GetModTile(sourceTile.type) is ItemPumpTile))
+				pumpForcedNewPath = false;
 
 			CalculatePath();
 
 			MoveAlongNetwork();
 
 			newTilePos = worldCenter.ToTileCoordinates16();
-			Tile sourceTile = Framing.GetTileSafely(newTilePos);
+			sourceTile = Framing.GetTileSafely(newTilePos);
 
-			if(ModContent.GetModTile(sourceTile.type) is ItemPumpTile pump){
-				//Force the move direction to be away from the pump
-				moveDir = -(pump.GetBackwardsOffset(newTilePos) - newTilePos).ToVector2();
+			if(!pumpForcedNewPath && ModContent.GetModTile(sourceTile.type) is ItemPumpTile pump){
+				//Get a new path
+				needsPathRefresh = true;
+				delayPathCalc = false;
 
-				if(wander){
-					//Get a new path
-					needsPathRefresh = true;
-					delayPathCalc = false;
-				}
+				wander = false;
+
+				CalculatePath();
+
+				if(!wander)
+					moveDir *= -1;
+
+				pumpForcedNewPath = true;
 			}
 
 			if(!delayPathCalc && (!sourceTile.active() || !itemNetwork.HasEntryAt(newTilePos))){
@@ -319,11 +339,11 @@ namespace TerraScience.Systems {
 			Item item = ItemIO.Load(itemData);
 
 			foreach(var pos in itemNetwork.pipesConnectedToChests){
-				Chest chest = FindConnectedChest(itemNetwork, pos, item, out Point16 location);
+				Chest chest = FindConnectedChest(itemNetwork, pos, item, out _);
 				if(chest is null)
 					continue;
 
-				var path = AStar.SimulateItemNetwork(itemNetwork, worldTile, location, out float travelTime);
+				var path = AStar.SimulateItemNetwork(itemNetwork, worldTile, pos, out float travelTime);
 				if(path != null)
 					pathToTargets.Add(new ItemPathResult(){ time = travelTime, list = path });
 			}
@@ -345,9 +365,9 @@ namespace TerraScience.Systems {
 				currentPath = null;
 			}else{
 				//Get the shortest path
-				List<Point16> list = pathToTargets.OrderBy(t => t.time).Where(t => t.list != null && t.list.Count > 0).FirstOrDefault().list;
+				List<Point16> list = pathToTargets.OrderBy(t => t.time).Where(t => t.list != null && t.list.Count > 1).FirstOrDefault().list;
 
-				if((list?.Count ?? 0) == 0){
+				if((list?.Count ?? 0) <= 1){
 					wander = true;
 					currentPath = null;
 					return;
