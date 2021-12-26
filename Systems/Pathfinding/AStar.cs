@@ -38,7 +38,16 @@ namespace TerraScience.Systems.Pathfinding{
 
 			public override string ToString() => $"Heuristic: {Heuristic}, Location: (X: {location.X}, Y: {location.Y})";
 		}
-		
+
+		private class EntryComparer : IComparer<Entry>{
+			public static readonly EntryComparer Instance = new EntryComparer();
+
+			public int Compare(Entry x, Entry y)
+				=> x.Heuristic.CompareTo(y.Heuristic);
+		}
+
+		private static PriorityQueue<Entry> activeMaze;
+
 		/// <summary>
 		/// Finds a series of tile positions that connects <paramref name="source"/> to <paramref name="target"/> in the item network <paramref name="net"/>
 		/// </summary>
@@ -61,63 +70,68 @@ namespace TerraScience.Systems.Pathfinding{
 			//Search through the network until a path to "target" is found
 			var netEntries = copy.GetEntries();
 			
-			List<Entry> activeMaze = new List<Entry>();
-			List<Entry> visitedMaze = new List<Entry>();
+			if(activeMaze is null)
+				activeMaze = new PriorityQueue<Entry>(netEntries.Count, EntryComparer.Instance);
+
+			HashSet<Entry> visitedMaze = new HashSet<Entry>();
 			
 			//Add the root entry
 			Entry root = new Entry(){ location = source };
-			activeMaze.Add(root);
+			activeMaze.Push(root);
 
-			//Keep looping while there's still entries to check
-			while(activeMaze.Count > 0){
-				Entry check = activeMaze.OrderBy(e => e.Heuristic).First();
+			try{
+				//Keep looping while there's still entries to check
+				while(activeMaze.Count > 0){
+					Entry check = activeMaze.Top;
 
-				if(check.location == target){
-					//Path found; construct it based on the entry parents
-					List<Entry> path = new List<Entry>(){ check };
-					travelTime = 0;
+					if(check.location == target){
+						//Path found; construct it based on the entry parents
+						List<Entry> path = new List<Entry>(){ check };
+						travelTime = 0;
 
-					while(check.parent != null){
-						travelTime += check.travelTime;
+						while(check.parent != null){
+							travelTime += check.travelTime;
 
-						path.Add(check.parent.Value);
-						check = check.parent.Value;
+							path.Add(check.parent.Value);
+							check = check.parent.Value;
+						}
+
+						return path.Select(e => e.location).ToList();
 					}
 
-					return path.Select(e => e.location).ToList();
-				}
+					visitedMaze.Add(check);
+					activeMaze.Pop();
 
-				visitedMaze.Add(check);
-				activeMaze.Remove(check);
+					List<Entry> walkables = GetItemWalkableEntires(net, visitedMaze, check, target);
 
-				List<Entry> walkables = GetItemWalkableEntires(net, visitedMaze, check, target);
+					//Check the surrounding entries
+					foreach(Entry walkable in walkables){
+						//If this walkable entry is already in the active list, but the existing entry has a worse heuristic, replace it
+						//Otherwise, just add the walkable entry to the active list
 
-				//Check the surrounding entries
-				foreach(Entry walkable in walkables){
-					Entry activeCheck;
-
-					//If this walkable entry is already in the active list, but the existing entry has a worse heuristic, replace it
-					//Otherwise, just add the walkable entry to the active list
-
-					//List.IndexOf() ends up using the == and != operators for comparing values, which is good for this scenario
-					int index = activeMaze.IndexOf(walkable);
+						//List.IndexOf() ends up using the == and != operators for comparing values, which is good for this scenario
+						int index = activeMaze.FindIndex(walkable);
 					
-					if(index >= 0){
-						activeCheck = activeMaze[index];
-						if(activeCheck.Heuristic > check.Heuristic){
-							activeMaze.Remove(activeCheck);
-							activeMaze.Add(walkable);
-						}
-					}else
-						activeMaze.Add(walkable);
-				}
-			}
+						if(index >= 0){
+							//"activeCheck" will have the same position as "walkable", but it may not have the same heuristic
+							Entry activeCheck = activeMaze.GetHeapValueAt(index);
 
-			//Could not find a path
-			return null;
+							if(activeCheck.Heuristic > walkable.Heuristic)
+								activeMaze.UpdateElement(walkable);
+						}else
+							activeMaze.Push(walkable);
+					}
+				}
+
+				//Could not find a path
+				return null;
+			}finally{
+				//Literally only needed for clearing up the queue
+				activeMaze?.Clear();
+			}
 		}
 
-		private static List<Entry> GetItemWalkableEntires(ItemNetwork net, List<Entry> existing, Entry parent, Point16 target){
+		private static List<Entry> GetItemWalkableEntires(ItemNetwork net, HashSet<Entry> existing, Entry parent, Point16 target){
 			List<Entry> possible = new List<Entry>(){
 				new Entry(){ location = parent.location + new Point16(0, -1), parent = new Ref<Entry>(parent) },
 				new Entry(){ location = parent.location + new Point16(-1, 0), parent = new Ref<Entry>(parent) },
@@ -156,7 +170,7 @@ namespace TerraScience.Systems.Pathfinding{
 				var possibleLoc = possible[i].location;
 				Tile tile = Framing.GetTileSafely(possibleLoc);
 
-				if(!tile.active() || existing.IndexOf(possible[i]) >= 0 || (!net.HasEntryAt(possibleLoc) && !net.HasMachineAt(possibleLoc) && !net.HasChestAt(possibleLoc)) || ModContent.GetModTile(tile.type) is ItemPumpTile){
+				if(!tile.active() || existing.Contains(possible[i]) || (!net.HasEntryAt(possibleLoc) && !net.HasMachineAt(possibleLoc) && !net.HasChestAt(possibleLoc)) || ModContent.GetModTile(tile.type) is ItemPumpTile){
 					possible.RemoveAt(i);
 					i--;
 				}else{

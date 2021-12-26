@@ -219,10 +219,10 @@ namespace TerraScience.Systems.Pipes{
 			if(!(ModContent.GetModTile(Framing.GetTileSafely(pump).type) is ItemPumpTile) || ID == -1)
 				return;
 
-			if(!pumpPathsToMachines.ContainsKey(pump))
-				pumpPathsToMachines.Add(pump, new List<ItemPathResult>());
+			if(!pumpPathsToMachines.TryGetValue(pump, out var machineList))
+				pumpPathsToMachines.Add(pump, machineList = new List<ItemPathResult>());
 			else
-				pumpPathsToMachines[pump].Clear();
+				machineList.Clear();
 
 			foreach(var pipeMachine in pipesConnectedToMachines){
 				var path = AStar.SimulateItemNetwork(this, pump, pipeMachine, out float travelTime);
@@ -230,14 +230,17 @@ namespace TerraScience.Systems.Pipes{
 				if(path != null && travelTime > 0){
 					path.Reverse();
 
-					pumpPathsToMachines[pump].Add(new ItemPathResult(){ time = travelTime, list = path });
+					machineList.Add(new ItemPathResult(){ time = travelTime, list = path });
 				}
 			}
 
-			if(!pumpPathsToChests.ContainsKey(pump))
-				pumpPathsToChests.Add(pump, new List<ItemPathResult>());
+			if(machineList.Count > 0)
+				pumpPathsToMachines[pump] = new List<ItemPathResult>(machineList.OrderBy(path => path.time));
+
+			if(!pumpPathsToChests.TryGetValue(pump, out var chestList))
+				pumpPathsToChests.Add(pump, chestList = new List<ItemPathResult>());
 			else
-				pumpPathsToChests[pump].Clear();
+				chestList.Clear();
 
 			foreach(var pipeChest in pipesConnectedToChests){
 				var path = AStar.SimulateItemNetwork(this, pump, pipeChest, out float travelTime);
@@ -245,9 +248,12 @@ namespace TerraScience.Systems.Pipes{
 				if(path != null && travelTime > 0){
 					path.Reverse();
 
-					pumpPathsToChests[pump].Add(new ItemPathResult(){ time = travelTime, list = path });
+					chestList.Add(new ItemPathResult(){ time = travelTime, list = path });
 				}
 			}
+
+			if(chestList.Count > 0)
+				pumpPathsToChests[pump] = new List<ItemPathResult>(chestList.OrderBy(path => path.time));
 		}
 
 		public override TagCompound Save(){

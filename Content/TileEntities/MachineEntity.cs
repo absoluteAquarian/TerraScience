@@ -400,7 +400,7 @@ namespace TerraScience.Content.TileEntities {
 		/// <param name="paths">The existing items in the item network</param>
 		/// <param name="success">If the simulation resulted in the <paramref name="incoming"/> being inserted into thsi machine's inventory</param>
 		/// <returns>Whether the behaviour was overwritten</returns>
-		public virtual bool HijackSimulateInput(Item incoming, List<ItemNetworkPath> paths, out bool success){
+		public virtual bool HijackSimulateInput(Item incoming, IEnumerable<ItemNetworkPath> paths, out bool success){
 			success = false;
 			return false;
 		}

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text.RegularExpressions;
 using Terraria;
 using Terraria.DataStructures;
@@ -135,5 +136,11 @@ namespace TerraScience.Utilities {
 			if(rect is Rectangle r)
 				rect = new Rectangle(r.X, r.Y, r.Width + widthOffset, r.Height + heightOffset);
 		}
+
+		public static double GetElapsedMicroseconds(this Stopwatch watch)
+			=> watch.ElapsedTicks * 1e6d / Stopwatch.Frequency;
+
+		public static double GetElapsedNanoseconds(this Stopwatch watch)
+			=> watch.ElapsedTicks * 1e9d / Stopwatch.Frequency;
 	}
 }

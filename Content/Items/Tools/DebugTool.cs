@@ -1,19 +1,82 @@
-﻿using Terraria;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using TerraScience.Content.TileEntities;
 using TerraScience.Content.Tiles;
+using TerraScience.Systems;
 using TerraScience.Utilities;
 
 namespace TerraScience.Content.Items.Tools{
 	public class DebugTool : ModItem{
 		public override string Texture => "Terraria/Item_" + ItemID.IronPickaxe;
 
+		public override bool CloneNewInstances => true;
+
+		public override void SetStaticDefaults(){
+			Tooltip.SetDefault("Displays debug information for Terraria Tech Mod" +
+				"\nPress <KEY> to toggle world information" +
+				"\nWhile holding, right click on one of the following to do something:" +
+				"\n  [c/cccc00:Muffler:] Clear the \"placed mufflers\" list" +
+				"\n  [c/cccc00:Any Item Pipe:] Force all items in the pipe's network to recalculate their movement paths" +
+				"\n  [c/cccc00:Any Machine:] Reset the machine's entity to its default state" +
+				"\n<NETWORK_COUNTS>" +
+				"\n<TOTAL_ITEMS>" +
+				"\n<NETWORK_TIMES>");
+		}
+
 		public override void SetDefaults(){
 			item.CloneDefaults(ItemID.IronPickaxe);
 			item.pick = 0;
 			item.value = 0;
+		}
+
+		public override void ModifyTooltips(List<TooltipLine> tooltips){
+			FindAndModify(tooltips, "<KEY>", () => {
+				var hotkeys = TechMod.DebugHotkey.GetAssignedKeys();
+
+				return "\"" + (hotkeys.Count > 0 ? hotkeys[0] : "<NOT BOUND>") + "\"";
+			});
+
+			FindAndInsertLines(tooltips, "<NETWORK_COUNTS>",
+				() => "Network Counts:" +
+				$"\n  Item Networks = {NetworkCollection.itemNetworks.Count} | Total Entries = {NetworkCollection.itemNetworks.Select(i => i.Hash.Count).Sum()}" +
+				$"\n  Wire Networks = {NetworkCollection.wireNetworks.Count} | Total Entries = {NetworkCollection.wireNetworks.Select(i => i.Hash.Count).Sum()}" +
+				$"\n  Fluid Networks = {NetworkCollection.fluidNetworks.Count} | Total Entries = {NetworkCollection.fluidNetworks.Select(i => i.Hash.Count).Sum()}");
+
+			FindAndInsertLines(tooltips, "<TOTAL_ITEMS>",
+				() => $"Total Items in Networks: {NetworkCollection.itemNetworks.Select(i => i.paths).Select(list => list.Count).Sum()}");
+
+			FindAndInsertLines(tooltips, "<NETWORK_TIMES>",
+				() => "Network Update Times:" +
+				$"\n  Item Network Pumps: {NetworkCollection.ItemNetworkPumpUpdateTime * 1000 :0.###}ms ({NetworkCollection.ItemNetworkPumpUpdateTime * 60 :0.###} ticks)" +
+				$"\n  Item Network Items: {NetworkCollection.ItemNetworkMovingItemsUpdateTime * 1000 :0.###}ms ({NetworkCollection.ItemNetworkMovingItemsUpdateTime * 60 :0.###} ticks)" +
+				$"\n  Fluid Networks: {NetworkCollection.FluidNetworkUpdateTime * 1000 :0.###}ms ({NetworkCollection.FluidNetworkUpdateTime * 60 :0.###} ticks)");
+		}
+
+		private static void FindAndModify(List<TooltipLine> tooltips, string searchPhrase, Func<string> replacePhrase){
+			int searchIndex = tooltips.FindIndex(t => t.text.Contains(searchPhrase));
+			if(searchIndex >= 0)
+				tooltips[searchIndex].text = tooltips[searchIndex].text.Replace(searchPhrase, replacePhrase());
+		}
+
+		private static void FindAndInsertLines(List<TooltipLine> tooltips, string searchLine, Func<string> replaceLines){
+			int searchIndex = tooltips.FindIndex(t => t.text == searchLine);
+			if(searchIndex >= 0){
+				tooltips.RemoveAt(searchIndex);
+
+				string lines = replaceLines();
+
+				int inserted = 0;
+				foreach(var line in lines.Split(new[]{ '\n' }, StringSplitOptions.RemoveEmptyEntries)){
+					tooltips.Insert(searchIndex++, new TooltipLine(TechMod.Instance, "DebugToolLine" + inserted, line));
+					inserted++;
+				}
+			}
 		}
 
 		static uint oldUpdate = 0;

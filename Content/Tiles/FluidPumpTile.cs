@@ -93,12 +93,14 @@ namespace TerraScience.Content.Tiles{
 		public override bool PreDraw(int i, int j, SpriteBatch spriteBatch){
 			FluidTransportTile.DrawFluid(new Point16(i, j), ModContent.GetTexture("TerraScience/Content/Tiles/Effect_FluidPumpTile_fluid"), spriteBatch);
 
-			//Pump draws itself
-			return false;
+			//Pump draws itself if the config is disabled
+			return !TechModConfig.Instance.AnimatePumps;
 		}
 
 		public override void PostDraw(int i, int j, SpriteBatch spriteBatch){
 			//Essentially a copy of ItemPumpTile, but for fluids
+			if(!TechModConfig.Instance.AnimatePumps)
+				return;
 
 			Point16 pos = new Point16(i, j);
 			NetworkCollection.HasFluidPipeAt(pos, out FluidNetwork net);

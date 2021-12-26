@@ -395,7 +395,7 @@ namespace TerraScience.Systems {
 			}
 		}
 
-		internal static bool SimulateChestInput(Chest chest, Item incoming, List<ItemNetworkPath> paths){
+		internal static bool SimulateChestInput(Chest chest, Item incoming, IEnumerable<ItemNetworkPath> paths){
 			//Entries need to be populated or Chest.ToString() throws in the debugger
 			Chest simulation = new Chest(){
 				item = new Item[chest.item.Length].Populate(() => new Item())
@@ -415,7 +415,7 @@ namespace TerraScience.Systems {
 			return successful;
 		}
 
-		internal static bool SimulateMachineInput(MachineEntity entity, Item incoming, List<ItemNetworkPath> paths){
+		internal static bool SimulateMachineInput(MachineEntity entity, Item incoming, IEnumerable<ItemNetworkPath> paths){
 			if(entity.HijackSimulateInput(incoming, paths, out bool successful))
 				return successful;
 

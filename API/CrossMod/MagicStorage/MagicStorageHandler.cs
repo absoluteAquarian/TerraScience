@@ -2,6 +2,7 @@
 using MagicStorage.Components;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.ModLoader;
@@ -23,6 +24,7 @@ namespace TerraScience.API.CrossMod.MagicStorage{
 		public static IEnumerable<Item> TryGetItems(Point16 tileCoord)
 			=> handler.ModIsActive && !DelayInteractionsDueToWorldSaving ? StrongRef_TryGetItems(tileCoord) : null;
 
+		[MethodImpl(MethodImplOptions.NoInlining)]
 		private static IEnumerable<Item> StrongRef_TryGetItems(Point16 tileCoord){
 			if(!(StrongRef_HasStorageHeartAt(tileCoord) || StrongRef_HasStorageAccessAt(tileCoord) || StrongRef_HasRemoteStorageAccessAt(tileCoord)))
 				return null;
@@ -44,6 +46,7 @@ namespace TerraScience.API.CrossMod.MagicStorage{
 		public static bool RefreshGUIs()
 			=> handler.ModIsActive && StrongRef_RefreshGUIs();
 
+		[MethodImpl(MethodImplOptions.NoInlining)]
 		private static bool StrongRef_RefreshGUIs(){
 			if(Main.LocalPlayer.GetModPlayer<StoragePlayer>().ViewingStorage().X < 0)  //Not in one of the GUIs
 				return false;
@@ -56,6 +59,7 @@ namespace TerraScience.API.CrossMod.MagicStorage{
 		public static bool HasStorageHeartAt(Point16 tileCoord)
 			=> handler.ModIsActive && StrongRef_HasStorageHeartAt(tileCoord);
 
+		[MethodImpl(MethodImplOptions.NoInlining)]
 		private static bool StrongRef_HasStorageHeartAt(Point16 tileCoord){
 			Tile tile = Framing.GetTileSafely(tileCoord);
 			ModTile mTile = ModContent.GetModTile(tile.type);
@@ -69,6 +73,7 @@ namespace TerraScience.API.CrossMod.MagicStorage{
 		public static bool HasStorageAccessAt(Point16 tileCoord)
 			=> handler.ModIsActive && StrongRef_HasStorageAccessAt(tileCoord);
 
+		[MethodImpl(MethodImplOptions.NoInlining)]
 		private static bool StrongRef_HasStorageAccessAt(Point16 tileCoord){
 			Tile tile = Framing.GetTileSafely(tileCoord);
 			ModTile mTile = ModContent.GetModTile(tile.type);
@@ -82,6 +87,7 @@ namespace TerraScience.API.CrossMod.MagicStorage{
 		public static bool HasRemoteStorageAccessAt(Point16 tileCoord)
 			=> handler.ModIsActive && StrongRef_HasStorageAccessAt(tileCoord);
 
+		[MethodImpl(MethodImplOptions.NoInlining)]
 		private static bool StrongRef_HasRemoteStorageAccessAt(Point16 tileCoord){
 			Tile tile = Framing.GetTileSafely(tileCoord);
 			ModTile mTile = ModContent.GetModTile(tile.type);
@@ -95,6 +101,7 @@ namespace TerraScience.API.CrossMod.MagicStorage{
 		public static bool HasStorageUnitAt(Point16 tileCoord)
 			=> handler.ModIsActive && StrongRef_HasStorageUnitAt(tileCoord);
 
+		[MethodImpl(MethodImplOptions.NoInlining)]
 		private static bool StrongRef_HasStorageUnitAt(Point16 tileCoord){
 			Tile tile = Framing.GetTileSafely(tileCoord);
 			ModTile mTile = ModContent.GetModTile(tile.type);
@@ -119,6 +126,7 @@ namespace TerraScience.API.CrossMod.MagicStorage{
 			return handler.ModIsActive && !DelayInteractionsDueToWorldSaving && StrongRef_TryDepositItem(item, tileCoord, checkOnly, out completeDeposit);
 		}
 
+		[MethodImpl(MethodImplOptions.NoInlining)]
 		private static bool StrongRef_TryDepositItem(Item item, Point16 tileCoord, bool checkOnly, out bool completeDeposit){
 			completeDeposit = false;
 			if(!(StrongRef_HasStorageHeartAt(tileCoord) || StrongRef_HasStorageAccessAt(tileCoord) || StrongRef_HasRemoteStorageAccessAt(tileCoord)))
@@ -159,6 +167,7 @@ namespace TerraScience.API.CrossMod.MagicStorage{
 			return handler.ModIsActive && !DelayInteractionsDueToWorldSaving && StrongRef_TryWithdrawItems(tileCoord, item, checkOnly, out withdrawn);
 		}
 
+		[MethodImpl(MethodImplOptions.NoInlining)]
 		private static bool StrongRef_TryWithdrawItems(Point16 tileCoord, Item item, bool checkOnly, out Item withdrawn){
 			withdrawn = null;
 			if(!(StrongRef_HasStorageHeartAt(tileCoord) || StrongRef_HasStorageAccessAt(tileCoord) || StrongRef_HasRemoteStorageAccessAt(tileCoord)))
@@ -190,6 +199,7 @@ namespace TerraScience.API.CrossMod.MagicStorage{
 			return handler.ModIsActive && !DelayInteractionsDueToWorldSaving && StrongRef_TryWithdrawItems(tileCoord, entity, simulation, checkOnly, stackExtracted, out toWithdraw);
 		}
 
+		[MethodImpl(MethodImplOptions.NoInlining)]
 		private static bool StrongRef_TryWithdrawItems(Point16 tileCoord, MachineEntity entity, Chest simulation, bool checkOnly, int stackExtracted, out Item toWithdraw){
 			toWithdraw = null;
 			if(!(StrongRef_HasStorageHeartAt(tileCoord) || StrongRef_HasStorageAccessAt(tileCoord) || StrongRef_HasRemoteStorageAccessAt(tileCoord)))

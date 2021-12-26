@@ -74,7 +74,7 @@ namespace TerraScience.Content.TileEntities {
 			return true;
 		}
 
-		public override bool HijackSimulateInput(Item incoming, List<ItemNetworkPath> paths, out bool success){
+		public override bool HijackSimulateInput(Item incoming, IEnumerable<ItemNetworkPath> paths, out bool success){
 			success = false;
 			if(!MagicStorageHandler.handler.ModIsActive)
 				return true;

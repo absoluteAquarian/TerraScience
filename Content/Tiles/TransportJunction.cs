@@ -88,6 +88,7 @@ namespace TerraScience.Content.Tiles{
 
 			//Make sure the tile uses the right thing
 			tile.frameX = (short)(item.placeStyle * 18);
+			tile.frameY = 0;
 		}
 
 		public override void KillTile(int i, int j, ref bool fail, ref bool effectOnly, ref bool noItem){

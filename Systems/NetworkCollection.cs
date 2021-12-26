@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Terraria;
 using Terraria.DataStructures;
@@ -18,9 +19,9 @@ using TerraScience.Utilities;
 
 namespace TerraScience.Systems {
 	public static class NetworkCollection{
-		private static List<WireNetwork> wireNetworks;
-		private static List<ItemNetwork> itemNetworks;
-		private static List<FluidNetwork> fluidNetworks;
+		internal static List<WireNetwork> wireNetworks;
+		internal static List<ItemNetwork> itemNetworks;
+		internal static List<FluidNetwork> fluidNetworks;
 
 		internal delegate INetworkable typeCtor(Point16 location, INetwork network);
 
@@ -249,8 +250,27 @@ forceNextCheck: ;
 
 		internal static readonly Point16 ignoreCheckLocation = new Point16(-1, -1);
 
+		private static readonly Stopwatch networkWatch = new Stopwatch();
+		private static readonly Stopwatch networkWatch2 = new Stopwatch();
+
+		public static double ItemNetworkPumpUpdateTime{ get; private set; }
+
+		public static double ItemNetworkMovingItemsUpdateTime{ get; private set; }
+
+		public static double FluidNetworkUpdateTime{ get; private set; }
+
 		public static void UpdateItemNetworks(){
+			bool restartTimers = true;
+			bool updateTimers = Main.GameUpdateCount % 10 == 0;
+
 			foreach(var network in itemNetworks){
+				if(updateTimers){
+					if(restartTimers)
+						networkWatch.Restart();
+					else
+						networkWatch.Start();
+				}
+
 				foreach(var timer in network.pumpTimers){
 					timer.Value.value--;
 
@@ -267,11 +287,11 @@ forceNextCheck: ;
 						Item[] inventory;
 						MachineEntity entity;
 						if((entity = pump.GetConnectedMachine(timer.Key)) != null){
-							var inputs = entity.GetOutputSlots();
+							var outputs = entity.GetOutputSlots();
 
 							//No output slots?  Can't pump items out of this...
 							bool hijacked;
-							if(!(hijacked = entity.HijackGetItemInventory(out inventory)) && inputs.Length == 0)
+							if(!(hijacked = entity.HijackGetItemInventory(out inventory)) && outputs.Length == 0)
 								continue;
 
 							//If the inventory getting was hijacked, but the inventory is null, then abort immediately
@@ -279,10 +299,10 @@ forceNextCheck: ;
 								continue;
 
 							if(!hijacked){
-								inventory = new Item[inputs.Length];
+								inventory = new Item[outputs.Length];
 
 								for(int i = 0; i < inventory.Length; i++)
-									inventory[i] = entity.RetrieveItem(inputs[i]);
+									inventory[i] = entity.RetrieveItem(outputs[i]);
 							}
 						}else if(pump.GetConnectedChest(timer.Key) is Chest chest)
 							inventory = chest.item;
@@ -296,6 +316,15 @@ forceNextCheck: ;
 					}
 				}
 
+				if(updateTimers){
+					networkWatch.Stop();
+
+					if(restartTimers)
+						networkWatch2.Restart();
+					else
+						networkWatch2.Start();
+				}
+
 				for(int i = 0; i < network.paths.Count; i++){
 					var path = network.paths[i];
 					path.Update();
@@ -303,11 +332,20 @@ forceNextCheck: ;
 					if(path.removed)
 						i--;
 				}
+
+				if(updateTimers)
+					networkWatch2.Stop();
+
+				restartTimers = false;
+			}
+
+			if(updateTimers){
+				ItemNetworkPumpUpdateTime = networkWatch.Elapsed.TotalSeconds;
+				ItemNetworkMovingItemsUpdateTime = networkWatch2.Elapsed.TotalSeconds;
 			}
 		}
 
 		private static bool CheckItemInsertion(ItemNetwork network, Item[] extractInventory, Point16 pumpTile, ItemPumpTile pump, List<ItemPathResult> pathfinding, MachineEntity inputMachine){
-			var list = pathfinding.OrderBy(t => t.time).ToList();
 			int stack = pump.StackPerExtraction;
 
 			//Loop over the exporting inventory
@@ -315,20 +353,21 @@ forceNextCheck: ;
 			for(int i = 0; i < extractInventory.Length; i++){
 				Item original = extractInventory[i];
 
+				if(original.IsAir)
+					continue;
+
 				Item item = extractInventory[i].Clone();
 
 				//Prevent extracting more items than exist in a stack
 				item.stack = Math.Min(stack, item.maxStack);
 
-				if(original.IsAir)
-					continue;
+				for(int m = 0; m < pathfinding.Count; m++){
+					var list = pathfinding[m].list;
 
-				bool successful = false;
-				for(int m = 0; m < list.Count; m++){
-					if(list[m].list.Count <= 0)
+					if(list.Count <= 0)
 						continue;
 
-					Point16 target = list[m].list[list[m].list.Count - 1];
+					Point16 target = list[list.Count - 1];
 
 					MachineEntity machine = null;
 					Chest targetChest = null;
@@ -336,8 +375,8 @@ forceNextCheck: ;
 						continue;
 
 					//"item.stack" is modified here, hence the need to clone it earlier
-					var usepaths = network.paths.Where(p => p.wander || p.finalTarget == target || (p?.Path?.Count > 0 && p.Path.Last() == target)).ToList();
-					successful = machine != null
+					var usepaths = network.paths.Where(p => p.wander || p.finalTarget == target || (p?.Path?.Count > 0 && p.Path.Last() == target));
+					bool successful = machine != null
 						? ItemNetworkPath.SimulateMachineInput(machine, item, usepaths)
 						: ItemNetworkPath.SimulateChestInput(targetChest, item, usepaths);
 
@@ -351,11 +390,11 @@ forceNextCheck: ;
 							if(extracted is null)
 								return false;
 
-							newPath = ItemNetworkPath.CreateObject(extracted, network, pumpTile, pathOverride: list[m].list);
+							newPath = ItemNetworkPath.CreateObject(extracted, network, pumpTile, pathOverride: list);
 						}else{
 							original.stack -= stackToExtract;
 
-							newPath = ItemNetworkPath.CreateObject(item, network, pumpTile, pathOverride: list[m].list);
+							newPath = ItemNetworkPath.CreateObject(item, network, pumpTile, pathOverride: list);
 						}
 
 						if(newPath?.Path != null){
@@ -372,6 +411,9 @@ forceNextCheck: ;
 		}
 
 		public static void UpdateFluidNetworks(){
+			if(Main.GameUpdateCount % 10 == 0)
+				networkWatch.Restart();
+
 			foreach(var network in fluidNetworks){
 				foreach(var timer in network.pumpTimers){
 					timer.Value.value--;
@@ -412,6 +454,12 @@ forceNextCheck: ;
 						(entity as IGasMachine)?.TryImportGas(pipe);
 					}
 				}
+			}
+
+			if(Main.GameUpdateCount % 10 == 0){
+				networkWatch.Stop();
+
+				FluidNetworkUpdateTime = networkWatch.Elapsed.TotalSeconds;
 			}
 		}
 

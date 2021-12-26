@@ -320,7 +320,7 @@ namespace TerraScience.Content.TileEntities{
 			return true;
 		}
 
-		public override bool HijackSimulateInput(Item incoming, List<ItemNetworkPath> paths, out bool success){
+		public override bool HijackSimulateInput(Item incoming, IEnumerable<ItemNetworkPath> paths, out bool success){
 			success = true;
 			
 			//Make a clone of the current items, then revert it back once the simulation is complete

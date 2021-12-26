@@ -108,11 +108,14 @@ namespace TerraScience.Content.Tiles{
 		public override bool PreDraw(int i, int j, SpriteBatch spriteBatch){
 			ModContent.GetInstance<ItemTransportTile>().PreDraw(i, j, spriteBatch);
 
-			//Pump draws itself
-			return false;
+			//Pump draws itself if the config is enabled
+			return !TechModConfig.Instance.AnimatePumps;
 		}
 
 		public override void PostDraw(int i, int j, SpriteBatch spriteBatch){
+			if(!TechModConfig.Instance.AnimatePumps)
+				return;
+
 			Point16 pos = new Point16(i, j);
 			NetworkCollection.HasItemPipeAt(pos, out ItemNetwork net);
 
