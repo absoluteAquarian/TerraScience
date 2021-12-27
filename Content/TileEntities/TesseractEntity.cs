@@ -5,6 +5,7 @@ using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using TerraScience.Content.TileEntities.Energy.Storage;
 using TerraScience.Content.Tiles.Multitiles;
+using TerraScience.Systems;
 using TerraScience.Systems.Energy;
 using TerraScience.Utilities;
 
@@ -33,61 +34,73 @@ namespace TerraScience.Content.TileEntities{
 
 		public override TerraFlux FluxCap => new TerraFlux(8000f);
 
-		public override TagCompound ExtraSave(){
-			TagCompound tag = new TagCompound();
-
-			this.SaveFluids(tag);
-
-			return tag;
+		private string boundNet;
+		internal string BoundNetwork{
+			get => boundNet;
+			set{
+				if(boundNet != value)
+					boundNet = value != null && TesseractNetwork.TryGetEntry(value, out _) ? value : null;
+			}
 		}
 
+		public override TagCompound ExtraSave()
+			=> new TagCompound(){
+				["boundNetwork"] = boundNet
+			};
+
 		public override void ExtraLoad(TagCompound tag){
-			this.LoadFluids(tag);
+			boundNet = tag.GetString("boundNetwork");
 		}
 
 		public override void ExtraNetSend(BinaryWriter writer){
-			this.SendFluids(writer);
+			writer.Write(boundNet);
 		}
 
 		public override void ExtraNetReceive(BinaryReader reader){
-			this.ReceiveFluids(reader);
+			BoundNetwork = reader.ReadString();
 		}
 
 		public override void ReactionComplete(){ }
 
 		public void TryExportFluid(Point16 pumpPos){
-			this.TryImportFluids(pumpPos, 3);
+			if(!TesseractNetwork.TryGetEntry(boundNet, out var entry))
+				return;
+			
+			this.TryExportFluids(pumpPos, 3);
 
-			FluidEntries[2].id = FluidEntries[3].id;
-			FluidEntries[2].current = FluidEntries[3].current;
-			FluidEntries[2].max = FluidEntries[3].max;
+			entry.fluids[1].id = FluidEntries[2].id = FluidEntries[3].id;
+			entry.fluids[1].current = FluidEntries[2].current = FluidEntries[3].current;
+			entry.fluids[1].max = FluidEntries[2].max = FluidEntries[3].max;
 
 			this.TryExportFluids(pumpPos, 1);
 
-			FluidEntries[0].id = FluidEntries[1].id;
-			FluidEntries[0].current = FluidEntries[1].current;
-			FluidEntries[0].max = FluidEntries[1].max;
+			entry.fluids[0].id = FluidEntries[0].id = FluidEntries[1].id;
+			entry.fluids[0].current = FluidEntries[0].current = FluidEntries[1].current;
+			entry.fluids[0].max = FluidEntries[0].max = FluidEntries[1].max;
 		}
 
 		public void TryImportFluid(Point16 pipePos){
+			if(!TesseractNetwork.TryGetEntry(boundNet, out var entry))
+				return;
+
 			this.TryImportFluids(pipePos, 2);
 
-			FluidEntries[3].id = FluidEntries[2].id;
-			FluidEntries[3].current = FluidEntries[2].current;
-			FluidEntries[3].max = FluidEntries[2].max;
+			entry.fluids[1].id = FluidEntries[3].id = FluidEntries[2].id;
+			entry.fluids[1].current = FluidEntries[3].current = FluidEntries[2].current;
+			entry.fluids[1].max = FluidEntries[3].max = FluidEntries[2].max;
 
 			this.TryImportFluids(pipePos, 0);
 
-			FluidEntries[1].id = FluidEntries[0].id;
-			FluidEntries[1].current = FluidEntries[0].current;
-			FluidEntries[1].max = FluidEntries[0].max;
+			entry.fluids[0].id = FluidEntries[1].id = FluidEntries[0].id;
+			entry.fluids[0].current = FluidEntries[1].current = FluidEntries[0].current;
+			entry.fluids[0].max = FluidEntries[1].max = FluidEntries[0].max;
 		}
 
 		public override bool UpdateReaction()
 			=> false;
 
 		internal override bool CanInputItem(int slot, Item item)
-			=> true;
+			=> TesseractNetwork.TryGetEntry(boundNet, out _);
 
 		internal override int[] GetInputSlots()
 			=> new int[]{ 0, 1, 2, 3, 4 };

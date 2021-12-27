@@ -2,9 +2,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Terraria;
 using Terraria.GameContent.UI.Elements;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
+using Terraria.UI;
+using TerraScience.Content.TileEntities;
+using TerraScience.Utilities;
 
 namespace TerraScience.Systems{
 	public class TesseractNetwork : ModWorld{
@@ -14,6 +18,14 @@ namespace TerraScience.Systems{
 
 			//Using the network requires a password to be entered if it's private
 			public bool entryIsPrivate;
+
+			internal Item[] items = new Item[5].Populate(() => new Item());
+			internal FluidEntry[] fluids = new FluidEntry[]{
+				//Liquid
+				new FluidEntry(max: 500f, false, null),
+				//Gas
+				new FluidEntry(max: 500f, false, null)
+			};
 
 			private Entry(){ }
 
@@ -143,13 +155,15 @@ namespace TerraScience.Systems{
 			networks[index].entryIsPrivate = newIsPrivate;
 		}
 
-		internal static void UpdateNetworkUIEntries(UIText[] text, ref int page, in string usedNetwork){
-			if(page < 0)
-				page = 0;
-			while(page * text.Length >= networks.Count)
+		internal static void UpdateNetworkUIEntries(UIText[] text, ref int page, out int pageTotal, in string usedNetwork){
+			if(page < 1)
+				page = 1;
+			while(page * text.Length >= networks.Count + 1)
 				page--;
 
-			int start = page * text.Length;
+			pageTotal = networks.Count / text.Length + 1;
+
+			int start = (page - 1) * text.Length;
 			int count = Math.Min(networks.Count - start, text.Length);
 
 			for(int i = 0; i < count; i++){
