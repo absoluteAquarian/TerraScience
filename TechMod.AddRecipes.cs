@@ -16,14 +16,14 @@ namespace TerraScience{
 			LoadMachineRecipes();
 
 			//Electrolyzer recipes
-			AddElectrolyzerRecipe(MachineLiquidID.Water, MachineGasID.Hydrogen);
-			AddElectrolyzerRecipe(MachineLiquidID.Water, MachineGasID.Oxygen);
-			AddElectrolyzerRecipe(MachineLiquidID.Saltwater, MachineGasID.Hydrogen);
-			AddElectrolyzerRecipe(MachineLiquidID.Saltwater, MachineGasID.Chlorine);
+			AddElectrolyzerRecipe(MachineFluidID.LiquidWater, MachineFluidID.HydrogenGas);
+			AddElectrolyzerRecipe(MachineFluidID.LiquidWater, MachineFluidID.OxygenGas);
+			AddElectrolyzerRecipe(MachineFluidID.LiquidSaltwater, MachineFluidID.HydrogenGas);
+			AddElectrolyzerRecipe(MachineFluidID.LiquidSaltwater, MachineFluidID.ChlorineGas);
 
-			AddElectrolyzerRecipe(MachineGasID.Hydrogen);
-			AddElectrolyzerRecipe(MachineGasID.Oxygen);
-			AddElectrolyzerRecipe(MachineGasID.Chlorine);
+			AddElectrolyzerRecipe(MachineFluidID.HydrogenGas);
+			AddElectrolyzerRecipe(MachineFluidID.OxygenGas);
+			AddElectrolyzerRecipe(MachineFluidID.ChlorineGas);
 
 			//Blast furnace recipes
 			foreach(var entry in BlastFurnaceEntity.ingredientToResult){
@@ -123,9 +123,9 @@ namespace TerraScience{
 
 			//Liquid duplicator recipes
 			for(int i = 0; i < ItemLoader.ItemCount; i++){
-				MachineLiquidID id = MiscUtils.GetIDFromItem(i);
+				MachineFluidID id = MiscUtils.GetFluidIDFromItem(i);
 
-				if(id == MachineLiquidID.None)
+				if(id == MachineFluidID.None)
 					continue;
 
 				int fakeItem = GetFakeIngredientType(id);
@@ -165,7 +165,7 @@ namespace TerraScience{
 			AddComposterEntry(ItemID.Waterleaf, 20, 1);
 		}
 
-		private void AddElectrolyzerRecipe(MachineLiquidID input, MachineGasID output){
+		private void AddElectrolyzerRecipe(MachineFluidID input, MachineFluidID output){
 			NoStationCraftingRecipe recipe = new NoStationCraftingRecipe(this);
 			recipe.AddIngredient(GetFakeIngredientType(input), 1);
 			recipe.AddIngredient(ModContent.ItemType<TerraFluxIndicator>());
@@ -174,12 +174,12 @@ namespace TerraScience{
 			recipe.AddRecipe();
 		}
 
-		private void AddElectrolyzerRecipe(MachineGasID capsuleGasType){
+		private void AddElectrolyzerRecipe(MachineFluidID capsuleFluidType){
 			NoStationCraftingRecipe recipe = new NoStationCraftingRecipe(this);
 			recipe.AddIngredient(ItemType("Capsule"), 1);
-			recipe.AddIngredient(GetFakeIngredientType(capsuleGasType), 1);
+			recipe.AddIngredient(GetFakeIngredientType(capsuleFluidType), 1);
 			recipe.AddTile(ModContent.TileType<Electrolyzer>());
-			recipe.SetResult(GetCapsuleType(capsuleGasType), 1);
+			recipe.SetResult(GetCapsuleType(capsuleFluidType), 1);
 			recipe.AddRecipe();
 		}
 

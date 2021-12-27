@@ -38,7 +38,7 @@ namespace TerraScience.Utilities{
 			}
 		}
 
-		private IngredientEntry[] entries = new IngredientEntry[14];
+		private readonly IngredientEntry[] entries = new IngredientEntry[14];
 		private int curIndex = 0;
 
 		internal int recipeIndex;

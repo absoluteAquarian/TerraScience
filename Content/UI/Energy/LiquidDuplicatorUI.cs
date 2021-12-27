@@ -45,7 +45,7 @@ namespace TerraScience.Content.UI.Energy{
 		internal override void InitializeSlots(List<UIItemSlot> slots){
 			UIItemSlot input = new UIItemSlot(){
 				HAlign = 0.2f,
-				ValidItemFunc = item => item.IsAir || MiscUtils.GetIDFromItem(item.type) != MachineLiquidID.None
+				ValidItemFunc = item => item.IsAir || MiscUtils.GetFluidIDFromItem(item.type) != MachineFluidID.None
 			};
 			input.Top.Set(180, 0);
 			slots.Add(input);
@@ -65,7 +65,7 @@ namespace TerraScience.Content.UI.Energy{
 		internal override void UpdateText(List<UIText> text){
 			LiquidDuplicatorEntity ee = UIEntity as LiquidDuplicatorEntity;
 
-			text[0].SetText($"Duplicating: {ee.LiquidEntries[0].id.ProperEnumName()}");
+			text[0].SetText($"Duplicating: {ee.FluidEntries[0].id.ProperEnumName()}");
 			text[1].SetText($"Progress: {UIDecimalFormat(UIEntity.ReactionProgress)}%");
 			text[2].SetText(GetFluxString());
 		}
@@ -73,10 +73,10 @@ namespace TerraScience.Content.UI.Energy{
 		internal override void UpdateEntity(){
 			LiquidDuplicatorEntity entity = UIEntity as LiquidDuplicatorEntity;
 
-			gauge.fluidName = entity.LiquidEntries[0].id.ProperEnumName();
-			gauge.fluidCur = entity.LiquidEntries[0].current;
-			gauge.fluidMax = entity.LiquidEntries[0].max;
-			gauge.fluidColor = entity.LiquidEntries[0].current <= 0f ? Color.Transparent : Capsule.GetBackColor(entity.LiquidEntries[0].id);
+			gauge.fluidName = entity.FluidEntries[0].id.ProperEnumName();
+			gauge.fluidCur = entity.FluidEntries[0].current;
+			gauge.fluidMax = entity.FluidEntries[0].max;
+			gauge.fluidColor = entity.FluidEntries[0].current <= 0f ? Color.Transparent : Capsule.GetBackColor(entity.FluidEntries[0].id);
 		}
 	}
 }

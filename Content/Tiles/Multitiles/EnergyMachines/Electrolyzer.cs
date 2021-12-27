@@ -26,7 +26,7 @@ namespace TerraScience.Content.Tiles.Multitiles.EnergyMachines{
 			//Only draw behind if this is the top-left tile.  Otherwise, the things start drawing on top of other tiles
 			if(MiscUtils.TryGetTileEntity(new Point16(i, j), out ElectrolyzerEntity entity)){
 				//Draw order: water back, bars, water front
-				float curWaterRatio = entity.LiquidEntries[0].current / entity.LiquidEntries[0].max;
+				float curWaterRatio = entity.FluidEntries[0].current / entity.FluidEntries[0].max;
 				float invRatio = 1f - curWaterRatio;
 				Vector2 offset = MiscUtils.GetLightingDrawOffset();
 
@@ -35,12 +35,12 @@ namespace TerraScience.Content.Tiles.Multitiles.EnergyMachines{
 				Rectangle draw = new Rectangle(drawPos.X, drawPos.Y + 18 + (int)(maxWaterDrawDiff * invRatio), 80, (int)(maxWaterDrawDiff * curWaterRatio));
 				Rectangle source = new Rectangle(0, (int)(maxWaterDrawDiff * invRatio) + 18, 80, (int)(maxWaterDrawDiff * curWaterRatio));
 
-				if(entity.LiquidEntries[0].current > 0)
+				if(entity.FluidEntries[0].current > 0)
 					spriteBatch.Draw(this.GetEffectTexture("water"), draw, source, Lighting.GetColor(i, j));
 
 				spriteBatch.Draw(this.GetEffectTexture("bars"), drawPos.ToVector2(), null, Lighting.GetColor(i, j));
 
-				if(entity.LiquidEntries[0].current > 0)
+				if(entity.FluidEntries[0].current > 0)
 					spriteBatch.Draw(this.GetEffectTexture("water"), draw, source, Lighting.GetColor(i, j) * (50f / 255f));
 			}
 
@@ -72,16 +72,16 @@ namespace TerraScience.Content.Tiles.Multitiles.EnergyMachines{
 					Lighting.AddLight(drawPos.ToVector2() + new Vector2(36, 20), 0.87f, 0f, 0f);
 				}
 
-				float gas1Factor = entity.GasEntries[0].current / entity.GasEntries[0].max;
-				float gas2Factor = entity.GasEntries[1].current / entity.GasEntries[1].max;
+				float gas1Factor = entity.FluidEntries[1].current / entity.FluidEntries[1].max;
+				float gas2Factor = entity.FluidEntries[2].current / entity.FluidEntries[2].max;
 
 				if(gas1Factor > 0){
-					Color color = Capsule.GetBackColor(entity.GasEntries[0].id);
+					Color color = Capsule.GetBackColor(entity.FluidEntries[1].id);
 					color = MiscUtils.MixLightColors(Lighting.GetColor(i, j), color);
 					spriteBatch.Draw(this.GetEffectTexture("gashydrogen"), drawPos.ToVector2(), null, color * (gas1Factor * 135f / 255f));
 				}
 				if(gas2Factor > 0){
-					Color color = Capsule.GetBackColor(entity.GasEntries[1].id);
+					Color color = Capsule.GetBackColor(entity.FluidEntries[2].id);
 					color = MiscUtils.MixLightColors(Lighting.GetColor(i, j), color);
 					spriteBatch.Draw(this.GetEffectTexture("gasoxygen"), drawPos.ToVector2(), null, color * (gas2Factor * 135f / 255f));
 				}
@@ -94,9 +94,9 @@ namespace TerraScience.Content.Tiles.Multitiles.EnergyMachines{
 			=> TileUtils.TryPlaceLiquidInMachine<ElectrolyzerEntity>(this, pos);
 
 		public override bool HandleMouse(Point16 pos){
-			var id = MiscUtils.GetIDFromItem(Main.LocalPlayer.HeldItem.type);
+			var id = MiscUtils.GetFluidIDFromItem(Main.LocalPlayer.HeldItem.type);
 
-			return TileUtils.HandleMouse<ElectrolyzerEntity>(this, pos, () => MiscUtils.TryGetTileEntity(pos, out ElectrolyzerEntity entity) && !Array.Exists(entity.LiquidEntries[0].validTypes, t => t == id));
+			return TileUtils.HandleMouse<ElectrolyzerEntity>(this, pos, () => MiscUtils.TryGetTileEntity(pos, out ElectrolyzerEntity entity) && !Array.Exists(entity.FluidEntries[0].validTypes, t => t == id));
 		}
 	}
 }

@@ -69,16 +69,16 @@ namespace TerraScience {
 			TileUtils.tileToEntity = new Dictionary<int, MachineEntity>();
 			TileUtils.tileToStructureName = new Dictionary<int, string>();
 
-			ElectrolyzerEntity.liquidToGas = new Dictionary<MachineLiquidID, (MachineGasID, MachineGasID)>(){
-				[MachineLiquidID.Water] = (MachineGasID.Hydrogen, MachineGasID.Oxygen),
-				[MachineLiquidID.Saltwater] = (MachineGasID.Hydrogen, MachineGasID.Chlorine)
+			ElectrolyzerEntity.liquidToGas = new Dictionary<MachineFluidID, (MachineFluidID, MachineFluidID)>(){
+				[MachineFluidID.LiquidWater] = (MachineFluidID.HydrogenGas, MachineFluidID.OxygenGas),
+				[MachineFluidID.LiquidSaltwater] = (MachineFluidID.HydrogenGas, MachineFluidID.ChlorineGas)
 			};
 
 			DatalessMachineInfo.recipes = new Dictionary<int, Action<Mod>>();
 			DatalessMachineInfo.recipeIngredients = new Dictionary<int, RecipeIngredientSet>();
 
-			Capsule.containerTypes = new Dictionary<int, MachineGasID>();
-			FakeCapsuleFluidItem.containerTypes = new Dictionary<int, (MachineGasID?, MachineLiquidID?)>();
+			Capsule.fluidContainerTypes = new Dictionary<int, MachineFluidID>();
+			FakeCapsuleFluidItem.containerTypes = new Dictionary<int, MachineFluidID>();
 
 			MachineMufflerTile.mufflers = new List<Point16>();
 
@@ -118,24 +118,17 @@ namespace TerraScience {
 					item.shoot = ProjectileType("SaltDust");
 				}));
 
-			MachineGasID[] gasIDs = (MachineGasID[])Enum.GetValues(typeof(MachineGasID));
-			for(int i = 0; i < gasIDs.Length; i++){
-				AddItem("Capsule_" + gasIDs[i].EnumName(), new Capsule());
+			MachineFluidID[] fluidIDs = (MachineFluidID[])Enum.GetValues(typeof(MachineFluidID));
+			for(int i = 0; i < fluidIDs.Length; i++){
+				AddItem("Capsule_" + fluidIDs[i].EnumName(), new Capsule());
 				int id = ItemLoader.ItemCount - 1;
-				Capsule.containerTypes.Add(id, gasIDs[i]);
+				Capsule.fluidContainerTypes.Add(id, fluidIDs[i]);
 			}
 
-			for(int i = 1; i < gasIDs.Length; i++){
-				AddItem("Fake" + gasIDs[i].EnumName() + "GasIngredient", new FakeCapsuleFluidItem());
+			for(int i = 1; i < fluidIDs.Length; i++){
+				AddItem("Fake" + fluidIDs[i].EnumName() + "FluidIngredient", new FakeCapsuleFluidItem());
 				int id = ItemLoader.ItemCount - 1;
-				FakeCapsuleFluidItem.containerTypes.Add(id, (gasIDs[i], null));
-			}
-
-			MachineLiquidID[] liquidIDs = (MachineLiquidID[])Enum.GetValues(typeof(MachineLiquidID));
-			for(int i = 1; i < liquidIDs.Length; i++){
-				AddItem("Fake" + liquidIDs[i].EnumName() + "LiquidIngredient", new FakeCapsuleFluidItem());
-				int id = ItemLoader.ItemCount - 1;
-				FakeCapsuleFluidItem.containerTypes.Add(id, (null, liquidIDs[i]));
+				FakeCapsuleFluidItem.containerTypes.Add(id, fluidIDs[i]);
 			}
 
 			//Register the dataless machines
@@ -227,17 +220,15 @@ namespace TerraScience {
 			TileUtils.RegisterAllEntities();
 		}
 
-		public static int GetCapsuleType(MachineGasID gas){
-			int type = Instance.ItemType("Capsule_" + gas);
+		public static int GetCapsuleType(MachineFluidID fluid){
+			int type = Instance.ItemType("Capsule_" + fluid);
 			if(type == 0)
-				throw new ArgumentException("Gas ID requested was invalid: " + gas.ToString());
+				throw new ArgumentException("Fluid ID requested was invalid: " + fluid.ToString());
 
 			return type;
 		}
 
-		public static int GetFakeIngredientType(MachineLiquidID id) => Instance.ItemType("Fake" + id.EnumName() + "LiquidIngredient");
-
-		public static int GetFakeIngredientType(MachineGasID id) => Instance.ItemType("Fake" + id.EnumName() + "GasIngredient");
+		public static int GetFakeIngredientType(MachineFluidID id) => Instance.ItemType("Fake" + id.EnumName() + "FluidIngredient");
 
 		public override void AddRecipeGroups(){
 			RegisterRecipeGroup(ScienceRecipeGroups.Sand, ItemID.SandBlock, new int[]{ ItemID.SandBlock, ItemID.CrimsandBlock, ItemID.EbonsandBlock, ItemID.PearlsandBlock });
@@ -363,7 +354,7 @@ namespace TerraScience {
 			DatalessMachineInfo.recipes = null;
 			DatalessMachineInfo.recipeIngredients = null;
 
-			Capsule.containerTypes = null;
+			Capsule.fluidContainerTypes = null;
 			FakeCapsuleFluidItem.containerTypes = null;
 
 			MachineMufflerTile.mufflers = null;
@@ -389,6 +380,8 @@ namespace TerraScience {
 			ReinforcedFurnaceEntity.woodTypes = null;
 
 			NetworkCollection.Unload();
+
+			TesseractNetwork.Unload();
 
 			TileEntity._UpdateStart -= NetworkCollection.SendPowerToMachines;
 

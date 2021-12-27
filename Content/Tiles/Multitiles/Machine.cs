@@ -84,7 +84,7 @@ namespace TerraScience.Content.Tiles.Multitiles {
 
 			bool canUseWires = placed is PoweredMachineEntity;
 			bool canUseItemPipes = placed.SlotsCount > 0;
-			bool canUseFluidPipes = placed is ILiquidMachine || placed is IGasMachine;
+			bool canUseFluidPipes = placed is IFluidMachine;
 
 			for(int cx = checkOrig.X; cx < checkOrig.X + width + 2; cx++){
 				for(int cy = checkOrig.Y; cy < checkOrig.Y + height + 2; cy++){

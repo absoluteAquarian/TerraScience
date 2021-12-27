@@ -41,17 +41,23 @@ namespace TerraScience.Utilities {
 			return tileEntity != null;
 		}
 
-		public static MachineLiquidID GetIDFromItem(int type){
+		public static MachineFluidID GetFluidIDFromItem(int type){
 			if(type == ItemID.WaterBucket || type == ItemID.BottomlessBucket || type == ModContent.ItemType<Vial_Water>())
-				return MachineLiquidID.Water;
+				return MachineFluidID.LiquidWater;
 			else if(type == ModContent.ItemType<Vial_Saltwater>())
-				return MachineLiquidID.Saltwater;
+				return MachineFluidID.LiquidSaltwater;
 			else if(type == ItemID.LavaBucket)
-				return MachineLiquidID.Lava;
+				return MachineFluidID.LiquidLava;
 			else if(type == ItemID.HoneyBucket)
-				return MachineLiquidID.Honey;
-			return MachineLiquidID.None;
+				return MachineFluidID.LiquidHoney;
+			return MachineFluidID.None;
 		}
+
+		public static bool IsLiquidID(this MachineFluidID id)
+			=> id.EnumName().Contains("Liquid");
+
+		public static bool IsGasID(this MachineFluidID id)
+			=> id.EnumName().Contains("Gas");
 
 		public static Vector2 ScreenCenter()
 			=> new Vector2(Main.screenWidth, Main.screenHeight) / 2f;
@@ -142,5 +148,26 @@ namespace TerraScience.Utilities {
 
 		public static double GetElapsedNanoseconds(this Stopwatch watch)
 			=> watch.ElapsedTicks * 1e9d / Stopwatch.Frequency;
+
+		public static void FindAndModify(List<TooltipLine> tooltips, string searchPhrase, Func<string> replacePhrase){
+			int searchIndex = tooltips.FindIndex(t => t.text.Contains(searchPhrase));
+			if(searchIndex >= 0)
+				tooltips[searchIndex].text = tooltips[searchIndex].text.Replace(searchPhrase, replacePhrase());
+		}
+
+		public static void FindAndInsertLines(List<TooltipLine> tooltips, string searchLine, Func<string> replaceLines){
+			int searchIndex = tooltips.FindIndex(t => t.text == searchLine);
+			if(searchIndex >= 0){
+				tooltips.RemoveAt(searchIndex);
+
+				string lines = replaceLines();
+
+				int inserted = 0;
+				foreach(var line in lines.Split(new[]{ '\n' }, StringSplitOptions.RemoveEmptyEntries)){
+					tooltips.Insert(searchIndex++, new TooltipLine(TechMod.Instance, "DebugToolLine" + inserted, line));
+					inserted++;
+				}
+			}
+		}
 	}
 }

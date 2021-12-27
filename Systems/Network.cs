@@ -223,7 +223,7 @@ namespace TerraScience.Systems{
 				if(!tiles.Contains(origin) && TileEntity.ByPosition.ContainsKey(origin)){
 					var entity = TileEntity.ByPosition[origin] as MachineEntity;
 
-					if((entity is PoweredMachineEntity && Type == JunctionType.Wires) || (((entity.HijackCanBeInteractedWithItemNetworks(out bool canInteract, out bool canInput, out bool canOutput) && canInteract) || canInput || entity.GetInputSlots().Length > 0 || canOutput || entity.GetOutputSlots().Length > 0) && Type == JunctionType.Items) || ((entity is ILiquidMachine || entity is IGasMachine) && Type == JunctionType.Fluids))
+					if((entity is PoweredMachineEntity && Type == JunctionType.Wires) || (((entity.HijackCanBeInteractedWithItemNetworks(out bool canInteract, out bool canInput, out bool canOutput) && canInteract) || canInput || entity.GetInputSlots().Length > 0 || canOutput || entity.GetOutputSlots().Length > 0) && Type == JunctionType.Items) || (entity is IFluidMachine && Type == JunctionType.Fluids))
 						tiles.Add(origin);
 				}
 			}

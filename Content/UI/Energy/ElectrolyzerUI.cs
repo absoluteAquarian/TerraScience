@@ -54,7 +54,7 @@ namespace TerraScience.Content.UI.Energy{
 
 			UIItemSlot gas1Input = new UIItemSlot(){
 				HAlign = 0.45f,
-				ValidItemFunc = item => item.IsAir || (item.modItem is Capsule capsule && capsule.GasType == MachineGasID.None)
+				ValidItemFunc = item => item.IsAir || (item.modItem is Capsule capsule && capsule.FluidType == MachineFluidID.None)
 			};
 			gas1Input.Top.Set(160, 0);
 			slots.Add(gas1Input);
@@ -68,7 +68,7 @@ namespace TerraScience.Content.UI.Energy{
 
 			UIItemSlot gas2Input = new UIItemSlot(){
 				HAlign = 0.8f,
-				ValidItemFunc = item => item.IsAir || (item.modItem is Capsule capsule && capsule.GasType == MachineGasID.None)
+				ValidItemFunc = item => item.IsAir || (item.modItem is Capsule capsule && capsule.FluidType == MachineFluidID.None)
 			};
 			gas2Input.Top.Set(160, 0);
 			slots.Add(gas2Input);
@@ -100,7 +100,7 @@ namespace TerraScience.Content.UI.Energy{
 		internal override void UpdateText(List<UIText> text){
 			ElectrolyzerEntity ee = UIEntity as ElectrolyzerEntity;
 
-			text[0].SetText($"{ee.LiquidEntries[0].id.ProperEnumName()}: {UIDecimalFormat(ee.LiquidEntries[0].current)}L / {Math.Round(ee.LiquidEntries[0].max)}L");
+			text[0].SetText($"{ee.FluidEntries[0].id.ProperEnumName()}: {UIDecimalFormat(ee.FluidEntries[0].current)}L / {Math.Round(ee.FluidEntries[0].max)}L");
 			text[1].SetText($"Charge: {UIDecimalFormat(ee.CurBatteryCharge)}V");
 			text[2].SetText(GetFluxString());
 		}
@@ -108,15 +108,15 @@ namespace TerraScience.Content.UI.Energy{
 		internal override void UpdateEntity(){
 			ElectrolyzerEntity entity = UIEntity as ElectrolyzerEntity;
 
-			gaugeGas1.fluidName = entity.GasEntries[0].id.ProperEnumName();
-			gaugeGas1.fluidCur = entity.GasEntries[0].current;
-			gaugeGas1.fluidMax = entity.GasEntries[0].max;
-			gaugeGas1.fluidColor = entity.GasEntries[0].current <= 0f ? Color.Transparent : Capsule.GetBackColor(entity.GasEntries[0].id);
+			gaugeGas1.fluidName = entity.FluidEntries[1].id.ProperEnumName();
+			gaugeGas1.fluidCur = entity.FluidEntries[1].current;
+			gaugeGas1.fluidMax = entity.FluidEntries[1].max;
+			gaugeGas1.fluidColor = entity.FluidEntries[1].current <= 0f ? Color.Transparent : Capsule.GetBackColor(entity.FluidEntries[1].id);
 
-			gaugeGas2.fluidName = entity.GasEntries[1].id.ProperEnumName();
-			gaugeGas2.fluidCur = entity.GasEntries[1].current;
-			gaugeGas2.fluidMax = entity.GasEntries[1].max;
-			gaugeGas2.fluidColor = entity.GasEntries[1].current <= 0f ? Color.Transparent : Capsule.GetBackColor(entity.GasEntries[1].id);
+			gaugeGas2.fluidName = entity.FluidEntries[2].id.ProperEnumName();
+			gaugeGas2.fluidCur = entity.FluidEntries[2].current;
+			gaugeGas2.fluidMax = entity.FluidEntries[2].max;
+			gaugeGas2.fluidColor = entity.FluidEntries[2].current <= 0f ? Color.Transparent : Capsule.GetBackColor(entity.FluidEntries[2].id);
 		}
 	}
 }

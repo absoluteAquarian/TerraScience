@@ -39,7 +39,7 @@ namespace TerraScience.Content.TileEntities.Energy.Generators{
 
 		internal override int[] GetInputSlots() => new int[0];
 
-		internal sealed override int[] GetOutputSlots() => new int[0];
+		internal override int[] GetOutputSlots() => new int[0];
 
 		internal override bool CanInputItem(int slot, Item item) => false;
 	}

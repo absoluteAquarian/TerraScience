@@ -11,7 +11,7 @@ using TerraScience.Systems.Energy;
 using TerraScience.Utilities;
 
 namespace TerraScience.Content.TileEntities.Energy{
-	public class LiquidDuplicatorEntity : PoweredMachineEntity, ILiquidMachine{
+	public class LiquidDuplicatorEntity : PoweredMachineEntity, IFluidMachine{
 		//Usage depends on what liquid is being duplicated
 		public override TerraFlux FluxUsage => new TerraFlux(0f);
 
@@ -21,21 +21,22 @@ namespace TerraScience.Content.TileEntities.Energy{
 
 		public override int SlotsCount => 1;
 
-		public LiquidEntry[] LiquidEntries{ get; set; } = new LiquidEntry[]{
-			new LiquidEntry(max: 10f, isInput: false, null)
+		public FluidEntry[] FluidEntries{ get; set; } = new FluidEntry[]{
+			new FluidEntry(max: 10f, isInput: false, null)
 		};
-		public int LiquidPlaceDelay{ get; set; }
+
+		public int FluidPlaceDelay{ get; set; }
 
 		public override void ExtraLoad(TagCompound tag){
 			base.ExtraLoad(tag);
 
-			this.LoadLiquids(tag);
+			this.LoadFluids(tag);
 		}
 
 		public override TagCompound ExtraSave(){
 			var tag = base.ExtraSave();
 
-			this.SaveLiquids(tag);
+			this.SaveFluids(tag);
 
 			return tag;
 		}
@@ -43,13 +44,13 @@ namespace TerraScience.Content.TileEntities.Energy{
 		public override void ExtraNetSend(BinaryWriter writer){
 			base.ExtraNetSend(writer);
 
-			this.SendLiquids(writer);
+			this.SendFluids(writer);
 		}
 
 		public override void ExtraNetReceive(BinaryReader reader){
 			base.ExtraNetReceive(reader);
 
-			this.ReceiveLiquids(reader);
+			this.ReceiveFluids(reader);
 		}
 
 		public override void PreUpdateReaction(){
@@ -58,10 +59,10 @@ namespace TerraScience.Content.TileEntities.Energy{
 			if((ParentState?.Active ?? false) && ParentState.GetSlot(0).ItemTypeChanged)
 				ReactionProgress = 0;
 
-			var entry = LiquidEntries[0];
+			var entry = FluidEntries[0];
 
 			ReactionInProgress = !input.IsAir
-				&& (entry.id == MachineLiquidID.None || entry.id == MiscUtils.GetIDFromItem(input.type))
+				&& (entry.id == MachineFluidID.None || entry.id == MiscUtils.GetFluidIDFromItem(input.type))
 				&& entry.current + 1 <= entry.max;
 		}
 
@@ -70,20 +71,20 @@ namespace TerraScience.Content.TileEntities.Energy{
 
 			float flux;
 			float time;
-			switch(MiscUtils.GetIDFromItem(input.type)){
-				case MachineLiquidID.Water:
+			switch(MiscUtils.GetFluidIDFromItem(input.type)){
+				case MachineFluidID.LiquidWater:
 					flux = 100f;
 					time = 5f;
 					break;
-				case MachineLiquidID.Saltwater:
+				case MachineFluidID.LiquidSaltwater:
 					flux = 150f;
 					time = 5f;
 					break;
-				case MachineLiquidID.Lava:
+				case MachineFluidID.LiquidLava:
 					flux = 300f;
 					time = 10f;
 					break;
-				case MachineLiquidID.Honey:
+				case MachineFluidID.LiquidHoney:
 					flux = 200f;
 					time = 15f;
 					break;
@@ -102,11 +103,11 @@ namespace TerraScience.Content.TileEntities.Energy{
 		public override void ReactionComplete(){
 			ReactionProgress = 0f;
 
-			var entry = LiquidEntries[0];
+			var entry = FluidEntries[0];
 
-			MachineLiquidID id = MiscUtils.GetIDFromItem(this.RetrieveItem(0).type);
+			MachineFluidID id = MiscUtils.GetFluidIDFromItem(this.RetrieveItem(0).type);
 
-			if(entry.id == MachineLiquidID.None)
+			if(entry.id == MachineFluidID.None)
 				entry.id = id;
 
 			entry.current++;
@@ -120,9 +121,9 @@ namespace TerraScience.Content.TileEntities.Energy{
 
 		internal override int[] GetOutputSlots() => new int[0];
 
-		public void TryExportLiquid(Point16 pumpPos)
-			=> this.TryExportLiquids(pumpPos, 0);
+		public void TryExportFluid(Point16 pumpPos)
+			=> this.TryExportFluids(pumpPos, 0);
 
-		public void TryImportLiquid(Point16 pipePos){ }
+		public void TryImportFluid(Point16 pipePos){ }
 	}
 }

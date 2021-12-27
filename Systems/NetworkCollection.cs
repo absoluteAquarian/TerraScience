@@ -426,10 +426,8 @@ forceNextCheck: ;
 						if(!(mTile is FluidPumpTile pump))
 							continue;
 
-						if(pump.GetConnectedMachine(timer.Key) is MachineEntity entity){
-							(entity as ILiquidMachine)?.TryExportLiquid(timer.Key);
-							(entity as IGasMachine)?.TryExportGas(timer.Key);
-						}
+						if(pump.GetConnectedMachine(timer.Key) is MachineEntity entity)
+							(entity as IFluidMachine)?.TryExportFluid(timer.Key);
 					}
 				}
 
@@ -437,22 +435,17 @@ forceNextCheck: ;
 					if(!(ModContent.GetModTile(Framing.GetTileSafely(pipe).type) is FluidTransportTile))
 						continue;
 
-					if(TileEntityUtils.TryFindMachineEntity(pipe + new Point16(0, -1), out MachineEntity entity) && network.ConnectedMachines.Contains(entity)){
-						(entity as ILiquidMachine)?.TryImportLiquid(pipe);
-						(entity as IGasMachine)?.TryImportGas(pipe);
-					}
-					if(TileEntityUtils.TryFindMachineEntity(pipe + new Point16(-1, 0), out entity) && network.ConnectedMachines.Contains(entity)){
-						(entity as ILiquidMachine)?.TryImportLiquid(pipe);
-						(entity as IGasMachine)?.TryImportGas(pipe);
-					}
-					if(TileEntityUtils.TryFindMachineEntity(pipe + new Point16(1, 0), out entity) && network.ConnectedMachines.Contains(entity)){
-						(entity as ILiquidMachine)?.TryImportLiquid(pipe);
-						(entity as IGasMachine)?.TryImportGas(pipe);
-					}
-					if(TileEntityUtils.TryFindMachineEntity(pipe + new Point16(0, 1), out entity) && network.ConnectedMachines.Contains(entity)){
-						(entity as ILiquidMachine)?.TryImportLiquid(pipe);
-						(entity as IGasMachine)?.TryImportGas(pipe);
-					}
+					if(TileEntityUtils.TryFindMachineEntity(pipe + new Point16(0, -1), out MachineEntity entity) && network.ConnectedMachines.Contains(entity))
+						(entity as IFluidMachine)?.TryImportFluid(pipe);
+
+					if(TileEntityUtils.TryFindMachineEntity(pipe + new Point16(-1, 0), out entity) && network.ConnectedMachines.Contains(entity))
+						(entity as IFluidMachine)?.TryImportFluid(pipe);
+
+					if(TileEntityUtils.TryFindMachineEntity(pipe + new Point16(1, 0), out entity) && network.ConnectedMachines.Contains(entity))
+						(entity as IFluidMachine)?.TryImportFluid(pipe);
+
+					if(TileEntityUtils.TryFindMachineEntity(pipe + new Point16(0, 1), out entity) && network.ConnectedMachines.Contains(entity))
+						(entity as IFluidMachine)?.TryImportFluid(pipe);
 				}
 			}
 

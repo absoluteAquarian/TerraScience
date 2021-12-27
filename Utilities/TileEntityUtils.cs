@@ -13,15 +13,15 @@ using TerraScience.Systems.Pipes;
 
 namespace TerraScience.Utilities{
 	public static class TileEntityUtils{
-		public static void UpdateOutputSlot(MachineGasID intendedGas, Item input, Item output, ref float storedGas){
-			if(storedGas <= 0 || input.IsAir)
+		public static void UpdateOutputSlot(MachineFluidID intendedFluid, Item input, Item output, ref float storedFluid){
+			if(storedFluid <= 0 || input.IsAir)
 				return;
 
-			//Check that the output is either 1) air or 2) is storing the same type of gas as "intendedGas"
-			if(output.IsAir || (output.modItem is Capsule capsule && capsule.GasType == intendedGas)){
+			//Check that the output is either 1) air or 2) is storing the same type of gas as "intendedFluid"
+			if(output.IsAir || (output.modItem is Capsule capsule && capsule.FluidType == intendedFluid)){
 				do{
 					if(output.IsAir){
-						output.SetDefaults(TechMod.GetCapsuleType(intendedGas));
+						output.SetDefaults(TechMod.GetCapsuleType(intendedFluid));
 						output.stack = 0;
 					}
 
@@ -31,8 +31,8 @@ namespace TerraScience.Utilities{
 
 					output.stack++;
 
-					storedGas--;
-				}while(!input.IsAir && storedGas > 0);
+					storedFluid--;
+				}while(!input.IsAir && storedFluid > 0);
 			}
 		}
 
@@ -86,97 +86,17 @@ namespace TerraScience.Utilities{
 			return false;
 		}
 
-		public static void TryImportLiquids<T>(this T entity, Point16 pipePos, int indexToExtract) where T : MachineEntity, ILiquidMachine{
-			if(indexToExtract < 0 || indexToExtract >= entity.LiquidEntries.Length)
+		public static void TryImportFluids<T>(this T entity, Point16 pipePos, int indexToExtract) where T : MachineEntity, IFluidMachine{
+			if(indexToExtract < 0 || indexToExtract >= entity.FluidEntries.Length)
 				return;
 
-			var entry = entity.LiquidEntries[indexToExtract];
+			var entry = entity.FluidEntries[indexToExtract];
 
-			if(!NetworkCollection.HasFluidPipeAt(pipePos, out FluidNetwork net)
-				|| net.gasType != MachineGasID.None
-				|| net.liquidType == MachineLiquidID.None
-				|| !entry.isInput
-				|| (entry.id != MachineLiquidID.None && entry.id != net.liquidType)
-				|| (entry.validTypes?.Length > 0 && Array.FindIndex(entry.validTypes, id => id == net.liquidType) == -1))
-				return;
-
-			Tile tile = Framing.GetTileSafely(pipePos);
-			ModTile modTile = ModContent.GetModTile(tile.type);
-
-			float rate = modTile is FluidTransportTile transport
-				? transport.ExportRate
-				: (modTile is FluidPumpTile
-					? ModContent.GetInstance<FluidTransportTile>().ExportRate
-					: -1);
-
-			if(rate <= 0)
-				return;
-
-			float exported = Math.Min(rate, net.Capacity);
-
-			if(exported + entry.current > entry.max)
-				exported = entry.max - entry.current;
-
-			if(exported <= 0)
-				return;
-
-			if(entry.id == MachineLiquidID.None)
-				entry.id = net.liquidType;
-
-			entry.current += exported;
-			net.StoredFluid -= exported;
-
-			if(net.StoredFluid <= 0)
-				net.liquidType = MachineLiquidID.None;
-		}
-
-		public static void TryExportLiquids<T>(this T entity, Point16 pumpPos, int indexToExtract) where T : MachineEntity, ILiquidMachine{
-			if(indexToExtract < 0 || indexToExtract >= entity.LiquidEntries.Length)
-				return;
-
-			var entry = entity.LiquidEntries[indexToExtract];
-
-			if(!NetworkCollection.HasFluidPipeAt(pumpPos, out FluidNetwork net)
-				|| net.gasType != MachineGasID.None
-				|| entry.isInput
-				|| (entry.id != MachineLiquidID.None && net.liquidType != MachineLiquidID.None && entry.id != net.liquidType))
-				return;
-
-			Tile tile = Framing.GetTileSafely(pumpPos);
-			ModTile modTile = ModContent.GetModTile(tile.type);
-
-			if(!(modTile is FluidPumpTile pump) || pump.GetConnectedMachine(pumpPos) != entity)
-				return;
-
-			float rate = pump.CapacityExtractedPerPump;
-
-			float extracted = Math.Min(rate, entry.current);
-
-			if(net.liquidType == MachineLiquidID.None)
-				net.liquidType = entry.id;
-
-			if(net.StoredFluid + extracted > net.Capacity)
-				extracted = net.Capacity - net.StoredFluid;
-
-			net.StoredFluid += extracted;
-			entry.current -= extracted;
-
-			if(entry.current <= 0)
-				entry.id = MachineLiquidID.None;
-		}
-
-		public static void TryImportGases<T>(this T entity, Point16 pipePos, int indexToExtract) where T : MachineEntity, IGasMachine{
-			if(indexToExtract < 0 || indexToExtract >= entity.GasEntries.Length)
-				return;
-
-			var entry = entity.GasEntries[indexToExtract];
-
-			if(!NetworkCollection.HasFluidPipeAt(pipePos, out FluidNetwork net)
-				|| net.liquidType != MachineLiquidID.None
-				|| net.gasType == MachineGasID.None
-				|| !entry.isInput
-				|| (entry.id != MachineGasID.None && entry.id != net.gasType)
-				|| (entry.validTypes?.Length > 0 && Array.FindIndex(entry.validTypes, id => id == net.gasType) == -1))
+			if(!entry.isInput
+				|| !NetworkCollection.HasFluidPipeAt(pipePos, out FluidNetwork net)
+				|| net.fluidType != MachineFluidID.None
+				|| (entry.id != MachineFluidID.None && entry.id != net.fluidType)
+				|| (entry.validTypes?.Length > 0 && Array.FindIndex(entry.validTypes, id => id == net.fluidType) == -1))
 				return;
 
 			Tile tile = Framing.GetTileSafely(pipePos);
@@ -199,23 +119,26 @@ namespace TerraScience.Utilities{
 			if(exported <= 0)
 				return;
 
-			if(entry.id == MachineGasID.None)
-				entry.id = net.gasType;
+			if(entry.id == MachineFluidID.None)
+				entry.id = net.fluidType;
 
 			entry.current += exported;
 			net.StoredFluid -= exported;
 
 			if(net.StoredFluid <= 0)
-				net.gasType = MachineGasID.None;
+				net.fluidType = MachineFluidID.None;
 		}
 
-		public static void TryExportGases<T>(this T entity, Point16 pumpPos, int indexToExtract) where T : MachineEntity, IGasMachine{
-			if(indexToExtract < 0 || indexToExtract >= entity.GasEntries.Length)
+		public static void TryExportFluids<T>(this T entity, Point16 pumpPos, int indexToExtract) where T : MachineEntity, IFluidMachine{
+			if(indexToExtract < 0 || indexToExtract >= entity.FluidEntries.Length)
 				return;
 
-			var entry = entity.GasEntries[indexToExtract];
+			var entry = entity.FluidEntries[indexToExtract];
 
-			if(!NetworkCollection.HasFluidPipeAt(pumpPos, out FluidNetwork net) || net.liquidType != MachineLiquidID.None || entry.isInput || (entry.id != MachineGasID.None && net.gasType != MachineGasID.None && entry.id != net.gasType))
+			if(entry.isInput
+				|| !NetworkCollection.HasFluidPipeAt(pumpPos, out FluidNetwork net)
+				|| net.fluidType != MachineFluidID.None
+				|| (entry.id != MachineFluidID.None && net.fluidType != MachineFluidID.None && entry.id != net.fluidType))
 				return;
 
 			Tile tile = Framing.GetTileSafely(pumpPos);
@@ -228,8 +151,8 @@ namespace TerraScience.Utilities{
 
 			float extracted = Math.Min(rate, entry.current);
 
-			if(net.gasType == MachineGasID.None)
-				net.gasType = entry.id;
+			if(net.fluidType == MachineFluidID.None)
+				net.fluidType = entry.id;
 
 			if(net.StoredFluid + extracted > net.Capacity)
 				extracted = net.Capacity - net.StoredFluid;
@@ -238,43 +161,25 @@ namespace TerraScience.Utilities{
 			entry.current -= extracted;
 
 			if(entry.current <= 0)
-				entry.id = MachineGasID.None;
+				entry.id = MachineFluidID.None;
 		}
 
-		public static void SendLiquids<T>(this T entity, BinaryWriter writer) where T : MachineEntity, ILiquidMachine{
-			writer.Write((short)entity.LiquidPlaceDelay);
+		public static void SendFluids<T>(this T entity, BinaryWriter writer) where T : MachineEntity, IFluidMachine{
+			writer.Write((short)entity.FluidPlaceDelay);
 
-			writer.Write((byte)entity.LiquidEntries.Length);
+			writer.Write((byte)entity.FluidEntries.Length);
 
-			for(int i = 0; i < entity.LiquidEntries.Length; i++)
-				entity.LiquidEntries[i].NetSend(writer);
+			for(int i = 0; i < entity.FluidEntries.Length; i++)
+				entity.FluidEntries[i].NetSend(writer);
 		}
 
-		public static void ReceiveLiquids<T>(this T entity, BinaryReader reader) where T : MachineEntity, ILiquidMachine{
-			entity.LiquidPlaceDelay = reader.ReadInt16();
+		public static void ReceiveFluids<T>(this T entity, BinaryReader reader) where T : MachineEntity, IFluidMachine{
+			entity.FluidPlaceDelay = reader.ReadInt16();
 
-			byte liquids = reader.ReadByte();
+			byte fluids = reader.ReadByte();
 
-			for(int i = 0; i < liquids; i++)
-				entity.LiquidEntries[i].NetReceive(reader);
-		}
-
-		public static void SendGases<T>(this T entity, BinaryWriter writer) where T : MachineEntity, IGasMachine{
-			writer.Write((short)entity.GasPlaceDelay);
-
-			writer.Write((byte)entity.GasEntries.Length);
-
-			for(int i = 0; i < entity.GasEntries.Length; i++)
-				entity.GasEntries[i].NetSend(writer);
-		}
-
-		public static void ReceiveGases<T>(this T entity, BinaryReader reader) where T : MachineEntity, IGasMachine{
-			entity.GasPlaceDelay = reader.ReadInt16();
-
-			byte gases = reader.ReadByte();
-
-			for(int i = 0; i < gases; i++)
-				entity.GasEntries[i].NetReceive(reader);
+			for(int i = 0; i < fluids; i++)
+				entity.FluidEntries[i].NetReceive(reader);
 		}
 	}
 }

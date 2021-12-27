@@ -146,7 +146,7 @@ namespace TerraScience.Utilities{
 		}
 
 		public static bool HandleMouse<TEntity>(Machine machine, Point16 tilePos, Func<bool> additionalCondition) where TEntity : MachineEntity{
-			if(MiscUtils.TryGetTileEntity(tilePos, out TEntity entity) && additionalCondition()){
+			if(MiscUtils.TryGetTileEntity(tilePos, out TEntity entity) && (additionalCondition?.Invoke() ?? true)){
 				TechMod instance = TechMod.Instance;
 				string name = tileToStructureName[instance.TileType(machine.Name)];
 
@@ -243,25 +243,25 @@ namespace TerraScience.Utilities{
 			return stack <= 0;
 		}
 
-		public static bool TryPlaceLiquidInMachine<T>(Machine machine, Point16 pos) where T : MachineEntity, ILiquidMachine{
+		public static bool TryPlaceLiquidInMachine<T>(Machine machine, Point16 pos) where T : MachineEntity, IFluidMachine{
 			Tile tile = Framing.GetTileSafely(pos);
 
 			Point16 orig = pos - tile.TileCoord();
 
-			if(MiscUtils.TryGetTileEntity(orig, out T entity) && entity.LiquidPlaceDelay <= 0){
-				var id = MiscUtils.GetIDFromItem(Main.LocalPlayer.HeldItem.type);
+			if(MiscUtils.TryGetTileEntity(orig, out T entity) && entity.FluidPlaceDelay <= 0){
+				var id = MiscUtils.GetFluidIDFromItem(Main.LocalPlayer.HeldItem.type);
 
 				//null validTypes means any liquid can be put in the slot
 				int index;
-				if(id == MachineLiquidID.None || (index = Array.FindIndex(entity.LiquidEntries, entry => entry.isInput && (entry.validTypes is null || Array.Exists(entry.validTypes, t => t == id)))) == -1 || (entity.LiquidEntries[index].id != MachineLiquidID.None && entity.LiquidEntries[index].id != id))
+				if(id == MachineFluidID.None || (index = Array.FindIndex(entity.FluidEntries, entry => entry.isInput && (entry.validTypes is null || Array.Exists(entry.validTypes, t => t == id)))) == -1 || (entity.FluidEntries[index].id != MachineFluidID.None && entity.FluidEntries[index].id != id))
 					return false;
 
-				var use = entity.LiquidEntries[index];
+				var use = entity.FluidEntries[index];
 
 				if(use.current + 1 > use.max)
 					return false;
 
-				if(use.id == MachineLiquidID.None)
+				if(use.id == MachineFluidID.None)
 					use.id = id;
 
 				use.current += 1;
@@ -269,7 +269,7 @@ namespace TerraScience.Utilities{
 				if(use.current > use.max)
 					use.current = use.max;
 
-				entity.LiquidPlaceDelay = ElectrolyzerEntity.MaxPlaceDelay;
+				entity.FluidPlaceDelay = ElectrolyzerEntity.MaxPlaceDelay;
 
 				Main.PlaySound(SoundID.Splash, TileEntityCenter(entity, machine.Type));
 
@@ -283,52 +283,6 @@ namespace TerraScience.Utilities{
 					Main.LocalPlayer.HeldItem.stack--;
 					Main.LocalPlayer.QuickSpawnItem(ModContent.ItemType<EmptyVial>());
 				}
-
-				//Success
-				return true;
-			}
-
-			return false;
-		}
-
-		public static bool TryPlaceGasInMachine<T>(Machine machine, Point16 pos) where T : MachineEntity, IGasMachine{
-			Tile tile = Framing.GetTileSafely(pos);
-
-			Point16 orig = pos - tile.TileCoord();
-
-			if(MiscUtils.TryGetTileEntity(orig, out T entity) && entity.GasPlaceDelay <= 0){
-				if(!(Main.LocalPlayer.HeldItem.modItem is Capsule capsule))
-					return false;
-				
-				var id = capsule.GasType;
-
-				if(id == MachineGasID.None)
-					return false;
-
-				//null validTypes means any gas can be put in the slot
-				int index;
-				if(id == MachineGasID.None || (index = Array.FindIndex(entity.GasEntries, entry => entry.isInput && (entry.validTypes is null || Array.Exists(entry.validTypes, t => t == id)))) == -1 || (entity.GasEntries[index].id != MachineGasID.None && entity.GasEntries[index].id != id))
-					return false;
-
-				var use = entity.GasEntries[index];
-
-				if(use.current + 1 > use.max)
-					return false;
-
-				if(use.id == MachineGasID.None)
-					use.id = id;
-
-				use.current += 1;
-
-				if(use.current > use.max)
-					use.current = use.max;
-
-				entity.GasPlaceDelay = ElectrolyzerEntity.MaxPlaceDelay;
-
-				Main.PlaySound(SoundID.Splash, TileEntityCenter(entity, machine.Type));
-
-				Main.LocalPlayer.HeldItem.stack--;
-				Main.LocalPlayer.QuickSpawnItem(TechMod.GetCapsuleType(MachineGasID.None));
 
 				//Success
 				return true;

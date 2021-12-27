@@ -16,8 +16,7 @@ namespace TerraScience.Systems.Pipes{
 		internal override JunctionType Type => JunctionType.Fluids;
 
 		// TODO: make these not enums for fluids from other mods
-		public MachineGasID gasType;
-		public MachineLiquidID liquidType;
+		public MachineFluidID fluidType;
 		
 		public List<Point16> pipesConnectedToMachines;
 
@@ -42,20 +41,20 @@ namespace TerraScience.Systems.Pipes{
 				}else if(ModContent.GetModTile(tile.type) is FluidTransportTile transport)
 					Capacity += transport.Capacity;
 
-				if(TileEntityUtils.TryFindMachineEntity(pos + new Point16(0, -1), out MachineEntity entity) && (entity is ILiquidMachine || entity is IGasMachine))
+				if(TileEntityUtils.TryFindMachineEntity(pos + new Point16(0, -1), out MachineEntity entity) && entity is IFluidMachine)
 					pipesConnectedToMachines.Add(pos);
 
-				if(TileEntityUtils.TryFindMachineEntity(pos + new Point16(-1, 0), out entity) && (entity is ILiquidMachine || entity is IGasMachine)){
+				if(TileEntityUtils.TryFindMachineEntity(pos + new Point16(-1, 0), out entity) && entity is IFluidMachine){
 					if(!pipesConnectedToMachines.Contains(pos))
 						pipesConnectedToMachines.Add(pos);
 				}
 
-				if(TileEntityUtils.TryFindMachineEntity(pos + new Point16(1, 0), out entity) && (entity is ILiquidMachine || entity is IGasMachine)){
+				if(TileEntityUtils.TryFindMachineEntity(pos + new Point16(1, 0), out entity) && entity is IFluidMachine){
 					if(!pipesConnectedToMachines.Contains(pos))
 						pipesConnectedToMachines.Add(pos);
 				}
 
-				if(TileEntityUtils.TryFindMachineEntity(pos + new Point16(0, 1), out entity) && (entity is ILiquidMachine || entity is IGasMachine)){
+				if(TileEntityUtils.TryFindMachineEntity(pos + new Point16(0, 1), out entity) && entity is IFluidMachine){
 					if(!pipesConnectedToMachines.Contains(pos))
 						pipesConnectedToMachines.Add(pos);
 				}
@@ -93,8 +92,7 @@ namespace TerraScience.Systems.Pipes{
 			var dirs = SavePumpDirs();
 
 			return new TagCompound(){
-				["gas"] = gasType.EnumName(),
-				["liquid"] = liquidType.EnumName(),
+				["fluid"] = fluidType.EnumName(),
 				["stored"] = StoredFluid,
 				["pumpPositions"] = dirs?.Count > 0 ? dirs.Select(t => t.Item1).ToList() : null,
 				["pumpDirs"] = dirs?.Count > 0 ? dirs.Select(t => t.Item2).ToList() : null,
@@ -104,15 +102,10 @@ namespace TerraScience.Systems.Pipes{
 		}
 
 		public override void Load(TagCompound tag){
-			if(tag.GetString("gas") is string gasName)
-				gasType = (MachineGasID)Enum.Parse(typeof(MachineGasID), gasName);
+			if(tag.GetString("fluid") is string gasName)
+				fluidType = (MachineFluidID)Enum.Parse(typeof(MachineFluidID), gasName);
 			else
-				gasType = MachineGasID.None;
-
-			if(tag.GetString("liquid") is string liquidName)
-				liquidType = (MachineLiquidID)Enum.Parse(typeof(MachineLiquidID), liquidName);
-			else
-				liquidType = MachineLiquidID.None;
+				fluidType = MachineFluidID.None;
 
 			StoredFluid = tag.GetFloat("stored");
 
@@ -138,36 +131,28 @@ namespace TerraScience.Systems.Pipes{
 
 		public override TagCompound CombineSave()
 			=> new TagCompound(){
-				["gas"] = gasType.EnumName(),
-				["liquid"] = liquidType.EnumName(),
+				["fluid"] = fluidType.EnumName(),
 				["stored"] = StoredFluid,
 				["pumpTimerLocations"] = pumpTimers.Keys.ToList(),
 				["pumpTimerValues"] = pumpTimers.Values.Select(t => (byte)t.value).ToList()
 			};
 
 		public override void LoadCombinedData(TagCompound up, TagCompound left, TagCompound right, TagCompound down){
-			if(up?.GetString("gas") is string upGas)
-				gasType = (MachineGasID)Enum.Parse(typeof(MachineGasID), upGas);
-			else if(left?.GetString("gas") is string leftGas)
-				gasType = (MachineGasID)Enum.Parse(typeof(MachineGasID), leftGas);
-			else if(right?.GetString("gas") is string rightGas)
-				gasType = (MachineGasID)Enum.Parse(typeof(MachineGasID), rightGas);
-			else if(down?.GetString("gas") is string downGas)
-				gasType = (MachineGasID)Enum.Parse(typeof(MachineGasID), downGas);
+			if(up?.GetString("fluid") is string upFluid)
+				fluidType = (MachineFluidID)Enum.Parse(typeof(MachineFluidID), upFluid);
+			else if(left?.GetString("fluid") is string leftFluid)
+				fluidType = (MachineFluidID)Enum.Parse(typeof(MachineFluidID), leftFluid);
+			else if(right?.GetString("fluid") is string rightFluid)
+				fluidType = (MachineFluidID)Enum.Parse(typeof(MachineFluidID), rightFluid);
+			else if(down?.GetString("fluid") is string downFluid)
+				fluidType = (MachineFluidID)Enum.Parse(typeof(MachineFluidID), downFluid);
 
-			if(up?.GetString("liquid") is string upLiquid)
-				liquidType = (MachineLiquidID)Enum.Parse(typeof(MachineLiquidID), upLiquid);
-			else if(left?.GetString("liquid") is string leftLiquid)
-				liquidType = (MachineLiquidID)Enum.Parse(typeof(MachineLiquidID), leftLiquid);
-			else if(right?.GetString("liquid") is string rightLiquid)
-				liquidType = (MachineLiquidID)Enum.Parse(typeof(MachineLiquidID), rightLiquid);
-			else if(down?.GetString("liquid") is string downLiquid)
-				liquidType = (MachineLiquidID)Enum.Parse(typeof(MachineLiquidID), downLiquid);
-
-			StoredFluid = (up?.GetFloat("stored") ?? 0)
-				+ (left?.GetFloat("stored") ?? 0)
-				+ (right?.GetFloat("stored") ?? 0)
-				+ (down?.GetFloat("stored") ?? 0);
+			if(fluidType != MachineFluidID.None){
+				StoredFluid = (up?.GetFloat("stored") ?? 0)
+					+ (left?.GetFloat("stored") ?? 0)
+					+ (right?.GetFloat("stored") ?? 0)
+					+ (down?.GetFloat("stored") ?? 0);
+			}
 
 			LoadCombinedPumps(up);
 			LoadCombinedPumps(left);
@@ -195,7 +180,7 @@ namespace TerraScience.Systems.Pipes{
 				JunctionMerge merge = JunctionMergeable.mergeTypes[center.frameX / 18];
 
 				if(((merge & JunctionMerge.Fluids_LeftRight) != 0 && dir.X != 0) || ((merge & JunctionMerge.Fluids_UpDown) != 0 && dir.Y != 0))
-					return otherNet is null || (otherNet.liquidType == thisNet.liquidType && otherNet.gasType == thisNet.gasType);
+					return otherNet is null || (otherNet.fluidType == thisNet.fluidType);
 				return false;
 			}
 
@@ -205,9 +190,9 @@ namespace TerraScience.Systems.Pipes{
 			bool hasConnAxis = axisNet != null;
 			bool hasConnAxisOther = otherAxisNet != null;
 
-			return (!hasConnOther || (otherNet.liquidType == thisNet.liquidType && otherNet.gasType == thisNet.gasType))
-				&& (!hasConnAxis || (axisNet.liquidType == thisNet.liquidType && axisNet.gasType == thisNet.gasType))
-				&& (!hasConnAxisOther || (otherAxisNet.liquidType == thisNet.liquidType && otherAxisNet.gasType == thisNet.gasType));
+			return (!hasConnOther || (otherNet.fluidType == thisNet.fluidType))
+				&& (!hasConnAxis || (axisNet.fluidType == thisNet.fluidType))
+				&& (!hasConnAxisOther || (otherAxisNet.fluidType == thisNet.fluidType));
 		}
 
 		public override void SplitDataAcrossNetworks(Point16 splitOrig){
@@ -232,6 +217,6 @@ namespace TerraScience.Systems.Pipes{
 				ConnectedMachines = new List<MachineEntity>(this.ConnectedMachines)
 			};
 
-		public override string ToString() => $"ID: {ID}, Fluid: {StoredFluid} / {Capacity} L, Gas Type: {gasType}, Liquid Type: {liquidType}";
+		public override string ToString() => $"ID: {ID}, Fluid: {StoredFluid} / {Capacity} L, Fluid Type: {fluidType}";
 	}
 }

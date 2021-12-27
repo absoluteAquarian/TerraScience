@@ -31,9 +31,9 @@ namespace TerraScience.Content.Tiles.Multitiles{
 			=> TileUtils.TryPlaceLiquidInMachine<SaltExtractorEntity>(this, pos);
 
 		public override bool HandleMouse(Point16 pos){
-			var id = MiscUtils.GetIDFromItem(Main.LocalPlayer.HeldItem.type);
+			var id = MiscUtils.GetFluidIDFromItem(Main.LocalPlayer.HeldItem.type);
 
-			return TileUtils.HandleMouse<SaltExtractorEntity>(this, pos, () => MiscUtils.TryGetTileEntity(pos, out SaltExtractorEntity entity) && !Array.Exists(entity.LiquidEntries[0].validTypes, t => t == id));
+			return TileUtils.HandleMouse<SaltExtractorEntity>(this, pos, () => MiscUtils.TryGetTileEntity(pos, out SaltExtractorEntity entity) && !Array.Exists(entity.FluidEntries[0].validTypes, t => t == id));
 		}
 
 		public override void PostDraw(int i, int j, SpriteBatch spriteBatch) {
@@ -49,7 +49,7 @@ namespace TerraScience.Content.Tiles.Multitiles{
 
 			if(MiscUtils.TryGetTileEntity(pos, out SaltExtractorEntity se) && lastTile){
 				//Do the rest of the things
-				float curWaterRatio = se.LiquidEntries[0].current / se.LiquidEntries[0].max;
+				float curWaterRatio = se.FluidEntries[0].current / se.FluidEntries[0].max;
 				float invRatio = 1f - curWaterRatio;
 				Vector2 offset = MiscUtils.GetLightingDrawOffset();
 

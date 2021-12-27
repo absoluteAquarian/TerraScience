@@ -50,8 +50,8 @@ namespace TerraScience.Content.UI{
 		internal override void UpdateText(List<UIText> text){
 			SaltExtractorEntity se = UIEntity as SaltExtractorEntity;
 
-			text[0].SetText($"{UIDecimalFormat(se.LiquidEntries[0].current)}L / {Math.Round(se.LiquidEntries[0].max)}L");
-			text[1].SetText($"Processing: {se.LiquidEntries[0].id.ProperEnumName()}");
+			text[0].SetText($"{UIDecimalFormat(se.FluidEntries[0].current)}L / {Math.Round(se.FluidEntries[0].max)}L");
+			text[1].SetText($"Processing: {se.FluidEntries[0].id.ProperEnumName()}");
 			text[2].SetText($"Speed Multiplier: {UIDecimalFormat(se.ReactionSpeed)}x");
 		}
 	}

@@ -10,9 +10,9 @@ using TerraScience.Utilities;
 
 namespace TerraScience.Content.Items.Tools{
 	public class Capsule : ModItem{
-		internal static Dictionary<int, MachineGasID> containerTypes;
+		internal static Dictionary<int, MachineFluidID> fluidContainerTypes;
 
-		public MachineGasID GasType => containerTypes[item.type];
+		public MachineFluidID FluidType => fluidContainerTypes.TryGetValue(item.type, out var gas) ? gas : MachineFluidID.None;
 
 		public override bool Autoload(ref string name) => false;
 
@@ -23,8 +23,12 @@ namespace TerraScience.Content.Items.Tools{
 		public Capsule(){ }
 
 		public override void SetStaticDefaults(){
-			DisplayName.SetDefault(GasType != MachineGasID.None ? "Capsule: " + GasType.ProperEnumName() : "Empty Capsule");
-			Tooltip.SetDefault("A basic capsule able to store gases");
+			var fluid = FluidType;
+
+			DisplayName.SetDefault(fluid != MachineFluidID.None
+					? "Capsule: " + fluid.ProperEnumName()
+					: "Empty Capsule");
+			Tooltip.SetDefault("A basic capsule able to store gases or liquids");
 		}
 
 		public override void SetDefaults(){
@@ -37,7 +41,7 @@ namespace TerraScience.Content.Items.Tools{
 		}
 
 		public override void AddRecipes(){
-			if(GasType == MachineGasID.None){
+			if(FluidType == MachineFluidID.None){
 				ModRecipe recipe = new ModRecipe(mod);
 				recipe.AddIngredient(ItemID.TinBar, 2);
 				recipe.AddIngredient(ItemID.Glass, 1);
@@ -57,41 +61,36 @@ namespace TerraScience.Content.Items.Tools{
 		}
 
 		private void DrawBack(SpriteBatch spriteBatch, Vector2 position, Color color, Vector2 origin, float rotation, float scale){
-			if(GasType == MachineGasID.None)
+			var fluid = FluidType;
+
+			if(fluid == MachineFluidID.None)
 				return;
 
 			var texture = ModContent.GetTexture("TerraScience/Content/Items/Tools/capsule back");
 
-			Color gasColor = GetBackColor(GasType);
+			Color gasColor = GetBackColor(fluid);
 
 			spriteBatch.Draw(texture, position, null, MiscUtils.MixLightColors(color, gasColor), rotation, origin, scale, SpriteEffects.None, 0);
 		}
 
-		public static Color GetBackColor(MachineGasID id){
+		public static Color GetBackColor(MachineFluidID id){
 			switch(id){
-				case MachineGasID.Hydrogen:
+				case MachineFluidID.LiquidWater:
+					return new Color(){ PackedValue = 0xffbf3d09 };
+				case MachineFluidID.LiquidSaltwater:
+					return new Color(){ PackedValue = 0xff8e9107 };
+				case MachineFluidID.LiquidLava:
+					return new Color(){ PackedValue = 0xff0320fd };
+				case MachineFluidID.LiquidHoney:
+					return new Color(){ PackedValue = 0xff0c9cff };
+				case MachineFluidID.HydrogenGas:
 					return Color.Orange;
-				case MachineGasID.Oxygen:
+				case MachineFluidID.OxygenGas:
 					return Color.LightBlue;
-				case MachineGasID.Chlorine:
+				case MachineFluidID.ChlorineGas:
 					return Color.LimeGreen;
 				default:
 					throw new Exception("Invalid Gas ID requested: " + id.ToString());
-			}
-		}
-
-		public static Color GetBackColor(MachineLiquidID id){
-			switch(id){
-				case MachineLiquidID.Water:
-					return new Color(){ PackedValue = 0xffbf3d09 };
-				case MachineLiquidID.Saltwater:
-					return new Color(){ PackedValue = 0xff8e9107 };
-				case MachineLiquidID.Lava:
-					return new Color(){ PackedValue = 0xff0320fd };
-				case MachineLiquidID.Honey:
-					return new Color(){ PackedValue = 0xff0c9cff };
-				default:
-					throw new Exception("Invalid Liquid ID requested: " + id.ToString());
 			}
 		}
 	}

@@ -87,7 +87,7 @@ namespace TerraScience.Content.Tiles{
 
 			Point16 origin = actualLocation - tile.TileCoord();
 
-			return TileEntity.ByPosition.TryGetValue(origin, out TileEntity entity) && entity is MachineEntity machineEntity && (machineEntity is ILiquidMachine || machineEntity is IGasMachine) ? machineEntity : null;
+			return TileEntity.ByPosition.TryGetValue(origin, out TileEntity entity) && entity is MachineEntity machineEntity && machineEntity is IFluidMachine ? machineEntity : null;
 		}
 
 		public override bool PreDraw(int i, int j, SpriteBatch spriteBatch){

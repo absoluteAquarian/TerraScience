@@ -49,20 +49,16 @@ namespace TerraScience.Content.Tiles{
 			if(NetworkCollection.HasFluidPipeAt(tilePos, out FluidNetwork net)){
 				float factor = net.StoredFluid / net.Capacity;
 
-				float alpha = net.liquidType != MachineLiquidID.None
+				float alpha = net.fluidType.IsLiquidID()
 					? 1f
-					: (net.gasType != MachineGasID.None
+					: (net.fluidType.IsGasID()
 						? 0.65f * factor
 						: 0);
 
 				if(alpha == 0)
 					return;
 
-				Color color = net.gasType != MachineGasID.None
-					? Capsule.GetBackColor(net.gasType)
-					: net.liquidType != MachineLiquidID.None
-						? Capsule.GetBackColor(net.liquidType)
-						: throw new Exception();
+				Color color = Capsule.GetBackColor(net.fluidType);
 
 				color = MiscUtils.MixLightColors(Lighting.GetColor(tilePos.X, tilePos.Y), color);
 
@@ -70,7 +66,7 @@ namespace TerraScience.Content.Tiles{
 
 				var rect = new Rectangle(tile.frameX, tile.frameY, 16, 16);
 
-				if(net.liquidType != MachineLiquidID.None){
+				if(net.fluidType.IsLiquidID()){
 					//Adjust the frame to the proper subset
 					int subsetHeight = texture.Frame(1, 4, 0, 0).Height;
 

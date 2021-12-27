@@ -259,7 +259,7 @@ namespace TerraScience.Systems.Pathfinding{
 
 		private T[] _heap;
 		private int _count;
-		private IComparer<T> _comparer;
+		private readonly IComparer<T> _comparer;
 		private bool _isHeap;
 		private const int DefaultCapacity = 6;
 	}

@@ -14,14 +14,14 @@ namespace TerraScience.Content.Commands{
 		public override string Description => "Sets the time.  <time string> is a string, such as \"4:30\" (without the quotes) or \"dawn\".";
  
 		public static readonly string[] Keywords = new string[]{
-			"dawn",			//6:00 AM
-			"midnight",		//12:00 AM
-			"night",		//7:29 PM
-			"morning",		//9:30 AM
-			"day",			//4:29 AM
-			"dusk",			//6:00 PM
-			"noon",			//12:00 PM
-			"afternoon"		//2:30 PM
+			"dawn",         //6:00 AM
+			"midnight",     //12:00 AM
+			"night",        //7:29 PM
+			"morning",      //9:30 AM
+			"day",          //4:29 AM
+			"dusk",         //6:00 PM
+			"noon",         //12:00 PM
+			"afternoon"     //2:30 PM
 		};
  
 		public static readonly int[] KeyTimes = new int[]{

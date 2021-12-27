@@ -11,56 +11,57 @@ using TerraScience.Content.Tiles.Multitiles;
 using TerraScience.Utilities;
 
 namespace TerraScience.Content.TileEntities{
-	public class SaltExtractorEntity : MachineEntity, ILiquidMachine{
+	public class SaltExtractorEntity : MachineEntity, IFluidMachine{
 		public override int SlotsCount => 1;
 
 		public override void ExtraLoad(TagCompound tag){
-			this.LoadLiquids(tag);
+			this.LoadFluids(tag);
 		}
 
 		public override TagCompound ExtraSave(){
 			TagCompound tag = new TagCompound();
 
-			this.SaveLiquids(tag);
+			this.SaveFluids(tag);
 
 			return tag;
 		}
 
 		public override void ExtraNetSend(BinaryWriter writer){
-			this.SendLiquids(writer);
+			this.SendFluids(writer);
 		}
 
 		public override void ExtraNetReceive(BinaryReader reader){
-			this.ReceiveLiquids(reader);
+			this.ReceiveFluids(reader);
 		}
 
 		public override int MachineTile => ModContent.TileType<SaltExtractor>();
 
-		public LiquidEntry[] LiquidEntries{ get; set; } = new LiquidEntry[]{
-			new LiquidEntry(max: 10f, isInput: true, MachineLiquidID.Water, MachineLiquidID.Saltwater)
+		public FluidEntry[] FluidEntries{ get; set; } = new FluidEntry[]{
+			new FluidEntry(max: 10f, isInput: true, MachineFluidID.LiquidWater, MachineFluidID.LiquidSaltwater)
 		};
-		public int LiquidPlaceDelay{ get; set; }
+
+		public int FluidPlaceDelay{ get; set; }
 
 		public override void PreUpdateReaction(){
 			Item salt = this.RetrieveItem(0);
 
-			if(LiquidEntries[0].current > 0 && salt.stack < 100)
+			if(FluidEntries[0].current > 0 && salt.stack < 100)
 				ReactionInProgress = true;
 		}
 
 		public override bool UpdateReaction(){
 			float litersLostPerSecond = 0f;
-			if(LiquidEntries[0].id == MachineLiquidID.Water)
+			if(FluidEntries[0].id == MachineFluidID.LiquidWater)
 				litersLostPerSecond = 0.05f;
-			else if(LiquidEntries[0].id == MachineLiquidID.Saltwater)
+			else if(FluidEntries[0].id == MachineFluidID.LiquidSaltwater)
 				litersLostPerSecond = 0.075f;
 
 			float reaction = ReactionSpeed * litersLostPerSecond / 60f;
-			LiquidEntries[0].current -= reaction;
+			FluidEntries[0].current -= reaction;
 
-			if(LiquidEntries[0].id == MachineLiquidID.Water)
+			if(FluidEntries[0].id == MachineFluidID.LiquidWater)
 				ReactionProgress += reaction * 0.5f * 100;
-			else if(LiquidEntries[0].id == MachineLiquidID.Saltwater)
+			else if(FluidEntries[0].id == MachineFluidID.LiquidSaltwater)
 				ReactionProgress += reaction * 1.5f * 100;
 
 			return true;
@@ -99,10 +100,10 @@ namespace TerraScience.Content.TileEntities{
 			}
 
 			//If there isn't any water left, pause the reaction
-			if(LiquidEntries[0].current <= 0f && ReactionInProgress){
+			if(FluidEntries[0].current <= 0f && ReactionInProgress){
 				ReactionInProgress = false;
-				LiquidEntries[0].current = 0f;
-				LiquidEntries[0].id = MachineLiquidID.None;
+				FluidEntries[0].current = 0f;
+				FluidEntries[0].id = MachineFluidID.None;
 			}
 
 			//Stop the reaction if more than 99 salt items are stored
@@ -110,8 +111,8 @@ namespace TerraScience.Content.TileEntities{
 				ReactionInProgress = false;
 
 			//Update the delay timer
-			if(LiquidPlaceDelay > 0)
-				LiquidPlaceDelay--;
+			if(FluidPlaceDelay > 0)
+				FluidPlaceDelay--;
 		}
 
 		internal override int[] GetInputSlots() => new int[0];
@@ -120,8 +121,8 @@ namespace TerraScience.Content.TileEntities{
 
 		internal override bool CanInputItem(int slot, Item item) => false;
 
-		public void TryExportLiquid(Point16 pumpPos){ }
+		public void TryExportFluid(Point16 pumpPos){ }
 
-		public void TryImportLiquid(Point16 pipePos) => this.TryImportLiquids(pipePos, 0);
+		public void TryImportFluid(Point16 pipePos) => this.TryImportFluids(pipePos, 0);
 	}
 }

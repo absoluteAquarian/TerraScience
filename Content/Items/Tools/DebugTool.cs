@@ -36,47 +36,26 @@ namespace TerraScience.Content.Items.Tools{
 		}
 
 		public override void ModifyTooltips(List<TooltipLine> tooltips){
-			FindAndModify(tooltips, "<KEY>", () => {
+			MiscUtils.FindAndModify(tooltips, "<KEY>", () => {
 				var hotkeys = TechMod.DebugHotkey.GetAssignedKeys();
 
 				return "\"" + (hotkeys.Count > 0 ? hotkeys[0] : "<NOT BOUND>") + "\"";
 			});
 
-			FindAndInsertLines(tooltips, "<NETWORK_COUNTS>",
+			MiscUtils.FindAndInsertLines(tooltips, "<NETWORK_COUNTS>",
 				() => "Network Counts:" +
 				$"\n  Item Networks = {NetworkCollection.itemNetworks.Count} | Total Entries = {NetworkCollection.itemNetworks.Select(i => i.Hash.Count).Sum()}" +
 				$"\n  Wire Networks = {NetworkCollection.wireNetworks.Count} | Total Entries = {NetworkCollection.wireNetworks.Select(i => i.Hash.Count).Sum()}" +
 				$"\n  Fluid Networks = {NetworkCollection.fluidNetworks.Count} | Total Entries = {NetworkCollection.fluidNetworks.Select(i => i.Hash.Count).Sum()}");
 
-			FindAndInsertLines(tooltips, "<TOTAL_ITEMS>",
+			MiscUtils.FindAndInsertLines(tooltips, "<TOTAL_ITEMS>",
 				() => $"Total Items in Networks: {NetworkCollection.itemNetworks.Select(i => i.paths).Select(list => list.Count).Sum()}");
 
-			FindAndInsertLines(tooltips, "<NETWORK_TIMES>",
+			MiscUtils.FindAndInsertLines(tooltips, "<NETWORK_TIMES>",
 				() => "Network Update Times:" +
 				$"\n  Item Network Pumps: {NetworkCollection.ItemNetworkPumpUpdateTime * 1000 :0.###}ms ({NetworkCollection.ItemNetworkPumpUpdateTime * 60 :0.###} ticks)" +
 				$"\n  Item Network Items: {NetworkCollection.ItemNetworkMovingItemsUpdateTime * 1000 :0.###}ms ({NetworkCollection.ItemNetworkMovingItemsUpdateTime * 60 :0.###} ticks)" +
 				$"\n  Fluid Networks: {NetworkCollection.FluidNetworkUpdateTime * 1000 :0.###}ms ({NetworkCollection.FluidNetworkUpdateTime * 60 :0.###} ticks)");
-		}
-
-		private static void FindAndModify(List<TooltipLine> tooltips, string searchPhrase, Func<string> replacePhrase){
-			int searchIndex = tooltips.FindIndex(t => t.text.Contains(searchPhrase));
-			if(searchIndex >= 0)
-				tooltips[searchIndex].text = tooltips[searchIndex].text.Replace(searchPhrase, replacePhrase());
-		}
-
-		private static void FindAndInsertLines(List<TooltipLine> tooltips, string searchLine, Func<string> replaceLines){
-			int searchIndex = tooltips.FindIndex(t => t.text == searchLine);
-			if(searchIndex >= 0){
-				tooltips.RemoveAt(searchIndex);
-
-				string lines = replaceLines();
-
-				int inserted = 0;
-				foreach(var line in lines.Split(new[]{ '\n' }, StringSplitOptions.RemoveEmptyEntries)){
-					tooltips.Insert(searchIndex++, new TooltipLine(TechMod.Instance, "DebugToolLine" + inserted, line));
-					inserted++;
-				}
-			}
 		}
 
 		static uint oldUpdate = 0;

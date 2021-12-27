@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using System.Collections.Generic;
+using Terraria;
 using Terraria.GameContent.UI.Elements;
 using Terraria.ModLoader;
 using TerraScience.API.UI;
@@ -45,15 +46,15 @@ namespace TerraScience.Content.UI{
 		internal override void UpdateEntity(){
 			FluidTankEntity entity = UIEntity as FluidTankEntity;
 
-			gaugeLiquid.fluidName = entity.LiquidEntries[0].id.ProperEnumName();
-			gaugeLiquid.fluidCur = entity.LiquidEntries[0].current;
-			gaugeLiquid.fluidMax = entity.LiquidEntries[0].max;
-			gaugeLiquid.fluidColor = entity.LiquidEntries[0].current <= 0f ? Color.Transparent : Capsule.GetBackColor(entity.LiquidEntries[0].id);
+			gaugeLiquid.fluidName = entity.FluidEntries[0].id.ProperEnumName();
+			gaugeLiquid.fluidCur = entity.FluidEntries[0].current;
+			gaugeLiquid.fluidMax = entity.FluidEntries[0].max;
+			gaugeLiquid.fluidColor = entity.FluidEntries[0].current <= 0f ? Color.Transparent : Capsule.GetBackColor(entity.FluidEntries[0].id);
 
-			gaugeGas.fluidName = entity.GasEntries[0].id.ProperEnumName();
-			gaugeGas.fluidCur = entity.GasEntries[0].current;
-			gaugeGas.fluidMax = entity.GasEntries[0].max;
-			gaugeGas.fluidColor = entity.GasEntries[0].current <= 0f ? Color.Transparent : Capsule.GetBackColor(entity.GasEntries[0].id);
+			gaugeGas.fluidName = entity.FluidEntries[2].id.ProperEnumName();
+			gaugeGas.fluidCur = entity.FluidEntries[2].current;
+			gaugeGas.fluidMax = entity.FluidEntries[2].max;
+			gaugeGas.fluidColor = entity.FluidEntries[2].current <= 0f ? Color.Transparent : Capsule.GetBackColor(entity.FluidEntries[2].id);
 		}
 	}
 }

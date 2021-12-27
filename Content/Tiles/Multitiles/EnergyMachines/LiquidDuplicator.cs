@@ -30,9 +30,9 @@ namespace TerraScience.Content.Tiles.Multitiles.EnergyMachines{
 			bool lastTile = frame.X == width - 1 && frame.Y == height - 1;
 
 			if(MiscUtils.TryGetTileEntity(pos, out LiquidDuplicatorEntity entity) && lastTile && entity.ReactionInProgress){
-				MachineLiquidID id = MiscUtils.GetIDFromItem(entity.RetrieveItem(0).type);
+				MachineFluidID id = MiscUtils.GetFluidIDFromItem(entity.RetrieveItem(0).type);
 
-				if(id == MachineLiquidID.None)
+				if(id == MachineFluidID.None)
 					return;
 
 				Vector2 offset = MiscUtils.GetLightingDrawOffset();

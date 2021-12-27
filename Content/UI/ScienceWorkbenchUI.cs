@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Terraria;
 using Terraria.GameContent.UI.Elements;
@@ -171,8 +172,6 @@ namespace TerraScience.Content.UI {
 			else
 				classification.Append("Generic Machine");
 
-			bool hasLiquid = entity is ILiquidMachine;
-			bool hasGas = entity is IGasMachine;
 			entity.HijackCanBeInteractedWithItemNetworks(out _, out bool canInput, out bool canOutput);
 			bool hasInput = canInput || entity.GetInputSlots().Length > 0;
 			bool hasOutput = canOutput || entity.GetOutputSlots().Length > 0;
@@ -184,11 +183,35 @@ namespace TerraScience.Content.UI {
 			else if(!hasInput && hasOutput)
 				classification.Append(", Output");
 
-			if(hasLiquid)
-				classification.Append(", Liquids");
+			if(entity is IFluidMachine fluidMachine){
+				var entries = fluidMachine.FluidEntries;
 
-			if(hasGas)
-				classification.Append(", Gases");
+				bool hasLiquid = false, hasGas = false;
+
+				foreach(var entry in entries){
+					if(entry.validTypes is null){
+						classification.Append(", Liquids, Gases");
+						break;
+					}
+
+					foreach(var type in entry.validTypes){
+						if(!hasLiquid && type.IsLiquidID())
+							hasLiquid = true;
+						else if(!hasGas && type.IsGasID())
+							hasGas = true;
+
+						if(hasLiquid && hasGas)
+							goto appendLiquidOrGas;
+					}
+				}
+
+appendLiquidOrGas:
+				if(hasLiquid)
+					classification.Append(", Liquids");
+
+				if(hasGas)
+					classification.Append(", Gases");
+			}
 
 			return classification.ToString();
 		}

@@ -14,8 +14,6 @@ namespace TerraScience.Content.TileEntities.Energy.Storage{
 
 		public override TerraFlux FluxCap => new TerraFlux(50000f);
 
-		public override TerraFlux GetPowerGeneration(int ticks) => ExportRate;
-
 		public override int MachineTile => ModContent.TileType<BasicBattery>();
 
 		public override void PreUpdateReaction(){

@@ -235,7 +235,7 @@ namespace TerraScience.World{
 					Vector2.Zero);
 
 				Utils.DrawBorderStringFourWay(Main.spriteBatch, Main.fontMouseText,
-					$"Fluid Type: {(fluidNet.liquidType != MachineLiquidID.None ? fluidNet.liquidType.ProperEnumName() : fluidNet.gasType.ProperEnumName())}",
+					$"Fluid Type: {(fluidNet.fluidType.ProperEnumName())}",
 					offset.X,
 					offset.Y += 20,
 					Color.White,

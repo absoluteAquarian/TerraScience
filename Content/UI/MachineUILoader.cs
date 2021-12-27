@@ -12,6 +12,9 @@ namespace TerraScience.Content.UI {
 		private Dictionary<string, UserInterface> interfaces;
 		private Dictionary<string, MachineUI> states;
 
+		public UserInterface tesseractNetworkInterface;
+		public TesseractNetworkUI tesseractNetworkState;
+
 		public UserInterface GetInterface(string name) => interfaces[name];
 		public T GetState<T>(string name) where T : MachineUI => states[name] as T;
 
@@ -60,6 +63,9 @@ namespace TerraScience.Content.UI {
 				// Activate calls Initialize() on the UIState if not initialized, then calls OnActivate and then calls Activate on every child element
 				foreach(var state in states.Values)
 					state.Activate();
+
+				tesseractNetworkInterface = new UserInterface();
+				tesseractNetworkState = new TesseractNetworkUI();
 			}
 		}
 
@@ -75,6 +81,8 @@ namespace TerraScience.Content.UI {
 			foreach(var ui in interfaces.Values)
 				if (ui?.CurrentState != null)
 					ui.Update(gameTime);
+
+			tesseractNetworkInterface?.Update(gameTime);
 		}
 
 		/// <summary>
@@ -91,6 +99,9 @@ namespace TerraScience.Content.UI {
 							if (lastUpdateUIGameTime != null && ui.CurrentState != null)
 								ui.Draw(Main.spriteBatch, lastUpdateUIGameTime);
 
+						if(tesseractNetworkInterface.CurrentState != null)
+							tesseractNetworkInterface.Draw(Main.spriteBatch, lastUpdateUIGameTime);
+
 						return true;
 					}, InterfaceScaleType.UI));
 			}
@@ -102,6 +113,9 @@ namespace TerraScience.Content.UI {
 		public void Unload(){
 			interfaces = null;
 			states = null;
+
+			tesseractNetworkInterface = null;
+			tesseractNetworkState = null;
 		}
 
 		public void ShowUI(string name, MachineEntity entity) {
