@@ -23,8 +23,8 @@ namespace TerraScience.Content.UI {
 
 		public static bool LeftClick => curMouse.LeftButton == ButtonState.Pressed && oldMouse.LeftButton == ButtonState.Released;
 
-		private static MouseState oldMouse;
-		private static MouseState curMouse;
+		internal static MouseState oldMouse;
+		internal static MouseState curMouse;
 
 		/// <summary>
 		/// Called on Mod.Load

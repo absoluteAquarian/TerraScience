@@ -13,6 +13,7 @@ using Terraria.Utilities;
 using TerraScience.API.CrossMod;
 using TerraScience.API.CrossMod.MagicStorage;
 using TerraScience.API.Networking;
+using TerraScience.API.UI;
 using TerraScience.Content.ID;
 using TerraScience.Content.Items;
 using TerraScience.Content.Items.Materials;
@@ -196,6 +197,8 @@ namespace TerraScience {
 			//SendPowerToMachines needs to run after the generators have exported their power to the networks, but before the rest of the machines update
 			TileEntity._UpdateStart += NetworkCollection.SendPowerToMachines;
 
+			UITextPrompt.Load();
+
 			Logger.Debug("Executing MSIL Edits and Method Detours...");
 
 			//Method Detours and IL Edits
@@ -218,6 +221,28 @@ namespace TerraScience {
 			Logger.Debug("Registering machine tile entities...");
 
 			TileUtils.RegisterAllEntities();
+
+			Logger.Debug("Loading localization...");
+
+			ModTranslation text = CreateTranslation("DefaultPromptText");
+			text.SetDefault("<enter a string>");
+			AddTranslation(text);
+
+			text = CreateTranslation("EnterTessseractNetworkName");
+			text.SetDefault("Network name...");
+			AddTranslation(text);
+
+			text = CreateTranslation("EnterTessseractNetworkPassword");
+			text.SetDefault("Network password...");
+			AddTranslation(text);
+
+			text = CreateTranslation("InputPassword");
+			text.SetDefault("Input network password...");
+			AddTranslation(text);
+
+			text = CreateTranslation("EnterNewNetworkPassword");
+			text.SetDefault("New network password...");
+			AddTranslation(text);
 		}
 
 		public static int GetCapsuleType(MachineFluidID fluid){
@@ -386,6 +411,8 @@ namespace TerraScience {
 			TileEntity._UpdateStart -= NetworkCollection.SendPowerToMachines;
 
 			types = null;
+
+			UITextPrompt.Unload();
 
 			Logger.DebugFormat("Unloading Cross-Mod Capabilities...");
 

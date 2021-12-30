@@ -32,7 +32,7 @@ namespace TerraScience.Systems{
 			public Entry(string name, bool entryIsPrivate, string password = null){
 				this.name = name;
 				this.entryIsPrivate = entryIsPrivate;
-				this.password = password;
+				this.password = entryIsPrivate ? password : null;
 			}
 
 			public static Entry Load(TagCompound tag){
@@ -168,7 +168,8 @@ namespace TerraScience.Systems{
 
 			for(int i = 0; i < count; i++){
 				var name = networks[start + i].name;
-				text[i].SetText(name);
+				TryGetEntry(name, out var entry);
+				text[i].SetText(name + "\nPrivate: " + (entry.entryIsPrivate ? "yes" : "no"));
 
 				text[i].TextColor = name == usedNetwork ? Color.Yellow : Color.White;
 			}
