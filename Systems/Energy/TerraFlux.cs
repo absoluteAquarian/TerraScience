@@ -2,6 +2,8 @@
 	public struct TerraFlux{
 		private readonly float amount;
 
+		public static readonly TerraFlux Zero = new TerraFlux(0f);
+
 		public TerraFlux(float amount){
 			this.amount = amount;
 		}

@@ -27,7 +27,15 @@ namespace TerraScience.Content.UI{
 		private ClickableButton destroyNetwork;
 
 		private UIPanel currentPanel;
+		
 		private UIPanel inputPassword;
+		private UITextPrompt inputPasswordPrompt;
+		private UIToggleLabel inputHidePassword;
+
+		private UITextPrompt namePrompt, passwordPrompt;
+		private UIToggleLabel networkPrivate, hidePassword;
+
+		private UIText pageNum;
 
 		//The UI that this network UI is bound to
 		internal TesseractUI boundUI;
@@ -35,8 +43,9 @@ namespace TerraScience.Content.UI{
 		internal TesseractEntity BoundEntity => boundUI?.UIEntity as TesseractEntity;
 		internal string BoundNetwork => (boundUI?.UIEntity as TesseractEntity)?.BoundNetwork;
 
-		public int currentPage;
-		public int pageMax;
+		public int currentPage = 1;
+		private int pageMax = 1;
+		public int PageMax => pageMax;
 
 		private string wantedBoundNetwork;
 		private UIText oldWantedBoundNetwork;
@@ -49,9 +58,13 @@ namespace TerraScience.Content.UI{
 		private string passwordFailMessage;
 
 		private TesseractNetwork.Entry passwordParent;
+		private TesseractNetwork.Entry configTarget;
 		private Action<TesseractNetwork.Entry> onPasswordSuccess;
 
-		internal void Open(){
+		internal void Open(TesseractUI uiToBindTo){
+			if(boundUI != null)
+				return;
+
 			knownPanel.Remove();
 			createPanel.Remove();
 			configPanel.Remove();
@@ -61,14 +74,70 @@ namespace TerraScience.Content.UI{
 			panel.Append(knownPanel);
 
 			header.SetText("Tesseract Network");
+
+			boundUI = uiToBindTo;
+
+			TechMod.Instance.machineLoader.tesseractNetworkInterface.SetState(this);
+
+			UpdatePage(0);
 		}
+
+		internal void Close(){
+			if(boundUI is null)
+				return;
+
+			TechMod.Instance.machineLoader.tesseractNetworkInterface.SetState(null);
+
+			oldWantedBoundNetwork = null;
+			wantedBoundNetwork = null;
+
+			currentPanel = knownPanel;
+			panel.Append(knownPanel);
+
+			createPanel.Remove();
+			configPanel.Remove();
+
+			currentPage = 1;
+
+			boundUI = null;
+
+			namePrompt.Reset();
+			passwordPrompt.Reset();
+			passwordPrompt.HideTextWhenDrawn = true;
+			passwordPrompt.CanInteractWithMouse = false;
+			networkPrivate.SetState(false);
+
+			pendingNetworkName = "";
+			pendingNetworkPassword = "";
+			pendingNetworkPrivate = false;
+
+			CloseInputPasswordMenu();
+		}
+
+		private void CloseInputPasswordMenu(){
+			passwordParent = null;
+			onPasswordSuccess = null;
+
+			passwordFailMessage = null;
+			passwordSuccessMessage = null;
+
+			inputPassword.Remove();
+
+			inputHidePassword.SetState(true);
+
+			inputPasswordPrompt.Reset();
+			inputPasswordPrompt.HideTextWhenDrawn = true;
+		}
+
+		private string GetTextNetworkName(UIText text)
+			=> text.Text.Substring(0, text.Text.IndexOf('\n'));
 
 		public override void OnInitialize(){
 			//Make the panel
 			panel = new UIDragablePanel();
 
-			panel.Width.Set(400, 0);
-			panel.Height.Set(320, 0);
+			panel.Width.Set(600, 0);
+			panel.Height.Set(500, 0);
 			panel.HAlign = panel.VAlign = 0.5f;
 			Append(panel);
 
@@ -79,18 +148,24 @@ namespace TerraScience.Content.UI{
 			header.Top.Set(10, 0);
 			panel.Append(header);
 
+			ClickableButton close = new ClickableButton("[X]");
+			close.Left.Set(-50, 1f);
+			close.Top.Set(8, 0f);
+			close.OnClick += (evt, e) => Close();
+			panel.Append(close);
+
 			//Known Networks menu
 			knownPanel = new UIPanel();
 			knownPanel.Width.Set(0, 0.65f);
-			knownPanel.Height.Set(250, 0);
+			knownPanel.Height.Set(350, 0);
 			knownPanel.Left.Set(20, 0);
 			knownPanel.Top.Set(50, 0);
 			panel.Append(knownPanel);
 
-			UIText dummy = new UIText("Very Cool Network\nPrivate: no");
+			float textHeight = Main.fontMouseText.MeasureString("Very Cool Network\nPrivate: no").Y;
 
-			float dummyHeight = dummy.GetDimensions().Height;
-			int rows = (int)(knownPanel.GetInnerDimensions().Height / dummyHeight - 40);
+			const int knownPanelBufferBottom = 40;
+			int rows = (int)((knownPanel.GetInnerDimensions().Height - knownPanelBufferBottom - 30) / textHeight);
 
 			visibleKnownNetworkPanels = new UITesseractKnownPanel[rows];
 			visibleKnownNetworks = new UIText[rows];
@@ -100,15 +175,16 @@ namespace TerraScience.Content.UI{
 				UITesseractKnownPanel networkPanel = visibleKnownNetworkPanels[i] = new UITesseractKnownPanel(i);
 				networkPanel.SetPadding(4);
 				networkPanel.Width.Set(0, 1f);
-				networkPanel.Height.Set(dummyHeight - 8, 0);
+				networkPanel.Height.Set(textHeight + 8, 0);
 				networkPanel.Left.Set(0, 0);
 				networkPanel.Top.Set(top, 0);
 				networkPanel.OnClick += (evt, e) => {
-					var text = GetTextElement(e as UITesseractKnownPanel);
+					var uiPanel = e as UITesseractKnownPanel;
+					var text = GetTextElement(uiPanel);
 
 					if(oldWantedBoundNetwork is null){
 						if(text.Text != BoundNetwork){
-							wantedBoundNetwork = text.Text;
+							wantedBoundNetwork = GetTextNetworkName(text);
 
 							text.TextColor = Color.Green;
 						}
@@ -123,115 +199,118 @@ namespace TerraScience.Content.UI{
 					if(text.Text != BoundNetwork){
 						text.TextColor = Color.Green;
 
-						wantedBoundNetwork = text.Text;
+						wantedBoundNetwork = GetTextNetworkName(text);
 					}else
 						wantedBoundNetwork = null;
 
 					oldWantedBoundNetwork = text;
 				};
 
-				var panelDims = networkPanel.GetDimensions();
-
 				UIText networkText = visibleKnownNetworks[i] = new UIText("");
 				networkPanel.Append(networkText);
 
 				UIImageButton config = new UIImageButton(UICommon.ButtonModConfigTexture);
-				config.Left.Set(panelDims.Width - config.Width.Pixels, 0);
-				config.Top.Set(top + panelDims.Height / 2 - config.Height.Pixels, 0);
+				config.Left.Set(-config.Width.Pixels - 10, 1f);
+				config.Top.Set(-config.Height.Pixels / 2f, 0.5f);
 				config.OnClick += (evt, e) => {
-					TesseractNetwork.TryGetEntry(GetTextElement(e.Parent as UITesseractKnownPanel).Text, out var entry);
+					if(inputPassword.Parent != null || !TesseractNetwork.TryGetEntry(GetTextNetworkName(GetTextElement(e.Parent as UITesseractKnownPanel)), out var entry) || !entry.entryIsPrivate)
+						return;
 
-					passwordParent = entry;
+					if(TerraSciencePlayer.LocalPlayerHasAdmin){
+						Main.NewText("[TESSERACT] Administrator privileges detected.  Bypassing password requirement.", Color.Green);
+						return;
+					}
+
+					configTarget = passwordParent = entry;
 
 					onPasswordSuccess += passwordEntry => {
-						knownPanel.Remove();
+						TechMod.Instance.machineLoader.OnUpdateOnce += () => {
+							knownPanel.Remove();
 
-						currentPanel = configPanel;
+							currentPanel = configPanel;
 
-						panel.Append(configPanel);
+							panel.Append(configPanel);
+						};
 					};
 
-					if(entry.entryIsPrivate)
-						currentPanel.Append(inputPassword);
-					else{
-						onPasswordSuccess?.Invoke(entry);
-						CloseInputPasswordMenu();
-					}
+					currentPanel.Append(inputPassword);
 				};
 				config.SetVisibility(whenActive: 1f, whenInactive: 0.65f);
 				networkPanel.Append(config);
 
-				top += dummyHeight;
+				top += textHeight;
 			}
 
 			//Set the other buttons
-			var knownDims = knownPanel.GetDimensions();
-
-			UIText pageNum = new UIText("Page 0/0"){
+			pageNum = new UIText("Page 1/1"){
 				HAlign = 0.5f
 			};
-			pageNum.Top.Set(-20, 1f);
+			pageNum.Top.Set(-knownPanelBufferBottom + 15, 1f);
 			knownPanel.Append(pageNum);
-			
-			var numDims = pageNum.GetDimensions();
-			var numPos = numDims.Position();
 
 			ClickableButton pageBack = new ClickableButton("<-");
-			pageBack.OnClick += (evt, e) => UpdatePage(pageNum, -1);
-			pageBack.Left.Set(numPos.X - 50, 0);
-			pageBack.Top.Set(numPos.Y, 0);
+			pageBack.OnClick += (evt, e) => UpdatePage(-1);
+			pageBack.Left.Set(-60 - pageBack.MinWidth.Pixels / 2f, 0.5f);
+			pageBack.Top.Set(-knownPanelBufferBottom, 1f);
 			knownPanel.Append(pageBack);
 
 			ClickableButton pageNext = new ClickableButton("->");
-			pageNext.OnClick += (evt, e) => UpdatePage(pageNum, 1);
-			pageNext.Left.Set(numPos.X + numDims.Width + 50, 0);
-			pageNext.Top.Set(numPos.Y, 0);
+			pageNext.OnClick += (evt, e) => UpdatePage(1);
+			pageNext.Left.Set(20 + pageBack.MinWidth.Pixels / 2f, 0.5f);
+			pageNext.Top.Set(-knownPanelBufferBottom, 1f);
 			knownPanel.Append(pageNext);
 
 			setNetwork = new ClickableButton("Apply");
 			setNetwork.Left.Set(20, 0);
-			setNetwork.Top.Set(-30, 1f);
+			setNetwork.Top.Set(-40, 1f);
 			setNetwork.OnClick += (evt, e) => {
-				if(currentPanel != knownPanel)
+				if(inputPassword.Parent != null || currentPanel != knownPanel)
 					return;
 
 				if(wantedBoundNetwork != null)
 					BoundEntity.BoundNetwork = wantedBoundNetwork;
+				else
+					return;
 
 				wantedBoundNetwork = null;
 				oldWantedBoundNetwork = null;
+
+				Main.PlaySound(SoundID.MenuTick);
+
+				Main.NewText($"[Tesseract] Successfully bound entity to network \"{BoundNetwork}\".", Color.Green);
+
+				UpdatePage(0);
 			};
 			panel.Append(setNetwork);
 
 			createNetwork = new ClickableButton("Create");
-			createNetwork.Left.Set(80, 0);
-			createNetwork.Top.Set(-30, 1f);
+			createNetwork.Left.Set(150, 0);
+			createNetwork.Top.Set(-40, 1f);
 			createNetwork.OnClick += (evt, e) => {
-				if(currentPanel != knownPanel)
+				if(inputPassword.Parent != null || currentPanel != knownPanel)
 					return;
 
-				knownPanel.Remove();
-				panel.Append(createPanel);
+				TechMod.Instance.machineLoader.OnUpdateOnce += () => {
+					knownPanel.Remove();
+					panel.Append(createPanel);
+				};
 
 				header.SetText("Create a Network");
+
+				Main.PlaySound(SoundID.MenuTick);
 			};
 			panel.Append(createNetwork);
 
 			inputPassword = new UIPanel();
-			inputPassword.Width.Set(200, 0f);
+			inputPassword.Width.Set(400, 0f);
 			inputPassword.Height.Set(75, 0f);
 
-			void CloseInputPasswordMenu(){
-				passwordParent = null;
-				onPasswordSuccess = null;
+			inputHidePassword = new UIToggleLabel("Hide password", defaultState: true);
+			inputHidePassword.Left.Set(30, 0f);
+			inputHidePassword.Top.Set(50, 0f);
+			inputPassword.Append(inputHidePassword);
 
-				passwordFailMessage = null;
-				passwordSuccessMessage = null;
-
-				inputPassword.Remove();
-			}
-
-			UITextPrompt inputPasswordPrompt = new UITextPrompt(Language.GetText("Mods.TerraScience.InputPassword"));
+			inputPasswordPrompt = new UITextPrompt(Language.GetText("Mods.TerraScience.InputPassword"));
 			inputPasswordPrompt.Width.Set(-20, 1f);
 			inputPasswordPrompt.Height.Set(32f, 0f);
 			inputPasswordPrompt.Left.Set(10, 0f);
@@ -242,6 +321,10 @@ namespace TerraScience.Content.UI{
 
 				var prompt = e as UITextPrompt;
 
+				bool release = TechMod.Release;
+				if(!release)
+					Main.NewText($"Checking input password \"{prompt.Text}\" against entry password \"{passwordParent.password}\"...");
+
 				if(prompt.Text != passwordParent.password)
 					Main.NewText("[TESSERACT] Access denied.  " + passwordFailMessage, Color.Red);
 				else{
@@ -250,21 +333,27 @@ namespace TerraScience.Content.UI{
 					onPasswordSuccess?.Invoke(passwordParent);
 				}
 
-				CloseInputPasswordMenu();
+				inputHidePassword.SetState(true);
+				inputPasswordPrompt.HideTextWhenDrawn = true;
+
+				TechMod.Instance.machineLoader.OnUpdateOnce += CloseInputPasswordMenu;
 			};
 			inputPassword.Append(inputPasswordPrompt);
+
+			//Have to set it here since "inputPasswordPrompt" doesn't exist above
+			inputHidePassword.OnClick += (evt, e) => inputPasswordPrompt.HideTextWhenDrawn = !inputPasswordPrompt.HideTextWhenDrawn;
 
 			ClickableButton inputPasswordCancel = new ClickableButton("Cancel");
 			inputPasswordCancel.Left.Set(-80, 1f);
 			inputPasswordCancel.Top.Set(50, 0f);
-			inputPasswordCancel.OnClick += (evt, e) => CloseInputPasswordMenu();
+			inputPasswordCancel.OnClick += (evt, e) => TechMod.Instance.machineLoader.OnUpdateOnce += CloseInputPasswordMenu;
 			inputPassword.Append(inputPasswordCancel);
 
 			destroyNetwork = new ClickableButton("Delete");
-			destroyNetwork.Left.Set(140, 0);
-			destroyNetwork.Top.Set(-30, 1f);
+			destroyNetwork.Left.Set(280, 0);
+			destroyNetwork.Top.Set(-40, 1f);
 			destroyNetwork.OnClick += (evt, e) => {
-				if(currentPanel != knownPanel || wantedBoundNetwork is null || !TesseractNetwork.TryGetEntry(wantedBoundNetwork, out var entry))
+				if(inputPassword.Parent != null || currentPanel != knownPanel || wantedBoundNetwork is null || !TesseractNetwork.TryGetEntry(wantedBoundNetwork, out var entry))
 					return;
 
 				passwordParent = entry;
@@ -279,16 +368,23 @@ namespace TerraScience.Content.UI{
 
 					wantedBoundNetwork = null;
 					oldWantedBoundNetwork = null;
+
+					UpdatePage(0);
 				};
 
-				if(entry.entryIsPrivate){
+				if(entry.entryIsPrivate && !TerraSciencePlayer.LocalPlayerHasAdmin){
 					passwordSuccessMessage = $"Deleting network \"{entry.name}\".";
 				
 					currentPanel.Append(inputPassword);
 				}else{
+					if(TerraSciencePlayer.LocalPlayerHasAdmin)
+						Main.NewText("[TESSERACT] Administrator privileges detected.  Bypassing password requirement.", Color.Green);
+
 					onPasswordSuccess?.Invoke(entry);
-					CloseInputPasswordMenu();
+					TechMod.Instance.machineLoader.OnUpdateOnce += CloseInputPasswordMenu;
 				}
+
+				Main.PlaySound(SoundID.MenuTick);
 			};
 			panel.Append(destroyNetwork);
 
@@ -299,7 +395,7 @@ namespace TerraScience.Content.UI{
 			createPanel.Left.Set(20, 0);
 			createPanel.Top.Set(50, 0);
 
-			UITextPrompt namePrompt = new UITextPrompt(Language.GetText("Mods.TerraScience.EnterTessseractNetworkName"));
+			namePrompt = new UITextPrompt(Language.GetText("Mods.TerraScience.EnterTessseractNetworkName"));
 			namePrompt.Left.Set(20, 0f);
 			namePrompt.Top.Set(20, 0f);
 			namePrompt.Width.Set(-40, 1f);
@@ -307,8 +403,9 @@ namespace TerraScience.Content.UI{
 			namePrompt.OnChanged += e => pendingNetworkName = (e as UITextPrompt).Text;
 			createPanel.Append(namePrompt);
 
-			UITextPrompt passwordPrompt = new UITextPrompt(Language.GetText("Mods.TerraScience.EnterTessseractNetworkPassword")){
-				HideTextWhenDrawn = true
+			passwordPrompt = new UITextPrompt(Language.GetText("Mods.TerraScience.EnterTessseractNetworkPassword")){
+				HideTextWhenDrawn = true,
+				CanInteractWithMouse = false
 			};
 			passwordPrompt.Left.Set(20, 0f);
 			passwordPrompt.Top.Set(80, 0f);
@@ -317,15 +414,15 @@ namespace TerraScience.Content.UI{
 			passwordPrompt.OnChanged += e => pendingNetworkPassword = (e as UITextPrompt).Text;
 			createPanel.Append(passwordPrompt);
 
-			UIToggleLabel networkPrivate = new UIToggleLabel("Private network", defaultState: false);
+			networkPrivate = new UIToggleLabel("Private network", defaultState: false);
 			networkPrivate.Left.Set(30, 0f);
 			networkPrivate.Top.Set(150, 0f);
 			//Public networks don't have passwords
 			networkPrivate.OnClick += (evt, e) => passwordPrompt.CanInteractWithMouse = pendingNetworkPrivate = !pendingNetworkPrivate;
 			createPanel.Append(networkPrivate);
 
-			UIToggleLabel hidePassword = new UIToggleLabel("Hide password", defaultState: true);
-			hidePassword.Left.Set(120, 0f);
+			hidePassword = new UIToggleLabel("Hide password", defaultState: true);
+			hidePassword.Left.Set(200, 0f);
 			hidePassword.Top.Set(150, 0f);
 			hidePassword.OnClick += (evt, e) => passwordPrompt.HideTextWhenDrawn = !passwordPrompt.HideTextWhenDrawn;
 			createPanel.Append(hidePassword);
@@ -350,6 +447,8 @@ namespace TerraScience.Content.UI{
 
 				namePrompt.Reset();
 				passwordPrompt.Reset();
+				passwordPrompt.HideTextWhenDrawn = true;
+				passwordPrompt.CanInteractWithMouse = false;
 				networkPrivate.SetState(false);
 
 				pendingNetworkName = "";
@@ -358,20 +457,22 @@ namespace TerraScience.Content.UI{
 
 				Main.PlaySound(SoundID.MenuTick);
 
-				Main.NewText($"[TESSERACT] Network of name \"{entry.name}\" (private: {entry.entryIsPrivate}) was created.");
+				Main.NewText($"[TESSERACT] Network of name \"{entry.name}\" (private: {entry.entryIsPrivate}) was created.", Color.Green);
 
 				header.SetText("Tesseract Network");
 
-				currentPanel = knownPanel;
-				createPanel.Remove();
-				panel.Append(knownPanel);
+				TechMod.Instance.machineLoader.OnUpdateOnce += () => {
+					currentPanel = knownPanel;
+					createPanel.Remove();
+					panel.Append(knownPanel);
+				};
 			};
 			createPanel.Append(createConfirm);
 
 			//Edit Config menu
 			configPanel = new UIPanel();
 			configPanel.Width.Set(360, 0);
-			configPanel.Height.Set(120, 0);
+			configPanel.Height.Set(150, 0);
 			configPanel.Left.Set(20, 0);
 			configPanel.Top.Set(50, 0);
 
@@ -385,16 +486,9 @@ namespace TerraScience.Content.UI{
 			configPasswordPrompt.OnChanged += e => pendingNetworkPassword = (e as UITextPrompt).Text;
 			configPanel.Append(configPasswordPrompt);
 
-			UIToggleLabel configNetworkPrivate = new UIToggleLabel("Private network", defaultState: false);
-			configNetworkPrivate.Left.Set(30, 0f);
-			configNetworkPrivate.Top.Set(90, 0f);
-			//Public networks don't have passwords
-			configNetworkPrivate.OnClick += (evt, e) => configPasswordPrompt.CanInteractWithMouse = pendingNetworkPrivate = !pendingNetworkPrivate;
-			configPanel.Append(configNetworkPrivate);
-
 			UIToggleLabel configHidePassword = new UIToggleLabel("Hide password", defaultState: true);
-			configHidePassword.Left.Set(120, 0f);
-			configHidePassword.Top.Set(90, 0f);
+			configHidePassword.Left.Set(30, 0f);
+			configHidePassword.Top.Set(60, 0f);
 			configHidePassword.OnClick += (evt, e) => configPasswordPrompt.HideTextWhenDrawn = !configPasswordPrompt.HideTextWhenDrawn;
 			configPanel.Append(configHidePassword);
 
@@ -402,15 +496,27 @@ namespace TerraScience.Content.UI{
 			configSave.Left.Set(240, 0f);
 			configSave.Top.Set(90, 0f);
 			configSave.OnClick += (evt, e) => {
-				TesseractNetwork.UpdateIsPrivate(passwordParent.name, pendingNetworkPrivate);
-				TesseractNetwork.UpdatePassword(passwordParent.name, pendingNetworkPrivate ? pendingNetworkPassword : null);
+				TesseractNetwork.UpdateIsPrivate(configTarget.name, pendingNetworkPrivate);
+				TesseractNetwork.UpdatePassword(configTarget.name, pendingNetworkPrivate ? pendingNetworkPassword : null);
 
-				currentPanel = knownPanel;
+				TechMod.Instance.machineLoader.OnUpdateOnce += () => {
+					currentPanel = knownPanel;
 
-				configPanel.Remove();
-				panel.Append(knownPanel);
+					configPanel.Remove();
+					panel.Append(knownPanel);
+				};
 
 				Main.PlaySound(SoundID.MenuTick);
+
+				Main.NewText($"[TESSERACT] Network \"{configTarget.name}\" had its password changed.");
+
+				configTarget = null;
+
+				pendingNetworkPassword = "";
+				pendingNetworkPrivate = false;
+
+				configHidePassword.SetState(true);
+				configPasswordPrompt.HideTextWhenDrawn = true;
 			};
 			configPanel.Append(configSave);
 		}
@@ -418,19 +524,21 @@ namespace TerraScience.Content.UI{
 		public UIText GetTextElement(UITesseractKnownPanel panel)
 			=> visibleKnownNetworks[panel.PageSlot];
 
-		private void UpdatePage(UIText pageNum, int offset){
+		private void UpdatePage(int offset){
 			currentPage += offset;
 
 			int oldPage = currentPage;
 			TesseractNetwork.UpdateNetworkUIEntries(visibleKnownNetworks, ref currentPage, out pageMax, BoundNetwork);
 
-			//Hide all panels, then make only the ones with non-empty text visible
-			for(int i = 0; i < visibleKnownNetworkPanels.Length; i++)
-				visibleKnownNetworkPanels[i].Remove();
+			TechMod.Instance.machineLoader.OnUpdateOnce += () => {
+				//Hide all panels, then make only the ones with non-empty text visible
+				for(int i = 0; i < visibleKnownNetworkPanels.Length; i++)
+					visibleKnownNetworkPanels[i].Remove();
 
-			for(int i = 0; i < visibleKnownNetworks.Length; i++)
-				if(visibleKnownNetworks[i].Text != "")
-					knownPanel.Append(visibleKnownNetworkPanels[i]);
+				for(int i = 0; i < visibleKnownNetworks.Length; i++)
+					if(visibleKnownNetworks[i].Text != "")
+						knownPanel.Append(visibleKnownNetworkPanels[i]);
+			};
 
 			//It would be weird for sounds to play when the page didn't change
 			if(currentPage != oldPage){
@@ -448,19 +556,8 @@ namespace TerraScience.Content.UI{
 			Main.playerInventory = true;
 
 			if(Main.LocalPlayer.GetModPlayer<TerraSciencePlayer>().InventoryKeyPressed){
-				TechMod.Instance.machineLoader.tesseractNetworkInterface.SetState(null);
 				Main.playerInventory = false;
-
-				oldWantedBoundNetwork = null;
-				wantedBoundNetwork = null;
-
-				currentPanel = knownPanel;
-				panel.Append(knownPanel);
-
-				createPanel.Remove();
-				configPanel.Remove();
-
-				currentPage = 1;
+				Close();
 			}
 		}
 	}

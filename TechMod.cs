@@ -59,6 +59,28 @@ namespace TerraScience {
 		public const bool Release = false;
 
 		public override void Load(){
+			Logger.Debug("Loading localization...");
+
+			ModTranslation text = CreateTranslation("DefaultPromptText");
+			text.SetDefault("<enter a string>");
+			AddTranslation(text);
+
+			text = CreateTranslation("EnterTessseractNetworkName");
+			text.SetDefault("Network name...");
+			AddTranslation(text);
+
+			text = CreateTranslation("EnterTessseractNetworkPassword");
+			text.SetDefault("Network password...");
+			AddTranslation(text);
+
+			text = CreateTranslation("InputPassword");
+			text.SetDefault("Input network password...");
+			AddTranslation(text);
+
+			text = CreateTranslation("EnterNewNetworkPassword");
+			text.SetDefault("New network password...");
+			AddTranslation(text);
+
 			Logger.DebugFormat("Loading Factories and System Loaders...");
 
 			machineLoader = new MachineUILoader();
@@ -87,7 +109,7 @@ namespace TerraScience {
 
 			JunctionMergeable.InitMergeArray();
 
-			NetworkCollection.networkTypeCtors = new Dictionary<Type, NetworkCollection.typeCtor>(){
+			NetworkCollection.networkTypeCtors = new Dictionary<Type, NetworkCollection.TypeCtor>(){
 				[typeof(TFWire)] = (location, network) => new TFWire(location, network),
 				[typeof(ItemPipe)] = (location, network) => new ItemPipe(location, network),
 				[typeof(FluidPipe)] = (location, network) => new FluidPipe(location, network)
@@ -221,28 +243,6 @@ namespace TerraScience {
 			Logger.Debug("Registering machine tile entities...");
 
 			TileUtils.RegisterAllEntities();
-
-			Logger.Debug("Loading localization...");
-
-			ModTranslation text = CreateTranslation("DefaultPromptText");
-			text.SetDefault("<enter a string>");
-			AddTranslation(text);
-
-			text = CreateTranslation("EnterTessseractNetworkName");
-			text.SetDefault("Network name...");
-			AddTranslation(text);
-
-			text = CreateTranslation("EnterTessseractNetworkPassword");
-			text.SetDefault("Network password...");
-			AddTranslation(text);
-
-			text = CreateTranslation("InputPassword");
-			text.SetDefault("Input network password...");
-			AddTranslation(text);
-
-			text = CreateTranslation("EnterNewNetworkPassword");
-			text.SetDefault("New network password...");
-			AddTranslation(text);
 		}
 
 		public static int GetCapsuleType(MachineFluidID fluid){

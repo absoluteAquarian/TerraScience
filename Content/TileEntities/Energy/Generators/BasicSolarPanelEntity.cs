@@ -54,7 +54,7 @@ namespace TerraScience.Content.TileEntities.Energy.Generators{
 
 		public override TerraFlux GetPowerGeneration(int ticks){
 			if(!Main.dayTime)
-				return new TerraFlux(0f);
+				return TerraFlux.Zero;
 
 			//Base rate: 40 TF/s
 			TerraFlux flux = new TerraFlux(40f / 60f);

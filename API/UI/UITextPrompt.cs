@@ -69,7 +69,7 @@ namespace TerraScience.API.UI{
 					if(!HasFocus && mouseOver){
 						HasFocus = true;
 						CheckBlockInput();
-					}else if (HasFocus && !mouseOver){
+					}else if(HasFocus && !mouseOver){
 						HasFocus = false;
 						CheckBlockInput();
 						cursorPosition = Text.Length;
@@ -153,7 +153,7 @@ namespace TerraScience.API.UI{
 			int innerWidth = (int)dim.Width - 2 * PADDING;
 			int innerHeight = (int)dim.Height - 2 * PADDING;
 
-			Color color = CanInteractWithMouse ? Color.Gray : Color.White;
+			Color color = CanInteractWithMouse ? Color.White : Color.Gray;
 
 			spriteBatch.Draw(texture, dim.Position(), new Rectangle(0, 0, PADDING, PADDING), color);
 			spriteBatch.Draw(texture, new Rectangle((int)dim.X + PADDING, (int)dim.Y, innerWidth, PADDING), new Rectangle(PADDING, 0, 1, PADDING), color);
@@ -199,6 +199,14 @@ namespace TerraScience.API.UI{
 					break;
 				}
 			}
+		}
+
+		public static bool AnyPromptHasFocus(){
+			foreach(var prompt in prompts)
+				if(prompt.HasFocus)
+					return true;
+
+			return false;
 		}
 	}
 }

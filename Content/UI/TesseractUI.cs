@@ -3,25 +3,40 @@ using System.Collections.Generic;
 using Terraria;
 using Terraria.GameContent.UI.Elements;
 using Terraria.ModLoader;
+using Terraria.ModLoader.UI;
 using TerraScience.API.UI;
 using TerraScience.Content.ID;
 using TerraScience.Content.Items.Tools;
 using TerraScience.Content.TileEntities;
 using TerraScience.Content.Tiles.Multitiles;
+using TerraScience.Content.UI.Energy;
+using TerraScience.Systems;
 using TerraScience.Utilities;
 
 namespace TerraScience.Content.UI{
-	public class TesseractUI : MachineUI{
+	public class TesseractUI : PoweredMachineUI{
 		public override string Header => "Tesseract";
 
 		public override int TileType => ModContent.TileType<Tesseract>();
 
-		public UIMachineGauge gaugeLiquid;
-		public UIMachineGauge gaugeGas;
+		public UIMachineGauge gaugeFluid;
 
 		internal override void PanelSize(out int width, out int height){
-			width = 250;
+			width = 450;
 			height = 500;
+		}
+
+		public override void DoSavedItemsCheck(){
+			//Force the entity's items to update to the network
+			var entity = UIEntity as TesseractEntity;
+			var net = entity.BoundNetwork;
+
+			if(net != null && TesseractNetwork.TryGetEntry(net, out var entry)){
+				for(int i = 0; i < 5; i++)
+					entity.GetItemSlotRef(i) = entry.items[i];
+
+				UpdateItemSlots();
+			}
 		}
 
 		internal override void InitializeSlots(List<UIItemSlot> slots){
@@ -36,10 +51,15 @@ namespace TerraScience.Content.UI{
 
 			int top = height - slotHeight - 20;
 
+			bool IsBoundToANetwork(){
+				string net = (UIEntity as TesseractEntity).BoundNetwork;
+				return net != null && TesseractNetwork.TryGetEntry(net, out _);
+			}
+
 			//Set the item slots
 			for(int i = 0; i < 5; i++){
-				UIItemSlot slot = new UIItemSlot(){
-					ValidItemFunc = null
+				UITesseractItemSlot slot = new UITesseractItemSlot(i, this){
+					ValidItemFunc = item => IsBoundToANetwork()
 				};
 				slot.Left.Set(left, 0);
 				slot.Top.Set(top, 0);
@@ -49,7 +69,7 @@ namespace TerraScience.Content.UI{
 				left += slotWidth + 12;
 			}
 
-			//Set the liquid exchange slots
+			//Set the fluid exchange slots
 			left = width / 2 - slotWidth - 30;
 
 			top = height / 2 - 100;
@@ -76,8 +96,9 @@ namespace TerraScience.Content.UI{
 			liquidInEmptyCapsules.Top.Set(top, 0);
 			slots.Add(liquidInEmptyCapsules);
 			
-			left -= 10;
-			top += slotHeight + 30;
+			left = width / 2 + 20;
+
+			top = height / 2 - 100;
 
 			UIItemSlot liquidOutEmptyCapsules = new UIItemSlot(){
 				ValidItemFunc = item => item.IsAir || (item.modItem is Capsule capsule && capsule.FluidType == MachineFluidID.None)
@@ -95,53 +116,6 @@ namespace TerraScience.Content.UI{
 			liquidOut.Left.Set(left, 0);
 			liquidOut.Top.Set(top, 0);
 			slots.Add(liquidOut);
-
-			//Set the gas exchange slots
-			left = width / 2 + 20;
-
-			top = height / 2 - 100;
-
-			UIItemSlot gasIn = new UIItemSlot(){
-				ValidItemFunc = item => {
-					var entity = UIEntity as TesseractEntity;
-					var liquidSlot = entity.FluidEntries[0].id;
-
-					return item.IsAir || (item.modItem is Capsule capsule && (liquidSlot == MachineFluidID.None || capsule.FluidType == liquidSlot));
-				}
-			};
-			gasIn.Left.Set(left, 0);
-			gasIn.Top.Set(top, 0);
-			slots.Add(gasIn);
-			
-			left += 10;
-			top += slotHeight + 10;
-
-			UIItemSlot gasInEmptyCapsules = new UIItemSlot(){
-				ValidItemFunc = item => item.IsAir
-			};
-			gasInEmptyCapsules.Left.Set(left, 0);
-			gasInEmptyCapsules.Top.Set(top, 0);
-			slots.Add(gasInEmptyCapsules);
-			
-			left -= 10;
-			top += slotHeight + 30;
-
-			UIItemSlot gasOutEmptyCapsules = new UIItemSlot(){
-				ValidItemFunc = item => item.IsAir || (item.modItem is Capsule capsule && capsule.FluidType == MachineFluidID.None)
-			};
-			gasOutEmptyCapsules.Left.Set(left, 0);
-			gasOutEmptyCapsules.Top.Set(top, 0);
-			slots.Add(gasOutEmptyCapsules);
-
-			left += 10;
-			top += slotHeight + 10;
-
-			UIItemSlot gasOut = new UIItemSlot(){
-				ValidItemFunc = item => item.IsAir
-			};
-			gasOut.Left.Set(left, 0);
-			gasOut.Top.Set(top, 0);
-			slots.Add(gasOut);
 		}
 
 		internal override void InitializeText(List<UIText> text){
@@ -151,16 +125,10 @@ namespace TerraScience.Content.UI{
 			powerAmount.Top.Set(58, 0);
 			text.Add(powerAmount);
 
-			UIText powerGen = new UIText("0.00 TF/s"){
-				HAlign = 0.5f
-			};
-			powerGen.Top.Set(87, 0);
-			text.Add(powerGen);
-
 			UIText boundNetwork = new UIText("Bound Network: None", 1.3f) {
 				HAlign = 0.5f
 			};
-			boundNetwork.Top.Set(116, 0);
+			boundNetwork.Top.Set(87, 0);
 			text.Add(boundNetwork);
 		}
 
@@ -169,29 +137,66 @@ namespace TerraScience.Content.UI{
 
 			const int buffer = 16;
 
-			gaugeLiquid = new UIMachineGauge();
-			gaugeLiquid.Left.Set(buffer * 2.5f - 12, 0);
-			gaugeLiquid.Top.Set(height - 320 - buffer - 4, 0);
-			panel.Append(gaugeLiquid);
+			gaugeFluid = new UIMachineGauge();
+			gaugeFluid.Left.Set(buffer * 2.5f - 12, 0);
+			gaugeFluid.Top.Set(height - 320 - buffer - 4, 0);
+			panel.Append(gaugeFluid);
 
-			gaugeGas = new UIMachineGauge();
-			gaugeGas.Left.Set(width - 32 - buffer * 2.5f - 8, 0);
-			gaugeGas.Top.Set(height - 320 - buffer - 4, 0);
-			panel.Append(gaugeGas);
+			UIImageButton config = new UIImageButton(UICommon.ButtonModConfigTexture);
+			config.Left.Set(-config.Width.Pixels - 15, 1f);
+			config.Top.Set(15, 0f);
+			config.OnClick += (evt, e) => TechMod.Instance.machineLoader.tesseractNetworkState.Open(this);
+			panel.Append(config);
 		}
 
 		internal override void UpdateEntity(){
 			TesseractEntity entity = UIEntity as TesseractEntity;
 
-			gaugeLiquid.fluidName = entity.FluidEntries[0].id.ProperEnumName();
-			gaugeLiquid.fluidCur = entity.FluidEntries[0].current;
-			gaugeLiquid.fluidMax = entity.FluidEntries[0].max;
-			gaugeLiquid.fluidColor = entity.FluidEntries[0].current <= 0f ? Color.Transparent : Capsule.GetBackColor(entity.FluidEntries[0].id);
+			gaugeFluid.fluidName = entity.FluidEntries[0].id.ProperEnumName();
+			gaugeFluid.fluidCur = entity.FluidEntries[0].current;
+			gaugeFluid.fluidMax = entity.FluidEntries[0].max;
+			gaugeFluid.fluidColor = entity.FluidEntries[0].current <= 0f ? Color.Transparent : Capsule.GetBackColor(entity.FluidEntries[0].id);
+		}
 
-			gaugeGas.fluidName = entity.FluidEntries[2].id.ProperEnumName();
-			gaugeGas.fluidCur = entity.FluidEntries[2].current;
-			gaugeGas.fluidMax = entity.FluidEntries[2].max;
-			gaugeGas.fluidColor = entity.FluidEntries[2].current <= 0f ? Color.Transparent : Capsule.GetBackColor(entity.FluidEntries[2].id);
+		internal override void UpdateText(List<UIText> text){
+			text[0].SetText(GetFluxString());
+			var net = (UIEntity as TesseractEntity).BoundNetwork;
+			text[1].SetText(net is null ? "Not Bound to a Network" : "Bound Network: " + net);
+		}
+
+		public override void PostOpen(){
+			var entity = UIEntity as TesseractEntity;
+			entity.OnNetworkChange += UpdateItemSlots;
+
+			bool release = TechMod.Release;
+			if(!release && TesseractNetwork.TryGetEntry(entity.BoundNetwork, out var entry)){
+				Main.NewText($"(UI Opening) Reading Items for Network \"{entry.name}\"...");
+				for(int i = 0; i < entry.items.Length; i++){
+					Item item = entry.items[i];
+					Main.NewText($"  Item #{i}: {item.Name ?? "None"} {(item.stack > 1 ? $"({item.stack})" : "")}");
+				}
+			}
+		}
+
+		public override void PreClose(){
+			var entity = UIEntity as TesseractEntity;
+			entity.OnNetworkChange -= UpdateItemSlots;
+
+			bool release = TechMod.Release;
+			if(!release && TesseractNetwork.TryGetEntry(entity.BoundNetwork, out var entry)){
+				Main.NewText($"(UI Closing) Reading Items for Network \"{entry.name}\"...");
+				for(int i = 0; i < entry.items.Length; i++){
+					Item item = entry.items[i];
+					Main.NewText($"  Item #{i}: {item.Name ?? "None"} {(item.stack > 1 ? $"({item.stack})" : "")}");
+				}
+			}
+		}
+
+		private void UpdateItemSlots(){
+			for(int i = 0; i < 5; i++){
+				var slot = GetSlot(i);
+				slot.OnItemChanged?.Invoke(slot.StoredItem);
+			}
 		}
 	}
 }

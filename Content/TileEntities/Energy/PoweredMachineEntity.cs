@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using Terraria.ModLoader.IO;
 using TerraScience.Systems.Energy;
 
@@ -21,7 +22,8 @@ namespace TerraScience.Content.TileEntities.Energy{
 			StoredFlux = new TerraFlux(reader.ReadSingle());
 		}
 
-		public TerraFlux StoredFlux{ get; set; }
+		//Allow deriving classes to specify the behaviour of "StoredFlux" (e.g. TesseractEntity)
+		public virtual TerraFlux StoredFlux{ get; set; }
 
 		public abstract TerraFlux FluxUsage{ get; }
 
@@ -38,7 +40,7 @@ namespace TerraScience.Content.TileEntities.Energy{
 				flux -= StoredFlux - old;
 			}else{
 				StoredFlux += flux;
-				flux = new TerraFlux(0f);
+				flux = TerraFlux.Zero;
 			}
 		}
 

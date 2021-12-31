@@ -102,8 +102,8 @@ namespace TerraScience.Systems.Pipes{
 		}
 
 		public override void Load(TagCompound tag){
-			if(tag.GetString("fluid") is string gasName)
-				fluidType = (MachineFluidID)Enum.Parse(typeof(MachineFluidID), gasName);
+			if(tag.GetString("fluid") is string gasName && Enum.TryParse(gasName, out MachineFluidID type))
+				fluidType = type;
 			else
 				fluidType = MachineFluidID.None;
 
@@ -138,21 +138,22 @@ namespace TerraScience.Systems.Pipes{
 			};
 
 		public override void LoadCombinedData(TagCompound up, TagCompound left, TagCompound right, TagCompound down){
-			if(up?.GetString("fluid") is string upFluid)
-				fluidType = (MachineFluidID)Enum.Parse(typeof(MachineFluidID), upFluid);
-			else if(left?.GetString("fluid") is string leftFluid)
-				fluidType = (MachineFluidID)Enum.Parse(typeof(MachineFluidID), leftFluid);
-			else if(right?.GetString("fluid") is string rightFluid)
-				fluidType = (MachineFluidID)Enum.Parse(typeof(MachineFluidID), rightFluid);
-			else if(down?.GetString("fluid") is string downFluid)
-				fluidType = (MachineFluidID)Enum.Parse(typeof(MachineFluidID), downFluid);
+			if(up?.GetString("fluid") is string upFluid && Enum.TryParse(upFluid, out MachineFluidID upType))
+				fluidType = upType;
+			else if(left?.GetString("fluid") is string leftFluid && Enum.TryParse(leftFluid, out MachineFluidID leftType))
+				fluidType = leftType;
+			else if(right?.GetString("fluid") is string rightFluid && Enum.TryParse(rightFluid, out MachineFluidID rightType))
+				fluidType = rightType;
+			else if(down?.GetString("fluid") is string downFluid && Enum.TryParse(downFluid, out MachineFluidID downType))
+				fluidType = downType;
 
 			if(fluidType != MachineFluidID.None){
 				StoredFluid = (up?.GetFloat("stored") ?? 0)
 					+ (left?.GetFloat("stored") ?? 0)
 					+ (right?.GetFloat("stored") ?? 0)
 					+ (down?.GetFloat("stored") ?? 0);
-			}
+			}else
+				StoredFluid = 0;
 
 			LoadCombinedPumps(up);
 			LoadCombinedPumps(left);

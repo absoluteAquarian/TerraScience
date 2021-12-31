@@ -8,7 +8,7 @@ namespace TerraScience.Content.Items.Placeable.Machines{
 	public class FluidTankItem : MachineItem<FluidTank>{
 		public override string ItemName => "Fluid Tank";
 
-		public override string ItemTooltip => "Stores liquids and gases";
+		public override string ItemTooltip => "Stores fluids";
 
 		internal override ScienceWorkbenchItemRegistry GetRegistry()
 			=> new ScienceWorkbenchItemRegistry(

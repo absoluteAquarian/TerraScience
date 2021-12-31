@@ -15,18 +15,18 @@ using TerraScience.Utilities;
 
 namespace TerraScience.Content.TileEntities {
 	public abstract class MachineEntity : ModTileEntity{
-		private readonly List<Item> slots = new List<Item>();
+		private Item[] slots;
 
 		public Item GetItem(int slot) => slots[slot];
 
+		internal ref Item GetItemSlotRef(int slot) => ref slots[slot];
+
 		internal void ValidateSlots(int intendedLength){
 			//Possible if the multitile was just placed
-			if(slots.Count != intendedLength){
-				slots.Clear();
-				for(int i = 0; i < intendedLength; i++){
-					Item item = new Item();
-					slots.Add(item);
-				}
+			if(slots?.Length != intendedLength){
+				slots = new Item[intendedLength];
+				for(int i = 0; i < intendedLength; i++)
+					slots[i] = new Item();
 			}
 		}
 
@@ -93,7 +93,7 @@ namespace TerraScience.Content.TileEntities {
 				["slots"] = new TagCompound(){
 					//Lots of unnecessary data is saved, but that's fine due to the small amount of extra bytes used
 					// TODO: refactor ItemIO.Save/ItemIO.Load to get rid of this extra info
-					["items"] = slots.Count == 0 ? null : slots.Select(i => ItemIO.Save(i)).ToList()
+					["items"] = slots.Length == 0 ? null : slots.Select(i => ItemIO.Save(i)).ToList()
 				},
 				["extra"] = ExtraSave()
 			};
@@ -109,8 +109,7 @@ namespace TerraScience.Content.TileEntities {
 			TagCompound tagSlots = tag.GetCompound("slots");
 			List<TagCompound> items = tagSlots.GetList<TagCompound>("items") as List<TagCompound> ?? new List<TagCompound>();
 			
-			foreach(var c in items)
-				slots.Add(ItemIO.Load(c));
+			slots = items.Select(ItemIO.Load).ToArray();
 
 			TagCompound extra = tag.GetCompound("extra");
 			if(extra != null)
@@ -148,8 +147,13 @@ namespace TerraScience.Content.TileEntities {
 		internal bool updating = false;
 		//NOTE: ModTileEntity.PreGlobalUpdate() is called from a singleton for some fucking reason
 
+		internal virtual bool SetItemsToParentUIWhenClosing => true;
+
 		public void SaveSlots(){
-			slots.Clear();
+			if(!SetItemsToParentUIWhenClosing)
+				return;
+
+			slots = new Item[ParentState.SlotsLength];
 
 			for(int i = 0; i < ParentState.SlotsLength; i++){
 				int type = ParentState.GetSlot(i).StoredItem.type;
@@ -159,7 +163,7 @@ namespace TerraScience.Content.TileEntities {
 				item.SetDefaults(type);
 				item.stack = stack;
 
-				slots.Add(item);
+				slots[i] = item;
 			}
 		}
 
@@ -178,8 +182,8 @@ namespace TerraScience.Content.TileEntities {
 			writer.Write(ReactionSpeed);
 			writer.Write(ReactionProgress);
 
-			writer.Write((short)slots.Count);
-			for(int i = 0; i < slots.Count; i++)
+			writer.Write((short)slots.Length);
+			for(int i = 0; i < slots.Length; i++)
 				ItemIO.Send(slots[i], writer, writeStack: true);
 
 			ExtraNetSend(writer);
@@ -198,11 +202,20 @@ namespace TerraScience.Content.TileEntities {
 
 			short count = reader.ReadInt16();
 
-			if(slots.Count < count){
-				for(int c = slots.Count; c < count; c++)
-					slots.Add(new Item());
-			}else if(slots.Count > count)
-				slots.RemoveRange(count, slots.Count - count);
+			if(slots.Length < count){
+				int oldLength = slots.Length;
+
+				Item[] slotsNew = new Item[count];
+				slots.CopyTo(slotsNew, 0);
+				slots = slotsNew;
+
+				for(int c = oldLength; c < count; c++)
+					slots[c] = new Item();
+			}else if(slots.Length > count){
+				Item[] slotsNew = new Item[count];
+				slots.CopyTo(slotsNew, 0);
+				slots = slotsNew;
+			}
 
 			for(int i = 0; i < count; i++)
 				ItemIO.Receive(slots[i], reader, readStack: true);

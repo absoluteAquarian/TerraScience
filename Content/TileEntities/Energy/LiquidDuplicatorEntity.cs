@@ -13,7 +13,7 @@ using TerraScience.Utilities;
 namespace TerraScience.Content.TileEntities.Energy{
 	public class LiquidDuplicatorEntity : PoweredMachineEntity, IFluidMachine{
 		//Usage depends on what liquid is being duplicated
-		public override TerraFlux FluxUsage => new TerraFlux(0f);
+		public override TerraFlux FluxUsage => TerraFlux.Zero;
 
 		public override TerraFlux FluxCap => new TerraFlux(2000f);
 

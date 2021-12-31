@@ -15,10 +15,10 @@ namespace TerraScience.Content.TileEntities{
 		//Duplicate entries are needed for proper I/O usage
 		const float DefaultMax = 2000f;
 		public FluidEntry[] FluidEntries{ get; set; } = new FluidEntry[]{
-			//Liquid
+			//Left side
 			new FluidEntry(max: DefaultMax, isInput: true, null),
 			new FluidEntry(max: DefaultMax, isInput: false, null),
-			//Gas
+			//Right side
 			new FluidEntry(max: DefaultMax, isInput: true, null),
 			new FluidEntry(max: DefaultMax, isInput: false, null)
 		};
@@ -73,7 +73,7 @@ namespace TerraScience.Content.TileEntities{
 			float x = Position.X + width / 2f;
 
 			if(pumpPos.X + 0.5f > x + 0.01f){
-				this.TryImportFluids(pumpPos, 3);
+				this.TryExportFluids(pumpPos, 3);
 
 				FluidEntries[2].id = FluidEntries[3].id;
 				FluidEntries[2].current = FluidEntries[3].current;

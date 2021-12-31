@@ -1,4 +1,4 @@
-displayName = Terraria Tech Mod
+displayName = Terran Automation
 author = absoluteAquarian, GoodPro712
-version = 1.0
+version = 0.1
 weakReferences = MagicStorage@0.4.3.5

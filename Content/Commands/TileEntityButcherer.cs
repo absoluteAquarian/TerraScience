@@ -8,13 +8,19 @@ namespace TerraScience.Content.Commands{
 	public class TileEntityButcherer : ModCommand{
 		public override string Command => "tsbutcher";
 
-		public override string Description => "Butchers all TerraScience tile entities. Please only use for debugging purposes.";
+		public override string Description => "Butchers all TerraScience tile entities.";
 
 		public override string Usage => "/tsbutcher <type|all>";
 
 		public override CommandType Type => CommandType.Chat;
 
 		public override void Action(CommandCaller caller, string input, string[] args){
+			bool release = TechMod.Release;
+			if(release){
+				caller.Reply("This command can only be used in Debug mode.", Color.Red);
+				return;
+			}
+
 			//Only one parameter can be given
 			if(args.Length != 1){
 				caller.Reply("Not enough or too many parameters were given.", Color.Red);

@@ -66,8 +66,12 @@ namespace TerraScience.Content.UI {
 
 				tesseractNetworkInterface = new UserInterface();
 				tesseractNetworkState = new TesseractNetworkUI();
+
+				tesseractNetworkState.Activate();
 			}
 		}
+
+		public event Action OnUpdateOnce;
 
 		/// <summary>
 		/// Called on Mod.UpdateUI
@@ -83,6 +87,11 @@ namespace TerraScience.Content.UI {
 					ui.Update(gameTime);
 
 			tesseractNetworkInterface?.Update(gameTime);
+
+			if(OnUpdateOnce != null){
+				OnUpdateOnce();
+				OnUpdateOnce = null;
+			}
 		}
 
 		/// <summary>
@@ -147,6 +156,8 @@ namespace TerraScience.Content.UI {
 		public void HideUI(string name) {
 			MachineUI machineState = states[name];
 
+			machineState.IsClosing = true;
+
 			machineState.PlayCloseSound();
 
 			machineState.PreClose();
@@ -162,6 +173,8 @@ namespace TerraScience.Content.UI {
 			interfaces[name].SetState(null);
 
 			machineState.PostClose();
+
+			machineState.IsClosing = false;
 		}
 	}
 }

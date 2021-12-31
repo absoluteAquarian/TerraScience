@@ -297,14 +297,40 @@ namespace TerraScience.Systems.Pipes{
 					if(path.Path != null){
 						//Ensure the path is correct.  If it is not, make it be recalculated
 						foreach(var tile in path.Path){
-							if(!HasEntryAt(tile)){
-								path.needsPathRefresh = true;
-								path.delayPathCalc = false;
+							if(!HasEntryAt(tile))
+								goto logRefreshedPath;
+						}
 
-								break;
-							}
+						if(path.Path.Count > 0){
+							//Check the destination machine.  If it won't accept the item, force the item path to be recalculated
+							Item item = ItemIO.Load(path.itemData);
+
+							Point16 target = path.Path.Last();
+
+							MachineEntity machine = null;
+							Chest targetChest = null;
+							if((machine = ItemNetworkPath.FindConnectedMachine(this, target, item)) is null && (targetChest = ItemNetworkPath.FindConnectedChest(this, target, item, out _)) is null)
+								goto logRefreshedPath;
+
+							//"item.stack" is modified here, hence the need to clone it earlier
+							var usepaths = paths.Where(p => p.wander || p.finalTarget == target || (p?.Path?.Count > 0 && p.Path.Last() == target));
+							bool successful = machine != null
+								? ItemNetworkPath.SimulateMachineInput(machine, item, usepaths)
+								: ItemNetworkPath.SimulateChestInput(targetChest, item, usepaths);
+
+							if(!successful)
+								goto logRefreshedPath;
 						}
 					}
+
+					continue;
+logRefreshedPath:
+					path.needsPathRefresh = true;
+					path.delayPathCalc = false;
+
+					bool release = TechMod.Release;
+					if(!release)
+						TechMod.Instance.Logger.Debug($"[ItemNetwork/#{ID}] Network item #{path.id} had an invalid saved path.  Forcing a new path on next update.");
 				}
 			}else
 				paths = new List<ItemNetworkPath>();

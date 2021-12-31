@@ -78,7 +78,7 @@ namespace TerraScience.Content.TileEntities.Energy.Generators{
 			 *  Weather Radio Display | Displayed wind speed is `Math.Abs(Main.windSpeed) * 100`
 			 */
 
-			TerraFlux flux = new TerraFlux(0f);
+			TerraFlux flux = TerraFlux.Zero;
 
 			float realWind = Math.Abs(Main.windSpeed) * 100;
 

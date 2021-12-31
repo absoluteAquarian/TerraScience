@@ -14,16 +14,23 @@ namespace TerraScience.API.UI {
 
 		public float Scale { get; private set; }
 
-		public Item StoredItem => storedItem;
+		public virtual Item StoredItem => storedItem;
 
-		private Item storedItem;
+		protected Item storedItem;
 
 		private Item storedItemBeforeHandle;
 
-		public bool ItemChanged => StoredItem != null && storedItemBeforeHandle != null && StoredItem.IsNotTheSameAs(storedItemBeforeHandle);
-		public bool ItemTypeChanged => (StoredItem?.type ?? -1) != (storedItemBeforeHandle?.type ?? -2);
+		public bool ItemChanged{
+			get{
+				var item = storedItem;
+				return item != null && storedItemBeforeHandle != null && item.IsNotTheSameAs(storedItemBeforeHandle);
+			}
+		}
+		public bool ItemTypeChanged => (storedItem?.type ?? -1) != (storedItemBeforeHandle?.type ?? -2);
 
 		public Func<Item, bool> ValidItemFunc;
+
+		public Action<Item> OnItemChanged;
 
 		public bool IgnoreClicks{ get; set; }
 
@@ -64,6 +71,9 @@ namespace TerraScience.API.UI {
 					storedItemBeforeHandle = StoredItem.Clone();
 					ItemSlot.Handle(ref storedItem, Context);
 
+					if(ItemChanged || ItemTypeChanged)
+						OnItemChanged?.Invoke(storedItem);
+
 					Main.mouseLeft = oldLeft;
 					Main.mouseLeftRelease = oldLeftRelease;
 					Main.mouseRight = oldRight;
@@ -83,7 +93,7 @@ namespace TerraScience.API.UI {
 
 		public void SetItem(int itemType, int stack = 1){
 			storedItem.SetDefaults(itemType);
-			StoredItem.stack = stack;
+			storedItem.stack = stack;
 		}
 	}
 }

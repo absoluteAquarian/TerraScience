@@ -86,15 +86,15 @@ namespace TerraScience.Utilities{
 			return false;
 		}
 
-		public static void TryImportFluids<T>(this T entity, Point16 pipePos, int indexToExtract) where T : MachineEntity, IFluidMachine{
-			if(indexToExtract < 0 || indexToExtract >= entity.FluidEntries.Length)
+		public static void TryImportFluids<T>(this T entity, Point16 pipePos, int indexToImportTo) where T : MachineEntity, IFluidMachine{
+			if(indexToImportTo < 0 || indexToImportTo >= entity.FluidEntries.Length)
 				return;
 
-			var entry = entity.FluidEntries[indexToExtract];
+			var entry = entity.FluidEntries[indexToImportTo];
 
 			if(!entry.isInput
 				|| !NetworkCollection.HasFluidPipeAt(pipePos, out FluidNetwork net)
-				|| net.fluidType != MachineFluidID.None
+				|| net.fluidType == MachineFluidID.None
 				|| (entry.id != MachineFluidID.None && entry.id != net.fluidType)
 				|| (entry.validTypes?.Length > 0 && Array.FindIndex(entry.validTypes, id => id == net.fluidType) == -1))
 				return;
@@ -111,19 +111,19 @@ namespace TerraScience.Utilities{
 			if(rate <= 0)
 				return;
 
-			float exported = Math.Min(rate, net.Capacity);
+			float imported = Math.Min(rate, net.Capacity);
 
-			if(exported + entry.current > entry.max)
-				exported = entry.max - entry.current;
+			if(imported + entry.current > entry.max)
+				imported = entry.max - entry.current;
 
-			if(exported <= 0)
+			if(imported <= 0)
 				return;
 
 			if(entry.id == MachineFluidID.None)
 				entry.id = net.fluidType;
 
-			entry.current += exported;
-			net.StoredFluid -= exported;
+			entry.current += imported;
+			net.StoredFluid -= imported;
 
 			if(net.StoredFluid <= 0)
 				net.fluidType = MachineFluidID.None;
@@ -137,7 +137,6 @@ namespace TerraScience.Utilities{
 
 			if(entry.isInput
 				|| !NetworkCollection.HasFluidPipeAt(pumpPos, out FluidNetwork net)
-				|| net.fluidType != MachineFluidID.None
 				|| (entry.id != MachineFluidID.None && net.fluidType != MachineFluidID.None && entry.id != net.fluidType))
 				return;
 

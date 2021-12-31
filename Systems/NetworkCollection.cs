@@ -7,6 +7,7 @@ using Terraria.DataStructures;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using TerraScience.API.Interfaces;
+using TerraScience.Content.ID;
 using TerraScience.Content.TileEntities;
 using TerraScience.Content.TileEntities.Energy;
 using TerraScience.Content.TileEntities.Energy.Generators;
@@ -23,9 +24,9 @@ namespace TerraScience.Systems {
 		internal static List<ItemNetwork> itemNetworks;
 		internal static List<FluidNetwork> fluidNetworks;
 
-		internal delegate INetworkable typeCtor(Point16 location, INetwork network);
+		internal delegate INetworkable TypeCtor(Point16 location, INetwork network);
 
-		internal static Dictionary<Type, typeCtor> networkTypeCtors;
+		internal static Dictionary<Type, TypeCtor> networkTypeCtors;
 
 		public static INetwork CombineNetworks<T, E>(params T[] networks) where T : INetwork, INetwork<E>, new() where E : struct, INetworkable, INetworkable<E>{
 			if(networks.Length == 0)
@@ -65,7 +66,7 @@ namespace TerraScience.Systems {
 
 		public static void ResetNetworkInfo(){
 			foreach(var network in wireNetworks)
-				network.totalExportedFlux = new TerraFlux(0f);
+				network.totalExportedFlux = TerraFlux.Zero;
 		}
 
 		private static void InternalCleanup<TNet, TEntry>(List<TNet> list) where TNet : class, INetwork, INetwork<TEntry>, new() where TEntry : struct, INetworkable, INetworkable<TEntry>{
@@ -415,6 +416,14 @@ forceNextCheck: ;
 				networkWatch.Restart();
 
 			foreach(var network in fluidNetworks){
+				//Safeguards
+				if(network.fluidType == MachineFluidID.None)
+					network.StoredFluid = 0;
+				if(network.StoredFluid < 0){
+					network.StoredFluid = 0;
+					network.fluidType = MachineFluidID.None;
+				}
+
 				foreach(var timer in network.pumpTimers){
 					timer.Value.value--;
 

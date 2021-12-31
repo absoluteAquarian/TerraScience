@@ -23,6 +23,8 @@ namespace TerraScience.Content.UI{
 
 		public bool Active;
 
+		public bool IsClosing{ get; internal set; }
+
 		/// <summary>
 		/// Called before the UI attempts to copy items stored in the entity into the UI, but after the UI state has been activated
 		/// </summary>
@@ -118,9 +120,9 @@ namespace TerraScience.Content.UI{
 				slot.StoredItem.TurnToAir();
 		}
 
-		public void LoadToSlots(List<Item> slots){
+		internal void LoadToSlots(Item[] slots){
 			//Possible if the slots hadn't been saved to yet
-			if(slots.Count != SlotsLength)
+			if(slots?.Length != SlotsLength)
 				return;
 
 			for(int i = 0; i < SlotsLength; i++)

@@ -1,8 +1,10 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
+using TerraScience.Content.ID;
 using TerraScience.Content.TileEntities.Energy.Storage;
 using TerraScience.Content.Tiles.Multitiles;
 using TerraScience.Systems;
@@ -14,14 +16,11 @@ namespace TerraScience.Content.TileEntities{
 		public override int MachineTile => ModContent.TileType<Tesseract>();
 
 		//5 slots for items, 4 slots each for adding/removing liquids and gases
-		public override int SlotsCount => 5 + 4 * 2;
+		public override int SlotsCount => 5 + 4;
 
 		//Duplicate entries are needed for proper I/O usage
 		public FluidEntry[] FluidEntries{ get; set; } = new FluidEntry[]{
-			//Liquid
-			new FluidEntry(max: 500f, isInput: true, null),
-			new FluidEntry(max: 500f, isInput: false, null),
-			//Gas
+			//Fluid
 			new FluidEntry(max: 500f, isInput: true, null),
 			new FluidEntry(max: 500f, isInput: false, null)
 		};
@@ -34,14 +33,31 @@ namespace TerraScience.Content.TileEntities{
 
 		public override TerraFlux FluxCap => new TerraFlux(8000f);
 
+		public override TerraFlux StoredFlux{
+			get => TesseractNetwork.TryGetEntry(boundNet, out var entry) ? entry.flux : TerraFlux.Zero;
+			set{
+				if(TesseractNetwork.TryGetEntry(boundNet, out var entry))
+					entry.flux = value;
+			}
+		}
+
+		internal event Action OnNetworkChange;
+
 		private string boundNet;
 		internal string BoundNetwork{
 			get => boundNet;
 			set{
-				if(boundNet != value)
+				if(boundNet != value){
+					var old = boundNet;
 					boundNet = value != null && TesseractNetwork.TryGetEntry(value, out _) ? value : null;
+
+					if(boundNet != old)
+						OnNetworkChange?.Invoke();
+				}
 			}
 		}
+
+		internal override bool SetItemsToParentUIWhenClosing => false;
 
 		public override TagCompound ExtraSave()
 			=> new TagCompound(){
@@ -60,40 +76,53 @@ namespace TerraScience.Content.TileEntities{
 			BoundNetwork = reader.ReadString();
 		}
 
+		public override TerraFlux GetPowerGeneration(int ticks) => TerraFlux.Zero;
+
 		public override void ReactionComplete(){ }
 
 		public void TryExportFluid(Point16 pumpPos){
 			if(!TesseractNetwork.TryGetEntry(boundNet, out var entry))
 				return;
-			
-			this.TryExportFluids(pumpPos, 3);
-
-			entry.fluids[1].id = FluidEntries[2].id = FluidEntries[3].id;
-			entry.fluids[1].current = FluidEntries[2].current = FluidEntries[3].current;
-			entry.fluids[1].max = FluidEntries[2].max = FluidEntries[3].max;
 
 			this.TryExportFluids(pumpPos, 1);
 
-			entry.fluids[0].id = FluidEntries[0].id = FluidEntries[1].id;
-			entry.fluids[0].current = FluidEntries[0].current = FluidEntries[1].current;
-			entry.fluids[0].max = FluidEntries[0].max = FluidEntries[1].max;
+			entry.fluid.id = FluidEntries[0].id = FluidEntries[1].id;
+			entry.fluid.current = FluidEntries[0].current = FluidEntries[1].current;
+			entry.fluid.max = FluidEntries[0].max = FluidEntries[1].max;
 		}
 
 		public void TryImportFluid(Point16 pipePos){
 			if(!TesseractNetwork.TryGetEntry(boundNet, out var entry))
 				return;
 
-			this.TryImportFluids(pipePos, 2);
-
-			entry.fluids[1].id = FluidEntries[3].id = FluidEntries[2].id;
-			entry.fluids[1].current = FluidEntries[3].current = FluidEntries[2].current;
-			entry.fluids[1].max = FluidEntries[3].max = FluidEntries[2].max;
-
 			this.TryImportFluids(pipePos, 0);
 
-			entry.fluids[0].id = FluidEntries[1].id = FluidEntries[0].id;
-			entry.fluids[0].current = FluidEntries[1].current = FluidEntries[0].current;
-			entry.fluids[0].max = FluidEntries[1].max = FluidEntries[0].max;
+			entry.fluid.id = FluidEntries[1].id = FluidEntries[0].id;
+			entry.fluid.current = FluidEntries[1].current = FluidEntries[0].current;
+			entry.fluid.max = FluidEntries[1].max = FluidEntries[0].max;
+		}
+
+		public override void PreUpdateReaction(){
+			if(boundNet != null && TesseractNetwork.TryGetEntry(boundNet, out var entry)){
+				//Set the stuff in the entity to match the network entry
+				for(int i = 0; i < 5; i++)
+					GetItemSlotRef(i) = this.RetrieveItem(i).Clone();
+
+				for(int i = 0; i < FluidEntries.Length; i++){
+					FluidEntries[i].id = entry.fluid.id;
+					FluidEntries[i].current = entry.fluid.current;
+					FluidEntries[i].max = entry.fluid.max;
+				}
+			}else{
+				for(int i = 0; i < SlotsCount; i++)
+					GetItemSlotRef(i) = new Item().Clone();
+
+				for(int i = 0; i < FluidEntries.Length; i++){
+					FluidEntries[i].id = MachineFluidID.None;
+					FluidEntries[i].current = 0;
+					FluidEntries[i].max = 500f;
+				}
+			}
 		}
 
 		public override bool UpdateReaction()
@@ -107,5 +136,33 @@ namespace TerraScience.Content.TileEntities{
 
 		internal override int[] GetOutputSlots()
 			=> new int[]{ 0, 1, 2, 3, 4 };
+
+		public override bool HijackGetItemInventory(out Item[] inventory){
+			if(!TesseractNetwork.TryGetEntry(boundNet, out var entry)){
+				inventory = null;
+				return true;
+			}
+
+			inventory = entry.items;
+			return true;
+		}
+
+		public override bool HijackRetrieveItem(int slot, out Item item){
+			if(slot >= 5){
+				item = null;
+				return false;
+			}
+
+			if(!TesseractNetwork.TryGetEntry(boundNet, out var entry)){
+				item = null;
+				return false;
+			}
+
+			item = entry.items[slot];
+			return true;
+		}
+
+		public override bool HijackCanBeInteractedWithItemNetworks(out bool canInteract, out bool canInput, out bool canOutput)
+			=> canInteract = canInput = canOutput = TesseractNetwork.TryGetEntry(boundNet, out _);
 	}
 }

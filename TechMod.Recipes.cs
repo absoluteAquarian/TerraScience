@@ -139,6 +139,13 @@ namespace TerraScience {
 				.AddIngredient<IronPipe>(3)
 				.AddIngredient<BasicMachineCore>());
 
+			DatalessMachineInfo.Register<TesseractItem>(new RecipeIngredientSet()
+				.AddRecipeGroup(RecipeGroupID.IronBar, 12)
+				.AddIngredient<ItemTransport>(10)
+				.AddIngredient<FluidTransport>(10)
+				.AddIngredient<TFWireItem>(20)
+				.AddIngredient<UnstableSkull>(3));
+
 			//Loading merge data here instead of <tile>.SetDefaults()
 			foreach(var type in types){
 				if(type.IsAbstract)

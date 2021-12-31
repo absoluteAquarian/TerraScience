@@ -41,3 +41,6 @@ Current Multitiles:
 [c/dddd00:Science Workbench]
 - the crafting station for making machines
 - can be opened to view information about a particlar machine
+[c/dddd00:Tesseract]
+- can transfer items, fluids and [c/dd3333:Terra Flux (TF)] from one location to another instantly
+- must be assigned to a Tesseract Network in order to function

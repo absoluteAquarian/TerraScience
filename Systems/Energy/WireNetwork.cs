@@ -30,15 +30,15 @@ namespace TerraScience.Systems.Energy{
 
 		public WireNetwork() : base(){
 			OnClear += () => {
-				Capacity = new TerraFlux(0f);
-				totalExportedFlux = new TerraFlux(0f);
+				Capacity = TerraFlux.Zero;
+				totalExportedFlux = TerraFlux.Zero;
 				needsRateRefresh = true;
 			};
 			OnEntryPlace += pos => {
 				Tile tile = Framing.GetTileSafely(pos.X, pos.Y);
 				var mTile = ModContent.GetModTile(tile.type);
 				
-				TerraFlux cap = new TerraFlux(0f);
+				TerraFlux cap = TerraFlux.Zero;
 
 				if(mTile is TFWireTile wire)
 					cap = wire.Capacity;
@@ -54,7 +54,7 @@ namespace TerraScience.Systems.Energy{
 			OnEntryKill += pos => {
 				Tile tile = Framing.GetTileSafely(pos.X, pos.Y);
 				var mTile = ModContent.GetModTile(tile.type);
-				TerraFlux cap = new TerraFlux(0f);
+				TerraFlux cap = TerraFlux.Zero;
 				if(mTile is TFWireTile wire)
 					cap = wire.Capacity;
 				else if(mTile is TransportJunction junction)
@@ -66,7 +66,7 @@ namespace TerraScience.Systems.Energy{
 				StoredFlux -= cap;
 
 				if((float)StoredFlux < 0)
-					StoredFlux = new TerraFlux(0f);
+					StoredFlux = TerraFlux.Zero;
 
 				needsRateRefresh = true;
 			};
@@ -120,8 +120,8 @@ namespace TerraScience.Systems.Energy{
 
 			needsRateRefresh = false;
 
-			TerraFlux import = new TerraFlux(0f);
-			TerraFlux export = new TerraFlux(0f);
+			TerraFlux import = TerraFlux.Zero;
+			TerraFlux export = TerraFlux.Zero;
 
 			int count = 0;
 
@@ -146,8 +146,8 @@ namespace TerraScience.Systems.Energy{
 			}
 
 			if(count == 0){
-				ImportRate = new TerraFlux(0f);
-				ExportRate = new TerraFlux(0f);
+				ImportRate = TerraFlux.Zero;
+				ExportRate = TerraFlux.Zero;
 			}else{
 				ImportRate = import / count;
 				ExportRate = export / count;
@@ -177,7 +177,7 @@ namespace TerraScience.Systems.Energy{
 					receive = ImportRate;
 					flux -= receive;
 				}else
-					flux = new TerraFlux(0f);
+					flux = TerraFlux.Zero;
 
 				if(StoredFlux + receive <= Capacity){
 					//Able to put energy into the system
@@ -187,7 +187,7 @@ namespace TerraScience.Systems.Energy{
 						source.StoredFlux -= receive;
 					}else{
 						receive = source.StoredFlux;
-						source.StoredFlux = new TerraFlux(0f);
+						source.StoredFlux = TerraFlux.Zero;
 					}
 
 					StoredFlux += receive;

@@ -75,6 +75,8 @@ namespace TerraScience.Content.Items.Tools{
 
 		public static Color GetBackColor(MachineFluidID id){
 			switch(id){
+				case MachineFluidID.None:
+					return Color.Transparent;
 				case MachineFluidID.LiquidWater:
 					return new Color(){ PackedValue = 0xffbf3d09 };
 				case MachineFluidID.LiquidSaltwater:
@@ -90,7 +92,7 @@ namespace TerraScience.Content.Items.Tools{
 				case MachineFluidID.ChlorineGas:
 					return Color.LimeGreen;
 				default:
-					throw new Exception("Invalid Gas ID requested: " + id.ToString());
+					throw new Exception("Invalid Fluid ID requested: " + id.ToString());
 			}
 		}
 	}

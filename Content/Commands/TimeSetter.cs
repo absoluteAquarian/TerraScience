@@ -44,6 +44,12 @@ namespace TerraScience.Content.Commands{
 		public const int _12PM = _7_30PM_day - _7_30;    //27,000
  
 		public override void Action(CommandCaller caller, string input, string[] args){
+			bool release = TechMod.Release;
+			if(release){
+				caller.Reply("This command can only be used in Debug mode.", Color.Red);
+				return;
+			}
+
 			bool am = false;
 			int colonIndex, hour, minutes, tickTime = -1;
 			bool usedKeyword = false;

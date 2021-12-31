@@ -8,6 +8,7 @@ using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using TerraScience.Content.TileEntities;
 using TerraScience.Content.Tiles;
+using TerraScience.Content.UI;
 using TerraScience.Systems;
 using TerraScience.Utilities;
 
@@ -61,7 +62,7 @@ namespace TerraScience.Content.Items.Tools{
 		static uint oldUpdate = 0;
 
 		public override void HoldItem(Player player){
-			if(TechMod.debugging && Main.mouseRight && Main.mouseRightRelease && player.inventory[58] != item){
+			if(TechMod.debugging && Main.mouseRight && Main.mouseRightRelease && player.inventory[58] != item && Main.GameUpdateCount != oldUpdate){
 				var pos = Main.MouseWorld.ToTileCoordinates16();
 				var tile = Framing.GetTileSafely(pos.X, pos.Y);
 				var mTile = ModContent.GetModTile(tile.type);
@@ -73,7 +74,7 @@ namespace TerraScience.Content.Items.Tools{
 					return;
 				}
 
-				if(mTile is ItemTransportTile && Systems.NetworkCollection.HasItemPipeAt(pos, out Systems.Pipes.ItemNetwork net)){
+				if(mTile is ItemTransportTile && NetworkCollection.HasItemPipeAt(pos, out Systems.Pipes.ItemNetwork net)){
 					for(int i = 0; i < net.paths.Count; i++){
 						var path = net.paths[i];
 						path.needsPathRefresh = true;
@@ -91,27 +92,18 @@ namespace TerraScience.Content.Items.Tools{
 				pos -= tile.TileCoord();
 
 				if(MiscUtils.TryGetTileEntity(pos, out MachineEntity entity)){
-					//The default tag compound for an empty machine
-					TagCompound tag = new TagCompound(){
-						["machineInfo"] = new TagCompound(){
-							["ReactionSpeed"] = 1f,
-							["ReactionProgress"] = 0f,
-							["ReactionInProgress"] = false
-						},
-						["slots"] = new TagCompound(){
-							["items"] = null
-						},
-						["extra"] = null
-					};
+					//MachineEntity.Kill forces the UI to close if it's open
+					entity.Kill(pos.X, pos.Y);
+					int id = entity.Place(pos.X, pos.Y);
 
-					entity.Load(tag);
+					if(Main.netMode == NetmodeID.MultiplayerClient)
+						NetMessage.SendData(MessageID.TileEntitySharing, remoteClient: -1, ignoreClient: Main.myPlayer, number: id);
 
-					if(Main.GameUpdateCount != oldUpdate)
-						Main.NewText($"Reset machine \"{entity.MachineName}\" at position {entity.Position}");
-
-					oldUpdate = Main.GameUpdateCount;
+					Main.NewText($"Reset machine \"{entity.MachineName}\" at position {entity.Position}");
 				}
 			}
+
+			oldUpdate = Main.GameUpdateCount;
 		}
 	}
 }

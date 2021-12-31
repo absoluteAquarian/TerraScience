@@ -88,7 +88,7 @@ namespace TerraScience.Content.TileEntities.Energy.Generators{
 			ImportFlux(ref flux);
 
 			//Prevent additional fuel from being used until the flux has been used enough
-			if(flux > new TerraFlux(0f))
+			if(flux > TerraFlux.Zero)
 				return false;
 
 			//Burn one "fuel" item every 30 seconds
@@ -113,7 +113,7 @@ namespace TerraScience.Content.TileEntities.Energy.Generators{
 			TerraFlux flux;
 
 			if(fuelLeft <= 0)
-				return new TerraFlux(0f);
+				return TerraFlux.Zero;
 
 			Item fuel = cachedFuelItem;
 
@@ -130,7 +130,7 @@ namespace TerraScience.Content.TileEntities.Energy.Generators{
 			else if(name.Contains("Wood") || name.Contains("wood"))
 				flux = new TerraFlux(8f / 60f);
 			else
-				flux = new TerraFlux(0f);
+				flux = TerraFlux.Zero;
 
 			return flux * ticks;
 		}

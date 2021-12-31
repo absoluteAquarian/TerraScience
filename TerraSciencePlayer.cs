@@ -8,6 +8,10 @@ namespace TerraScience{
 	public class TerraSciencePlayer : ModPlayer {
 		public bool InventoryKeyPressed { get; private set; } = false;
 
+		public static bool LocalPlayerHasAdmin => Main.LocalPlayer.GetModPlayer<TerraSciencePlayer>().tesseractAdmin;
+
+		internal bool tesseractAdmin;
+
 		public override void ProcessTriggers(TriggersSet triggersSet) {
 			if(TechMod.DebugHotkey.JustPressed){
 				TechMod.debugging = !TechMod.debugging;

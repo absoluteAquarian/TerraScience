@@ -58,15 +58,25 @@ namespace TerraScience.Systems {
 			=> new TagCompound(){
 				["data"] = itemData,
 				["pos"] = worldCenter,
-				["path"] = currentPath != null ? new List<Point16>(currentPath) : null
+				["path"] = currentPath != null ? new List<Point16>(currentPath) : null,
+				["dqpath"] = dequeuedPoint,
+				//IMPORTANT: finalDir being not (0, 0) lets an item enter a machine
+				["final"] = finalDir,
+				["flags"] = (byte)new BitsByte(enteringChestOrMachine, removed, pumpForcedNewPath, delayPathCalc, wander, needsPathRefresh)
 			};
 
 		public static ItemNetworkPath Load(TagCompound tag){
 			var item = new ItemNetworkPath(){
 				itemData = tag.GetCompound("data"),
 				worldCenter = tag.Get<Vector2>("pos"),
-				currentPath = tag.GetList<Point16>("path") is List<Point16> list ? new Queue<Point16>(list) : null
+				currentPath = tag.GetList<Point16>("path") is List<Point16> list ? new Queue<Point16>(list) : null,
+				dequeuedPoint = tag.Get<Point16>("dqpath"),
+				finalDir = tag.Get<Vector2>("final"),
+				enteringChestOrMachine = tag.GetBool("inmachine")
 			};
+
+			var bb = (BitsByte)tag.GetByte("flags");
+			bb.Retrieve(ref item.enteringChestOrMachine, ref item.removed, ref item.pumpForcedNewPath, ref item.delayPathCalc, ref item.wander, ref item.needsPathRefresh);
 
 			if(item.currentPath?.Count > 0)
 				item.needsPathRefresh = false;
