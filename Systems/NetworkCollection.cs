@@ -395,6 +395,9 @@ forceNextCheck: ;
 						}else{
 							original.stack -= stackToExtract;
 
+							if(original.stack <= 0)
+								original.TurnToAir();
+
 							newPath = ItemNetworkPath.CreateObject(item, network, pumpTile, pathOverride: list);
 						}
 

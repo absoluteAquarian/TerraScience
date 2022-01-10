@@ -168,7 +168,7 @@ namespace TerraScience.Content.TileEntities {
 		}
 
 		public void LoadSlots(){
-			ParentState.LoadToSlots(slots);
+			ParentState.LoadFromSlots(slots);
 		}
 
 		public override void OnKill(){
@@ -293,9 +293,8 @@ namespace TerraScience.Content.TileEntities {
 			int[] inputSlots = GetInputSlots();
 
 			foreach(int slot in inputSlots){
-				Item slotItem;
 				if((ParentState?.GetSlot(slot).ValidItemFunc(item) ?? false) || CanInputItem(slot, item)){
-					slotItem = this.RetrieveItem(slot);
+					Item slotItem = this.RetrieveItem(slot);
 
 					if(slotItem.IsAir)
 						return true;
@@ -357,7 +356,7 @@ namespace TerraScience.Content.TileEntities {
 						slots[slot] = data.Clone();
 
 						if(ParentState?.Active ?? false)
-							ParentState.LoadToSlots(slots);
+							ParentState.LoadFromSlots(slots);
 
 						slotItem = this.RetrieveItem(slot);
 						slotItem.stack = 0;

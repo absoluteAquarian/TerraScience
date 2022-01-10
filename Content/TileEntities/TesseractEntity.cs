@@ -106,7 +106,7 @@ namespace TerraScience.Content.TileEntities{
 			if(boundNet != null && TesseractNetwork.TryGetEntry(boundNet, out var entry)){
 				//Set the stuff in the entity to match the network entry
 				for(int i = 0; i < 5; i++)
-					GetItemSlotRef(i) = this.RetrieveItem(i).Clone();
+					GetItemSlotRef(i) = entry.items[i];
 
 				for(int i = 0; i < FluidEntries.Length; i++){
 					FluidEntries[i].id = entry.fluid.id;
@@ -115,7 +115,7 @@ namespace TerraScience.Content.TileEntities{
 				}
 			}else{
 				for(int i = 0; i < SlotsCount; i++)
-					GetItemSlotRef(i) = new Item().Clone();
+					GetItemSlotRef(i) = new Item();
 
 				for(int i = 0; i < FluidEntries.Length; i++){
 					FluidEntries[i].id = MachineFluidID.None;
@@ -159,6 +159,67 @@ namespace TerraScience.Content.TileEntities{
 			}
 
 			item = entry.items[slot];
+			return true;
+		}
+
+		public override bool HijackCanBeInput(Item item, out bool canInput){
+			canInput = false;
+			if(!TesseractNetwork.TryGetEntry(BoundNetwork, out var entry))
+				return true;
+
+			int stack = item.stack;
+
+			for(int slot = 0; slot < entry.items.Length; slot++){
+				Item slotItem = entry.items[slot];
+
+				if(slotItem.IsAir){
+					canInput = true;
+					return true;
+				}else if(slotItem.type == item.type){
+					if(slotItem.stack + stack <= slotItem.maxStack){
+						canInput = true;
+						return true;
+					}else
+						stack -= slotItem.maxStack - slotItem.stack;
+				}
+			}
+
+			return true;
+		}
+
+		public override bool HijackInsertItem(ItemNetworkPath incoming, out bool sendBack){
+			Item data = ItemIO.Load(incoming.itemData);
+			sendBack = true;
+
+			if(!TesseractNetwork.TryGetEntry(BoundNetwork, out var entry))
+				return true;
+
+			for(int slot = 0; slot < entry.items.Length; slot++){
+				Item slotItem = entry.items[slot];
+
+				if(slotItem.IsAir || slotItem.type == data.type){
+					if(slotItem.IsAir)
+						entry.items[slot] = data.Clone();
+
+					if(slotItem.stack + data.stack > slotItem.maxStack){
+						data.stack -= slotItem.maxStack - slotItem.stack;
+						slotItem.stack = slotItem.maxStack;
+					}else if(slotItem.stack < slotItem.maxStack){
+						slotItem.stack += data.stack;
+						data.stack = 0;
+
+						sendBack = false;
+						break;
+					}else{
+						sendBack = true;
+						break;
+					}
+				}
+			}
+
+			if(sendBack)
+				incoming.itemData = ItemIO.Save(data);
+
 			return true;
 		}
 

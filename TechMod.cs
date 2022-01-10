@@ -454,7 +454,7 @@ namespace TerraScience {
 							BlastFurnaceEntity.ingredientToResult.Add(ingredientType, (ingredientStack, resultType, resultStack));
 							return true;
 						}else
-							throw new Exception($"Invalid data passed to Mod.Call(\"{method}\", int, int, int)");
+							throw new Exception($"Invalid data passed to Mod.Call(\"{method}\", int, int, int, int)");
 					case "Register Matter Energizer Recipe":
 						if(args.Length != 5)
 							throw new Exception($"Invalid arguments list for Mod.Call(\"{method}\")");
@@ -463,7 +463,7 @@ namespace TerraScience {
 							BlastFurnaceEntity.ingredientToResult.Add(ingredientType2, (ingredientStack2, resultType2, resultStack2));
 							return true;
 						}else
-							throw new Exception($"Invalid data passed to Mod.Call(\"{method}\", int, int, int)");
+							throw new Exception($"Invalid data passed to Mod.Call(\"{method}\", int, int, int, int)");
 					case "Register as Wood":
 						if(args.Length != 2)
 							throw new Exception($"Invalid arguments list for Mod.Call(\"{method}\")");
@@ -487,6 +487,16 @@ namespace TerraScience {
 				}
 			}else
 				throw new Exception("Expected a string argument for the call request");
+		}
+
+		//Debugging stuff
+		public void PrintAllItemsForNetwork(string tesseractNetwork){
+			if(TesseractNetwork.TryGetEntry(tesseractNetwork, out var entry)){
+				for(int i = 0; i < entry.items.Length; i++){
+					Item item = entry.items[i];
+					Main.NewText($"  Item #{i}: {item.Name ?? "None"} {(item.stack > 1 ? $"({item.stack})" : "")}");
+				}
+			}
 		}
 	}
 }

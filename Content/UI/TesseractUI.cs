@@ -26,19 +26,6 @@ namespace TerraScience.Content.UI{
 			height = 500;
 		}
 
-		public override void DoSavedItemsCheck(){
-			//Force the entity's items to update to the network
-			var entity = UIEntity as TesseractEntity;
-			var net = entity.BoundNetwork;
-
-			if(net != null && TesseractNetwork.TryGetEntry(net, out var entry)){
-				for(int i = 0; i < 5; i++)
-					entity.GetItemSlotRef(i) = entry.items[i];
-
-				UpdateItemSlots();
-			}
-		}
-
 		internal override void InitializeSlots(List<UIItemSlot> slots){
 			PanelSize(out int width, out int height);
 
@@ -161,7 +148,12 @@ namespace TerraScience.Content.UI{
 		internal override void UpdateText(List<UIText> text){
 			text[0].SetText(GetFluxString());
 			var net = (UIEntity as TesseractEntity).BoundNetwork;
-			text[1].SetText(net is null ? "Not Bound to a Network" : "Bound Network: " + net);
+			text[1].SetText(string.IsNullOrEmpty(net) ? "Not Bound to a Network" : "Bound Network: " + net);
+		}
+
+		public override void PreOpen(){
+			//Force DoSavedItemsCheck() to not run
+			base.CheckedForSavedItemCount = true;
 		}
 
 		public override void PostOpen(){

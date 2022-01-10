@@ -117,10 +117,10 @@ namespace TerraScience.Content.UI{
 
 		internal void ClearSlots(){
 			foreach(var slot in ItemSlots)
-				slot.StoredItem.TurnToAir();
+				slot.SetItem(new Item());
 		}
 
-		internal void LoadToSlots(Item[] slots){
+		internal void LoadFromSlots(Item[] slots){
 			//Possible if the slots hadn't been saved to yet
 			if(slots?.Length != SlotsLength)
 				return;

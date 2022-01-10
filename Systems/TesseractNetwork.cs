@@ -8,6 +8,7 @@ using Terraria.GameContent.UI.Elements;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using Terraria.UI;
+using TerraScience.API;
 using TerraScience.Content.TileEntities;
 using TerraScience.Systems.Energy;
 using TerraScience.Utilities;

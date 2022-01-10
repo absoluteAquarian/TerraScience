@@ -144,9 +144,9 @@ namespace TerraScience.Content.UI {
 				machineState.CheckedForSavedItemCount = true;
 				
 				machineState.DoSavedItemsCheck();
-
-				machineState.UIEntity.LoadSlots();
 			}
+
+			machineState.UIEntity.LoadSlots();
 
 			interfaces[name].SetState(machineState);
 

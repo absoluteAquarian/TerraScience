@@ -17,12 +17,11 @@ namespace TerraScience.API.UI{
 				//Update the entry's item to the new item
 				ref var entryItem = ref GetItemRef();
 				entryItem = item.Clone();
-				base.storedItem = entryItem;
+				base.storedItem = entryItem.Clone();
 			};
 		}
 
-		//Need to get the base item if the UI is closing, since the UI's slots are cleared when closing...
-		public override Item StoredItem => parentUI.IsClosing ? base.storedItem : GetItemRef();
+		public override Item StoredItem => GetItemRef();
 
 		public ref Item GetItemRef(){
 			if(parentUI is null)
