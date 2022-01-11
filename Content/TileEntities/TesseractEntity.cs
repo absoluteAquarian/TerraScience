@@ -4,6 +4,7 @@ using Terraria;
 using Terraria.DataStructures;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
+using TerraScience.API.UI;
 using TerraScience.Content.ID;
 using TerraScience.Content.TileEntities.Energy.Storage;
 using TerraScience.Content.Tiles.Multitiles;
@@ -225,5 +226,10 @@ namespace TerraScience.Content.TileEntities{
 
 		public override bool HijackCanBeInteractedWithItemNetworks(out bool canInteract, out bool canInput, out bool canOutput)
 			=> canInteract = canInput = canOutput = TesseractNetwork.TryGetEntry(boundNet, out _);
+
+		public override void OnItemExtracted(Item[] extractInventory, int slot, Item item){
+			//Sets "UIItemSlot.storedItem", which affects what item is drawn
+			ParentState?.GetSlot(slot).SetItem(item);
+		}
 	}
 }

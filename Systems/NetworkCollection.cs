@@ -370,15 +370,16 @@ forceNextCheck: ;
 
 					Point16 target = list[list.Count - 1];
 
-					MachineEntity machine = null;
+					MachineEntity targetMachine = null;
 					Chest targetChest = null;
-					if((machine = ItemNetworkPath.FindConnectedMachine(network, target, item)) is null && (targetChest = ItemNetworkPath.FindConnectedChest(network, target, item, out _)) is null)
+					if((targetMachine = ItemNetworkPath.FindConnectedMachine(network, target, item)) is null && (targetChest = ItemNetworkPath.FindConnectedChest(network, target, item, out _)) is null)
 						continue;
 
 					//"item.stack" is modified here, hence the need to clone it earlier
-					var usepaths = network.paths.Where(p => p.wander || p.finalTarget == target || (p?.Path?.Count > 0 && p.Path.Last() == target));
-					bool successful = machine != null
-						? ItemNetworkPath.SimulateMachineInput(machine, item, usepaths)
+					//All item networks need to be checked due to multiple nets possibly being connected to one chest/machine
+					var usepaths = itemNetworks.SelectMany(net => net.paths).Where(p => ItemPathHasSameTarget(target, targetMachine, targetChest, p));
+					bool successful = targetMachine != null
+						? ItemNetworkPath.SimulateMachineInput(targetMachine, item, usepaths)
 						: ItemNetworkPath.SimulateChestInput(targetChest, item, usepaths);
 
 					//If it was successful, do the things
@@ -392,6 +393,8 @@ forceNextCheck: ;
 								return false;
 
 							newPath = ItemNetworkPath.CreateObject(extracted, network, pumpTile, pathOverride: list);
+
+							inputMachine.OnItemExtracted(extractInventory, i, extracted.Clone());
 						}else{
 							original.stack -= stackToExtract;
 
@@ -399,6 +402,8 @@ forceNextCheck: ;
 								original.TurnToAir();
 
 							newPath = ItemNetworkPath.CreateObject(item, network, pumpTile, pathOverride: list);
+
+							inputMachine?.OnItemExtracted(extractInventory, i, item.Clone());
 						}
 
 						if(newPath?.Path != null){
@@ -409,6 +414,33 @@ forceNextCheck: ;
 						return true;
 					}
 				}
+			}
+
+			return false;
+		}
+
+		private static bool ItemPathHasSameTarget(Point16 target, MachineEntity targetMachine, Chest targetChest, ItemNetworkPath path){
+			int targetChestID = -2;
+			bool hasChest = targetChest != null && path.itemNetwork.chests.Contains(targetChestID = Chest.FindChest(targetChest.x, targetChest.y));
+			bool hasMachine = targetMachine != null && path.itemNetwork.ConnectedMachines.Contains(targetMachine);
+
+			if(path.wander && (hasChest || hasMachine))
+				return true;
+
+			if(path.finalTarget == target)
+				return true;
+
+			if(path?.Path?.Count > 0){
+				var pathTarget = path.Path.Last();
+
+				if(pathTarget == target)
+					return true;
+
+				if(hasChest && ChestUtils.FindChestByGuessingImproved(pathTarget.X, pathTarget.Y) == targetChestID)
+					return true;
+
+				if(hasMachine && TileEntityUtils.TryFindMachineEntity(pathTarget, out var machine) && machine == targetMachine)
+					return true;
 			}
 
 			return false;

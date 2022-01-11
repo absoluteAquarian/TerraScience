@@ -417,6 +417,14 @@ namespace TerraScience.Content.TileEntities {
 			return false;
 		}
 
+		/// <summary>
+		/// Allows for logic to occur whenever an item is extracted from the machine
+		/// </summary>
+		/// <param name="extractInventory">The item inventory.  This array is either the result of getting the slots via <seealso cref="GetOutputSlots"/> or <seealso cref="HijackGetItemInventory(out Item[])"/></param>
+		/// <param name="slot">The slot in <paramref name="extractInventory"/> that was extracted from</param>
+		/// <param name="item">The item extracted from the slot</param>
+		public virtual void OnItemExtracted(Item[] extractInventory, int slot, Item item){ }
+
 		public override bool Equals(object obj)
 			=> obj is MachineEntity entity && Position == entity.Position;
 

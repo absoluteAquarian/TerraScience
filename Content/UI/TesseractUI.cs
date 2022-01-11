@@ -160,7 +160,7 @@ namespace TerraScience.Content.UI{
 			var entity = UIEntity as TesseractEntity;
 			entity.OnNetworkChange += UpdateItemSlots;
 
-			bool release = TechMod.Release;
+			bool release = TechMod.Release || true;
 			if(!release && TesseractNetwork.TryGetEntry(entity.BoundNetwork, out var entry)){
 				Main.NewText($"(UI Opening) Reading Items for Network \"{entry.name}\"...");
 				for(int i = 0; i < entry.items.Length; i++){
@@ -174,7 +174,7 @@ namespace TerraScience.Content.UI{
 			var entity = UIEntity as TesseractEntity;
 			entity.OnNetworkChange -= UpdateItemSlots;
 
-			bool release = TechMod.Release;
+			bool release = TechMod.Release || true;
 			if(!release && TesseractNetwork.TryGetEntry(entity.BoundNetwork, out var entry)){
 				Main.NewText($"(UI Closing) Reading Items for Network \"{entry.name}\"...");
 				for(int i = 0; i < entry.items.Length; i++){

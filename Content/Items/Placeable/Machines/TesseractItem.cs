@@ -16,7 +16,7 @@ namespace TerraScience.Content.Items.Placeable.Machines{
 		internal override ScienceWorkbenchItemRegistry GetRegistry()
 			=> new ScienceWorkbenchItemRegistry(
 				tick => new RegistryAnimation(MachineTile.GetExampleTexturePath("tile")),
-				null,
+				tick => new RegistryAnimation(MachineTile.GetExampleTexturePath("active")),
 				"Connects two locations for transportation purposes",
 				null,
 				null);
