@@ -231,6 +231,9 @@ forceNextCheck: ;
 			HashSet<Point16> hash = new HashSet<Point16>();
 
 			void ModifyJunctionHash<TNet, TEntry>(List<TNet> nets) where TNet : class, INetwork, INetwork<TEntry>, new() where TEntry : struct, INetworkable, INetworkable<TEntry>{
+				if(nets is null)
+					return;  //Failsafe
+
 				foreach(var network in nets){
 					var entries = network.GetEntries();
 					if(entries.Count == 0)
@@ -394,7 +397,7 @@ forceNextCheck: ;
 
 							newPath = ItemNetworkPath.CreateObject(extracted, network, pumpTile, pathOverride: list);
 
-							inputMachine.OnItemExtracted(extractInventory, i, extracted.Clone());
+							inputMachine.OnItemExtracted(extractInventory, i, extractInventory[i].Clone());
 						}else{
 							original.stack -= stackToExtract;
 
@@ -403,7 +406,7 @@ forceNextCheck: ;
 
 							newPath = ItemNetworkPath.CreateObject(item, network, pumpTile, pathOverride: list);
 
-							inputMachine?.OnItemExtracted(extractInventory, i, item.Clone());
+							inputMachine?.OnItemExtracted(extractInventory, i, extractInventory[i].Clone());
 						}
 
 						if(newPath?.Path != null){
