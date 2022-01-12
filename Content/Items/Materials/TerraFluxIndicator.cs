@@ -8,7 +8,7 @@ namespace TerraScience.Content.Items.Materials{
 	public class TerraFluxIndicator : BrazilOnTouchItem{
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Terra Flux (TF)");
-			Tooltip.SetDefault("The energy unit that all Terraria Tech machines run on");
+			Tooltip.SetDefault("The energy unit that all powered Terran Automation machines run on");
 		}
 
 		public override void SetDefaults(){

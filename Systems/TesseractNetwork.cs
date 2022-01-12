@@ -218,11 +218,15 @@ namespace TerraScience.Systems{
 				return;
 			}
 
+			page--;
+
 			while(page * text.Length >= networks.Count + 1)
 				page--;
 
-			if(page < 1)
-				page = 1;
+			if(page < 0)
+				page = 0;
+
+			page++;
 
 			pageTotal = networks.Count / text.Length + 1;
 

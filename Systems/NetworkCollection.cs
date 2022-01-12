@@ -365,56 +365,40 @@ forceNextCheck: ;
 				//Prevent extracting more items than exist in a stack
 				item.stack = Math.Min(stack, item.maxStack);
 
-				for(int m = 0; m < pathfinding.Count; m++){
-					var list = pathfinding[m].list;
+				//Check cached targets
+				//This should hopefully speed up pumping the same item to the same machine/chest repeatedly
+				var pathsToCheck = new HashSet<ItemPathResult>(pathfinding);
+				if(network.cachedValidItemPaths.TryGetValue(item.type, out var targetSet)){
+					bool wasValid = false;
+					foreach(var cached in targetSet){
+						//Only one path from this pump should have the cached target
+						var result = pathsToCheck.FirstOrDefault(p => p.list[p.list.Count - 1] == cached);
+						if(result.list is null)
+							continue;
+
+						wasValid = CheckPathfinding(network, item, result.list, cached, inputMachine, i, extractInventory, ref original, pumpTile, pump);
+
+						if(!wasValid)
+							pathsToCheck.Remove(result);  //Don't check the same path twice
+					}
+
+					if(wasValid)
+						continue;
+				}
+
+				foreach(var path in pathsToCheck){
+					var list = path.list;
 
 					if(list.Count <= 0)
 						continue;
 
 					Point16 target = list[list.Count - 1];
 
-					MachineEntity targetMachine = null;
-					Chest targetChest = null;
-					if((targetMachine = ItemNetworkPath.FindConnectedMachine(network, target, item)) is null && (targetChest = ItemNetworkPath.FindConnectedChest(network, target, item, out _)) is null)
-						continue;
+					if(CheckPathfinding(network, item, list, target, inputMachine, i, extractInventory, ref original, pumpTile, pump)){
+						if(!network.cachedValidItemPaths.TryGetValue(item.type, out targetSet))
+							network.cachedValidItemPaths[item.type] = targetSet = new HashSet<Point16>();
 
-					//"item.stack" is modified here, hence the need to clone it earlier
-					//All item networks need to be checked due to multiple nets possibly being connected to one chest/machine
-					var usepaths = itemNetworks.SelectMany(net => net.paths).Where(p => ItemPathHasSameTarget(target, targetMachine, targetChest, p));
-					bool successful = targetMachine != null
-						? ItemNetworkPath.SimulateMachineInput(targetMachine, item, usepaths)
-						: ItemNetworkPath.SimulateChestInput(targetChest, item, usepaths);
-
-					//If it was successful, do the things
-					// TODO: move the item extraction code to MachineEntity
-					if(successful){
-						int stackToExtract = item.stack;
-						ItemNetworkPath newPath;
-						if(inputMachine != null && inputMachine.HijackExtractItem(extractInventory, i, stackToExtract, out Item extracted)){
-							//Hijacked, but couldn't extract anything
-							if(extracted is null)
-								return false;
-
-							newPath = ItemNetworkPath.CreateObject(extracted, network, pumpTile, pathOverride: list);
-
-							inputMachine.OnItemExtracted(extractInventory, i, extractInventory[i].Clone());
-						}else{
-							original.stack -= stackToExtract;
-
-							if(original.stack <= 0)
-								original.TurnToAir();
-
-							newPath = ItemNetworkPath.CreateObject(item, network, pumpTile, pathOverride: list);
-
-							inputMachine?.OnItemExtracted(extractInventory, i, extractInventory[i].Clone());
-						}
-
-						if(newPath?.Path != null){
-							newPath.moveDir = -(pump.GetBackwardsOffset(pumpTile) - pumpTile).ToVector2();
-							network.paths.Add(newPath);
-						}
-
-						return true;
+						targetSet.Add(target);
 					}
 				}
 			}
@@ -422,10 +406,62 @@ forceNextCheck: ;
 			return false;
 		}
 
-		private static bool ItemPathHasSameTarget(Point16 target, MachineEntity targetMachine, Chest targetChest, ItemNetworkPath path){
-			int targetChestID = -2;
-			bool hasChest = targetChest != null && path.itemNetwork.chests.Contains(targetChestID = Chest.FindChest(targetChest.x, targetChest.y));
-			bool hasMachine = targetMachine != null && path.itemNetwork.ConnectedMachines.Contains(targetMachine);
+		private static bool CheckPathfinding(ItemNetwork network, Item item, List<Point16> list, Point16 target, MachineEntity inputMachine, int i, Item[] extractInventory, ref Item original, Point16 pumpTile, ItemPumpTile pump){
+			MachineEntity targetMachine = null;
+			Chest targetChest = null;
+			if((targetMachine = ItemNetworkPath.FindConnectedMachine(network, target, item)) is null && (targetChest = ItemNetworkPath.FindConnectedChest(network, target, item, out _)) is null)
+				return false;
+			
+			//All "connected" item networks need to be checked due to multiple nets possibly being connected to one chest/machine
+			int targetChestID = targetChest is null ? -1 : Chest.FindChest(targetChest.x, targetChest.y);
+
+			IEnumerable<ItemNetwork> sharedNetworks = itemNetworks.Where(net => (targetMachine != null && net.ConnectedMachines.Contains(targetMachine)) || (targetChestID >= 0 && net.chests.Contains(targetChestID)));
+
+			var usepaths = sharedNetworks.SelectMany(net => net.paths).Where(p => ItemPathHasSameTarget(target, targetMachine, targetChestID, p));
+			
+			//"item.stack" is modified here, hence the need to clone it earlier
+			bool successful = targetMachine != null
+				? ItemNetworkPath.SimulateMachineInput(targetMachine, item, usepaths)
+				: ItemNetworkPath.SimulateChestInput(targetChest, item, usepaths);
+
+			//If it was successful, do the things
+			// TODO: move the item extraction code to MachineEntity
+			if(successful){
+				int stackToExtract = item.stack;
+				ItemNetworkPath newPath;
+				if(inputMachine != null && inputMachine.HijackExtractItem(extractInventory, i, stackToExtract, out Item extracted)){
+					//Hijacked, but couldn't extract anything
+					if(extracted is null)
+						return false;
+
+					newPath = ItemNetworkPath.CreateObject(extracted, network, pumpTile, pathOverride: list);
+
+					inputMachine.OnItemExtracted(extractInventory, i, extractInventory[i].Clone());
+				}else{
+					original.stack -= stackToExtract;
+
+					if(original.stack <= 0)
+						original.TurnToAir();
+
+					newPath = ItemNetworkPath.CreateObject(item, network, pumpTile, pathOverride: list);
+
+					inputMachine?.OnItemExtracted(extractInventory, i, extractInventory[i].Clone());
+				}
+
+				if(newPath?.Path != null){
+					newPath.moveDir = -(pump.GetBackwardsOffset(pumpTile) - pumpTile).ToVector2();
+					network.paths.Add(newPath);
+				}
+
+				return true;
+			}
+
+			return false;
+		}
+
+		private static bool ItemPathHasSameTarget(Point16 target, MachineEntity targetMachine, int targetChestID, ItemNetworkPath path){
+			bool hasChest = targetChestID >= 0;
+			bool hasMachine = targetMachine != null;
 
 			if(path.wander && (hasChest || hasMachine))
 				return true;

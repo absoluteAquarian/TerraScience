@@ -28,6 +28,9 @@ namespace TerraScience.Content.TileEntities{
 		/// </summary>
 		public virtual int MaxStacks => 10;
 
+		//When changing mods, the "max stack" for an item can change...  Keep track of the last max that was the largest
+		private int lastKnownMaxStack;
+
 		public int GetTotalItems(){
 			int ret = 0;
 
@@ -40,14 +43,19 @@ namespace TerraScience.Content.TileEntities{
 		public int GetPerStackMax(){
 			Item top = this.RetrieveItem(-1);
 
+			int max;
 			if(lockItemType > 0){
 				Item item = new Item();
 				item.netDefaults(lockItemType);
 
-				return item.maxStack;
-			}
+				max = item.maxStack;
+			}else
+				max = top.IsAir ? 0 : top.maxStack;
 
-			return top.IsAir ? 0 : top.maxStack;
+			if(max < lastKnownMaxStack)
+				max = lastKnownMaxStack;
+
+			return max;
 		}
 
 		public override TagCompound ExtraSave(){
@@ -56,6 +64,7 @@ namespace TerraScience.Content.TileEntities{
 			tag.Add("lockItem", SaveType(lockItemType));
 			tag.Add("items", items.Count == 0 ? null : items.Select(i => ItemIO.Save(i)).ToList());
 			tag.Add("idx", ItemIndex);
+			tag.Add("max", lastKnownMaxStack);
 			return tag;
 		}
 
@@ -84,6 +93,8 @@ namespace TerraScience.Content.TileEntities{
 				: new List<Item>(){ new Item() };
 
 			ItemIndex = tag.GetInt("idx");
+
+			lastKnownMaxStack = tag.GetInt("max");
 		}
 
 		private int LoadType(TagCompound tag){
@@ -114,6 +125,8 @@ namespace TerraScience.Content.TileEntities{
 
 			for(int i = 0; i < count; i++)
 				ItemIO.Receive(items[i], reader, readStack: true);
+
+			lastKnownMaxStack = reader.ReadInt32();
 		}
 
 		public override void ExtraNetSend(BinaryWriter writer){
@@ -126,6 +139,8 @@ namespace TerraScience.Content.TileEntities{
 			writer.Write((ushort)items.Count);
 			for(int i = 0; i < items.Count; i++)
 				ItemIO.Send(items[i], writer, writeStack: true);
+
+			writer.Write(lastKnownMaxStack);
 		}
 
 		//These two methods have their use overwritten by the Hijack hooks
@@ -162,7 +177,7 @@ namespace TerraScience.Content.TileEntities{
 
 			canInput = (ItemIndex == 0 && existing.IsAir)
 				|| (ItemIndex < MaxStacks - 1 && item.type == existing.type)
-				|| (ItemIndex == MaxStacks - 1 && existing.stack < existing.maxStack && item.type == existing.type);
+				|| (ItemIndex == MaxStacks - 1 && item.type == existing.type && existing.stack + item.stack <= GetPerStackMax());
 
 			return true;
 		}
@@ -185,18 +200,21 @@ namespace TerraScience.Content.TileEntities{
 			//If the cache is on the last slot, fill up the item as much as possible and send back the rest, if applicable
 			//If it isn't, then fill up the current item and move to the next one if need be
 			Item existing = this.RetrieveItem(-1);
+			int max = GetPerStackMax();
 
 			//In case the existing item is empty, make sure it has the correct type and max stack
 			if(existing.IsAir){
 				existing.netDefaults(data.type);
 				existing.stack = 0;
+
+				lastKnownMaxStack = existing.maxStack;
 			}
 
 			if(ItemIndex == MaxStacks - 1){
-				if(data.stack + existing.stack > existing.maxStack){
+				if(data.stack + existing.stack > max){
 					//Remove as much as possible from the incoming item and send the rest back
 					data.stack -= existing.maxStack - existing.stack;
-					existing.stack = existing.maxStack;
+					existing.stack = max;
 
 					incoming.itemData = ItemIO.Save(data);
 					
@@ -208,17 +226,17 @@ namespace TerraScience.Content.TileEntities{
 				}else
 					sendBack = true;
 			}else{
-				if(data.stack + existing.stack > existing.maxStack){
+				if(data.stack + existing.stack > max){
 					do{
-						if(data.stack + existing.stack > existing.maxStack){
+						if(data.stack + existing.stack > max){
 							data.stack -= existing.maxStack - existing.stack;
-							existing.stack = existing.maxStack;
+							existing.stack = max;
 
 							ItemIndex++;
 
 							//Add a new item
 							items.Add(new Item());
-						}else if(existing.stack < existing.maxStack){
+						}else if(existing.stack < max){
 							existing.stack += data.stack;
 							data.stack = 0;
 						}else{
@@ -235,21 +253,21 @@ namespace TerraScience.Content.TileEntities{
 						//Loop until we either run out of incoming items or we've reached the last item in the cache
 					}while(data.stack > 0 && ItemIndex < MaxStacks - 1);
 
-					if(data.stack + existing.stack > existing.maxStack){
+					if(data.stack + existing.stack > max){
 						//Remove as much as possible from the incoming item and send the rest back
-						data.stack -= existing.maxStack - existing.stack;
-						existing.stack = existing.maxStack;
+						data.stack -= max - existing.stack;
+						existing.stack = max;
 
 						incoming.itemData = ItemIO.Save(data);
 					
 						sendBack = true;
-					}else if(existing.stack < existing.maxStack){
+					}else if(existing.stack < max){
 						//Remove the entire stack since there's room
 						existing.stack += data.stack;
 						data.stack = 0;
 					}else
 						sendBack = true;
-				}else if(existing.stack < existing.maxStack){
+				}else if(existing.stack < max){
 					//Remove the entire stack since there's room
 					existing.stack += data.stack;
 					data.stack = 0;
@@ -294,8 +312,12 @@ namespace TerraScience.Content.TileEntities{
 						ItemIndex--;
 
 						current = this.RetrieveItem(-1);
-					}else
-						current.type = locked ? lockItemType : ItemID.None;
+					}else{
+						if(!locked)
+							current.type = ItemID.None;
+						else
+							lastKnownMaxStack = current.maxStack;
+					}
 				}while(current.stack > 0 && toExtract > 0);
 			}else{
 				//Extraction could happen from just one item
@@ -308,8 +330,12 @@ namespace TerraScience.Content.TileEntities{
 						items.RemoveAt(ItemIndex);
 
 						ItemIndex--;
-					}else
-						current.type = locked ? lockItemType : ItemID.None;
+					}else{
+						if(!locked)
+							current.type = ItemID.None;
+						else
+							lastKnownMaxStack = current.maxStack;
+					}
 				}
 			}
 

@@ -175,7 +175,7 @@ namespace TerraScience.Content.UI{
 				UITesseractKnownPanel networkPanel = visibleKnownNetworkPanels[i] = new UITesseractKnownPanel(i);
 				networkPanel.SetPadding(4);
 				networkPanel.Width.Set(0, 1f);
-				networkPanel.Height.Set(textHeight + 8, 0);
+				networkPanel.Height.Set(textHeight, 0);
 				networkPanel.Left.Set(0, 0);
 				networkPanel.Top.Set(top, 0);
 				networkPanel.OnClick += (evt, e) => {
@@ -238,7 +238,7 @@ namespace TerraScience.Content.UI{
 				config.SetVisibility(whenActive: 1f, whenInactive: 0.65f);
 				networkPanel.Append(config);
 
-				top += textHeight;
+				top += textHeight + 30 - 16;
 			}
 
 			//Set the other buttons
@@ -540,8 +540,8 @@ namespace TerraScience.Content.UI{
 						knownPanel.Append(visibleKnownNetworkPanels[i]);
 			};
 
-			//It would be weird for sounds to play when the page didn't change
-			if(currentPage != oldPage){
+			//It would be weird for sounds to play when the page limits have been reached
+			if(currentPage == oldPage){
 				Main.PlaySound(SoundID.MenuTick);
 				oldWantedBoundNetwork = null;
 				wantedBoundNetwork = null;

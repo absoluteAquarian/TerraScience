@@ -6,8 +6,6 @@ using TerraScience.Utilities;
 
 namespace TerraScience.Content.Items.Placeable.Machines.Energy.Storage{
 	public class BasicBatteryItem : MachineItem<BasicBattery>{
-		public override string Texture => "TerraScience/Content/Items/Placeable/Machines/TemporaryMachineSprite";
-
 		public override string ItemName => "Basic Battery";
 		public override string ItemTooltip => "Stores Terra Flux (TF)";
 

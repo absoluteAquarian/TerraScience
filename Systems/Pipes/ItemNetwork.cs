@@ -34,6 +34,9 @@ namespace TerraScience.Systems.Pipes{
 
 		private HashSet<Point16> pumpsToRefresh;
 
+		//The cache of the list of valid path targets, indexed by item type
+		internal Dictionary<int, HashSet<Point16>> cachedValidItemPaths;
+
 		internal override JunctionType Type => JunctionType.Items;
 
 		public ItemNetwork() : base(false){
@@ -53,6 +56,7 @@ namespace TerraScience.Systems.Pipes{
 			pumpPathsToMachines = new Dictionary<Point16, List<ItemPathResult>>();
 			pumpPathsToChests = new Dictionary<Point16, List<ItemPathResult>>();
 			pumpsToRefresh = new HashSet<Point16>();
+			cachedValidItemPaths = new Dictionary<int, HashSet<Point16>>();
 
 			OnInitialPlace += pos => {
 				Tile tile = Framing.GetTileSafely(pos);
@@ -72,6 +76,7 @@ namespace TerraScience.Systems.Pipes{
 				pipesConnectedToMachines.Clear();
 				pumpPathsToMachines.Clear();
 				pumpPathsToChests.Clear();
+				cachedValidItemPaths.Clear();
 			};
 
 			OnEntryPlace += pos => {
@@ -196,6 +201,8 @@ namespace TerraScience.Systems.Pipes{
 						i--;
 					}
 				}
+
+				cachedValidItemPaths.Clear();
 			};
 
 			PostRefreshConnections += () => {
@@ -206,6 +213,7 @@ namespace TerraScience.Systems.Pipes{
 					RefreshPaths(pump);
 
 				pumpsToRefresh.Clear();
+				cachedValidItemPaths.Clear();
 			};
 		}
 

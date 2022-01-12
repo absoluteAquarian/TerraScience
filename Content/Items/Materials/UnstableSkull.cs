@@ -22,13 +22,13 @@ namespace TerraScience.Content.Items.Materials{
 	}
 
 	internal class UnstableSkullAnimation : DrawAnimationVertical{
-		public UnstableSkullAnimation() : base(5, 6){ }
+		public UnstableSkullAnimation() : base(8, 6){ }
 
 		public override void Update(){
 			FrameCounter++;
 
-			//Randomly play one of the animation sets in the spritesheet after 4 seconds
-			if(Frame == -1 && FrameCounter >= 4 * 60 && Main.rand.NextBool(20)){
+			//Randomly play one of the animation sets in the spritesheet after 1 second
+			if(Frame == -1 && FrameCounter >= 60 && Main.rand.NextBool(12)){
 				FrameCounter = 0;
 				Frame = Main.rand.NextBool() ? 0 : 3;
 			}else if(Frame >= 0 && FrameCounter >= 60 / TicksPerFrame){

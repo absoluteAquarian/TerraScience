@@ -6,8 +6,6 @@ using TerraScience.Utilities;
 
 namespace TerraScience.Content.Items.Placeable.Machines{
 	public class TesseractItem : MachineItem<Tesseract>{
-		public override string Texture => "TerraScience/Content/Items/Placeable/Machines/TemporaryMachineSprite";
-
 		public override string ItemName => "Tesseract";
 
 		public override string ItemTooltip => "Uses quantum instability to connect two places" +

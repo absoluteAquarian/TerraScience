@@ -11,7 +11,7 @@ namespace TerraScience.Content.Items{
 	public class FakeCapsuleFluidItem : BrazilOnTouchItem{
 		internal static Dictionary<int, MachineFluidID> containerTypes;
 
-		public MachineFluidID? Fluid => containerTypes.TryGetValue(item.type, out var type) ? (MachineFluidID?)type : null;
+		public MachineFluidID Fluid => containerTypes.TryGetValue(item.type, out var type) ? type : MachineFluidID.None;
 
 		public override bool Autoload(ref string name) => false;
 
@@ -22,7 +22,7 @@ namespace TerraScience.Content.Items{
 		public FakeCapsuleFluidItem(){ }
 
 		public override void SetStaticDefaults(){
-			DisplayName.SetDefault(Fluid?.ProperEnumName() ?? throw new Exception("Item instance was not set to a valid liquid or gas ID"));
+			DisplayName.SetDefault(Fluid.ProperEnumName());
 		}
 
 		public override void SetDefaults(){
@@ -43,8 +43,8 @@ namespace TerraScience.Content.Items{
 		}
 
 		private void Draw(SpriteBatch spriteBatch, Vector2 position, Color lightColor, Vector2 origin, float rotation, float scale){
-			Color color = Fluid is MachineFluidID fluidID
-					? Capsule.GetBackColor(fluidID)
+			Color color = Fluid != MachineFluidID.None
+					? Capsule.GetBackColor(Fluid)
 					: throw new Exception();
 
 			color = MiscUtils.MixLightColors(lightColor, color);

@@ -146,12 +146,16 @@ namespace TerraScience {
 				AddItem("Capsule_" + fluidIDs[i].EnumName(), new Capsule());
 				int id = ItemLoader.ItemCount - 1;
 				Capsule.fluidContainerTypes.Add(id, fluidIDs[i]);
+
+				Logger.Debug($"Capsule type registered.  ID: {id}, Fluid Type: {(ModContent.GetModItem(id) as Capsule).FluidType}");
 			}
 
 			for(int i = 1; i < fluidIDs.Length; i++){
 				AddItem("Fake" + fluidIDs[i].EnumName() + "FluidIngredient", new FakeCapsuleFluidItem());
 				int id = ItemLoader.ItemCount - 1;
 				FakeCapsuleFluidItem.containerTypes.Add(id, fluidIDs[i]);
+
+				Logger.Debug($"Fake fluid ingredient type registered.  ID: {id}, Fluid Type: {(ModContent.GetModItem(id) as FakeCapsuleFluidItem).Fluid}");
 			}
 
 			//Register the dataless machines

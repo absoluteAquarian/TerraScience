@@ -199,17 +199,22 @@ namespace TerraScience.Content.TileEntities{
 				Item slotItem = entry.items[slot];
 
 				if(slotItem.IsAir || slotItem.type == data.type){
-					if(slotItem.IsAir)
+					if(slotItem.IsAir){
 						entry.items[slot] = data.Clone();
+						ParentState?.GetSlot(slot).SetItem(slotItem);
+					}
 
 					if(slotItem.stack + data.stack > slotItem.maxStack){
 						data.stack -= slotItem.maxStack - slotItem.stack;
 						slotItem.stack = slotItem.maxStack;
+
+						ParentState?.GetSlot(slot).SetItem(slotItem);
 					}else if(slotItem.stack < slotItem.maxStack){
 						slotItem.stack += data.stack;
 						data.stack = 0;
 
 						sendBack = false;
+						ParentState?.GetSlot(slot).SetItem(slotItem);
 						break;
 					}else{
 						sendBack = true;
@@ -229,7 +234,7 @@ namespace TerraScience.Content.TileEntities{
 
 		public override void OnItemExtracted(Item[] extractInventory, int slot, Item item){
 			//Sets "UIItemSlot.storedItem", which affects what item is drawn
-			ParentState?.GetSlot(slot).SetItem(item);
+			ParentState?.GetSlot(slot).SetItem(extractInventory[slot].Clone());
 		}
 	}
 }
