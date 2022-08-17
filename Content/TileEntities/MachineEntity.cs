@@ -51,7 +51,7 @@ namespace TerraScience.Content.TileEntities {
 
 		public abstract int SlotsCount{ get; }
 
-		public sealed override bool ValidTile(int i, int j){
+		public sealed override bool IsTileValidForEntity(int i, int j){
 			Tile tile = Framing.GetTileSafely(i, j);
 			return tile.active() && tile.type == MachineTile && tile.frameX == 0 && tile.frameY == 0;
 		}
@@ -241,7 +241,7 @@ namespace TerraScience.Content.TileEntities {
 			Main.PlaySound(type, (int)position.X, (int)position.Y, style, volumeScale: nearbyMuffler ? 0.1f : 1f);
 		}
 
-		internal void PlaySound(Terraria.Audio.LegacySoundStyle type, Vector2 position){
+		internal void PlaySound(SoundStyle type, Vector2 position){
 			bool nearbyMuffler = WorldGen.InWorld((int)position.X >> 4, (int)position.Y >> 4) && MachineMufflerTile.AnyMufflersNearby(position);
 
 			Main.PlaySound(type.SoundId, (int)position.X, (int)position.Y, type.Style, volumeScale: nearbyMuffler ? 0.1f : 1f);

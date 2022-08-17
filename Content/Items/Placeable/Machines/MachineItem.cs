@@ -14,7 +14,7 @@ namespace TerraScience.Content.Items.Placeable.Machines{
 	public abstract class MachineItem : ModItem{
 		public TagCompound entityData;
 
-		public override bool CloneNewInstances => true;
+        protected override bool CloneNewInstances => true;
 
 		public abstract int TileType{ get; }
 
@@ -54,10 +54,10 @@ namespace TerraScience.Content.Items.Placeable.Machines{
 			ItemRegistry = GetRegistry();
 		}
 
-		public sealed override TagCompound Save()
-			=> entityData;
+		public sealed override void SaveData(TagCompound tag)
+			=> tag = entityData;
 
-		public sealed override void Load(TagCompound tag){
+		public sealed override void LoadData(TagCompound tag){
 			entityData = tag;
 		}
 
@@ -85,19 +85,19 @@ namespace TerraScience.Content.Items.Placeable.Machines{
 
 		public sealed override void SetDefaults(){
 			SafeSetDefaults();
-			item.melee = false;
-			item.magic = false;
-			item.ranged = false;
-			item.summon = false;
-			item.thrown = false;
-			item.useTime = 10;
-			item.useAnimation = 15;
-			item.useStyle = ItemUseStyleID.SwingThrow;
-			item.createTile = TileType;
-			item.maxStack = 1;
-			item.consumable = true;
-			item.autoReuse = true;
-			item.useTurn = true;
+			/*Item.melee = false;
+			Item.magic = false;
+			Item.ranged = false;
+			Item.summon = false;
+			Item.thrown = false;*/
+			Item.useTime = 10;
+			Item.useAnimation = 15;
+			Item.useStyle = ItemUseStyleID.Swing;
+			Item.createTile = TileType;
+			Item.maxStack = 1;
+			Item.consumable = true;
+			Item.autoReuse = true;
+			Item.useTurn = true;
 		}
 	}
 
@@ -112,8 +112,9 @@ namespace TerraScience.Content.Items.Placeable.Machines{
 		}
 	}
 
-	public sealed class DatalessMachineItem<T> : MachineItem where T : MachineItem{
-		//Need a parametered ctor here to prevent tModLoader from trying to autoload this item, even with Autoload returning false
+    [Autoload(false)]
+    public sealed class DatalessMachineItem<T> : MachineItem where T : MachineItem{
+		//Need a parametered ctor here to prevent tModLoader from trying to autoload this Item, even with Autoload returning false
 #pragma warning disable IDE0060
 		public DatalessMachineItem(bool b = false){ }
 #pragma warning restore IDE0060
@@ -128,11 +129,10 @@ namespace TerraScience.Content.Items.Placeable.Machines{
 		// TODO: work on science workbench ui
 		internal override ScienceWorkbenchItemRegistry GetRegistry() => ModContent.GetInstance<T>().GetRegistry();
 
-		public sealed override bool Autoload(ref string name) => false;
 
 		public sealed override void SetDefaults(){
-			item.CloneDefaults(ModContent.ItemType<T>());
-			item.maxStack = 99;
+			Item.CloneDefaults(ModContent.ItemType<T>());
+			Item.maxStack = 99;
 		}
 
 		public override void AddRecipes(){

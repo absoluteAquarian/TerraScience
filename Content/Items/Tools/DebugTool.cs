@@ -16,7 +16,7 @@ namespace TerraScience.Content.Items.Tools{
 	public class DebugTool : ModItem{
 		public override string Texture => "Terraria/Item_" + ItemID.IronPickaxe;
 
-		public override bool CloneNewInstances => true;
+		protected override bool CloneNewInstances => true;
 
 		public override void SetStaticDefaults(){
 			Tooltip.SetDefault("Displays debug information for Terraria Tech Mod" +

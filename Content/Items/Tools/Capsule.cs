@@ -6,21 +6,28 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using TerraScience.Content.ID;
+using TerraScience.Content.Items.Materials;
 using TerraScience.Utilities;
 
 namespace TerraScience.Content.Items.Tools{
-	public class Capsule : ModItem{
+    [Autoload(false)]
+
+    public class Capsule : ModItem{
 		internal static Dictionary<int, MachineFluidID> fluidContainerTypes;
 
-		public MachineFluidID FluidType => fluidContainerTypes.TryGetValue(item.type, out var gas) ? gas : MachineFluidID.None;
-
-		public override bool Autoload(ref string name) => false;
+		public MachineFluidID FluidType => fluidContainerTypes.TryGetValue(Item.type, out var gas) ? gas : MachineFluidID.None;
 
 		public override string Texture => "TerraScience/Content/Items/Tools/Capsule";
 
-		public override bool CloneNewInstances => true;
+        protected override bool CloneNewInstances => true;
 
-		public Capsule(){ }
+        public override string Name { get; }
+
+        public Capsule(){ }
+
+		public Capsule(string nameOverride) {
+			Name = nameOverride ?? base.Name;
+		}
 
 		public override void SetStaticDefaults(){
 			var fluid = FluidType;
@@ -32,31 +39,29 @@ namespace TerraScience.Content.Items.Tools{
 		}
 
 		public override void SetDefaults(){
-			item.width = 20;
-			item.height = 32;
-			item.scale = 0.6f;
-			item.rare = ItemRarityID.Green;
-			item.value = Item.buyPrice(silver: 3);
-			item.maxStack = 999;
+			Item.width = 20;
+			Item.height = 32;
+			Item.scale = 0.6f;
+			Item.rare = ItemRarityID.Green;
+			Item.value = Item.buyPrice(silver: 3);
+			Item.maxStack = 999;
 		}
 
 		public override void AddRecipes(){
-			if(FluidType == MachineFluidID.None){
-				ModRecipe recipe = new ModRecipe(mod);
-				recipe.AddIngredient(ItemID.TinBar, 2);
-				recipe.AddIngredient(ItemID.Glass, 1);
-				recipe.SetResult(this, 5);
-				recipe.AddRecipe();
-			}
+			CreateRecipe(5)
+				.AddIngredient(ItemID.TinBar, 2)
+				.AddIngredient(ItemID.Glass, 1)
+				.AddTile(TileID.WorkBenches)
+				.Register();
 		}
 
-		public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale){
+		public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color ItemColor, Vector2 origin, float scale){
 			DrawBack(spriteBatch, position, drawColor, origin, 0f, scale);
 			return true;
 		}
 
 		public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI){
-			DrawBack(spriteBatch, item.Center - Main.screenPosition, lightColor, item.Size / 2f, rotation, scale);
+			DrawBack(spriteBatch, Item.Center - Main.screenPosition, lightColor, Item.Size / 2f, rotation, scale);
 			return true;
 		}
 
@@ -66,11 +71,11 @@ namespace TerraScience.Content.Items.Tools{
 			if(fluid == MachineFluidID.None)
 				return;
 
-			var texture = ModContent.GetTexture("TerraScience/Content/Items/Tools/capsule back");
+			var texture = ModContent.Request<Texture2D>("TerraScience/Content/Items/Tools/capsule back");
 
 			Color gasColor = GetBackColor(fluid);
 
-			spriteBatch.Draw(texture, position, null, MiscUtils.MixLightColors(color, gasColor), rotation, origin, scale, SpriteEffects.None, 0);
+			spriteBatch.Draw(((Texture2D)texture), position, null, MiscUtils.MixLightColors(color, gasColor), rotation, origin, scale, SpriteEffects.None, 0);
 		}
 
 		public static Color GetBackColor(MachineFluidID id){

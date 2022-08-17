@@ -10,6 +10,7 @@ using TerraScience.API.UI;
 using TerraScience.Content.TileEntities;
 using TerraScience.Content.Tiles.Multitiles;
 using TerraScience.Utilities;
+using UIItemSlot = TerraScience.API.UI.UIItemSlot;
 
 namespace TerraScience.Content.UI{
 	public abstract class MachineUI : UIState{

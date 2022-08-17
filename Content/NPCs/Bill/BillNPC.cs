@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
+using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
@@ -9,43 +10,35 @@ using TerraScience.Content.Items.Tools;
 using TerraScience.Utilities;
 
 namespace TerraScience.Content.NPCs.Bill{
-	[AutoloadHead]
 	public class BillNPC : ModNPC{
 		public override string Texture => "TerraScience/Content/NPCs/Bill/NPC_19_OLD";
 
-		public override bool Autoload(ref string name){
-			name = "Science Guy";
-			return mod.Properties.Autoload;
-		}
-
 		public override void SetStaticDefaults(){
-			DisplayName.SetDefault("Science Guy");
-			Main.npcFrameCount[npc.type] = Main.npcFrameCount[NPCID.ArmsDealer];
-			NPCID.Sets.ExtraFramesCount[npc.type] = NPCID.Sets.ExtraFramesCount[NPCID.ArmsDealer];
-			NPCID.Sets.AttackFrameCount[npc.type] = 4;
-			NPCID.Sets.DangerDetectRange[npc.type] = NPCID.Sets.DangerDetectRange[NPCID.DyeTrader];
-			NPCID.Sets.AttackType[npc.type] = 3;	//Overhead sword swing
-			NPCID.Sets.AttackTime[npc.type] = 16;
-			NPCID.Sets.AttackAverageChance[npc.type] = 30;
-			NPCID.Sets.HatOffsetY[npc.type] = NPCID.Sets.HatOffsetY[NPCID.ArmsDealer];
+			DisplayName.SetDefault("Bill Nye the Science Guy");
+			Main.npcFrameCount[NPC.type] = Main.npcFrameCount[NPCID.ArmsDealer];
+			NPCID.Sets.ExtraFramesCount[NPC.type] = NPCID.Sets.ExtraFramesCount[NPCID.ArmsDealer];
+			NPCID.Sets.AttackFrameCount[NPC.type] = 4;
+			NPCID.Sets.DangerDetectRange[NPC.type] = NPCID.Sets.DangerDetectRange[NPCID.DyeTrader];
+			NPCID.Sets.AttackType[NPC.type] = 3;	//Overhead sword swing
+			NPCID.Sets.AttackTime[NPC.type] = 16;
+			NPCID.Sets.AttackAverageChance[NPC.type] = 30;
+			NPCID.Sets.HatOffsetY[NPC.type] = NPCID.Sets.HatOffsetY[NPCID.ArmsDealer];
 		}
 
 		public override void SetDefaults(){
-			npc.townNPC = true;
-			npc.friendly = true;
-			npc.width = 18;
-			npc.height = 40;
-			npc.aiStyle = 7;
-			npc.damage = 24;
-			npc.defense = 18;
-			npc.lifeMax = 250;
-			npc.HitSound = SoundID.NPCHit1;
-			npc.DeathSound = SoundID.NPCDeath1;
-			npc.knockBackResist = 0.5f;
-			animationType = NPCID.ArmsDealer;
+			NPC.townNPC = true;
+			NPC.friendly = true;
+			NPC.width = 18;
+			NPC.height = 40;
+			NPC.aiStyle = 7;
+			NPC.damage = 24;
+			NPC.defense = 18;
+			NPC.lifeMax = 250;
+			NPC.HitSound = SoundID.NPCHit1;
+			NPC.DeathSound = SoundID.NPCDeath1;
+            NPC.knockBackResist = 0.5f;
+			AnimationType = NPCID.ArmsDealer;
 		}
-
-		public override string TownNPCName() => "Bill Nye";
 
 		public override void SetChatButtons(ref string button, ref string button2){
 			button = Language.GetTextValue("LegacyInterface.28");  //"Shop"
@@ -92,7 +85,7 @@ namespace TerraScience.Content.NPCs.Bill{
 		}
 
 		public override void TownNPCAttackStrength(ref int damage, ref float knockback){
-			damage = npc.damage;
+			damage = NPC.damage;
 			knockback = 4f;
 		}
 
@@ -102,7 +95,7 @@ namespace TerraScience.Content.NPCs.Bill{
 		}
 
 		public override void DrawTownAttackSwing(ref Texture2D item, ref int itemSize, ref float scale, ref Vector2 offset){
-			item = Main.itemTexture[ModContent.ItemType<Crowbar>()];
+			item = TextureAssets.Item[ModContent.ItemType<Crowbar>()].Value;
 			scale = 0.9f;
 		}
 
@@ -113,8 +106,8 @@ namespace TerraScience.Content.NPCs.Bill{
 
 		public override bool CanGoToStatue(bool toKingStatue) => toKingStatue;
 
-		public override void NPCLoot(){
-			Item.NewItem(npc.Hitbox, ModContent.ItemType<Crowbar>());
+		public override void ModifyNPCLoot(NPCLoot loot){
+			loot.Add(new Terraria.GameContent.ItemDropRules.CommonDrop(ModContent.ItemType<Crowbar>(), 1, 1, 1));
 		}
 	}
 }

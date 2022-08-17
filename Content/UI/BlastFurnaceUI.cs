@@ -1,11 +1,13 @@
 ﻿using System.Collections.Generic;
 using Terraria;
+using Terraria.GameContent;
 using Terraria.GameContent.UI.Elements;
 using Terraria.ModLoader;
 using TerraScience.API.UI;
 using TerraScience.Content.Items.Materials;
 using TerraScience.Content.Tiles.Multitiles;
 using TerraScience.Utilities;
+using UIItemSlot = TerraScience.API.UI.UIItemSlot;
 
 namespace TerraScience.Content.UI{
 	public class BlastFurnaceUI : MachineUI{
@@ -47,12 +49,12 @@ namespace TerraScience.Content.UI{
 					result.Left.Set(x, 0);
 					result.Top.Set(y, 0);
 
-					x += Main.inventoryBack9Texture.Width + 8;
+					x += TextureAssets.InventoryBack9.Value.Width + 8;
 					
 					slots.Add(result);
 				}
 
-				y += Main.inventoryBack9Texture.Height + 8;
+				y += TextureAssets.InventoryBack9.Value.Height + 8;
 			}
 		}
 
