@@ -9,6 +9,7 @@ using TerraScience.Content.Items.Tools;
 using TerraScience.Content.TileEntities.Energy;
 using TerraScience.Content.Tiles.Multitiles.EnergyMachines;
 using TerraScience.Utilities;
+using UIItemSlot = TerraScience.API.UI.UIItemSlot;
 
 namespace TerraScience.Content.UI.Energy{
 	public class ElectrolyzerUI : PoweredMachineUI{
@@ -54,7 +55,7 @@ namespace TerraScience.Content.UI.Energy{
 
 			UIItemSlot gas1Input = new UIItemSlot(){
 				HAlign = 0.45f,
-				ValidItemFunc = item => item.IsAir || (item.modItem is Capsule capsule && capsule.FluidType == MachineFluidID.None)
+				ValidItemFunc = item => item.IsAir || (item.ModItem is Capsule capsule && capsule.FluidType == MachineFluidID.None)
 			};
 			gas1Input.Top.Set(160, 0);
 			slots.Add(gas1Input);
@@ -68,7 +69,7 @@ namespace TerraScience.Content.UI.Energy{
 
 			UIItemSlot gas2Input = new UIItemSlot(){
 				HAlign = 0.8f,
-				ValidItemFunc = item => item.IsAir || (item.modItem is Capsule capsule && capsule.FluidType == MachineFluidID.None)
+				ValidItemFunc = item => item.IsAir || (item.ModItem is Capsule capsule && capsule.FluidType == MachineFluidID.None)
 			};
 			gas2Input.Top.Set(160, 0);
 			slots.Add(gas2Input);

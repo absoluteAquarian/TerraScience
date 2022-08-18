@@ -49,21 +49,21 @@ namespace TerraScience.Content.Tiles.Multitiles {
 				Player player = Main.LocalPlayer;
 				player.mouseInterface = true;
 				player.noThrow = 2;
-				player.showItemIcon = true;
-				player.showItemIcon2 = this.GetIconType();
+				player.cursorItemIconEnabled = true;
+				player.cursorItemIconID = this.GetIconType();
 			}
 		}
 
 		public override void PlaceInWorld(int i, int j, Item item){
 			// TODO: TileObject.CanPlace is throwing null-ref exceptions.  why???
 
-			MachineItem mItem = item.modItem as MachineItem;
+			MachineItem mItem = item.ModItem as MachineItem;
 
 			GetDefaultParams(out _, out uint width, out uint height, out _);
 
 			Point16 tePos = new Point16(i, j) - new Point16((int)width / 2, (int)height - 1);
 
-			int type = (item.modItem as MachineItem).TileType;
+			int type = (item.ModItem as MachineItem).TileType;
 
 			MachineEntity entity = TileUtils.tileToEntity[type];
 

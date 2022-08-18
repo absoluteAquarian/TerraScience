@@ -14,7 +14,7 @@ using TerraScience.Systems.Energy;
 using TerraScience.Utilities;
 
 namespace TerraScience.Systems{
-	public class TesseractNetwork : ModWorld{
+	public class TesseractNetwork : ModSystem {
 		public class Entry{
 			public string name;
 			public string password;
@@ -132,20 +132,20 @@ namespace TerraScience.Systems{
 
 		public int NetworkCount => networks.Count;
 
-		public override void Initialize(){
+		public override void OnWorldLoad(){
 			networks = new List<Entry>();
 		}
 
-		internal static void Unload(){
+		internal new static void Unload(){
 			networks = null;
 		}
 
-		public override void Load(TagCompound tag){
+		public override void LoadWorldData(TagCompound tag){
 			if(tag.GetList<TagCompound>("networks") is var nets)
 				networks = nets.Select(Entry.Load).ToList();
 		}
 
-		public override TagCompound Save()
+		public override TagCompound SaveWorldData()
 			=> new TagCompound(){
 				["networks"] = networks.Select(e => e.Save()).ToList()
 			};

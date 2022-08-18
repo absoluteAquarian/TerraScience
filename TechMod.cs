@@ -333,7 +333,7 @@ namespace TerraScience {
 		private static void RegisterRecipeGroup(string groupName, int itemForAnyName, int[] validTypes)
 			=> RecipeGroup.RegisterGroup(groupName, new RecipeGroup(() => $"{Language.GetTextValue("LegacyMisc.37")} {Lang.GetItemNameValue(itemForAnyName)}", validTypes));
 
-/*		internal void SetNetworkTilesSolid(){
+		internal void SetNetworkTilesSolid(){
 			Main.tileSolid[ModContent.TileType<TransportJunction>()] = true;
 
 			foreach(var type in types){
@@ -374,7 +374,7 @@ namespace TerraScience {
 			NetworkCollection.ResetNetworkInfo();
 		}
 
-		public override void MidUpdateProjectileItem(){
+		public override void PreUpdateProjectileItem(){
 			NetworkCollection.UpdateItemNetworks();
 			NetworkCollection.UpdateFluidNetworks();
 
@@ -383,7 +383,7 @@ namespace TerraScience {
 				MagicStorageHandler.GUIRefreshPending = !MagicStorageHandler.RefreshGUIs();
 			}
 		}
-*/
+
 		public override void Unload() {
 			//Revert the sand blocks to their original extractinator state
 			ItemID.Sets.ExtractinatorMode[ItemID.SandBlock] = -1;

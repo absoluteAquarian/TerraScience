@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Terraria;
+using Terraria.Audio;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using TerraScience.API.Networking;
@@ -238,13 +239,13 @@ namespace TerraScience.Content.TileEntities {
 		internal void PlaySound(int type, Vector2 position, int style = 1){
 			bool nearbyMuffler = WorldGen.InWorld((int)position.X >> 4, (int)position.Y >> 4) && MachineMufflerTile.AnyMufflersNearby(position);
 
-			Main.PlaySound(type, (int)position.X, (int)position.Y, style, volumeScale: nearbyMuffler ? 0.1f : 1f);
+			SoundEngine.PlaySound(type, new Vector2((int)position.X, (int)position.Y), volumeScale: nearbyMuffler ? 0.1f : 1f);
 		}
 
 		internal void PlaySound(SoundStyle type, Vector2 position){
 			bool nearbyMuffler = WorldGen.InWorld((int)position.X >> 4, (int)position.Y >> 4) && MachineMufflerTile.AnyMufflersNearby(position);
 
-			Main.PlaySound(type.SoundId, (int)position.X, (int)position.Y, type.Style, volumeScale: nearbyMuffler ? 0.1f : 1f);
+			SoundEngine.PlaySound(type, new Vector2((int)position.X, (int)position.Y));
 		}
 
 		internal void PlaySound(int type, int x = -1, int y = -1, int style = 1){

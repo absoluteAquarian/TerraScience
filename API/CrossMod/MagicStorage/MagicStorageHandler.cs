@@ -17,9 +17,9 @@ namespace TerraScience.API.CrossMod.MagicStorage{
 
 		public static bool DelayInteractionsDueToWorldSaving;
 
-		public static int ItemType(string name) => handler.Instance?.ItemType(name) ?? 0;
+		public static int ItemType(string name) => handler.Instance?.Find<MagicStorage>(name) ?? 0;
 
-		public static int TileType(string name) => handler.Instance?.TileType(name) ?? 0;
+		public static int TileType(string name) => handler.Instance?.Find<MagicStorage>(name) ?? 0;
 
 		public static IEnumerable<Item> TryGetItems(Point16 tileCoord)
 			=> handler.ModIsActive && !DelayInteractionsDueToWorldSaving ? StrongRef_TryGetItems(tileCoord) : null;
@@ -30,7 +30,7 @@ namespace TerraScience.API.CrossMod.MagicStorage{
 				return null;
 
 			Tile tile = Framing.GetTileSafely(tileCoord);
-			ModTile mTile = ModContent.GetModTile(tile.type);
+			ModTile mTile = ModContent.GetModTile(tile.TileType);
 
 			if(!tile.active())
 				return null;
