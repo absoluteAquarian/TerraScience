@@ -99,7 +99,7 @@ namespace TerraScience.Systems {
 
 				for(int w = 0; w < entries.Count; w++){
 					for(int c = i + 1; c < list.Count; c++){
-						if(list[c].HasEntryAt(entries[w].Position) && !(ModContent.GetModTile(Framing.GetTileSafely(entries[w].Position).type) is TransportJunction)){
+						if(list[c].HasEntryAt(entries[w].Position) && !(ModContent.GetModTile(Framing.GetTileSafely(entries[w].Position).TileType) is TransportJunction)){
 							TNet combined = (TNet)CombineNetworks<TNet, TEntry>(list[i], list[c]);
 							list.Add(combined);
 
@@ -163,8 +163,8 @@ forceNextCheck: ;
 						string enumName = junctionConnections[i];
 
 						var tile = Framing.GetTileSafely(pos);
-						if(tile.type == ModContent.TileType<TransportJunction>() && Enum.TryParse(enumName, out JunctionMerge merge))
-							tile.frameX = (short)(JunctionMergeable.FindMergeIndex(merge) * 18);
+						if(tile.TileType == ModContent.TileType<TransportJunction>() && Enum.TryParse(enumName, out JunctionMerge merge))
+							tile.TileFrameX = (short)(JunctionMergeable.FindMergeIndex(merge) * 18);
 					}
 				}else
 					TechMod.Instance.Logger.Error("Network data was modified by an external program (entries: \"junctionPositions\", \"junctionTypes\")");
@@ -211,8 +211,8 @@ forceNextCheck: ;
 				["fluids"] = fluidNetworks.Count == 0 ? null : fluidNetworks.Select(net => net.GetEntries()[0].Position).ToList(),
 				["junctionPositions"] = hash.Count == 0 ? null : hash.ToList(),
 				["junctionTypes"] = hash.Count == 0 ? null : hash.Select(p
-					=> JunctionMergeable.mergeTypes[Framing.GetTileSafely(p).frameX / 18].EnumName()
-						?? throw new Exception($"TerraScience internal error -- Junction frame was invalid (Merge ID: {JunctionMergeable.mergeTypes[Framing.GetTileSafely(p).frameX / 18]})")).ToList(),
+					=> JunctionMergeable.mergeTypes[Framing.GetTileSafely(p).TileFrameX / 18].EnumName()
+						?? throw new Exception($"TerraScience internal error -- Junction frame was invalid (Merge ID: {JunctionMergeable.mergeTypes[Framing.GetTileSafely(p).TileFrameX / 18]})")).ToList(),
 				["networkData"] = new TagCompound(){
 					["wires"] = wireNetworks.Count == 0 ? null : wireNetworks.Select(net => net.Save()).ToList(),
 					["items"] = itemNetworks.Count == 0 ? null : itemNetworks.Select(net => net.Save()).ToList(),
@@ -240,7 +240,7 @@ forceNextCheck: ;
 						continue;
 
 					foreach(var entry in entries)
-						if(ModContent.GetModTile(Framing.GetTileSafely(entry.Position).type) is TransportJunction)
+						if(ModContent.GetModTile(Framing.GetTileSafely(entry.Position).TileType) is TransportJunction)
 							hash.Add(entry.Position);
 				}
 			}
@@ -283,7 +283,7 @@ forceNextCheck: ;
 
 						//Export an item
 						Tile tile = Framing.GetTileSafely(timer.Key);
-						ModTile mTile = ModContent.GetModTile(tile.type);
+						ModTile mTile = ModContent.GetModTile(tile.TileType);
 						if(!(mTile is ItemPumpTile pump))
 							continue;
 
@@ -505,7 +505,7 @@ forceNextCheck: ;
 						timer.Value.value = 34;
 
 						Tile tile = Framing.GetTileSafely(timer.Key);
-						ModTile mTile = ModContent.GetModTile(tile.type);
+						ModTile mTile = ModContent.GetModTile(tile.TileType);
 						if(!(mTile is FluidPumpTile pump))
 							continue;
 
@@ -515,7 +515,7 @@ forceNextCheck: ;
 				}
 
 				foreach(var pipe in network.pipesConnectedToMachines){
-					if(!(ModContent.GetModTile(Framing.GetTileSafely(pipe).type) is FluidTransportTile))
+					if(!(ModContent.GetModTile(Framing.GetTileSafely(pipe).TileType) is FluidTransportTile))
 						continue;
 
 					if(TileEntityUtils.TryFindMachineEntity(pipe + new Point16(0, -1), out MachineEntity entity) && network.ConnectedMachines.Contains(entity))
@@ -559,8 +559,8 @@ forceNextCheck: ;
 			Point16 down = new Point16(location.X, location.Y + 1);
 
 			Tile center = Framing.GetTileSafely(location.X, location.Y);
-			bool centerIsJunction = center.type == ModContent.TileType<TransportJunction>();
-			JunctionMerge merge = !centerIsJunction ? JunctionMerge.None : JunctionMergeable.mergeTypes[center.frameX / 18];
+			bool centerIsJunction = center.TileType == ModContent.TileType<TransportJunction>();
+			JunctionMerge merge = !centerIsJunction ? JunctionMerge.None : JunctionMergeable.mergeTypes[center.TileFrameX / 18];
 			bool junctionHasWires = (merge & JunctionMerge.Wires_All) != 0;
 			bool junctionHasItems = (merge & JunctionMerge.Items_All) != 0;
 			bool junctionHasFluids = (merge & JunctionMerge.Fluids_All) != 0;

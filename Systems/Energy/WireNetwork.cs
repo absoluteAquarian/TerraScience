@@ -36,7 +36,7 @@ namespace TerraScience.Systems.Energy{
 			};
 			OnEntryPlace += pos => {
 				Tile tile = Framing.GetTileSafely(pos.X, pos.Y);
-				var mTile = ModContent.GetModTile(tile.type);
+				var mTile = ModContent.GetModTile(tile.TileType);
 				
 				TerraFlux cap = TerraFlux.Zero;
 
@@ -53,7 +53,7 @@ namespace TerraScience.Systems.Energy{
 			};
 			OnEntryKill += pos => {
 				Tile tile = Framing.GetTileSafely(pos.X, pos.Y);
-				var mTile = ModContent.GetModTile(tile.type);
+				var mTile = ModContent.GetModTile(tile.TileType);
 				TerraFlux cap = TerraFlux.Zero;
 				if(mTile is TFWireTile wire)
 					cap = wire.Capacity;
@@ -128,7 +128,7 @@ namespace TerraScience.Systems.Energy{
 			var inst = ModContent.GetInstance<TFWireTile>();
 
 			foreach(var wire in Hash){
-				ModTile tile = ModContent.GetModTile(Framing.GetTileSafely(wire.Position).type);
+				ModTile tile = ModContent.GetModTile(Framing.GetTileSafely(wire.Position).TileType);
 
 				if(tile is null)
 					continue;

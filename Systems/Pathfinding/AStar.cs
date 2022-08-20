@@ -140,9 +140,9 @@ namespace TerraScience.Systems.Pathfinding{
 			};
 
 			Tile parentTile = Framing.GetTileSafely(parent.location);
-			if(ModContent.GetModTile(parentTile.type) is ItemPumpTile){
+			if(ModContent.GetModTile(parentTile.TileType) is ItemPumpTile){
 				//Only one direction should be accounted for
-				int frameX = parentTile.frameX / 18;
+				int frameX = parentTile.TileFrameX / 18;
 
 				Entry keep;
 				switch(frameX){
@@ -170,7 +170,7 @@ namespace TerraScience.Systems.Pathfinding{
 				var possibleLoc = possible[i].location;
 				Tile tile = Framing.GetTileSafely(possibleLoc);
 
-				if(!tile.active() || existing.Contains(possible[i]) || (!net.HasEntryAt(possibleLoc) && !net.HasMachineAt(possibleLoc) && !net.HasChestAt(possibleLoc)) || ModContent.GetModTile(tile.type) is ItemPumpTile){
+				if(!tile.HasTile || existing.Contains(possible[i]) || (!net.HasEntryAt(possibleLoc) && !net.HasMachineAt(possibleLoc) && !net.HasChestAt(possibleLoc)) || ModContent.GetModTile(tile.TileType) is ItemPumpTile){
 					possible.RemoveAt(i);
 					i--;
 				}else{
@@ -198,7 +198,7 @@ namespace TerraScience.Systems.Pathfinding{
 		}
 
 		internal static float GetItemMovementProgressFactorAt(Point16 tilePos){
-			var mTile = ModContent.GetModTile(Framing.GetTileSafely(tilePos).type);
+			var mTile = ModContent.GetModTile(Framing.GetTileSafely(tilePos).TileType);
 			return mTile is null
 				? -1
 				: (mTile is ItemTransportTile item

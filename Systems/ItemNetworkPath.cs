@@ -147,7 +147,7 @@ namespace TerraScience.Systems {
 			if(delayPathCalc && itemNetwork.HasEntryAt(newTilePos))
 				delayPathCalc = false;
 
-			if(pumpForcedNewPath && itemNetwork.HasEntryAt(newTilePos) && !(ModContent.GetModTile(sourceTile.type) is ItemPumpTile))
+			if(pumpForcedNewPath && itemNetwork.HasEntryAt(newTilePos) && !(ModContent.GetModTile(sourceTile.TileType) is ItemPumpTile))
 				pumpForcedNewPath = false;
 
 			CalculatePath();
@@ -157,7 +157,7 @@ namespace TerraScience.Systems {
 			newTilePos = worldCenter.ToTileCoordinates16();
 			sourceTile = Framing.GetTileSafely(newTilePos);
 
-			if(!pumpForcedNewPath && ModContent.GetModTile(sourceTile.type) is ItemPumpTile pump){
+			if(!pumpForcedNewPath && ModContent.GetModTile(sourceTile.TileType) is ItemPumpTile pump){
 				//Get a new path
 				needsPathRefresh = true;
 				delayPathCalc = false;
@@ -172,7 +172,7 @@ namespace TerraScience.Systems {
 				pumpForcedNewPath = true;
 			}
 
-			if(!delayPathCalc && (!sourceTile.active() || !itemNetwork.HasEntryAt(newTilePos))){
+			if(!delayPathCalc && (!sourceTile.HasTile || !itemNetwork.HasEntryAt(newTilePos))){
 				Item data = ItemIO.Load(itemData);
 
 				//If the tile is a machine or chest, try to put this item in there
@@ -228,7 +228,7 @@ namespace TerraScience.Systems {
 			Item data = ItemIO.Load(itemData);
 
 			//Spawn a fake item, since its data will be overwritten anyway
-			int index = Item.NewItem(worldCenter, ItemID.DirtBlock);
+			int index = Item.NewItem(Item.GetSource_NaturalSpawn(),worldCenter, ItemID.DirtBlock);
 			if(index < Main.maxItems){
 				Item spawned = Main.item[index];
 				Vector2 oldPos = spawned.position;
@@ -596,21 +596,21 @@ namespace TerraScience.Systems {
 			Tile tileRight = Framing.GetTileSafely(right);
 			Tile tileDown = Framing.GetTileSafely(down);
 
-			if(HasMachine(up) && tileUp.active())
+			if(HasMachine(up) && tileUp.HasTile)
 				finalDir = new Vector2(0, -1);
-			else if(HasMachine(left) && tileLeft.active())
+			else if(HasMachine(left) && tileLeft.HasTile)
 				finalDir = new Vector2(-1, 0);
-			else if(HasMachine(right) && tileRight.active())
+			else if(HasMachine(right) && tileRight.HasTile)
 				finalDir = new Vector2(1, 0);
-			else if(HasMachine(down) && tileDown.active())
+			else if(HasMachine(down) && tileDown.HasTile)
 				finalDir = new Vector2(0, 1);
-			else if(HasChest(up) && tileUp.active())
+			else if(HasChest(up) && tileUp.HasTile)
 				finalDir = new Vector2(0, -1);
-			else if(HasChest(left) && tileLeft.active())
+			else if(HasChest(left) && tileLeft.HasTile)
 				finalDir = new Vector2(-1, 0);
-			else if(HasChest(right) && tileRight.active())
+			else if(HasChest(right) && tileRight.HasTile)
 				finalDir = new Vector2(1, 0);
-			else if(HasChest(down) && tileDown.active())
+			else if(HasChest(down) && tileDown.HasTile)
 				finalDir = new Vector2(0, 1);
 
 			finalTarget = dequeuedPoint + finalDir.ToPoint16();
