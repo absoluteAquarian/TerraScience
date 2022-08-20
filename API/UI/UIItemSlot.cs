@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
+using Terraria.GameContent;
 using Terraria.GameInput;
 using Terraria.UI;
 using TerraScience.Content.UI;
@@ -23,7 +24,7 @@ namespace TerraScience.API.UI {
 		public bool ItemChanged{
 			get{
 				var item = storedItem;
-				return item != null && storedItemBeforeHandle != null && item.IsNotTheSameAs(storedItemBeforeHandle);
+				return item != null && storedItemBeforeHandle != null && item.IsNotSameTypePrefixAndStack(storedItemBeforeHandle);
 			}
 		}
 		public bool ItemTypeChanged => (storedItem?.type ?? -1) != (storedItemBeforeHandle?.type ?? -2);
@@ -41,8 +42,8 @@ namespace TerraScience.API.UI {
 			storedItem = new Item();
 			storedItem.SetDefaults();
 
-			Width.Set(Main.inventoryBack9Texture.Width * scale, 0f);
-			Height.Set(Main.inventoryBack9Texture.Height * scale, 0f);
+			Width.Set(TextureAssets.InventoryBack9.Value.Width * scale, 0f);
+			Height.Set(TextureAssets.InventoryBack9.Value.Height * scale, 0f);
 		}
 
 		protected override void DrawSelf(SpriteBatch spriteBatch) {

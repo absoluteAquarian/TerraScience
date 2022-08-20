@@ -5,6 +5,7 @@ using ReLogic.Graphics;
 using System;
 using System.Collections.Generic;
 using Terraria;
+using Terraria.GameContent;
 using Terraria.GameInput;
 using Terraria.Localization;
 using Terraria.ModLoader;
@@ -148,7 +149,7 @@ namespace TerraScience.API.UI{
 		}
 
 		protected override void DrawSelf(SpriteBatch spriteBatch){
-			Texture2D texture = ModContent.GetTexture("TerraScience/API/UI/UITextPromptBackground");
+			Texture2D texture = ModContent.Request<Texture2D>("TerraScience/API/UI/UITextPromptBackground").Value;
 			CalculatedStyle dim = GetDimensions();
 			int innerWidth = (int)dim.Width - 2 * PADDING;
 			int innerHeight = (int)dim.Height - 2 * PADDING;
@@ -167,7 +168,7 @@ namespace TerraScience.API.UI{
 
 			bool isEmpty = Text.Length == 0;
 			string drawText = isEmpty ? defaultText.Value : HideTextWhenDrawn ? new string('*', Text.Length) : Text;
-			DynamicSpriteFont font = Main.fontMouseText;
+			DynamicSpriteFont font = FontAssets.MouseText.Value;
 			Vector2 size = font.MeasureString(drawText);
 			float scale = innerHeight / size.Y;
 

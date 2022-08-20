@@ -23,7 +23,7 @@ namespace TerraScience.API.UI{
 			//Draw the back first
 			Color backColor = new Color(){ PackedValue = 0xff4c5452 };
 
-			var texture = ModContent.GetTexture("TerraScience/Content/UI/fluidgauge back");
+			var texture = ModContent.Request<Texture2D>("TerraScience/Content/UI/fluid_gauge_back").Value;
 			var dims = GetInnerDimensions();
 
 			spriteBatch.Draw(texture, dims.Position(), null, backColor);
@@ -35,7 +35,7 @@ namespace TerraScience.API.UI{
 			if(fluidColor != Color.Transparent)
 				spriteBatch.Draw(texture, dims.Position() + new Vector2(0, 6 + height), source, fluidColor);
 
-			var textureFrame = ModContent.GetTexture("TerraScience/Content/UI/fluidgauge border");
+			var textureFrame = ModContent.Request<Texture2D>("TerraScience/Content/UI/fluid_gauge_border").Value;
 
 			spriteBatch.Draw(textureFrame, dims.Position(), null, Color.White);
 

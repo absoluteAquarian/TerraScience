@@ -1,9 +1,7 @@
 ﻿using System.Collections.Generic;
-using Terraria;
 using Terraria.GameContent;
 using Terraria.GameContent.UI.Elements;
 using Terraria.ModLoader;
-using TerraScience.API.UI;
 using TerraScience.Content.Items.Materials;
 using TerraScience.Content.Tiles.Multitiles;
 using TerraScience.Utilities;

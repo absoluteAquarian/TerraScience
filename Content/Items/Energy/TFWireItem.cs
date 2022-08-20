@@ -1,4 +1,5 @@
-﻿using Terraria.ID;
+﻿using Terraria;
+using Terraria.ID;
 using Terraria.ModLoader;
 using TerraScience.Content.Tiles.Energy;
 
@@ -10,27 +11,26 @@ namespace TerraScience.Content.Items.Energy{
 		}
 
 		public override void SetDefaults(){
-			item.width = 32;
-			item.height = 30;
-			item.scale = 0.75f;
-			item.rare = ItemRarityID.White;
-			item.maxStack = 999;
-			item.useStyle = ItemUseStyleID.SwingThrow;
-			item.useTime = 10;
-			item.useAnimation = 15;
-			item.createTile = ModContent.TileType<TFWireTile>();
-			item.value = 5;
-			item.consumable = true;
-			item.autoReuse = true;
-			item.useTurn = true;
+			Item.width = 32;
+			Item.height = 30;
+			Item.scale = 0.75f;
+			Item.rare = ItemRarityID.White;
+			Item.maxStack = 999;
+			Item.useStyle = ItemUseStyleID.Swing;
+			Item.useTime = 10;
+			Item.useAnimation = 15;
+			Item.createTile = ModContent.TileType<TFWireTile>();
+			Item.value = 5;
+			Item.consumable = true;
+			Item.autoReuse = true;
+			Item.useTurn = true;
 		}
 
-		public override void AddRecipes(){
-			ModRecipe recipe = new ModRecipe(mod);
-			recipe.AddIngredient(ItemID.CopperBar, 1);
-			recipe.AddTile(TileID.Anvils);
-			recipe.SetResult(this, 25);
-			recipe.AddRecipe();
+		public override void AddRecipes() {
+			Recipe.Create(this.Type, 25)
+				.AddIngredient(ItemID.CopperBar, 1)
+				.AddTile(TileID.Anvils)
+				.Register();
 		}
 	}
 }

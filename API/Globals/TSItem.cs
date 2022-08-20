@@ -68,7 +68,7 @@ namespace TerraScience.API.Globals{
 		public override void ModifyTooltips(Item item, List<TooltipLine> tooltips){
 			//Add to the tooltip description if it's a Golden Key
 			if(item.type == ItemID.GoldenKey){
-				int index = tooltips.FindLastIndex(line => line.mod == "Terraria" && line.Name.StartsWith("Tooltip"));
+				int index = tooltips.FindLastIndex(line => line.Mod == "Terraria" && line.Name.StartsWith("Tooltip"));
 
 				tooltips.Insert(++index, new TooltipLine(TechMod.Instance, "ItemCacheUse", "Right click an Item Cache machine while holding this to lock/unlock it"));
 			}

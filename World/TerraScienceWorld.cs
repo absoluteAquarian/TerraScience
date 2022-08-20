@@ -27,9 +27,9 @@ namespace TerraScience.World{
 		}
 
 		public override void SaveWorldData(TagCompound tag)	{
-			["networks"] = NetworkCollection.Save(),
-			["mufflers"] = MachineMufflerTile.mufflers
-		};
+			tag.Set("networks", NetworkCollection.Save());
+			tag.Set("mufflers", MachineMufflerTile.mufflers);
+		}
 
 		public override void LoadWorldData(TagCompound tag){
 			NetworkCollection.EnsureNetworkIsInitialized();
@@ -42,7 +42,9 @@ namespace TerraScience.World{
 		}
 
 		public override void NetSend(BinaryWriter writer){
-			TagIO.Write(SaveWorldData(new TagCompound()), writer);
+			TagCompound tag = new TagCompound();
+			SaveWorldData(tag);
+			TagIO.Write(tag, writer);
 		}
 
 		public override void NetReceive(BinaryReader reader){

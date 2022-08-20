@@ -7,13 +7,13 @@ namespace TerraScience.Content.Items.Materials{
 		}
 
 		public override void SetDefaults(){
-			item.width = 30;
-			item.height = 28;
-			item.scale = 0.8f;
+			Item.width = 30;
+			Item.height = 28;
+			Item.scale = 0.8f;
 
-			item.maxStack = 999;
+			Item.maxStack = 999;
 
-			item.rare = ItemRarityID.Blue;
+			Item.rare = ItemRarityID.Blue;
 		}
 	}
 }
