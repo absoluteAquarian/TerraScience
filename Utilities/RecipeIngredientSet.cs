@@ -4,6 +4,8 @@ using Terraria;
 using Terraria.ModLoader;
 using Terraria.ID;
 using Terraria.Localization;
+using System.Linq;
+using System.Reflection;
 
 namespace TerraScience.Utilities{
 	public class RecipeIngredientSet{
@@ -55,37 +57,16 @@ namespace TerraScience.Utilities{
 				else{
 					RecipeGroup group = RecipeGroup.recipeGroups[entry.ID];
 
-					item.SetDefaults(group.ValidItems[0]);
-					SetRecipeMaterialDisplayName(item);
+					item.SetDefaults(group.ValidItems.First());
+					Main.instance.GetType()
+						.GetMethod("SetRecipeMaterialDisplayName", BindingFlags.NonPublic | BindingFlags.Instance)
+						.Invoke(Main.instance, new object[]{entry.ID});
 				}
 				
 				item.stack = entry.stack;
 
 				return item;
 			}
-		}
-
-		//Copied from Main.cs
-		private void SetRecipeMaterialDisplayName(Item item){
-			string hoverItemName = item.Name;
-			if(Main.recipe[recipeIndex].ProcessGroupsForText(item.type, out string theText))
-				hoverItemName = theText;
-
-			if(Main.recipe[recipeIndex].anyIronBar && item.type == ItemID.IronBar)
-				hoverItemName = Language.GetTextValue("LegacyMisc.37") + " " + Lang.GetItemNameValue(ItemID.IronBar);
-			else if(Main.recipe[recipeIndex].anyWood && item.type == ItemID.Wood)
-				hoverItemName = Language.GetTextValue("LegacyMisc.37") + " " + Lang.GetItemNameValue(ItemID.Wood);
-			else if(Main.recipe[recipeIndex].anySand && item.type == ItemID.SandBlock)
-				hoverItemName = Language.GetTextValue("LegacyMisc.37") + " " + Lang.GetItemNameValue(ItemID.SandBlock);
-			else if(Main.recipe[recipeIndex].anyFragment && item.type == ItemID.FragmentSolar)
-				hoverItemName = Language.GetTextValue("LegacyMisc.37") + " " + Language.GetTextValue("LegacyMisc.51");
-			else if(Main.recipe[recipeIndex].anyPressurePlate && item.type == ItemID.GrayPressurePlate)
-				hoverItemName = Language.GetTextValue("LegacyMisc.37") + " " + Language.GetTextValue("LegacyMisc.38");
-
-			if(item.stack > 1)
-				hoverItemName = hoverItemName + " (" + item.stack + ")";
-
-			item.SetNameOverride(hoverItemName);
 		}
 
 		public RecipeIngredientSet AddIngredient(int itemType, int stack = 1){
@@ -120,7 +101,7 @@ namespace TerraScience.Utilities{
 			return this;
 		}
 
-		public void Apply(ModRecipe recipe){
+		public void Apply(Recipe recipe){
 			if(recipe.RecipeIndex > 0)
 				throw new ArgumentException("Recipe has already been added to the game.  Cannot add ingredients to the recipe instance");
 

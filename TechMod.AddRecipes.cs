@@ -23,25 +23,21 @@ namespace TerraScience {
             AddElectrolyzerRecipe(MachineFluidID.LiquidSaltwater, MachineFluidID.HydrogenGas);
             AddElectrolyzerRecipe(MachineFluidID.LiquidSaltwater, MachineFluidID.ChlorineGas);
 
-            AddElectrolyzerRecipe(MachineFluidID.HydrogenGas);
-            AddElectrolyzerRecipe(MachineFluidID.OxygenGas);
-            AddElectrolyzerRecipe(MachineFluidID.ChlorineGas);
-
             //Blast furnace recipes
             foreach (var entry in BlastFurnaceEntity.ingredientToResult) {
-                Recipe recipe = Recipe.Create(entry.Value.resultType, entry.Value.resultStack)
+                Recipe.Create(entry.Value.resultType, entry.Value.resultStack)
                     .AddIngredient(entry.Key, entry.Value.requireStack)
                     .AddTile(ModContent.TileType<BlastFurnace>())
-                    .AddCondition(NetworkText.FromLiteral(RecipeDescription_MadeAtMachine), recipe => false)
+                    .AddCondition(RecipeUtils.MadeAtMachine)
                     .Register();
             }
 
             //Matter Energizer recipes
             foreach (var entry in AirIonizerEntity.recipes) {
-                Recipe recipe = Recipe.Create(entry.Value.resultType, entry.Value.resultStack)
+                Recipe.Create(entry.Value.resultType, entry.Value.resultStack)
                     .AddIngredient(entry.Key, entry.Value.requireStack)
                     .AddIngredient(ModContent.ItemType<TerraFluxIndicator>())
-                    .AddCondition(NetworkText.FromLiteral(RecipeDescription_MadeAtMachine), recipe => false)
+                    .AddCondition(RecipeUtils.MadeAtMachine)
                     .AddTile(ModContent.TileType<AirIonizer>())
                     .Register();
             }
@@ -136,10 +132,9 @@ namespace TerraScience {
                     .AddIngredient(i, 1)
                     .AddIngredient(ModContent.ItemType<TerraFluxIndicator>(), 1)
                     .AddTile(ModContent.TileType<LiquidDuplicator>())
-                    .AddCondition(NetworkText.FromLiteral(RecipeDescription_MadeAtMachine), recipe => false)
+                    .AddCondition(RecipeUtils.MadeAtMachine)
                     .Register();
             }
-
 
             AddComposterEntry(ItemID.Acorn, 4, 1);
             AddComposterEntry(ItemID.Seed, 20, 1);
@@ -173,66 +168,63 @@ namespace TerraScience {
                 .AddIngredient(GetFakeIngredientType(input), 1)
                 .AddIngredient(ModContent.ItemType<TerraFluxIndicator>())
                 .AddTile(ModContent.TileType<Electrolyzer>())
-                .AddCondition(NetworkText.FromLiteral(RecipeDescription_MadeAtMachine), recipe => false)
+                .AddCondition(RecipeUtils.MadeAtMachine)
                 .Register();
         }
 
         private void AddGreenhouseRecipe(int inputType, int blockType, int? modifierType, int resultType) {
             Recipe recipe = Recipe.Create(resultType, 1)
-            .AddIngredient(inputType, 1)
-            .AddIngredient(blockType, 1)
-            .AddCondition(NetworkText.FromLiteral(RecipeDescription_MadeAtMachine), recipe => false)
-            .AddTile(ModContent.TileType<Greenhouse>());
+                .AddIngredient(inputType, 1)
+                .AddIngredient(blockType, 1)
+                .AddCondition(RecipeUtils.MadeAtMachine)
+                .AddTile(ModContent.TileType<Greenhouse>());
             if (modifierType is int modifier)
                 recipe.AddIngredient(modifier, 1);
             recipe.Register();
         }
 
         private void AddExtractinatorRecipe(int inputType, int outputType) {
-            NoStationCraftingRecipe recipe = new NoStationCraftingRecipe(this);
-            recipe.AddIngredient(inputType, 1);
-            recipe.AddTile(TileID.Extractinator);
-            recipe.SetResult(outputType, 1);
-            recipe.AddRecipe();
-
-            recipe = new NoStationCraftingRecipe(this);
-            recipe.AddIngredient(inputType, 1);
-            recipe.AddIngredient(ModContent.ItemType<TerraFluxIndicator>());
-            recipe.AddTile(ModContent.TileType<AutoExtractinator>());
-            recipe.SetResult(outputType, 1);
-            recipe.AddRecipe();
+            Recipe.Create(outputType)
+                .AddIngredient(inputType)
+                .AddTile(TileID.Extractinator)
+                .Register();
+            Recipe.Create(outputType)
+                .AddIngredient(inputType)
+                .AddIngredient(ModContent.ItemType<TerraFluxIndicator>())
+                .AddTile(ModContent.TileType<AutoExtractinator>())
+                .AddCondition(RecipeUtils.MadeAtMachine)
+                .Register();
         }
 
         private void AddPulverizerEntry(int inputItem, params (int type, int stack, double weight)[] outputs) {
-            var wRand = new WeightedRandom<(int type, int stack)>(Main.rand);
+			var wRand = new WeightedRandom<(int type, int stack)>(Main.rand);
 
-            double remaining = 1.0;
-            foreach ((int type, int stack, double weight) in outputs) {
-                wRand.Add((type, stack), weight);
-                remaining -= weight;
+			double remaining = 1.0;
+			foreach((int type, int stack, double weight) in outputs){
+				wRand.Add((type, stack), weight);
+				remaining -= weight;
 
-                //Add a recipe for the thing
-                NoStationCraftingRecipe recipe = new NoStationCraftingRecipe(this);
-                recipe.AddIngredient(inputItem);
-                recipe.AddIngredient(ModContent.ItemType<TerraFluxIndicator>());
-                recipe.AddTile(ModContent.TileType<Pulverizer>());
-                recipe.SetResult(type, stack);
-                recipe.AddRecipe();
-            }
+				//Add a recipe for the thing
+				Recipe.Create(type, stack)
+				    .AddIngredient(inputItem)
+				    .AddIngredient(ModContent.ItemType<TerraFluxIndicator>())
+				    .AddTile(ModContent.TileType<Pulverizer>())
+				    .AddCondition(RecipeUtils.MadeAtMachine)
+				    .Register();
+			}
 
-            if (remaining > 0)
-                wRand.Add((-1, 0), remaining);
+			if(remaining > 0)
+				wRand.Add((-1, 0), remaining);
 
-            PulverizerEntity.inputToOutputs.Add(inputItem, wRand);
+			PulverizerEntity.inputToOutputs.Add(inputItem, wRand);        
         }
 
         private void AddComposterEntry(int inputItem, int inputStack, int resultStack) {
-            NoStationCraftingRecipe recipe = new NoStationCraftingRecipe(this);
-            recipe.AddIngredient(inputItem, inputStack);
-            recipe.AddIngredient(ModContent.ItemType<TerraFluxIndicator>());
-            recipe.AddTile(ModContent.TileType<Composter>());
-            recipe.SetResult(ItemID.DirtBlock, resultStack);
-            recipe.AddRecipe();
+            Recipe.Create(ItemID.DirtBlock, resultStack)
+                .AddIngredient(inputItem, inputStack)
+                .AddIngredient(ModContent.ItemType<TerraFluxIndicator>())
+                .AddTile(ModContent.TileType<Composter>())
+                .Register();
 
             ComposterEntity.ingredients.Add((inputItem, (float)resultStack / inputStack));
         }
