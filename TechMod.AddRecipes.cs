@@ -23,6 +23,7 @@ namespace TerraScience {
             AddElectrolyzerRecipe(MachineFluidID.LiquidSaltwater, MachineFluidID.HydrogenGas);
             AddElectrolyzerRecipe(MachineFluidID.LiquidSaltwater, MachineFluidID.ChlorineGas);
 
+
             //Blast furnace recipes
             foreach (var entry in BlastFurnaceEntity.ingredientToResult) {
                 Recipe.Create(entry.Value.resultType, entry.Value.resultStack)

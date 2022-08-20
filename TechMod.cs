@@ -34,7 +34,7 @@ namespace TerraScience {
 
 
     // TODO: Move this into a MaterialLoader?
-    public partial class TechMod : Mod {
+    public partial class TechMod : Mod, ModSystem {
 
         public static readonly Action<Item> VialDefaults = i => {
             i.maxStack = 99;
@@ -341,7 +341,7 @@ namespace TerraScience {
 					continue;
 
 				if(typeof(JunctionMergeable).IsAssignableFrom(type)){
-					int tileType = GetTile(type.Name).Type;
+					int tileType = TileLoader.GetTile(type).Type;
 
 					Main.tileSolid[tileType] = true;
 				}
@@ -356,33 +356,33 @@ namespace TerraScience {
 					continue;
 
 				if(typeof(JunctionMergeable).IsAssignableFrom(type)){
-					int tileType = GetTile(type.Name).Type;
+					int tileType = TileLoader.GetTile(type).Type;
 
 					Main.tileSolid[tileType] = false;
 				}
 			}
 		}
 
-		public override void PreUpdateEntities(){
-			//ModHooks.PreUpdateEntities() is called before WorldGen.UpdateWorld, which updates the tile entities
-			//So this is a good place to have the tile stuff update
+		//public override void PreUpdateEntities(){
+		//	//ModHooks.PreUpdateEntities() is called before WorldGen.UpdateWorld, which updates the tile entities
+		//	//So this is a good place to have the tile stuff update
 
-			//Sanity check
-			ResetNetworkTilesSolid();
+		//	//Sanity check
+		//	ResetNetworkTilesSolid();
 
-			//Reset the wire network export counts
-			NetworkCollection.ResetNetworkInfo();
-		}
+		//	//Reset the wire network export counts
+		//	NetworkCollection.ResetNetworkInfo();
+		//}
 
-		public override void PreUpdateProjectileItem(){
-			NetworkCollection.UpdateItemNetworks();
-			NetworkCollection.UpdateFluidNetworks();
+		//public override void PreUpdateProjectileItem(){ 
+		//	NetworkCollection.UpdateItemNetworks();
+		//	NetworkCollection.UpdateFluidNetworks();
 
-			if(MagicStorageHandler.GUIRefreshPending && Main.GameUpdateCount % 120 == 0){
-				//A return of "true" means the GUIs were refreshed
-				MagicStorageHandler.GUIRefreshPending = !MagicStorageHandler.RefreshGUIs();
-			}
-		}
+		//	if(MagicStorageHandler.GUIRefreshPending && Main.GameUpdateCount % 120 == 0){
+		//		//A return of "true" means the GUIs were refreshed
+		//		MagicStorageHandler.GUIRefreshPending = !MagicStorageHandler.RefreshGUIs();
+		//	}
+		//}
 
 		public override void Unload() {
 			//Revert the sand blocks to their original extractinator state
