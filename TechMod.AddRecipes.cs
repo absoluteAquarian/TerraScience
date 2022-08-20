@@ -23,7 +23,7 @@ namespace TerraScience {
             AddElectrolyzerRecipe(MachineFluidID.LiquidSaltwater, MachineFluidID.HydrogenGas);
             AddElectrolyzerRecipe(MachineFluidID.LiquidSaltwater, MachineFluidID.ChlorineGas);
 
-            AddElectrolyzerRecipe(MachineFluidID.HydrogenGas);
+            AddElectrolyzerRecipe(MachineFluidID.HydrogenGas); // ???
             AddElectrolyzerRecipe(MachineFluidID.OxygenGas);
             AddElectrolyzerRecipe(MachineFluidID.ChlorineGas);
 

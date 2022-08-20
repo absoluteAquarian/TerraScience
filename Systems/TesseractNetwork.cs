@@ -145,10 +145,10 @@ namespace TerraScience.Systems{
 				networks = nets.Select(Entry.Load).ToList();
 		}
 
-		public override TagCompound SaveWorldData()
-			=> new TagCompound(){
-				["networks"] = networks.Select(e => e.Save()).ToList()
-			};
+		public override void SaveWorldData(TagCompound tag)
+		{
+			tag.Set("networks", networks.Select(e => e.Save()).ToList());
+		}
 
 		public static bool RegisterEntry(Entry entry){
 			if(TryGetEntryIndex(entry.name, out _))
