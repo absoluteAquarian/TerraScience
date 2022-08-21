@@ -8,7 +8,7 @@ using Terraria.UI;
 using TerraScience.Content.UI;
 
 namespace TerraScience.API.UI {
-	public class UIItemSlot : UIElement {
+	public class UIItemSlotWrapper : UIElement {
 		// TODO: CaptionedUIItemSlot; inherits from UIItemSlot and displays some text above itself
 
 		private int Context { get; set; }
@@ -35,7 +35,7 @@ namespace TerraScience.API.UI {
 
 		public bool IgnoreClicks{ get; set; }
 
-		public UIItemSlot(int context = ItemSlot.Context.BankItem, float scale = 1f) {
+		public UIItemSlotWrapper(int context = ItemSlot.Context.BankItem, float scale = 1f) {
 			Context = context;
 			Scale = scale;
 

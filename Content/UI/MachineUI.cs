@@ -11,7 +11,6 @@ using TerraScience.API.UI;
 using TerraScience.Content.TileEntities;
 using TerraScience.Content.Tiles.Multitiles;
 using TerraScience.Utilities;
-using UIItemSlot = TerraScience.API.UI.UIItemSlot;
 
 namespace TerraScience.Content.UI{
 	public abstract class MachineUI : UIState{
@@ -34,7 +33,7 @@ namespace TerraScience.Content.UI{
 
 		private List<UIText> Text;
 
-		private List<UIItemSlot> ItemSlots;
+		private List<UIItemSlotWrapper> ItemSlots;
 
 		public abstract string Header{ get; }
 
@@ -94,7 +93,7 @@ namespace TerraScience.Content.UI{
 		/// </summary>
 		public virtual void PostOpen(){ }
 
-		internal UIItemSlot GetSlot(int index) => ItemSlots[index];
+		internal UIItemSlotWrapper GetSlot(int index) => ItemSlots[index];
 
 		/// <summary>
 		/// The type of the <seealso cref="Machine"/> tile this UI state is bound to

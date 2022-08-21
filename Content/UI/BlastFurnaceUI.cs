@@ -5,7 +5,7 @@ using Terraria.ModLoader;
 using TerraScience.Content.Items.Materials;
 using TerraScience.Content.Tiles.Multitiles;
 using TerraScience.Utilities;
-using UIItemSlot = TerraScience.API.UI.UIItemSlot;
+using UIItemSlotWrapper = TerraScience.API.UI.UIItemSlotWrapper;
 
 namespace TerraScience.Content.UI{
 	public class BlastFurnaceUI : MachineUI{
@@ -18,15 +18,15 @@ namespace TerraScience.Content.UI{
 			height = 300;
 		}
 
-		internal override void InitializeSlots(List<UIItemSlot> slots){
-			UIItemSlot ore = new UIItemSlot(){
+		internal override void InitializeSlots(List<UIItemSlotWrapper> slots){
+			UIItemSlotWrapper ore = new UIItemSlotWrapper(){
 				HAlign = 0.1f,
 				ValidItemFunc = item => item.IsAir || ItemUtils.IsOre(item)
 			};
 			ore.Top.Set(150, 0);
 			slots.Add(ore);
 
-			UIItemSlot fuel = new UIItemSlot(){
+			UIItemSlotWrapper fuel = new UIItemSlotWrapper(){
 				HAlign = 0.1f,
 				ValidItemFunc = item => item.IsAir || item.type == ModContent.ItemType<Coal>()
 			};
@@ -41,7 +41,7 @@ namespace TerraScience.Content.UI{
 			for(int r = 0; r < 2; r++){
 				x = origX;
 				for(int c = 0; c < 4; c++){
-					UIItemSlot result = new UIItemSlot(){
+					UIItemSlotWrapper result = new UIItemSlotWrapper(){
 						ValidItemFunc = item => item.IsAir
 					};
 					result.Left.Set(x, 0);

@@ -36,15 +36,15 @@ namespace TerraScience.Content.UI.Energy{
 			text.Add(compostProgress);
 		}
 
-		internal override void InitializeSlots(List<UIItemSlot> slots){
-			UIItemSlot input = new UIItemSlot(){
+		internal override void InitializeSlots(List<UIItemSlotWrapper> slots){
+			UIItemSlotWrapper input = new UIItemSlotWrapper(){
 				ValidItemFunc = item => item.IsAir || (UIEntity as ComposterEntity).CanInputItem(0, item),
 				HAlign = 0.2f
 			};
 			input.Top.Set(160, 0);
 			slots.Add(input);
 
-			UIItemSlot output = new UIItemSlot(){
+			UIItemSlotWrapper output = new UIItemSlotWrapper(){
 				ValidItemFunc = item => item.IsAir,
 				HAlign = 0.8f
 			};

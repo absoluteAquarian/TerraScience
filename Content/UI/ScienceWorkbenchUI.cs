@@ -1,9 +1,11 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Terraria;
+using Terraria.GameContent;
 using Terraria.GameContent.UI.Elements;
 using Terraria.ModLoader;
 using Terraria.UI;
@@ -33,14 +35,14 @@ namespace TerraScience.Content.UI {
 
 		public RegistryAnimation(string texture, int frameX = 0, int frameY = 0, int columnCount = 1, int rowCount = 1, int buffer = 0){
 			this.texture = texture;
-			var tex = ModContent.GetTexture(texture);
+			var tex = ModContent.Request<Texture2D>(texture).Value;
 			frame = tex.Frame(columnCount, rowCount, frameX, frameY);
 			frame.Resize(-buffer, -buffer);
 		}
 
 		public RegistryAnimation(string texture, uint frameX = 0, uint frameY = 0, uint columnCount = 1, uint rowCount = 1, uint buffer = 0){
 			this.texture = texture;
-			var tex = ModContent.GetTexture(texture);
+			var tex = ModContent.Request<Texture2D>(texture).Value;
 			frame = tex.Frame((int)columnCount, (int)rowCount, (int)frameX, (int)frameY);
 			frame.Resize(-(int)buffer, -(int)buffer);
 		}
@@ -75,7 +77,7 @@ namespace TerraScience.Content.UI {
 	}
 
 	public class ScienceWorkbenchUI : MachineUI{
-		public UIItemSlot item;
+		public UIItemSlotWrapper item;
 
 		public UIScienceWorkbenchDisplay display1, display2;
 		public UIPanel panelStats, panelDescription;
@@ -109,7 +111,7 @@ namespace TerraScience.Content.UI {
 				return;
 			}
 
-			if(!(slot.modItem is MachineItem machine))
+			if(!(slot.ModItem is MachineItem machine))
 				return;
 
 			var registry = machine.ItemRegistry;
@@ -161,7 +163,7 @@ namespace TerraScience.Content.UI {
 			StringBuilder classification = new StringBuilder();
 
 			Item slot = UIEntity.RetrieveItem(0);
-			MachineEntity entity = (slot.modItem as MachineItem).Machine;
+			MachineEntity entity = (slot.ModItem as MachineItem).Machine;
 
 			if(entity is Battery)
 				classification.Append("Terra Flux Storage");
@@ -228,20 +230,20 @@ appendLiquidOrGas:
 			descriptionText.Top.Set(0, 0);
 		}
 
-		internal override void InitializeSlots(List<UIItemSlot> slots){
-			slots.Add(item = new UIItemSlot(){
-				ValidItemFunc = item => item.IsAir || item.modItem is MachineItem
+		internal override void InitializeSlots(List<UIItemSlotWrapper> slots){
+			slots.Add(item = new UIItemSlotWrapper(){
+				ValidItemFunc = item => item.IsAir || item.ModItem is MachineItem
 			});
 			item.Left.Set(15, 0);
 			item.Top.Set(70, 0);
 
 			//Recipe slots
 			for(int i = 0; i < 14; i++){
-				UIItemSlot slot = new UIItemSlot(){
+				UIItemSlotWrapper slot = new UIItemSlotWrapper(){
 					IgnoreClicks = true  //Allow the item info to be viewed, just not interacted with
 				};
-				slot.Left.Set(10 + (i % 7) * Main.inventoryBack9Texture.Width, 0);
-				slot.Top.Set(400 + Main.inventoryBack9Texture.Height * (i / 7), 0);
+				slot.Left.Set(10 + (i % 7) * TextureAssets.InventoryBack9.Value.Width, 0);
+				slot.Top.Set(400 + TextureAssets.InventoryBack9.Value.Height * (i / 7), 0);
 
 				slots.Add(slot);
 			}
@@ -269,7 +271,7 @@ appendLiquidOrGas:
 
 		public override void PreClose(){
 			if(!item.StoredItem.IsAir){
-				Main.LocalPlayer.QuickSpawnClonedItem(item.StoredItem, item.StoredItem.stack);
+				Main.LocalPlayer.QuickSpawnClonedItem(Main.LocalPlayer.GetSource_DropAsItem(), item.StoredItem, item.StoredItem.stack);
 				item.SetItem(new Item());
 			}
 
@@ -283,7 +285,7 @@ appendLiquidOrGas:
 		private void SetDisplay(ref UIScienceWorkbenchDisplay display, RegistryAnimation registry, bool leftDisplay){
 			bool newInstance = display is null;
 
-			var texture = ModContent.GetTexture(registry.texture);
+			var texture = ModContent.Request<Texture2D>(registry.texture).Value;
 			
 			int width = registry.frame?.Width ?? texture.Width;
 			int height = registry.frame?.Height ?? texture.Height;

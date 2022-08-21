@@ -18,7 +18,7 @@ namespace TerraScience.Content.UI {
 
 		private int withdrawAmount;
 
-		private UIItemSlot depositSlot, withdrawSlot;
+		private UIItemSlotWrapper depositSlot, withdrawSlot;
 		private UIText withdrawCount;
 		private ClickableButton depositButton, withdrawButton,
 			withdrawPlusOne, withdrawMinusOne,
@@ -30,18 +30,18 @@ namespace TerraScience.Content.UI {
 			height = 440;
 		}
 
-		internal override void InitializeSlots(List<UIItemSlot> slots){
+		internal override void InitializeSlots(List<UIItemSlotWrapper> slots){
 			PanelSize(out int width, out int height);
 
 			//Two slots, one for depositing items and one for withdrawing items
-			depositSlot = new UIItemSlot(){
+			depositSlot = new UIItemSlotWrapper(){
 				ValidItemFunc = item => item.IsAir || (UIEntity as ItemCacheEntity).CanBeInput(item)
 			};
 			depositSlot.Top.Set(120, 0f);
 			depositSlot.Left.Set(80, 0f);
 			slots.Add(depositSlot);
 
-			withdrawSlot = new UIItemSlot(){
+			withdrawSlot = new UIItemSlotWrapper(){
 				ValidItemFunc = item => item.IsAir  //Only retrieving items allowed
 			};
 			slots.Add(withdrawSlot);
@@ -50,7 +50,7 @@ namespace TerraScience.Content.UI {
 			withdrawSlot.Recalculate();
 
 			//And an additional third slot for displaying whether the cache is locked
-			UIItemSlot locked = new UIItemSlot(scale: 1f){
+			UIItemSlotWrapper locked = new UIItemSlotWrapper(scale: 1f){
 				ValidItemFunc = item => false  //No interacting with the slot
 			};
 			slots.Add(locked);

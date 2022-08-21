@@ -20,7 +20,7 @@ namespace TerraScience.Content.UI {
 			height = 180;
 		}
 
-		internal override void InitializeSlots(List<UIItemSlot> slots){ }
+		internal override void InitializeSlots(List<UIItemSlotWrapper> slots){ }
 
 		internal override void InitializeText(List<UIText> text){
 			UIText items = new UIText("Not active"){
@@ -55,7 +55,7 @@ namespace TerraScience.Content.UI {
 
 			//There's some sort of "system center" found by FindMagicStorageSystem.  get the Heart it's connected to
 			Tile tile = Framing.GetTileSafely(center);
-			ModTile mTile = ModContent.GetModTile(tile.type);
+			ModTile mTile = ModContent.GetModTile(tile.TileType);
 
 			if(!tile.active()){
 				text[0].SetText("Not connected");
@@ -105,7 +105,7 @@ namespace TerraScience.Content.UI {
 				Tile tile = Framing.GetTileSafely(tileOrig + neighbor);
 				ModTile mTile = ModContent.GetModTile(tile.type);
 
-				if(!tile.active() || !(mTile is StorageConnector || mTile is StorageAccess))
+				if(!tile.HasTile || !(mTile is StorageConnector || mTile is StorageAccess))
 					continue;
 
 				var center = TEStorageComponent.FindStorageCenter(tileOrig + neighbor);
