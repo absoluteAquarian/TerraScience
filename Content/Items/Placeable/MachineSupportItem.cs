@@ -12,18 +12,18 @@ namespace TerraScience.Content.Items.Placeable{
 		}
 
 		public override void SetDefaults(){
-			item.maxStack = 999;
-			item.width = 16;
-			item.height = 16;
-			item.useTime = 10;
-			item.useAnimation = 15;
-			item.useTurn = true;
-			item.autoReuse = true;
-			item.value = Item.sellPrice(copper: 50);
-			item.useStyle = ItemUseStyleID.SwingThrow;
-			item.createTile = ModContent.TileType<Tiles.Multitiles.MachineSupport>();
-			item.rare = ItemRarityID.White;
-			item.consumable = true;
+			Item.maxStack = 999;
+			Item.width = 16;
+			Item.height = 16;
+			Item.useTime = 10;
+			Item.useAnimation = 15;
+			Item.useTurn = true;
+			Item.autoReuse = true;
+			Item.value = Item.sellPrice(copper: 50);
+			Item.useStyle = ItemUseStyleID.Swing;
+			Item.createTile = ModContent.TileType<Tiles.Multitiles.MachineSupport>();
+			Item.rare = ItemRarityID.White;
+			Item.consumable = true;
 		}
 
 		public override void AddRecipes(){

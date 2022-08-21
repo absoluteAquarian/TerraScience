@@ -9,7 +9,7 @@ namespace TerraScience.Content.Items.Placeable.Machines{
 		public override string ItemName => "Tesseract";
 
 		public override string ItemTooltip => "Uses quantum instability to connect two places" +
-			"\nUseful for long-distance item, fluid and power transportation";
+			"\nUseful for long-distance Item, fluid and power transportation";
 
 		internal override ScienceWorkbenchItemRegistry GetRegistry()
 			=> new ScienceWorkbenchItemRegistry(
@@ -20,11 +20,11 @@ namespace TerraScience.Content.Items.Placeable.Machines{
 				null);
 
 		public override void SafeSetDefaults(){
-			item.width = 24;
-			item.height = 24;
-			item.scale = 0.82f;
-			item.rare = ItemRarityID.Green;
-			item.value = Item.buyPrice(silver: 30, copper: 75);
+			Item.width = 24;
+			Item.height = 24;
+			Item.scale = 0.82f;
+			Item.rare = ItemRarityID.Green;
+			Item.value = Item.buyPrice(silver: 30, copper: 75);
 		}
 	}
 }
