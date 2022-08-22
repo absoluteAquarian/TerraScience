@@ -13,7 +13,7 @@ using TerraScience.Utilities;
 
 namespace TerraScience.Content.Tiles.Multitiles {
 	public abstract class Machine : ModTile{
-		public sealed override void SetDefaults(){
+		public sealed override void SetStaticDefaults(){
 			GetDefaultParams(out string mapName, out uint width, out uint height, out _);
 			TileUtils.MultitileDefaults(this, mapName, Type, width, height);
 		}
@@ -31,7 +31,7 @@ namespace TerraScience.Content.Tiles.Multitiles {
 		/// </summary>
 		public virtual bool PreHandleMouse(Point16 pos) => false;
 
-		public sealed override bool NewRightClick(int i, int j) {
+		public sealed override bool RightClick(int i, int j) {
 			Tile tile = Framing.GetTileSafely(i, j);
 			Point16 pos = new Point16(i, j) - tile.TileCoord();
 
@@ -77,7 +77,7 @@ namespace TerraScience.Content.Tiles.Multitiles {
 			//Restore the saved data, if it exists
 			MachineEntity placed = TileEntity.ByPosition[tePos] as MachineEntity;
 			if(mItem.entityData != null)
-				placed.Load(mItem.entityData);
+				placed.LoadData(mItem.entityData);
 
 			//If this structure has a powered entity on it, try to connect it to nearby networks
 			Point16 checkOrig = tePos - new Point16(1, 1);
@@ -108,7 +108,7 @@ namespace TerraScience.Content.Tiles.Multitiles {
 			}
 
 			if(Main.netMode == NetmodeID.MultiplayerClient)
-				NetMessage.SendTileRange(Main.myPlayer, checkOrig.X, checkOrig.Y, (int)width + 1, (int)height + 1);
+				NetMessage.SendTileSquare(Main.myPlayer, checkOrig.X, checkOrig.Y, (int)width + 1, (int)height + 1);
 		}
 	}
 }

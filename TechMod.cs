@@ -70,6 +70,7 @@ namespace TerraScience {
 
 		public static bool debugging;
 
+
 		internal static Type[] types;
 
 		public const bool Release = false;
@@ -335,13 +336,12 @@ namespace TerraScience {
 
 		internal void SetNetworkTilesSolid(){
 			Main.tileSolid[ModContent.TileType<TransportJunction>()] = true;
-
 			foreach(var type in types){
 				if(type.IsAbstract)
 					continue;
 
 				if(typeof(JunctionMergeable).IsAssignableFrom(type)){
-					int tileType = TileLoader.GetTile(type).Type;
+					int tileType = ModContent.TileType<type>();
 
 					Main.tileSolid[tileType] = true;
 				}

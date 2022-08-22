@@ -100,7 +100,7 @@ namespace TerraScience.Content.TileEntities {
 
 		public virtual TagCompound ExtraSave() => null;
 
-		public sealed override void Load(Mod mod){
+		public sealed override void LoadData(TagCompound tag){
 			TagCompound info = tag.GetCompound("machineInfo");
 			ReactionSpeed = info.GetFloat(nameof(ReactionSpeed));
 			ReactionProgress = info.GetFloat(nameof(ReactionProgress));
@@ -233,7 +233,7 @@ namespace TerraScience.Content.TileEntities {
 			bool nearbyMuffler = WorldGen.InWorld((int)position.X >> 4, (int)position.Y >> 4) && MachineMufflerTile.AnyMufflersNearby(position);
 			SoundStyle style = new SoundStyle($"Sounds/Custom/{path}");
 			style.Volume = nearbyMuffler ? 0.1f : 1f;
-			return SoundEngine.PlaySound(style, (int)position.X, (int)position.Y);
+			return SoundEngine.PlaySound(style, new Vector2((int)position.X, (int)position.Y));
 		}
 
 		// These may be invalid.

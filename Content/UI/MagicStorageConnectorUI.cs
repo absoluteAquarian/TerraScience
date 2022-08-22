@@ -103,7 +103,7 @@ namespace TerraScience.Content.UI {
 			//Can't return a type from Magic Storage in this method or the entire class would be unusable
 			foreach(var neighbor in checkNeighbors2x2){
 				Tile tile = Framing.GetTileSafely(tileOrig + neighbor);
-				ModTile mTile = ModContent.GetModTile(tile.type);
+				ModTile mTile = ModContent.GetModTile(tile.TileType);
 
 				if(!tile.HasTile || !(mTile is StorageConnector || mTile is StorageAccess))
 					continue;
