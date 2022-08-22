@@ -4,6 +4,7 @@ using System;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.Enums;
+using Terraria.GameContent;
 using Terraria.ModLoader;
 using Terraria.ObjectData;
 using TerraScience.Content.Items.Placeable;
@@ -31,7 +32,7 @@ namespace TerraScience.Content.Tiles{
 			TileObjectData.addTile(Type);
 
 			AddMapEntry(Color.LightBlue);
-			drop = ModContent.ItemType<FluidPump>();
+			ItemDrop = ModContent.ItemType<FluidPump>();
 		}
 
 		public override void PlaceInWorld(int i, int j, Item item){
@@ -41,7 +42,7 @@ namespace TerraScience.Content.Tiles{
 
 			var tile = Framing.GetTileSafely(i, j);
 			//Sanity check; TileObjectData should already handle this
-			tile.frameX = (short)(item.placeStyle * 18);
+			tile.TileFrameX = (short)(item.placeStyle * 18);
 
 			NetworkCollection.OnFluidPipePlace(new Point16(i, j));
 		}
@@ -58,7 +59,7 @@ namespace TerraScience.Content.Tiles{
 		internal Point16 GetBackwardsOffset(Point16 orig){
 			Tile tile = Framing.GetTileSafely(orig);
 			Point16 dir;
-			switch(tile.frameX / 18){
+			switch(tile.TileFrameX / 18){
 				case 0:
 					dir = new Point16(0, 1);
 					break;
@@ -72,7 +73,7 @@ namespace TerraScience.Content.Tiles{
 					dir = new Point16(-1, 0);
 					break;
 				default:
-					throw new Exception($"Inner TerraScience error -- Unexpected pump tile frame (ID: {tile.frameX / 18})");
+					throw new Exception($"Inner TerraScience error -- Unexpected pump tile frame (ID: {tile.TileFrameX / 18})");
 			}
 
 			return orig + dir;
@@ -82,7 +83,7 @@ namespace TerraScience.Content.Tiles{
 			var actualLocation = GetBackwardsOffset(location);
 			Tile tile = Framing.GetTileSafely(actualLocation);
 
-			if(!(ModContent.GetModTile(tile.type) is Machine))
+			if(!(ModContent.GetModTile(tile.TileType) is Machine))
 				return null;
 
 			Point16 origin = actualLocation - tile.TileCoord();
@@ -91,7 +92,7 @@ namespace TerraScience.Content.Tiles{
 		}
 
 		public override bool PreDraw(int i, int j, SpriteBatch spriteBatch){
-			FluidTransportTile.DrawFluid(new Point16(i, j), ModContent.GetTexture("TerraScience/Content/Tiles/Effect_FluidPumpTile_fluid"), spriteBatch);
+			FluidTransportTile.DrawFluid(new Point16(i, j), ModContent.Request<Texture2D>("TerraScience/Content/Tiles/Effect_FluidPumpTile_fluid").Value, spriteBatch);
 
 			//Pump draws itself if the config is disabled
 			return !TechModConfig.Instance.AnimatePumps;
@@ -133,7 +134,7 @@ namespace TerraScience.Content.Tiles{
 
 			//Find the direction the offset needs to sway in
 			Vector2 dir;
-			int tileFrame = Framing.GetTileSafely(i, j).frameX / 18;
+			int tileFrame = Framing.GetTileSafely(i, j).TileFrameX / 18;
 			switch(tileFrame){
 				case 0:
 					dir = new Vector2(0, -1);
@@ -151,8 +152,8 @@ namespace TerraScience.Content.Tiles{
 					throw new Exception($"Inner TerraScience error -- Unexpected pump tile frame (ID: {tileFrame})");
 			}
 
-			Texture2D tileTexture = Main.tileTexture[Type];
-			Texture2D texture = ModContent.GetTexture("TerraScience/Content/Tiles/Effect_FluidPumpTile_bar");
+			Texture2D tileTexture = TextureAssets.Tile[Type].Value;
+			Texture2D texture = ModContent.Request<Texture2D>("TerraScience/Content/Tiles/Effect_FluidPumpTile_bar").Value;
 			Rectangle tileSource = tileTexture.Frame(4, 1, tileFrame, 0);
 			Rectangle frame = texture.Frame(4, 1, tileFrame, 0);
 			frame.Width -= 2;

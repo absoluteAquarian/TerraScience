@@ -54,7 +54,7 @@ namespace TerraScience.Content.TileEntities {
 
 		public sealed override bool IsTileValidForEntity(int i, int j){
 			Tile tile = Framing.GetTileSafely(i, j);
-			return tile.active() && tile.type == MachineTile && tile.frameX == 0 && tile.frameY == 0;
+			return tile.HasTile && tile.TileType == MachineTile && tile.TileFrameX == 0 && tile.TileFrameY == 0;
 		}
 
 		public virtual void PreUpdateReaction(){ }
@@ -84,24 +84,23 @@ namespace TerraScience.Content.TileEntities {
 		/// </summary>
 		public virtual bool RequiresUI => false;
 
-		public sealed override TagCompound Save()
-			=> new TagCompound(){
-				["machineInfo"] = new TagCompound(){
-					[nameof(ReactionSpeed)] = ReactionSpeed,
-					[nameof(ReactionProgress)] = ReactionProgress,
-					[nameof(ReactionInProgress)] = ReactionInProgress
-				},
-				["slots"] = new TagCompound(){
-					//Lots of unnecessary data is saved, but that's fine due to the small amount of extra bytes used
-					// TODO: refactor ItemIO.Save/ItemIO.Load to get rid of this extra info
-					["items"] = slots.Length == 0 ? null : slots.Select(i => ItemIO.Save(i)).ToList()
-				},
-				["extra"] = ExtraSave()
-			};
+		public sealed override void SaveData(TagCompound tag) {
+			tag.Set("machineInfo", new TagCompound() {
+				[nameof(ReactionSpeed)] = ReactionSpeed,
+				[nameof(ReactionProgress)] = ReactionProgress,
+				[nameof(ReactionInProgress)] = ReactionInProgress
+			});
+			tag.Set("slots", new TagCompound() {
+				//Lots of unnecessary data is saved, but that's fine due to the small amount of extra bytes used
+				// TODO: refactor ItemIO.Save/ItemIO.Load to get rid of this extra info
+				["items"] = slots.Length == 0 ? null : slots.Select(i => ItemIO.Save(i)).ToList()
+			});
+			tag.Set("extra", ExtraSave());
+		}
 
 		public virtual TagCompound ExtraSave() => null;
 
-		public sealed override void Load(TagCompound tag){
+		public sealed override void Load(Mod mod){
 			TagCompound info = tag.GetCompound("machineInfo");
 			ReactionSpeed = info.GetFloat(nameof(ReactionSpeed));
 			ReactionProgress = info.GetFloat(nameof(ReactionProgress));
@@ -178,7 +177,7 @@ namespace TerraScience.Content.TileEntities {
 				TechMod.Instance.machineLoader.HideUI(MachineName);
 		}
 
-		public sealed override void NetSend(BinaryWriter writer, bool lightSend){
+		public sealed override void NetSend(BinaryWriter writer){
 			writer.Write(ReactionInProgress);
 			writer.Write(ReactionSpeed);
 			writer.Write(ReactionProgress);
@@ -196,7 +195,7 @@ namespace TerraScience.Content.TileEntities {
 		/// <param name="writer">The writer</param>
 		public virtual void ExtraNetSend(BinaryWriter writer){ }
 
-		public sealed override void NetReceive(BinaryReader reader, bool lightReceive){
+		public sealed override void NetReceive(BinaryReader reader){
 			ReactionInProgress = reader.ReadBoolean();
 			ReactionSpeed = reader.ReadSingle();
 			ReactionProgress = reader.ReadSingle();
@@ -232,27 +231,29 @@ namespace TerraScience.Content.TileEntities {
 
 		internal SoundEffectInstance PlayCustomSound(Vector2 position, string path){
 			bool nearbyMuffler = WorldGen.InWorld((int)position.X >> 4, (int)position.Y >> 4) && MachineMufflerTile.AnyMufflersNearby(position);
-
-			return Main.PlaySound(SoundLoader.customSoundType, (int)position.X, (int)position.Y, TechMod.Instance.GetSoundSlot(SoundType.Custom, $"Sounds/Custom/{path}"), volumeScale: nearbyMuffler ? 0.1f : 1f);
+			SoundStyle style = new SoundStyle($"Sounds/Custom/{path}");
+			style.Volume = nearbyMuffler ? 0.1f : 1f;
+			return SoundEngine.PlaySound(style, (int)position.X, (int)position.Y);
 		}
 
-		internal void PlaySound(int type, Vector2 position, int style = 1){
-			bool nearbyMuffler = WorldGen.InWorld((int)position.X >> 4, (int)position.Y >> 4) && MachineMufflerTile.AnyMufflersNearby(position);
+		// These may be invalid.
+		//internal void PlaySound(int type, Vector2 position, int style = 1){
+		//	bool nearbyMuffler = WorldGen.InWorld((int)position.X >> 4, (int)position.Y >> 4) && MachineMufflerTile.AnyMufflersNearby(position);
 
-			SoundEngine.PlaySound(type, new Vector2((int)position.X, (int)position.Y), volumeScale: nearbyMuffler ? 0.1f : 1f);
-		}
+		//	SoundEngine.PlaySound(type, new Vector2((int)position.X, (int)position.Y), volumeScale: nearbyMuffler ? 0.1f : 1f);
+		//}
 
 		internal void PlaySound(SoundStyle type, Vector2 position){
 			bool nearbyMuffler = WorldGen.InWorld((int)position.X >> 4, (int)position.Y >> 4) && MachineMufflerTile.AnyMufflersNearby(position);
-
+			type.Volume = nearbyMuffler ? 0.1f : 1f;
 			SoundEngine.PlaySound(type, new Vector2((int)position.X, (int)position.Y));
 		}
 
-		internal void PlaySound(int type, int x = -1, int y = -1, int style = 1){
-			bool nearbyMuffler = WorldGen.InWorld(x, y) && MachineMufflerTile.AnyMufflersNearby(new Vector2(x, y));
+		//internal void PlaySound(int type, int x = -1, int y = -1, int style = 1){
+		//	bool nearbyMuffler = WorldGen.InWorld(x, y) && MachineMufflerTile.AnyMufflersNearby(new Vector2(x, y));
 
-			Main.PlaySound(type, x, y, style, volumeScale: nearbyMuffler ? 0.1f : 1f);
-		}
+		//	SoundEngine.PlaySound(type, new Vector2(x, y), style, volumeScale: nearbyMuffler ? 0.1f : 1f);
+		//}
 
 		internal abstract int[] GetInputSlots();
 

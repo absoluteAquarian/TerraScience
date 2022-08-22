@@ -57,7 +57,7 @@ namespace TerraScience.Content.UI {
 			Tile tile = Framing.GetTileSafely(center);
 			ModTile mTile = ModContent.GetModTile(tile.type);
 
-			if(!tile.active()){
+			if(!tile.HasTile){
 				text[0].SetText("Not connected");
 				return;
 			}
@@ -105,7 +105,7 @@ namespace TerraScience.Content.UI {
 				Tile tile = Framing.GetTileSafely(tileOrig + neighbor);
 				ModTile mTile = ModContent.GetModTile(tile.type);
 
-				if(!tile.active() || !(mTile is StorageConnector || mTile is StorageAccess))
+				if(!tile.HasTile || !(mTile is StorageConnector || mTile is StorageAccess))
 					continue;
 
 				var center = TEStorageComponent.FindStorageCenter(tileOrig + neighbor);

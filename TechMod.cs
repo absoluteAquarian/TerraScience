@@ -34,7 +34,7 @@ namespace TerraScience {
 
 
     // TODO: Move this into a MaterialLoader?
-    public partial class TechMod : Mod, ModSystem {
+    public partial class TechMod : Mod {
 
         public static readonly Action<Item> VialDefaults = i => {
             i.maxStack = 99;
