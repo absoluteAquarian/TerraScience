@@ -17,7 +17,7 @@ namespace TerraScience.Content.Tiles.Energy{
 
 		public override void SafeSetDefaults(){
 			AddMapEntry(Color.Orange);
-			drop = ModContent.ItemType<TFWireItem>();
+			ItemDrop = ModContent.ItemType<TFWireItem>();
 		}
 
 		public override void PlaceInWorld(int i, int j, Item item){

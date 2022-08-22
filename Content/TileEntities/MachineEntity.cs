@@ -229,11 +229,11 @@ namespace TerraScience.Content.TileEntities {
 		/// <param name="reader">The reader</param>
 		public virtual void ExtraNetReceive(BinaryReader reader){ }
 
-		internal SoundEffectInstance PlayCustomSound(Vector2 position, string path){
+		internal void PlayCustomSound(Vector2 position, string path){
 			bool nearbyMuffler = WorldGen.InWorld((int)position.X >> 4, (int)position.Y >> 4) && MachineMufflerTile.AnyMufflersNearby(position);
 			SoundStyle style = new SoundStyle($"Sounds/Custom/{path}");
 			style.Volume = nearbyMuffler ? 0.1f : 1f;
-			return SoundEngine.PlaySound(style, new Vector2((int)position.X, (int)position.Y));
+			SoundEngine.PlaySound(style, new Vector2((int)position.X, (int)position.Y));
 		}
 
 		// These may be invalid.

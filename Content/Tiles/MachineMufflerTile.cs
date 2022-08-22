@@ -60,7 +60,9 @@ namespace TerraScience.Content.Tiles{
 			mufflers.Remove(orig + new Point16(1, 0));
 			mufflers.Remove(orig + new Point16(0, 1));
 			mufflers.Remove(orig + new Point16(1, 1));
-			Item.NewItem(new Vector2(i * 16, j * 16), new Vector2(32, 32), ModContent.ItemType<MachineMuffler>());
+
+			//Needs an entity for some reason
+			Item.NewItem(, new Vector2(i * 16, j * 16), new Vector2(32, 32), ModContent.ItemType<MachineMuffler>());
 		}
 	}
 }

@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.ModLoader;
+using Terraria.GameContent;
 using TerraScience.Content.Items.Placeable.Machines.Energy;
 using TerraScience.Content.TileEntities.Energy;
 using TerraScience.Utilities;
@@ -31,7 +32,7 @@ namespace TerraScience.Content.Tiles.Multitiles.EnergyMachines{
 				var tileType = entity.RetrieveItem(0).createTile;
 				//Make sure the texture isn't null
 				Main.instance.LoadTiles(tileType);
-				Texture2D texture = Main.tileTexture[tileType];
+				Texture2D texture = TextureAssets.Tile[tileType].Value;
 				Rectangle frame = texture.Frame(16, 15, 6 + entity.frameRand, 0);
 				Rectangle frame2 = texture.Frame(16, 15, 6 + entity.frameRand2, 0);
 

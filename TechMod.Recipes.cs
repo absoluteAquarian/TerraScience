@@ -34,13 +34,12 @@ namespace TerraScience {
 				.AddIngredient(ItemID.GrayBrick, 30);
 
 			DatalessMachineInfo.recipes.Add(ModContent.ItemType<ScienceWorkbenchItem>(), mod => {
-				ModRecipe recipe = new ModRecipe(mod);
-
+				Recipe recipe = Recipe.Create(Find<ModTile>("DatalessScienceWorkbench").Type);
 				scienceWorkbenchSet.Apply(recipe);
 
 				recipe.AddTile(TileID.WorkBenches);
-				recipe.SetResult(ItemType("DatalessScienceWorkbench"), 1);
-				recipe.AddRecipe();
+
+				recipe.Register();
 
 				scienceWorkbenchSet.recipeIndex = recipe.RecipeIndex;
 			});
@@ -152,7 +151,7 @@ namespace TerraScience {
 					continue;
 
 				if(typeof(JunctionMergeable).IsAssignableFrom(type)){
-					int tileType = GetTile(type.Name).Type;
+					int tileType = ModContent.TileType<type>();
 
 					foreach(var pair in TileUtils.tileToEntity){
 						if(pair.Value is PoweredMachineEntity){

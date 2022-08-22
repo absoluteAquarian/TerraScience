@@ -25,7 +25,7 @@ namespace TerraScience.Content.Tiles{
 			TileObjectData.addTile(Type);
 
 			AddMapEntry(Color.LightGray);
-			drop = ModContent.ItemType<TransportJunctionItem>();
+			ItemDrop = ModContent.ItemType<TransportJunctionItem>();
 		}
 
 		public override bool CanPlace(int i, int j){

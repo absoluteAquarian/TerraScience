@@ -108,7 +108,7 @@ namespace TerraScience.Utilities{
 					}
 				}
 
-				item.entityData = tileEntity.Save();
+				tileEntity.SaveData(item.entityData);
 
 				//Remove this machine from the wire networks if it's a powered machine
 				if(tileEntity is PoweredMachineEntity pme)

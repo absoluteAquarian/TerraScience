@@ -356,7 +356,7 @@ namespace TerraScience {
 					continue;
 
 				if(typeof(JunctionMergeable).IsAssignableFrom(type)){
-					int tileType = TileLoader.GetTile(type).Type;
+					int tileType = ModContent.TileType<type>();
 
 					Main.tileSolid[tileType] = false;
 				}
