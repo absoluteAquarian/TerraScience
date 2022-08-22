@@ -4,7 +4,7 @@ using TerraScience.Content.UI;
 using TerraScience.Systems;
 
 namespace TerraScience.API.UI{
-	public class UITesseractItemSlot : UIItemSlot{
+	public class UITesseractItemSlot : UIItemSlotWrapper{
 		public readonly int Slot;
 
 		public TesseractUI parentUI;

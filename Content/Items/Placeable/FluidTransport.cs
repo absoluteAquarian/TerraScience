@@ -11,32 +11,31 @@ namespace TerraScience.Content.Items.Placeable{
 		}
 
 		public override void SetDefaults(){
-			item.width = 34;
-			item.height = 8;
-			item.scale = 0.75f;
-			item.rare = ItemRarityID.White;
-			item.maxStack = 999;
-			item.useStyle = ItemUseStyleID.SwingThrow;
-			item.useTime = 10;
-			item.useAnimation = 15;
-			item.createTile = ModContent.TileType<FluidTransportTile>();
-			item.value = 5;
-			item.consumable = true;
-			item.autoReuse = true;
-			item.useTurn = true;
+			Item.width = 34;
+			Item.height = 8;
+			Item.scale = 0.75f;
+			Item.rare = ItemRarityID.White;
+			Item.maxStack = 999;
+			Item.useStyle = ItemUseStyleID.Swing;
+			Item.useTime = 10;
+			Item.useAnimation = 15;
+			Item.createTile = ModContent.TileType<FluidTransportTile>();
+			Item.value = 5;
+			Item.consumable = true;
+			Item.autoReuse = true;
+			Item.useTurn = true;
 		}
 
 		public override void AddRecipes(){
-			ModRecipe recipe = new ModRecipe(mod);
-			recipe.AddRecipeGroup(RecipeGroupID.IronBar, 1);
-			recipe.AddIngredient(ItemID.WaterBucket, 1);
-			recipe.AddTile(TileID.Anvils);
-			recipe.SetResult(this, 25);
-			recipe.AddRecipe();
+			Recipe.Create(this.Type, 25)
+			.AddRecipeGroup(RecipeGroupID.IronBar, 1)
+			.AddIngredient(ItemID.WaterBucket, 1)
+			.AddTile(TileID.Anvils)
+			.Register();
 		}
 
 		public override void OnCraft(Recipe recipe){
-			Main.LocalPlayer.QuickSpawnItem(ItemID.EmptyBucket, 1);
+			Main.LocalPlayer.QuickSpawnItem(Main.LocalPlayer.GetSource_DropAsItem(), ItemID.EmptyBucket, 1);
 		}
 	}
 }

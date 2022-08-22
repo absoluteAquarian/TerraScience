@@ -62,15 +62,15 @@ namespace TerraScience.Content.Items.Placeable.Machines{
 		}
 
 		public sealed override void ModifyTooltips(List<TooltipLine> tooltips){
-			int index = tooltips.FindIndex(tl => tl.text == "<>");
+			int index = tooltips.FindIndex(tl => tl.Text == "<>");
 			if(index >= 0){
 				var type = this.GetType();
 				if(entityData != null && !(type.IsGenericType && type.GetGenericTypeDefinition() == typeof(DatalessMachineItem<>))){
-					tooltips[index].text = "[c/dddd00:This machine contains entity data.]";
+					tooltips[index].Text = "[c/dddd00:This machine contains entity data.]";
 
 					if(TileUtils.tileToEntity[TileType] is PoweredMachineEntity pme){
 						// root -> "extra" -> "flux"
-						tooltips.Insert(++index, new TooltipLine(mod, "PowerDescription", $"[c/dddd00:{entityData.GetCompound("extra").GetFloat("flux")} / {(float)pme.FluxCap} TF]"));
+						tooltips.Insert(++index, new TooltipLine(TechMod.Instance, "PowerDescription", $"[c/dddd00:{entityData.GetCompound("extra").GetFloat("flux")} / {(float)pme.FluxCap} TF]"));
 					}
 				}else
 					tooltips.RemoveAt(index);
@@ -137,7 +137,7 @@ namespace TerraScience.Content.Items.Placeable.Machines{
 
 		public override void AddRecipes(){
 			try{
-				DatalessMachineInfo.recipes[ModContent.ItemType<T>()](mod);
+				DatalessMachineInfo.recipes[ModContent.ItemType<T>()](TechMod.Instance);
 			}catch(KeyNotFoundException){
 				throw new Exception($"Machine \"{typeof(T).Name}\" does not have a recipe");
 			}

@@ -8,8 +8,8 @@ namespace TerraScience.Content{
 		}
 
 		public override void SetDefaults(){
-			item.width = 16;
-			item.height = 16;
+			Item.width = 16;
+			Item.height = 16;
 		}
 	}
 }

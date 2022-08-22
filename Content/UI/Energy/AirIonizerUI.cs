@@ -37,22 +37,22 @@ namespace TerraScience.Content.UI.Energy{
 			text.Add(progress);
 		}
 
-		internal override void InitializeSlots(List<UIItemSlot> slots){
-			UIItemSlot input = new UIItemSlot(){
+		internal override void InitializeSlots(List<UIItemSlotWrapper> slots){
+			UIItemSlotWrapper input = new UIItemSlotWrapper(){
 				ValidItemFunc = item => item.IsAir || AirIonizerEntity.recipes.ContainsKey(item.type),
 				HAlign = 0.38f
 			};
 			input.Top.Set(150, 0);
 			slots.Add(input);
 
-			UIItemSlot battery = new UIItemSlot(){
+			UIItemSlotWrapper battery = new UIItemSlotWrapper(){
 				ValidItemFunc = item => item.IsAir || item.type == ModContent.ItemType<Battery9V>()
 			};
 			battery.Top.Set(130, 0);
 			battery.Left.Set(40, 0);
 			slots.Add(battery);
 
-			UIItemSlot output = new UIItemSlot(){
+			UIItemSlotWrapper output = new UIItemSlotWrapper(){
 				ValidItemFunc = item => item.IsAir,
 				HAlign = 0.62f
 			};

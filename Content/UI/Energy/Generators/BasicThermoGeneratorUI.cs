@@ -43,8 +43,8 @@ namespace TerraScience.Content.UI.Energy.Generators{
 			return item.IsAir || name.Contains("Wood") || name.Contains("wood") || item.buffType == BuffID.WellFed || item.buffType == BuffID.Tipsy || item.type == ModContent.ItemType<Coal>();
 		}
 
-		internal override void InitializeSlots(List<UIItemSlot> slots){
-			UIItemSlot fuel = new UIItemSlot(){
+		internal override void InitializeSlots(List<UIItemSlotWrapper> slots){
+			UIItemSlotWrapper fuel = new UIItemSlotWrapper(){
 				HAlign = 0.5f,
 				ValidItemFunc = item => ValidItem(item)
 			};

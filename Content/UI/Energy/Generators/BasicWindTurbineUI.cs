@@ -63,7 +63,7 @@ namespace TerraScience.Content.UI.Energy.Generators{
 			}
 		}
 
-		internal override void InitializeSlots(List<UIItemSlot> slots){
+		internal override void InitializeSlots(List<UIItemSlotWrapper> slots){
 			//No items lol
 		}
 	}

@@ -1,6 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 using Terraria;
+using Terraria.Audio;
+using Terraria.GameContent;
 using Terraria.GameContent.UI.Elements;
 using Terraria.ID;
 using Terraria.Localization;
@@ -162,7 +164,7 @@ namespace TerraScience.Content.UI{
 			knownPanel.Top.Set(50, 0);
 			panel.Append(knownPanel);
 
-			float textHeight = Main.fontMouseText.MeasureString("Very Cool Network\nPrivate: no").Y;
+			float textHeight = FontAssets.MouseText.Value.MeasureString("Very Cool Network\nPrivate: no").Y;
 
 			const int knownPanelBufferBottom = 40;
 			int rows = (int)((knownPanel.GetInnerDimensions().Height - knownPanelBufferBottom - 30) / textHeight);
@@ -275,7 +277,7 @@ namespace TerraScience.Content.UI{
 				wantedBoundNetwork = null;
 				oldWantedBoundNetwork = null;
 
-				Main.PlaySound(SoundID.MenuTick);
+				SoundEngine.PlaySound(SoundID.MenuTick);
 
 				Main.NewText($"[Tesseract] Successfully bound entity to network \"{BoundNetwork}\".", Color.Green);
 
@@ -297,7 +299,7 @@ namespace TerraScience.Content.UI{
 
 				header.SetText("Create a Network");
 
-				Main.PlaySound(SoundID.MenuTick);
+				SoundEngine.PlaySound(SoundID.MenuTick);
 			};
 			panel.Append(createNetwork);
 
@@ -384,7 +386,7 @@ namespace TerraScience.Content.UI{
 					TechMod.Instance.machineLoader.OnUpdateOnce += CloseInputPasswordMenu;
 				}
 
-				Main.PlaySound(SoundID.MenuTick);
+				SoundEngine.PlaySound(SoundID.MenuTick);
 			};
 			panel.Append(destroyNetwork);
 
@@ -455,7 +457,7 @@ namespace TerraScience.Content.UI{
 				pendingNetworkPassword = "";
 				pendingNetworkPrivate = false;
 
-				Main.PlaySound(SoundID.MenuTick);
+				SoundEngine.PlaySound(SoundID.MenuTick);
 
 				Main.NewText($"[TESSERACT] Network of name \"{entry.name}\" (private: {entry.entryIsPrivate}) was created.", Color.Green);
 
@@ -506,7 +508,7 @@ namespace TerraScience.Content.UI{
 					panel.Append(knownPanel);
 				};
 
-				Main.PlaySound(SoundID.MenuTick);
+				SoundEngine.PlaySound(SoundID.MenuTick);
 
 				Main.NewText($"[TESSERACT] Network \"{configTarget.name}\" had its password changed.");
 
@@ -542,7 +544,7 @@ namespace TerraScience.Content.UI{
 
 			//It would be weird for sounds to play when the page limits have been reached
 			if(currentPage == oldPage){
-				Main.PlaySound(SoundID.MenuTick);
+				SoundEngine.PlaySound(SoundID.MenuTick);
 				oldWantedBoundNetwork = null;
 				wantedBoundNetwork = null;
 			}
