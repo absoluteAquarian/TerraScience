@@ -61,8 +61,8 @@ namespace TerraScience.Content.Tiles{
 			mufflers.Remove(orig + new Point16(0, 1));
 			mufflers.Remove(orig + new Point16(1, 1));
 
-			//Needs an entity for some reason
-			Item.NewItem(, new Vector2(i * 16, j * 16), new Vector2(32, 32), ModContent.ItemType<MachineMuffler>());
+			//Should i, j here be multiplied by 16? Test this.
+			Item.NewItem(new EntitySource_TileBreak(i, j), new Vector2(i * 16, j * 16), new Vector2(32, 32), ModContent.ItemType<MachineMuffler>());
 		}
 	}
 }

@@ -341,7 +341,9 @@ namespace TerraScience {
 					continue;
 
 				if(typeof(JunctionMergeable).IsAssignableFrom(type)){
-					int tileType = ModContent.TileType<type>();
+					var methodInfo = type.GetMethod("ModContent.TileType");
+					var act = methodInfo.MakeGenericMethod(type);
+					int tileType = (int)act.Invoke(null, null); //Ugly, but might work?
 
 					Main.tileSolid[tileType] = true;
 				}
@@ -356,14 +358,16 @@ namespace TerraScience {
 					continue;
 
 				if(typeof(JunctionMergeable).IsAssignableFrom(type)){
-					int tileType = ModContent.TileType<type>();
+					var methodInfo = type.GetMethod("ModContent.TileType");
+					var act = methodInfo.MakeGenericMethod(type);
+					int tileType = (int)act.Invoke(type, null); //Ugly, but might work?
 
 					Main.tileSolid[tileType] = false;
 				}
 			}
 		}
 
-		//public override void PreUpdateEntities(){
+		//public override void PreUpdateEntities() {
 		//	//ModHooks.PreUpdateEntities() is called before WorldGen.UpdateWorld, which updates the tile entities
 		//	//So this is a good place to have the tile stuff update
 

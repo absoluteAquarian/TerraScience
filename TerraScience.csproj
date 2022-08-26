@@ -7,4 +7,9 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="RecursiveCraft">
+      <HintPath>lib\RecursiveCraft.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 </Project>
