@@ -134,13 +134,13 @@ namespace TerraScience.Content.TileEntities.Energy{
 
 			var coins = Utils.CoinsSplit(storedCoins);
 			if(coins[0] > 0)
-				Main.LocalPlayer.QuickSpawnItem(ItemID.CopperCoin, coins[0]);
+				Main.LocalPlayer.QuickSpawnItem(Main.LocalPlayer.GetSource_DropAsItem(), ItemID.CopperCoin, coins[0]);
 			if(coins[1] > 0)
-				Main.LocalPlayer.QuickSpawnItem(ItemID.SilverCoin, coins[1]);
+				Main.LocalPlayer.QuickSpawnItem(Main.LocalPlayer.GetSource_DropAsItem(), ItemID.SilverCoin, coins[1]);
 			if(coins[2] > 0)
-				Main.LocalPlayer.QuickSpawnItem(ItemID.GoldCoin, coins[2]);
+				Main.LocalPlayer.QuickSpawnItem(Main.LocalPlayer.GetSource_DropAsItem(), ItemID.GoldCoin, coins[2]);
 			if(coins[3] > 0)
-				Main.LocalPlayer.QuickSpawnItem(ItemID.PlatinumCoin, coins[3]);
+				Main.LocalPlayer.QuickSpawnItem(Main.LocalPlayer.GetSource_DropAsItem(), ItemID.PlatinumCoin, coins[3]);
 
 			storedCoins = 0;
 		}

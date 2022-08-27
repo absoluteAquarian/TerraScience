@@ -48,7 +48,7 @@ namespace TerraScience.Content.TileEntities.Energy.Generators{
 			ReactionProgress = 100;
 			ReactionInProgress = true;
 
-			bladeRotation += MathHelper.ToRadians(Main.windSpeed * 6f);
+			bladeRotation += MathHelper.ToRadians(Main.windSpeedCurrent * 6f);
 
 			rainBoost = Main.raining;
 			sandstormBoost = Sandstorm.Happening;
@@ -80,7 +80,7 @@ namespace TerraScience.Content.TileEntities.Energy.Generators{
 
 			TerraFlux flux = TerraFlux.Zero;
 
-			float realWind = Math.Abs(Main.windSpeed) * 100;
+			float realWind = Math.Abs(Main.windSpeedCurrent) * 100;
 
 			//Flux = 1TF/t multiplied by a factor of Wind Speed / 28mph
 			float tfPerTick = 1f;

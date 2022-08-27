@@ -151,7 +151,7 @@ namespace TerraScience {
 					continue;
 
 				if(typeof(JunctionMergeable).IsAssignableFrom(type)){
-					int tileType = ModContent.TileType<type>();
+					int tileType = this.Find<ModTile>(type.Name).Type;
 
 					foreach(var pair in TileUtils.tileToEntity){
 						if(pair.Value is PoweredMachineEntity){

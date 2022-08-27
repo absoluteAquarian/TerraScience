@@ -102,7 +102,7 @@ namespace TerraScience.Content.TileEntities{
 			if(modString == "Terraria")
 				return tag.GetInt("id");
 
-			return ModLoader.GetMod(modString).Find<TechMod>(tag.GetString("name"));
+			return ModLoader.GetMod(modString).Find<ModItem>(tag.GetString("name")).Type;
 		}
 
 		public override void ExtraNetReceive(BinaryReader reader){
