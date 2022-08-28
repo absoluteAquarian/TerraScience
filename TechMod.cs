@@ -192,6 +192,9 @@ namespace TerraScience {
 						throw new ArgumentException("Machine item type had an unexpected name: " + name);
 
 					var datalessType = datalessTypeNoArgs.MakeGenericType(type);
+
+					//throw new ArgumentException("item type had an unexpected name: " + datalessType.Name);
+
                     AddContent((ModItem)Activator.CreateInstance(datalessType, new object[] { $"Dataless{name.Substring(0, name.LastIndexOf("Item"))}" }));
                 }
             }

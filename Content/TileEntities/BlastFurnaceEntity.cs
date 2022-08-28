@@ -56,9 +56,8 @@ namespace TerraScience.Content.TileEntities{
 			if(ReactionInProgress && !ForceNoReaction){
 				Vector2 center = TileUtils.TileEntityCenter(this, MachineTile);
 
-				burning = this.PlayCustomSound(center, "CampfireBurning");
-			}else
-				burning?.Stop();
+				this.PlayCustomSound(center, "CampfireBurning");
+			}
 		}
 
 		public override void ReactionComplete(){
