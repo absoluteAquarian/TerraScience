@@ -117,7 +117,13 @@ namespace TerraScience.Content.Items.Placeable.Machines{
 		//Need a parametered ctor here to prevent tModLoader from trying to autoload this Item, even with Autoload returning false
 #pragma warning disable IDE0060
 		public DatalessMachineItem(bool b = false){ }
+		public DatalessMachineItem(string name){
+			Name = name;
+			Logging.PublicLogger.Debug($"created datalessmachineitem with name {Name} / {name} / {ItemName}" );		
+		 }
 #pragma warning restore IDE0060
+
+        public override string Name { get; }
 
 		public override string Texture => ModContent.GetInstance<T>().Texture;
 
