@@ -17,9 +17,9 @@ namespace TerraScience.API.CrossMod.MagicStorage{
 
 		public static bool DelayInteractionsDueToWorldSaving;
 
-		public static int ItemType(string name) => handler.Instance?.Find<MagicStorage>(name) ?? 0;
+		public static int ItemType(string name) => handler.Instance?.Find<ModItem>(name).Type ?? 0;
 
-		public static int TileType(string name) => handler.Instance?.Find<MagicStorage>(name) ?? 0;
+		public static int TileType(string name) => handler.Instance?.Find<ModItem>(name).Type ?? 0;
 
 		public static IEnumerable<Item> TryGetItems(Point16 tileCoord)
 			=> handler.ModIsActive && !DelayInteractionsDueToWorldSaving ? StrongRef_TryGetItems(tileCoord) : null;
@@ -156,7 +156,7 @@ namespace TerraScience.API.CrossMod.MagicStorage{
 
 			if(checkOnly && clone2.stack > 0){
 				//We're just checking if the item can be deposited.  Withdraw it immediately
-				heart.TryWithdraw(clone2);
+				heart.TryWithdraw(clone2, true);
 			}
 
 			return true;
@@ -185,7 +185,7 @@ namespace TerraScience.API.CrossMod.MagicStorage{
 				return false;
 
 			var heart = access.GetHeart(tileCoord.X - origin.X, tileCoord.Y - origin.Y);
-			withdrawn = heart.TryWithdraw(item);
+			withdrawn = heart.TryWithdraw(item, true);
 
 			if(checkOnly && !withdrawn.IsAir)
 				heart.DepositItem(withdrawn);
@@ -224,7 +224,7 @@ namespace TerraScience.API.CrossMod.MagicStorage{
 				clone.stack = Math.Min(stackExtracted, clone.stack);
 
 				if(entity.CanBeInput(clone) && simulation.TryInsertItems(clone)){
-					heart.TryWithdraw(clone);
+					heart.TryWithdraw(clone, true);
 
 					toWithdraw = clone;
 					break;
