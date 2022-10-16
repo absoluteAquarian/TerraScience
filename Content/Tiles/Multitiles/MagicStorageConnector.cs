@@ -4,6 +4,7 @@ using TerraScience.Content.Items.Placeable.Machines;
 using TerraScience.Content.TileEntities;
 using TerraScience.Utilities;
 
+/*
 namespace TerraScience.Content.Tiles.Multitiles{
 	public class MagicStorageConnector : Machine{
 		public override void GetDefaultParams(out string mapName, out uint width, out uint height, out int itemType){
@@ -17,3 +18,4 @@ namespace TerraScience.Content.Tiles.Multitiles{
 			=> TileUtils.HandleMouse<MagicStorageConnectorEntity>(this, pos, () => true);
 	}
 }
+*/

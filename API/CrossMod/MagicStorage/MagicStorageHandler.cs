@@ -1,4 +1,4 @@
-﻿using MagicStorage;
+﻿/*using MagicStorage;
 using MagicStorage.Components;
 using System;
 using System.Collections.Generic;
@@ -242,3 +242,4 @@ namespace TerraScience.API.CrossMod.MagicStorage{
 		}
 	}
 }
+*/

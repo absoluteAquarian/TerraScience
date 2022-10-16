@@ -6,7 +6,6 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using TerraScience.Content.ID;
-using TerraScience.Content.Items.Materials;
 using TerraScience.Utilities;
 
 namespace TerraScience.Content.Items.Tools{
