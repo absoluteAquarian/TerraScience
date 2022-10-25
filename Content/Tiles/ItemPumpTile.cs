@@ -7,7 +7,6 @@ using Terraria.Enums;
 using Terraria.ModLoader;
 using Terraria.ObjectData;
 using Terraria.GameContent;
-using TerraScience.API.CrossMod.MagicStorage;
 using TerraScience.Content.Items.Placeable;
 using TerraScience.Content.TileEntities;
 using TerraScience.Content.Tiles.Multitiles;
@@ -101,11 +100,11 @@ namespace TerraScience.Content.Tiles{
 			return index > -1 ? Main.chest[index] : null;
 		}
 
-		public bool IsConnectedToMagicStorageAccess(Point16 location, out Point16 connectLocation){
+/*		public bool IsConnectedToMagicStorageAccess(Point16 location, out Point16 connectLocation){
 			connectLocation = GetBackwardsOffset(location);
 
 			return MagicStorageHandler.HasStorageHeartAt(connectLocation) || MagicStorageHandler.HasStorageAccessAt(connectLocation) || MagicStorageHandler.HasRemoteStorageAccessAt(connectLocation);
-		}
+		}*/
 
 		public override bool PreDraw(int i, int j, SpriteBatch spriteBatch){
 			ModContent.GetInstance<ItemTransportTile>().PreDraw(i, j, spriteBatch);
