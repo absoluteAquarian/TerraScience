@@ -34,7 +34,7 @@ namespace TerraScience {
 				.AddIngredient(ItemID.GrayBrick, 30);
 
 			DatalessMachineInfo.recipes.Add(ModContent.ItemType<ScienceWorkbenchItem>(), mod => {
-				Recipe recipe = Recipe.Create(Find<ModTile>("DatalessScienceWorkbench").Type);
+				Recipe recipe = Recipe.Create(Find<ModItem>("DatalessScienceWorkbench").Type);
 				scienceWorkbenchSet.Apply(recipe);
 
 				recipe.AddTile(TileID.WorkBenches);

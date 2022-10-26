@@ -351,3 +351,4 @@ MigrationBackup/
 
 *.pdn
 *.piskel
+.vscode

@@ -17,6 +17,10 @@ namespace TerraScience.Content.Items.Weapons{
 
         public override string Name { get; }
 
+        public override bool IsLoadingEnabled(Mod mod){
+            return false;
+        }
+
         public Shaker() { }
 
         public Shaker(string internalName, string display, string tooltip, Func<int> ammo, Action<Item> defaults) {
