@@ -2,7 +2,7 @@
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
-using TerraScience.API.CrossMod.MagicStorage;
+//using TerraScience.API.CrossMod.MagicStorage;
 using TerraScience.Content.Items.Energy;
 using TerraScience.Content.Items.Materials;
 using TerraScience.Content.Items.Placeable;
@@ -124,8 +124,8 @@ namespace TerraScience {
 				.AddIngredient<BasicMachineCore>()
 				.AddIngredient<TFWireItem>(4));
 
-			if(MagicStorageHandler.handler.ModIsActive)
-				InitializeMagicStorageMachineRecipes();
+			//if(MagicStorageHandler.handler.ModIsActive)
+			//	InitializeMagicStorageMachineRecipes();
 
 			DatalessMachineInfo.Register<ItemCacheItem>(new RecipeIngredientSet()
 				.AddRecipeGroup(RecipeGroupID.IronBar, 5)
@@ -163,12 +163,12 @@ namespace TerraScience {
 			}
 		}
 
-		[MethodImpl(MethodImplOptions.NoInlining)]
+		/*[MethodImpl(MethodImplOptions.NoInlining)]
 		private void InitializeMagicStorageMachineRecipes(){
 			DatalessMachineInfo.Register<MagicStorageConnectorItem>(new RecipeIngredientSet()
 				.AddIngredient(MagicStorageHandler.ItemType("StorageAccess"))
 				.AddIngredient<Silicon>(30)
 				.AddIngredient<ItemPump>(2));
-		}
+		}*/
 	}
 }

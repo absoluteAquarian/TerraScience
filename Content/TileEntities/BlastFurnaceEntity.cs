@@ -18,7 +18,7 @@ namespace TerraScience.Content.TileEntities{
 
 		public bool ForceNoReaction = false;
 
-		//Used for sound stuff
+		//Used for sound stuff, although it doesn't work yet
 		private SoundEffectInstance burning;
 
 		public override void ExtraNetSend(BinaryWriter writer){
@@ -56,8 +56,10 @@ namespace TerraScience.Content.TileEntities{
 			if(ReactionInProgress && !ForceNoReaction){
 				Vector2 center = TileUtils.TileEntityCenter(this, MachineTile);
 
-				this.PlayCustomSound(center, "CampfireBurning");
-			}
+				// TODO: somehow save the sound played to be stopped later
+				PlayCustomSound(center, "CampfireBurning");
+			}else
+				burning?.Stop();
 		}
 
 		public override void ReactionComplete(){

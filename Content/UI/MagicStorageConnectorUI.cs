@@ -1,4 +1,4 @@
-﻿using MagicStorage.Components;
+﻿/*using MagicStorage.Components;
 using System.Collections.Generic;
 using Terraria;
 using Terraria.DataStructures;
@@ -118,3 +118,4 @@ namespace TerraScience.Content.UI {
 		}
 	}
 }
+*/

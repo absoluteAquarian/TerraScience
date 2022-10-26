@@ -9,7 +9,6 @@ using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using Terraria.UI;
 using Terraria.WorldBuilding;
-using TerraScience.API.CrossMod.MagicStorage;
 using TerraScience.API.Interfaces;
 using TerraScience.Content.ID;
 using TerraScience.Content.Items.Placeable;

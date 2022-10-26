@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Terraria.ModLoader;
-using TerraScience.API.CrossMod.MagicStorage;
+//using TerraScience.API.CrossMod.MagicStorage;
 
 namespace TerraScience.API.Edits.Direct{
 	public static class Manager{
@@ -15,6 +15,7 @@ namespace TerraScience.API.Edits.Direct{
 		private static readonly Dictionary<string, MethodInfo> cachedMethods = new Dictionary<string, MethodInfo>();
 
 		public static void Load(){
+			/*
 			try{
 				MonoModHooks.RequestNativeAccess();
 
@@ -28,6 +29,7 @@ namespace TerraScience.API.Edits.Direct{
 					"\nReport this error to the mod devs and disable the mod in the meantime." +
 					"\n\n\n" + ex.ToString());
 			}
+			*/
 		}
 
 		private static MethodInfo GetCachedMethod(this Type type, string method){

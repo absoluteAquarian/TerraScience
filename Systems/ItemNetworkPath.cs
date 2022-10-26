@@ -7,7 +7,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using Terraria.Utilities;
-using TerraScience.API.CrossMod.MagicStorage;
+//using TerraScience.API.CrossMod.MagicStorage;
 using TerraScience.Content.TileEntities;
 using TerraScience.Content.Tiles;
 using TerraScience.Systems.Pathfinding;
@@ -305,7 +305,7 @@ namespace TerraScience.Systems {
 			return null;
 		}
 
-		internal static bool ConnectedToMagicStorageSystem(ItemNetwork network, Point16 location, out Point16 dirPos)
+		/*internal static bool ConnectedToMagicStorageSystem(ItemNetwork network, Point16 location, out Point16 dirPos)
 			=> DirConnectedToMagicStorageSystem(network, location, new Point16(0, -1), out dirPos)
 				|| DirConnectedToMagicStorageSystem(network, location, new Point16(-1, 0), out dirPos)
 				|| DirConnectedToMagicStorageSystem(network, location, new Point16(1, 0), out dirPos)
@@ -314,7 +314,7 @@ namespace TerraScience.Systems {
 		private static bool DirConnectedToMagicStorageSystem(ItemNetwork network, Point16 location, Point16 dir, out Point16 dirPos){
 			dirPos = location + dir;
 			return network.HasEntryAt(location) && MagicStorageHandler.HasStorageHeartAt(dirPos) || MagicStorageHandler.HasStorageAccessAt(dirPos) || MagicStorageHandler.HasRemoteStorageAccessAt(dirPos);
-		}
+		}*/
 
 		private static bool TileMachineCanBeInputInto(ItemNetwork network, Point16 position, Item incoming, out MachineEntity machineEntity){
 			machineEntity = null;
@@ -476,11 +476,11 @@ namespace TerraScience.Systems {
 					int chestID;
 					Item data = ItemIO.Load(itemData);
 
-					if((MagicStorageHandler.handler.ModIsActive && ConnectedToMagicStorageSystem(itemNetwork, target, out Point16 msPos) && MagicStorageHandler.TryDepositItem(data, msPos, checkOnly: true, out _))
+					/*if((MagicStorageHandler.handler.ModIsActive && ConnectedToMagicStorageSystem(itemNetwork, target, out Point16 msPos) && MagicStorageHandler.TryDepositItem(data, msPos, checkOnly: true, out _))
 							|| (TileEntityUtils.TryFindMachineEntity(target, out MachineEntity machine) && machine.CanBeInput(data))
 							|| ((chestID = ChestUtils.FindChestByGuessingImproved(target.X, target.Y)) > -1 && !Main.chest[chestID].IsFull(data)))
 						moveDir = finalDir;
-					else{
+					else*/{
 						moveDir = Vector2.Zero;
 
 						finalDir = Vector2.Zero;

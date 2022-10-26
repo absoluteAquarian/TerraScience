@@ -11,7 +11,7 @@ using Terraria.ModLoader;
 using Terraria.UI;
 using Terraria.Utilities;
 using TerraScience.API.CrossMod;
-using TerraScience.API.CrossMod.MagicStorage;
+//using TerraScience.API.CrossMod.MagicStorage;
 using TerraScience.API.Networking;
 using TerraScience.API.UI;
 using TerraScience.Content.ID;
@@ -192,9 +192,6 @@ namespace TerraScience {
 						throw new ArgumentException("Machine item type had an unexpected name: " + name);
 
 					var datalessType = datalessTypeNoArgs.MakeGenericType(type);
-
-					//throw new ArgumentException("item type had an unexpected name: " +  $"Dataless{name.Substring(0, name.LastIndexOf("Item"))}");
-
                     AddContent((ModItem)Activator.CreateInstance(datalessType, new object[] { $"Dataless{name.Substring(0, name.LastIndexOf("Item"))}" }));
                 }
             }
@@ -261,8 +258,8 @@ namespace TerraScience {
 
 			Logger.Debug("Loading Cross-Mod Capabilities...");
 
-			MagicStorageHandler.handler = new ModHandler();
-			MagicStorageHandler.handler.Load("MagicStorage");
+			//MagicStorageHandler.handler = new ModHandler();
+			//MagicStorageHandler.handler.Load("MagicStorage");
 
 			//MUST do this here instead of PostSetupContent
 			//  ModItem.SetStaticDefaults is called in SetupContent, which expects the tile entities to be registered already in MachineItem
@@ -441,8 +438,8 @@ namespace TerraScience {
 
 			Logger.DebugFormat("Unloading Cross-Mod Capabilities...");
 
-			MagicStorageHandler.handler?.Unload();
-			MagicStorageHandler.handler = null;
+			//MagicStorageHandler.handler?.Unload();
+			//MagicStorageHandler.handler = null;
 		}
 
 		public override void HandlePacket(BinaryReader reader, int whoAmI){

@@ -1,4 +1,4 @@
-﻿using System;
+﻿/*using System;
 using TerraScience.API.CrossMod.MagicStorage;
 
 namespace TerraScience.API.Edits.Detours{
@@ -12,3 +12,4 @@ namespace TerraScience.API.Edits.Detours{
 		}
 	}
 }
+*/

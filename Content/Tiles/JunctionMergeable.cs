@@ -221,8 +221,6 @@ namespace TerraScience.Content.Tiles{
 					|| (MergeType == JunctionType.Fluids && entity is IFluidMachine);
 			}else if(((MergeType == JunctionType.Items && targetModTile is ItemPumpTile) || (MergeType == JunctionType.Fluids && targetModTile is FluidPumpTile)) && ((dirX == -1 && target.TileFrameX / 18 == 3) || (dirX == 1 && target.TileFrameX / 18 == 1) || (dirY == -1 && target.TileFrameX / 18 == 2) || (dirY == 1 && target.TileFrameX / 18 == 0)))
 				return true;
-			else if(MergeType == JunctionType.Items && targetModTile is MagicStorageConnector)
-				return true;
 
 			//Tile wasn't a junction-mergeable tile
 			return false;

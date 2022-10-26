@@ -50,8 +50,4 @@
   <Reference Include="ReLogicLinux" Condition="'$(Configuration)' == 'Mono'">
     <HintPath>..\..\..\..\..\..\.steam\debian-installation\\steamapps\common\Terraria\ModCompile\ReLogicLinux.dll</HintPath>
   </Reference>
-  </ItemGroup>
-    <ItemGroup>
-      <ProjectReference Include="..\MagicStorage\MagicStorage.csproj" />
-    </ItemGroup>
 </Project>

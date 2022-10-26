@@ -4,7 +4,7 @@ using TerraScience.Content.Tiles.Multitiles;
 using TerraScience.Content.UI;
 using TerraScience.Utilities;
 
-namespace TerraScience.Content.Items.Placeable.Machines {
+/*namespace TerraScience.Content.Items.Placeable.Machines {
 	public class MagicStorageConnectorItem : MachineItem<MagicStorageConnector>{
 		public override string ItemName => "Connector";
 
@@ -30,3 +30,4 @@ namespace TerraScience.Content.Items.Placeable.Machines {
 		}
 	}
 }
+*/
