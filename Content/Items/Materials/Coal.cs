@@ -5,7 +5,7 @@ using TerraScience.Content.Tiles.Multitiles;
 
 namespace TerraScience.Content.Items.Materials {
 	public class Coal : ModItem{
-		public override string Texture => "Terraria/Item_" + ItemID.Coal;
+		public override string Texture => "Terraria/Images/Item_" + ItemID.Coal;
 
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Charcoal");

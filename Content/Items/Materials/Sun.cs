@@ -2,7 +2,7 @@
 
 namespace TerraScience.Content.Items.Materials{
 	public class Sun : BrazilOnTouchItem{
-		public override string Texture => "Terraria/SunOrb";
+		public override string Texture => "Terraria/Images/SunOrb";
 
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Sunlight");

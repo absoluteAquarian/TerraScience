@@ -14,7 +14,7 @@ using TerraScience.Utilities;
 
 namespace TerraScience.Content.Items.Tools{
 	public class DebugTool : ModItem{
-		public override string Texture => "Terraria/Item_" + ItemID.IronPickaxe;
+		public override string Texture => "Terraria/Images/Item_" + ItemID.IronPickaxe;
 
 		protected override bool CloneNewInstances => true;
 
