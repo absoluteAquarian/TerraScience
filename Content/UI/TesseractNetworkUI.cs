@@ -79,7 +79,7 @@ namespace TerraScience.Content.UI{
 
 			boundUI = uiToBindTo;
 
-			TechMod.Instance.machineLoader.tesseractNetworkInterface.SetState(this);
+            MachineUILoader.Instance.tesseractNetworkInterface.SetState(this);
 
 			UpdatePage(0);
 		}
@@ -88,7 +88,7 @@ namespace TerraScience.Content.UI{
 			if(boundUI is null)
 				return;
 
-			TechMod.Instance.machineLoader.tesseractNetworkInterface.SetState(null);
+            MachineUILoader.Instance.tesseractNetworkInterface.SetState(null);
 
 			oldWantedBoundNetwork = null;
 			wantedBoundNetwork = null;
@@ -226,7 +226,7 @@ namespace TerraScience.Content.UI{
 					configTarget = passwordParent = entry;
 
 					onPasswordSuccess += passwordEntry => {
-						TechMod.Instance.machineLoader.OnUpdateOnce += () => {
+                        MachineUILoader.Instance.OnUpdateOnce += () => {
 							knownPanel.Remove();
 
 							currentPanel = configPanel;
@@ -292,7 +292,7 @@ namespace TerraScience.Content.UI{
 				if(inputPassword.Parent != null || currentPanel != knownPanel)
 					return;
 
-				TechMod.Instance.machineLoader.OnUpdateOnce += () => {
+                MachineUILoader.Instance.OnUpdateOnce += () => {
 					knownPanel.Remove();
 					panel.Append(createPanel);
 				};
@@ -338,7 +338,7 @@ namespace TerraScience.Content.UI{
 				inputHidePassword.SetState(true);
 				inputPasswordPrompt.HideTextWhenDrawn = true;
 
-				TechMod.Instance.machineLoader.OnUpdateOnce += CloseInputPasswordMenu;
+                MachineUILoader.Instance.OnUpdateOnce += CloseInputPasswordMenu;
 			};
 			inputPassword.Append(inputPasswordPrompt);
 
@@ -348,7 +348,7 @@ namespace TerraScience.Content.UI{
 			ClickableButton inputPasswordCancel = new ClickableButton("Cancel");
 			inputPasswordCancel.Left.Set(-80, 1f);
 			inputPasswordCancel.Top.Set(50, 0f);
-			inputPasswordCancel.OnClick += (evt, e) => TechMod.Instance.machineLoader.OnUpdateOnce += CloseInputPasswordMenu;
+			inputPasswordCancel.OnClick += (evt, e) => MachineUILoader.Instance.OnUpdateOnce += CloseInputPasswordMenu;
 			inputPassword.Append(inputPasswordCancel);
 
 			destroyNetwork = new ClickableButton("Delete");
@@ -383,7 +383,7 @@ namespace TerraScience.Content.UI{
 						Main.NewText("[TESSERACT] Administrator privileges detected.  Bypassing password requirement.", Color.Green);
 
 					onPasswordSuccess?.Invoke(entry);
-					TechMod.Instance.machineLoader.OnUpdateOnce += CloseInputPasswordMenu;
+                    MachineUILoader.Instance.OnUpdateOnce += CloseInputPasswordMenu;
 				}
 
 				SoundEngine.PlaySound(SoundID.MenuTick);
@@ -463,7 +463,7 @@ namespace TerraScience.Content.UI{
 
 				header.SetText("Tesseract Network");
 
-				TechMod.Instance.machineLoader.OnUpdateOnce += () => {
+                MachineUILoader.Instance.OnUpdateOnce += () => {
 					currentPanel = knownPanel;
 					createPanel.Remove();
 					panel.Append(knownPanel);
@@ -501,7 +501,7 @@ namespace TerraScience.Content.UI{
 				TesseractNetwork.UpdateIsPrivate(configTarget.name, pendingNetworkPrivate);
 				TesseractNetwork.UpdatePassword(configTarget.name, pendingNetworkPrivate ? pendingNetworkPassword : null);
 
-				TechMod.Instance.machineLoader.OnUpdateOnce += () => {
+                MachineUILoader.Instance.OnUpdateOnce += () => {
 					currentPanel = knownPanel;
 
 					configPanel.Remove();
@@ -532,7 +532,7 @@ namespace TerraScience.Content.UI{
 			int oldPage = currentPage;
 			TesseractNetwork.UpdateNetworkUIEntries(visibleKnownNetworks, ref currentPage, out pageMax, BoundNetwork);
 
-			TechMod.Instance.machineLoader.OnUpdateOnce += () => {
+            MachineUILoader.Instance.OnUpdateOnce += () => {
 				//Hide all panels, then make only the ones with non-empty text visible
 				for(int i = 0; i < visibleKnownNetworkPanels.Length; i++)
 					visibleKnownNetworkPanels[i].Remove();

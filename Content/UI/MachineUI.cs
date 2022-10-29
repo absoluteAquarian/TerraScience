@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using ReLogic.Content;
 using System;
 using System.Collections.Generic;
 using Terraria;
@@ -191,7 +192,7 @@ namespace TerraScience.Content.UI{
 				bool tooFar = Math.Abs(Main.LocalPlayer.Center.X - middle.X) > width * 8 + Main.LocalPlayer.lastTileRangeX * 16;
 				tooFar |= Math.Abs(Main.LocalPlayer.Center.Y - middle.Y) > height * 8 + Main.LocalPlayer.lastTileRangeY * 16;
 				if (Main.LocalPlayer.GetModPlayer<TerraSciencePlayer>().InventoryKeyPressed || tooFar){
-					TechMod.Instance.machineLoader.HideUI(MachineName);
+                    MachineUILoader.Instance.HideUI(MachineName);
 					Main.playerInventory = false;
 					return;
 				}

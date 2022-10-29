@@ -96,7 +96,7 @@ namespace TerraScience.Content.TileEntities {
 			 *          M = targetHeat
 			 *          T = Heat
 			 */
-			MachineUILoader loader = TechMod.Instance.machineLoader;
+			MachineUILoader loader = MachineUILoader.Instance;
 			float dt = (float)loader.lastUpdateUIGameTime.ElapsedGameTime.TotalSeconds;
 
 			if(!Heating && Heat - targetHeat < epsilon){

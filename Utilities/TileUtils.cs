@@ -154,16 +154,16 @@ namespace TerraScience.Utilities{
 				TechMod instance = TechMod.Instance;
 				string name = tileToStructureName[instance.Find<ModTile>(machine.Name).Type];
 
-				UserInterface ui = instance.machineLoader.GetInterface(name);
+				UserInterface ui = MachineUILoader.Instance.GetInterface(name);
 
 				//Force the current one to close if another one of the same type is going to be opened
 				if(ui.CurrentState is MachineUI mui && mui.UIEntity.Position != tilePos)
-					instance.machineLoader.HideUI(mui.MachineName);
+                    MachineUILoader.Instance.HideUI(mui.MachineName);
 
 				if(ui.CurrentState == null)
-					instance.machineLoader.ShowUI(name, entity);
+                    MachineUILoader.Instance.ShowUI(name, entity);
 				else
-					instance.machineLoader.HideUI(name);
+                    MachineUILoader.Instance.HideUI(name);
 
 				return true;
 			}

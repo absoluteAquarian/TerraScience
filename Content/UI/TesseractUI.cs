@@ -133,7 +133,7 @@ namespace TerraScience.Content.UI{
 			UIImageButton config = new UIImageButton(UICommon.ButtonModConfigTexture);
 			config.Left.Set(-config.Width.Pixels - 15, 1f);
 			config.Top.Set(15, 0f);
-			config.OnClick += (evt, e) => TechMod.Instance.machineLoader.tesseractNetworkState.Open(this);
+			config.OnClick += (evt, e) => MachineUILoader.Instance.tesseractNetworkState.Open(this);
 			panel.Append(config);
 		}
 

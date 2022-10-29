@@ -85,6 +85,7 @@ namespace TerraScience.Content.TileEntities {
 		public virtual bool RequiresUI => false;
 
 		public sealed override void SaveData(TagCompound tag) {
+			tag = new TagCompound();
 			tag.Set("machineInfo", new TagCompound() {
 				[nameof(ReactionSpeed)] = ReactionSpeed,
 				[nameof(ReactionProgress)] = ReactionProgress,
@@ -174,7 +175,7 @@ namespace TerraScience.Content.TileEntities {
 		public override void OnKill(){
 			//Force the UI to close if it's open
 			if(ParentState?.Active ?? false)
-				TechMod.Instance.machineLoader.HideUI(MachineName);
+				MachineUILoader.Instance.HideUI(MachineName);
 		}
 
 		public sealed override void NetSend(BinaryWriter writer){

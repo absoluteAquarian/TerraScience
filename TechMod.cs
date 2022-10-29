@@ -8,6 +8,7 @@ using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
+using Terraria.ModLoader.Core;
 using Terraria.UI;
 using Terraria.Utilities;
 using TerraScience.API.CrossMod;
@@ -64,21 +65,19 @@ namespace TerraScience {
 		/// </summary>
 		public static TechMod Instance => ModContent.GetInstance<TechMod>();
 
-		internal MachineUILoader machineLoader;
-
         public static ModKeybind DebugHotkey;
 
 		public static bool debugging;
 
 
-		internal static Type[] types;
+		internal static Type[] types = AssemblyManager.GetLoadableTypes(typeof(TechMod).Assembly);
 
 		public const bool Release = false;
 
 		public override void Load(){
 			Logger.Debug("Loading localization...");
 
-			/*ModTranslation text = CreateTranslation("DefaultPromptText");
+            /*ModTranslation text = CreateTranslation("DefaultPromptText");
 			text.SetDefault("<enter a string>");
 			AddTranslation(text);
 
@@ -98,9 +97,7 @@ namespace TerraScience {
 			text.SetDefault("New network password...");
 			AddTranslation(text);*/
 
-			Logger.DebugFormat("Loading Factories and System Loaders...");
-
-			machineLoader = new MachineUILoader();
+            Logger.DebugFormat("Loading Factories and System Loaders...");
 
             Logger.DebugFormat("Initializing dictionaries...");
 
@@ -178,7 +175,6 @@ namespace TerraScience {
 			}
 
 			//Register the dataless machines
-			types = Code.GetTypes();
 			var datalessTypeNoArgs = typeof(DatalessMachineItem<>);
 			foreach(var type in types){
 				//Ignore abstract types and the "DatalessMachineItem<T>" type
@@ -197,8 +193,6 @@ namespace TerraScience {
             }
 
 			Logger.DebugFormat("Inializing machines and UI...");
-
-			machineLoader.Load();
 
 			AirIonizerEntity.recipes = new Dictionary<int, (int requireStack, int resultType, int resultStack, float energyUsage, float convertTimeSeconds)>(){
 				[ItemID.CopperOre] =   (1, ItemID.TinOre,      1, 1000f, 8f),
@@ -418,7 +412,7 @@ namespace TerraScience {
 
 			Logger.DebugFormat("Unloading machines and UI...");
 
-			machineLoader?.Unload();
+            //MachineUILoader.Instance.Unload();
 
 			AirIonizerEntity.recipes = null;
 
