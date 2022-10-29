@@ -476,11 +476,11 @@ namespace TerraScience.Systems {
 					int chestID;
 					Item data = ItemIO.Load(itemData);
 
-					/*if((MagicStorageHandler.handler.ModIsActive && ConnectedToMagicStorageSystem(itemNetwork, target, out Point16 msPos) && MagicStorageHandler.TryDepositItem(data, msPos, checkOnly: true, out _))
-							|| (TileEntityUtils.TryFindMachineEntity(target, out MachineEntity machine) && machine.CanBeInput(data))
+					if(/*(MagicStorageHandler.handler.ModIsActive && ConnectedToMagicStorageSystem(itemNetwork, target, out Point16 msPos) && MagicStorageHandler.TryDepositItem(data, msPos, checkOnly: true, out _))
+							||*/ (TileEntityUtils.TryFindMachineEntity(target, out MachineEntity machine) && machine.CanBeInput(data))
 							|| ((chestID = ChestUtils.FindChestByGuessingImproved(target.X, target.Y)) > -1 && !Main.chest[chestID].IsFull(data)))
 						moveDir = finalDir;
-					else*/{
+					else{
 						moveDir = Vector2.Zero;
 
 						finalDir = Vector2.Zero;

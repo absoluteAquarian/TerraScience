@@ -47,7 +47,7 @@ namespace TerraScience.Content.Items.Placeable{
 
 			if(lastUpdate == Main.GameUpdateCount)
 				return;
-
+			
 			lastUpdate = Main.GameUpdateCount;
 
 			if(!Main.blockMouse && player.inventory[58] != Item && Main.mouseRight && Main.mouseRightRelease){

@@ -357,26 +357,10 @@ namespace TerraScience {
 			}
 		}
 
-		//public override void PreUpdateEntities(){
-		//	//ModHooks.PreUpdateEntities() is called before WorldGen.UpdateWorld, which updates the tile entities
-		//	//So this is a good place to have the tile stuff update
 
-		//	//Sanity check
-		//	ResetNetworkTilesSolid();
 
-		//	//Reset the wire network export counts
-		//	NetworkCollection.ResetNetworkInfo();
-		//}
 
-		//public override void PreUpdateProjectileItem(){ 
-		//	NetworkCollection.UpdateItemNetworks();
-		//	NetworkCollection.UpdateFluidNetworks();
 
-		//	if(MagicStorageHandler.GUIRefreshPending && Main.GameUpdateCount % 120 == 0){
-		//		//A return of "true" means the GUIs were refreshed
-		//		MagicStorageHandler.GUIRefreshPending = !MagicStorageHandler.RefreshGUIs();
-		//	}
-		//}
 
 		public override void Unload() {
 			//Revert the sand blocks to their original extractinator state
