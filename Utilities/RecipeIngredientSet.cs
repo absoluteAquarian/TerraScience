@@ -58,9 +58,10 @@ namespace TerraScience.Utilities{
 					RecipeGroup group = RecipeGroup.recipeGroups[entry.ID];
 
 					item.SetDefaults(group.ValidItems.First());
-					Main.instance.GetType()
-						.GetMethod("SetRecipeMaterialDisplayName", BindingFlags.NonPublic | BindingFlags.Instance)
-						.Invoke(Main.instance, new object[]{entry.ID});
+					
+					// Main.instance.GetType()
+					// 	.GetMethod("SetRecipeMaterialDisplayName", BindingFlags.NonPublic | BindingFlags.Instance)
+					// 	.Invoke(Main.instance, new object[]{entry.ID});
 				}
 				
 				item.stack = entry.stack;

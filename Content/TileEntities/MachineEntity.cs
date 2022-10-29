@@ -120,13 +120,14 @@ namespace TerraScience.Content.TileEntities {
 		public virtual void ExtraLoad(TagCompound tag){ }
 
 		public sealed override void Update(){
+
+			ValidateSlots(SlotsCount);
+
 			if(RequiresUI && !(ParentState?.Active ?? false))
 				return;
 
 			if(this is GeneratorEntity && !updating)
 				return;
-
-			ValidateSlots(SlotsCount);
 
 			PreUpdateReaction();
 
