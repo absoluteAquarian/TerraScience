@@ -352,3 +352,4 @@ MigrationBackup/
 *.pdn
 *.piskel
 .vscode
+/Visual Studio 2022/Visualizers

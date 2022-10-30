@@ -81,7 +81,7 @@ namespace TerraScience.Systems{
 		}
 
 		public void AddMachine(MachineEntity entity){
-			if(!ConnectedMachines.Contains(entity))
+			if(!ConnectedMachines.Contains(entity)) 
 				ConnectedMachines.Add(entity);
 		}
 

@@ -1,8 +1,7 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.Audio;
 using Terraria.ModLoader;
@@ -21,7 +20,7 @@ namespace TerraScience.Content.TileEntities {
 		public Item GetItem(int slot) => slots[slot];
 
 		internal ref Item GetItemSlotRef(int slot) => ref slots[slot];
-
+		
 		internal void ValidateSlots(int intendedLength){
 			//Possible if the multitile was just placed
 			if(slots?.Length != intendedLength){
@@ -85,21 +84,20 @@ namespace TerraScience.Content.TileEntities {
 		public virtual bool RequiresUI => false;
 
 		public sealed override void SaveData(TagCompound tag) {
-			tag = new TagCompound();
 			tag.Set("machineInfo", new TagCompound() {
 				[nameof(ReactionSpeed)] = ReactionSpeed,
 				[nameof(ReactionProgress)] = ReactionProgress,
 				[nameof(ReactionInProgress)] = ReactionInProgress
 			});
-			tag.Set("slots", new TagCompound() {
+            tag.Set("slots", new TagCompound() {
 				//Lots of unnecessary data is saved, but that's fine due to the small amount of extra bytes used
 				// TODO: refactor ItemIO.Save/ItemIO.Load to get rid of this extra info
 				["items"] = slots.Length == 0 ? null : slots.Select(i => ItemIO.Save(i)).ToList()
 			});
 			tag.Set("extra", ExtraSave());
-		}
+        }
 
-		public virtual TagCompound ExtraSave() => null;
+        public virtual TagCompound ExtraSave() => null;
 
 		public sealed override void LoadData(TagCompound tag){
 			TagCompound info = tag.GetCompound("machineInfo");
@@ -109,7 +107,7 @@ namespace TerraScience.Content.TileEntities {
 
 			TagCompound tagSlots = tag.GetCompound("slots");
 			List<TagCompound> items = tagSlots.GetList<TagCompound>("items") as List<TagCompound> ?? new List<TagCompound>();
-			
+
 			slots = items.Select(ItemIO.Load).ToArray();
 
 			TagCompound extra = tag.GetCompound("extra");
@@ -126,7 +124,7 @@ namespace TerraScience.Content.TileEntities {
 			if(RequiresUI && !(ParentState?.Active ?? false))
 				return;
 
-			if(this is GeneratorEntity && !updating)
+			if (this is GeneratorEntity && !updating)
 				return;
 
 			PreUpdateReaction();
