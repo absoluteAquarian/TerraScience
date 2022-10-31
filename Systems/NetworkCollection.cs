@@ -17,6 +17,7 @@ using TerraScience.Systems.Energy;
 using TerraScience.Systems.Pathfinding;
 using TerraScience.Systems.Pipes;
 using TerraScience.Utilities;
+using static Terraria.ModLoader.PlayerDrawLayer;
 
 namespace TerraScience.Systems {
 	public static class NetworkCollection{
@@ -553,10 +554,7 @@ forceNextCheck: ;
 			//If there is one, connect the entry to the network
 			//If the entry would be connected to multiple of them, then combine the networks
 
-			Point16 up = new Point16(location.X, location.Y - 1);
-			Point16 left = new Point16(location.X - 1, location.Y);
-			Point16 right = new Point16(location.X + 1, location.Y);
-			Point16 down = new Point16(location.X, location.Y + 1);
+			Point16[] neighbors = { new Point16(location.X, location.Y - 1), new Point16(location.X - 1, location.Y), new Point16(location.X + 1, location.Y), new Point16(location.X, location.Y + 1) };
 
 			Tile center = Framing.GetTileSafely(location.X, location.Y);
 			bool centerIsJunction = center.TileType == ModContent.TileType<TransportJunction>();
@@ -565,7 +563,7 @@ forceNextCheck: ;
 			bool junctionHasItems = (merge & JunctionMerge.Items_All) != 0;
 			bool junctionHasFluids = (merge & JunctionMerge.Fluids_All) != 0;
 
-			TagCompound upData = null, leftData = null, rightData = null, downData = null;
+			TagCompound[] directionData = new TagCompound[4];
 
 			//Find the networks to connect
 			List<TNet> networksToConnect = new List<TNet>();
@@ -574,25 +572,19 @@ forceNextCheck: ;
 
 				network.GetMergeInfo(out JunctionMerge leftRight, out JunctionMerge upDown, out _);
 
-				bool hasUp = network.HasEntryAt(up) && network.CanCombine(location, up - location);
-				bool hasLeft = network.HasEntryAt(left) && network.CanCombine(location, left - location);
-				bool hasRight = network.HasEntryAt(right) && network.CanCombine(location, right - location);
-				bool hasDown = network.HasEntryAt(down) && network.CanCombine(location, down - location);
-				bool anyEntryInAnyDirection = hasUp || hasLeft || hasRight || hasDown;
-
-				if(hasUp && upData is null)
-					upData = network.CombineSave();
-				if(hasLeft && leftData is null)
-					leftData = network.CombineSave();
-				if(hasRight && rightData is null)
-					rightData = network.CombineSave();
-				if(hasDown && downData is null)
-					downData = network.CombineSave();
+				bool anyEntryInAnyDirection = false;
+				for (int j = 0; j < neighbors.Length; j++) {
+					var neighbor = neighbors[j];
+					bool hasEntry = network.HasEntryAt(neighbor) && network.CanCombine(location, neighbor - location);
+					anyEntryInAnyDirection = anyEntryInAnyDirection || hasEntry;
+					if (hasEntry && directionData[j] is null)
+						directionData[j] = network.CombineSave();
+                }
 
 				bool normalEntryValid = !centerIsJunction && anyEntryInAnyDirection;
 				
-				bool junctionUpDownIsValid = (merge & upDown) != 0 && (hasUp || hasDown);
-				bool junctionLeftRightIsValid = (merge & leftRight) != 0 && (hasLeft || hasRight);
+				bool junctionUpDownIsValid = (merge & upDown) != 0 && !(directionData[0] is null && directionData[3] is null);
+				bool junctionLeftRightIsValid = (merge & leftRight) != 0 && !(directionData[1] is null && directionData[2] is null);
 
 				bool junctionValid = centerIsJunction && (junctionHasWires || junctionHasItems || junctionHasFluids) && (junctionUpDownIsValid || junctionLeftRightIsValid);
 
@@ -615,10 +607,17 @@ forceNextCheck: ;
 			newNetwork.AddEntry(entry);
 			newNetwork.RefreshConnections(ignoreCheckLocation);
 
-			newNetwork.LoadCombinedData(upData, leftData, rightData, downData);
+			newNetwork.LoadCombinedData(directionData[0], directionData[1], directionData[2], directionData[3]);
 
 			networks.Add(newNetwork);
-		}
+
+			// Finally, find any new machines to add to the network
+			MachineEntity machineEntity;
+			foreach (var neighbor in neighbors) {
+                if (TileEntityUtils.TryFindMachineEntity(neighbor, out machineEntity))
+                    newNetwork.AddMachine(machineEntity);
+            }
+        }
 
 		public static void OnWireKill(Point16 location)
 			=> OnThingKill<WireNetwork, TFWire>(location, wireNetworks);

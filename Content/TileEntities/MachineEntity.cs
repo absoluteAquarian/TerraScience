@@ -84,6 +84,7 @@ namespace TerraScience.Content.TileEntities {
 		public virtual bool RequiresUI => false;
 
 		public sealed override void SaveData(TagCompound tag) {
+			tag = new TagCompound();
 			tag.Set("machineInfo", new TagCompound() {
 				[nameof(ReactionSpeed)] = ReactionSpeed,
 				[nameof(ReactionProgress)] = ReactionProgress,
