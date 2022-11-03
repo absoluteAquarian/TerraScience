@@ -10,6 +10,7 @@ using Terraria.GameInput;
 using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.UI;
+using Terraria.UI.Chat;
 using TerraScience.Content.UI;
 using TerraScience.Utilities;
 
@@ -57,7 +58,7 @@ namespace TerraScience.API.UI{
 			CheckBlockInput();
 		}
 
-		public override void Update(GameTime gameTime){
+		public override void Update(GameTime gameTime) {
 			cursorTimer++;
 			cursorTimer %= 60;
 
@@ -65,29 +66,32 @@ namespace TerraScience.API.UI{
 			MouseState mouse = MachineUILoader.curMouse;
 			bool mouseOver = mouse.X > dim.X && mouse.X < dim.X + dim.Width && mouse.Y > dim.Y && mouse.Y < dim.Y + dim.Height;
 
-			if(CanInteractWithMouse){
-				if(MachineUILoader.LeftClick && Parent != null){
-					if(!HasFocus && mouseOver){
+			if (CanInteractWithMouse) {
+				if (MachineUILoader.LeftClick && Parent != null) {
+					if (!HasFocus && mouseOver) {
 						HasFocus = true;
 						CheckBlockInput();
-					}else if(HasFocus && !mouseOver){
+					} else if (HasFocus && !mouseOver) {
 						HasFocus = false;
 						CheckBlockInput();
 						cursorPosition = Text.Length;
 					}
-				}else if(MachineUILoader.curMouse.RightButton == ButtonState.Pressed && MachineUILoader.oldMouse.RightButton == ButtonState.Released && Parent != null && HasFocus && !mouseOver){
+				} else if (MachineUILoader.curMouse.RightButton == ButtonState.Pressed && MachineUILoader.oldMouse.RightButton == ButtonState.Released && Parent != null && HasFocus && !mouseOver) {
 					HasFocus = false;
 					cursorPosition = Text.Length;
 					CheckBlockInput();
-				}else if(MachineUILoader.curMouse.RightButton == ButtonState.Pressed && MachineUILoader.oldMouse.RightButton == ButtonState.Released && mouseOver){
-					if(Text.Length > 0){
+				} else if (MachineUILoader.curMouse.RightButton == ButtonState.Pressed && MachineUILoader.oldMouse.RightButton == ButtonState.Released && mouseOver) {
+					if (Text.Length > 0) {
 						Text = string.Empty;
 						cursorPosition = 0;
 					}
 				}
-			}else
+			} else
 				HasFocus = false;  //Force a de-focus
+            base.Update(gameTime);
+        }
 
+        private void HandleTextInput() {
 			if(HasFocus){
 				PlayerInput.WritingText = true;
 				Main.instance.HandleIME();
@@ -144,11 +148,11 @@ namespace TerraScience.API.UI{
 					CheckBlockInput();
 				}
 			}
-
-			base.Update(gameTime);
 		}
 
 		protected override void DrawSelf(SpriteBatch spriteBatch){
+			HandleTextInput();
+
 			Texture2D texture = ModContent.Request<Texture2D>("TerraScience/API/UI/UITextPromptBackground").Value;
 			CalculatedStyle dim = GetDimensions();
 			int innerWidth = (int)dim.Width - 2 * PADDING;
