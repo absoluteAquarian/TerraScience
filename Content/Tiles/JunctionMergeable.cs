@@ -17,7 +17,7 @@ namespace TerraScience.Content.Tiles{
 
 		internal static JunctionMerge[] mergeTypes;
 
-		public sealed override void SetDefaults(){
+		public sealed override void SetStaticDefaults(){
 			SafeSetDefaults();
 			//Non-solid, but this is required.  Explanation is in TechMod.PreUpdateEntities()
 			Main.tileSolid[Type] = false;
@@ -34,7 +34,7 @@ namespace TerraScience.Content.Tiles{
 		public virtual void SafeSetDefaults(){ }
 
 		internal static bool AtLeastOneSurroundingTileIsActive(int i, int j)
-			=> (i > 0 && Framing.GetTileSafely(i - 1, j).active()) || (j > 0 && Framing.GetTileSafely(i, j - 1).active()) || (i < Main.maxTilesX - 1 && Framing.GetTileSafely(i + 1, j).active()) || (j < Main.maxTilesY - 1 && Framing.GetTileSafely(i, j + 1).active());
+			=> (i > 0 && Framing.GetTileSafely(i - 1, j).HasTile) || (j > 0 && Framing.GetTileSafely(i, j - 1).HasTile) || (i < Main.maxTilesX - 1 && Framing.GetTileSafely(i + 1, j).HasTile) || (j < Main.maxTilesY - 1 && Framing.GetTileSafely(i, j + 1).HasTile);
 
 		public override bool CanPlace(int i, int j){
 			//This hook is called just before the tile is placed, which means we can fool the game into thinking this tile is solid when it really isn't
@@ -51,10 +51,10 @@ namespace TerraScience.Content.Tiles{
 			Tile source = Framing.GetTileSafely(i, j);
 
 			//Determine how this tile should merge
-			Tile up = j >= 0 ? Framing.GetTileSafely(i, j - 1) : null;
-			Tile left = i >= 0 ? Framing.GetTileSafely(i - 1, j) : null;
-			Tile right = i < Main.maxTilesX ? Framing.GetTileSafely(i + 1, j) : null;
-			Tile down = j < Main.maxTilesY ? Framing.GetTileSafely(i, j + 1) : null;
+			Tile? up = j >= 0 ? Framing.GetTileSafely(i, j - 1) : null;
+			Tile? left = i >= 0 ? Framing.GetTileSafely(i - 1, j) : null;
+			Tile? right = i < Main.maxTilesX ? Framing.GetTileSafely(i + 1, j) : null;
+			Tile? down = j < Main.maxTilesY ? Framing.GetTileSafely(i, j + 1) : null;
 
 			bool canMergeUp = up != null && CheckTileMerge(i, j, dirX: 0, dirY: -1);
 			bool canMergeLeft = left != null && CheckTileMerge(i, j, dirX: -1, dirY: 0);
@@ -131,8 +131,8 @@ namespace TerraScience.Content.Tiles{
 				frameY = 2;
 			}
 
-			source.frameX = (short)(frameX * 18);
-			source.frameY = (short)(frameY * 18);
+			source.TileFrameX = (short)(frameX * 18);
+			source.TileFrameY = (short)(frameY * 18);
 
 			//Custom logic is used
 			return false;
@@ -157,17 +157,17 @@ namespace TerraScience.Content.Tiles{
 				return false;
 
 			Tile target = Framing.GetTileSafely(targetX, targetY);
-			ModTile targetModTile = ModContent.GetModTile(target.type);
+			ModTile targetModTile = ModContent.GetModTile(target.TileType);
 
-			if(!target.active())
+			if(!target.HasTile)
 				return false;
 
 			//If this merge type is "Items" and the tile is a chest, merge
-			if(MergeType == JunctionType.Items && (TileID.Sets.BasicChest[target.type] || (targetModTile != null && (targetModTile.adjTiles.Contains(TileID.Containers) || targetModTile.adjTiles.Contains(TileID.Containers2))))){
+			if(MergeType == JunctionType.Items && (TileID.Sets.BasicChest[target.TileType] || (targetModTile != null && (targetModTile.AdjTiles.Contains(TileID.Containers) || targetModTile.AdjTiles.Contains(TileID.Containers2))))){
 				return true;
 			}
 
-			if(target.type < TileID.Count)
+			if(target.TileType < TileID.Count)
 				return false;
 
 			if(targetModTile is JunctionMergeable merge){
@@ -175,12 +175,12 @@ namespace TerraScience.Content.Tiles{
 				
 				//Need to check if the target is a pump and the pump is pointing in the right direction
 				if(merge is ItemPumpTile || merge is FluidPumpTile){
-					int frame = target.frameX / 18;
+					int frame = target.TileFrameX / 18;
 					return hasSameMerge && ((dirY == 1 && frame == 0) || (dirX == 1 && frame == 1) || (dirY == -1 && frame == 2) || (dirX == -1 && frame == 3));
 				}else
 					return hasSameMerge;
 			}else if(targetModTile is TransportJunction){
-				int frameX = target.frameX / 18;
+				int frameX = target.TileFrameX / 18;
 
 				//Junction has the default frame?  Don't let them merge...
 				if(frameX == 0)
@@ -219,9 +219,7 @@ namespace TerraScience.Content.Tiles{
 				return (MergeType == JunctionType.Wires && entity is PoweredMachineEntity)
 					|| (MergeType == JunctionType.Items && ((entity.HijackCanBeInteractedWithItemNetworks(out bool canInteract, out bool canInput, out bool canOutput) && canInteract) || canInput || entity.GetInputSlots().Length > 0 || canOutput || entity.GetOutputSlots().Length > 0))
 					|| (MergeType == JunctionType.Fluids && entity is IFluidMachine);
-			}else if(((MergeType == JunctionType.Items && targetModTile is ItemPumpTile) || (MergeType == JunctionType.Fluids && targetModTile is FluidPumpTile)) && ((dirX == -1 && target.frameX / 18 == 3) || (dirX == 1 && target.frameX / 18 == 1) || (dirY == -1 && target.frameX / 18 == 2) || (dirY == 1 && target.frameX / 18 == 0)))
-				return true;
-			else if(MergeType == JunctionType.Items && targetModTile is MagicStorageConnector)
+			}else if(((MergeType == JunctionType.Items && targetModTile is ItemPumpTile) || (MergeType == JunctionType.Fluids && targetModTile is FluidPumpTile)) && ((dirX == -1 && target.TileFrameX / 18 == 3) || (dirX == 1 && target.TileFrameX / 18 == 1) || (dirY == -1 && target.TileFrameX / 18 == 2) || (dirY == 1 && target.TileFrameX / 18 == 0)))
 				return true;
 
 			//Tile wasn't a junction-mergeable tile

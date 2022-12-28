@@ -12,18 +12,17 @@ namespace TerraScience.Content.Items.Energy{
 
 		public override void SetDefaults(){
 			base.SetDefaults();
-			item.rare = ItemRarityID.Green;
-			item.createTile = ModContent.TileType<AdvancedTFWireTile>();
-			item.value = Item.buyPrice(silver: 4);
+			Item.rare = ItemRarityID.Green;
+			Item.createTile = ModContent.TileType<AdvancedTFWireTile>();
+			Item.value = Item.buyPrice(silver: 4);
 		}
 
 		public override void AddRecipes(){
-			ModRecipe recipe = new ModRecipe(mod);
-			recipe.AddIngredient(ItemID.GoldBar, 1);
-			recipe.AddIngredient(ModContent.ItemType<TFWireItem>(), 25);
-			recipe.AddTile(TileID.Anvils);
-			recipe.SetResult(this, 25);
-			recipe.AddRecipe();
+			Recipe.Create(this.Type, 25)
+				.AddIngredient(ItemID.GoldBar, 1)
+				.AddIngredient(ModContent.ItemType<TFWireItem>(), 25)
+				.AddTile(TileID.Anvils)
+				.Register();
 		}
 	}
 }

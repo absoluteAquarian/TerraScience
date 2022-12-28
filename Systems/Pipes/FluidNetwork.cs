@@ -33,12 +33,12 @@ namespace TerraScience.Systems.Pipes{
 			OnEntryPlace += pos => {
 				Tile tile = Framing.GetTileSafely(pos);
 
-				if(ModContent.GetModTile(tile.type) is FluidPumpTile){
+				if(ModContent.GetModTile(tile.TileType) is FluidPumpTile){
 					Capacity += ModContent.GetInstance<FluidTransportTile>().Capacity;
 
 					if(!pumpTimers.ContainsKey(pos))
 						pumpTimers.Add(pos, new Timer(){ value = 34 });
-				}else if(ModContent.GetModTile(tile.type) is FluidTransportTile transport)
+				}else if(ModContent.GetModTile(tile.TileType) is FluidTransportTile transport)
 					Capacity += transport.Capacity;
 
 				if(TileEntityUtils.TryFindMachineEntity(pos + new Point16(0, -1), out MachineEntity entity) && entity is IFluidMachine)
@@ -63,11 +63,11 @@ namespace TerraScience.Systems.Pipes{
 			OnEntryKill += pos => {
 				Tile tile = Framing.GetTileSafely(pos);
 				float cap = 0;
-				if(ModContent.GetModTile(tile.type) is FluidPumpTile){
+				if(ModContent.GetModTile(tile.TileType) is FluidPumpTile){
 					cap = ModContent.GetInstance<FluidTransportTile>().Capacity;
 
 					pumpTimers.Remove(pos);
-				}else if(ModContent.GetModTile(tile.type) is FluidTransportTile transport)
+				}else if(ModContent.GetModTile(tile.TileType) is FluidTransportTile transport)
 					cap += transport.Capacity;
 
 				Capacity -= cap;
@@ -83,9 +83,9 @@ namespace TerraScience.Systems.Pipes{
 		}
 
 		public List<(Point16, short)> SavePumpDirs(){
-			var pumps = GetEntries().Where(e => ModContent.GetModTile(Framing.GetTileSafely(e.Position).type) is FluidPumpTile).ToList();
+			var pumps = GetEntries().Where(e => ModContent.GetModTile(Framing.GetTileSafely(e.Position).TileType) is FluidPumpTile).ToList();
 
-			return pumps.Count == 0 ? null : pumps.Select(e => (e.Position, (short)(Framing.GetTileSafely(e.Position).frameX / 18))).ToList();
+			return pumps.Count() == 0 ? null : pumps.Select(e => (e.Position, (short)(Framing.GetTileSafely(e.Position).TileFrameX / 18))).ToList();
 		}
 
 		public override TagCompound Save(){
@@ -112,7 +112,7 @@ namespace TerraScience.Systems.Pipes{
 			if(tag.GetList<Point16>("pumpPositions") is List<Point16> dirPos && tag.GetList<short>("pumpDirs") is List<short> dirDirs){
 				if(dirPos.Count == dirDirs.Count)
 					for(int i = 0; i < dirPos.Count; i++)
-						Framing.GetTileSafely(dirPos[i]).frameX = (short)(dirDirs[i] * 18);
+						Framing.GetTileSafely(dirPos[i]).TileFrameX = (short)(dirDirs[i] * 18);
 				else
 					TechMod.Instance.Logger.Error("Network data was modified by an external program (entries: \"pumpPositions\", \"pumpDirs\")");
 			}
@@ -176,9 +176,9 @@ namespace TerraScience.Systems.Pipes{
 			NetworkCollection.HasFluidPipeAt(orig - otherAxis, out FluidNetwork otherAxisNet);
 
 			Tile center = Framing.GetTileSafely(orig);
-			if(ModContent.GetModTile(center.type) is TransportJunction){
+			if(ModContent.GetModTile(center.TileType) is TransportJunction){
 				//At this point, only one axis is being handled, so that's fine
-				JunctionMerge merge = JunctionMergeable.mergeTypes[center.frameX / 18];
+				JunctionMerge merge = JunctionMergeable.mergeTypes[center.TileFrameX / 18];
 
 				if(((merge & JunctionMerge.Fluids_LeftRight) != 0 && dir.X != 0) || ((merge & JunctionMerge.Fluids_UpDown) != 0 && dir.Y != 0))
 					return otherNet is null || (otherNet.fluidType == thisNet.fluidType);

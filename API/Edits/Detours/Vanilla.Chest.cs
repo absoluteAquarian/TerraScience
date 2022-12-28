@@ -5,8 +5,8 @@ using TerraScience.Systems.Pipes;
 
 namespace TerraScience.API.Edits.Detours{
 	public static partial class Vanilla{
-		private static int Chest_AfterPlacement_Hook(On.Terraria.Chest.orig_AfterPlacement_Hook orig, int x, int y, int type, int style, int direction){
-			int ret = orig(x, y, type, style, direction);
+		private static int Chest_AfterPlacement_Hook(On.Terraria.Chest.orig_AfterPlacement_Hook orig, int x, int y, int type, int style, int direction, int alternate){
+			int ret = orig(x, y, type, style, direction, alternate);
 
 			if(ret != -1){
 				//A chest was able to be placed.  Try to add this chest to nearby item networks

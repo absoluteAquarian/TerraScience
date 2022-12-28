@@ -81,7 +81,7 @@ namespace TerraScience.Systems{
 		}
 
 		public void AddMachine(MachineEntity entity){
-			if(!ConnectedMachines.Contains(entity))
+			if(!ConnectedMachines.Contains(entity)) 
 				ConnectedMachines.Add(entity);
 		}
 
@@ -103,7 +103,7 @@ namespace TerraScience.Systems{
 
 		public bool HasMachineAt(Point16 location){
 			Tile tile = Framing.GetTileSafely(location);
-			if(!(ModContent.GetModTile(tile.type) is Machine))
+			if(!(ModContent.GetModTile(tile.TileType) is Machine))
 				return false;
 
 			Point16 origin = location - tile.TileCoord();
@@ -162,8 +162,8 @@ namespace TerraScience.Systems{
 					Tile tile = Framing.GetTileSafely(orig);
 					Tile dirTile = Framing.GetTileSafely(orig + dir);
 
-					ModTile mTile = ModContent.GetModTile(tile.type);
-					ModTile dirMTile = ModContent.GetModTile(dirTile.type);
+					ModTile mTile = ModContent.GetModTile(tile.TileType);
+					ModTile dirMTile = ModContent.GetModTile(dirTile.TileType);
 
 					if(dirMTile is TTile || (dirMTile is ItemPumpTile && Type == JunctionType.Items) || (dirMTile is FluidPumpTile && Type == JunctionType.Fluids)){
 						//Just add the tile damnit
@@ -177,7 +177,7 @@ namespace TerraScience.Systems{
 
 						JunctionMerge entryMerge = dir.X != 0 ? leftRight : upDown;
 						JunctionMerge merge = entryMerge;
-						JunctionMerge dirMerge = JunctionMergeable.mergeTypes[dirTile.frameX / 18];
+						JunctionMerge dirMerge = JunctionMergeable.mergeTypes[dirTile.TileFrameX / 18];
 
 						JunctionMerge mask = merge & all;
 						JunctionMerge dirMask = dirMerge & all;
@@ -189,9 +189,9 @@ namespace TerraScience.Systems{
 
 							if(!recursion && Valid(orig + dir + dir)){
 								Tile axisTile = Framing.GetTileSafely(orig + dir + dir);
-								ModTile axisMTile = ModContent.GetModTile(axisTile.type);
+								ModTile axisMTile = ModContent.GetModTile(axisTile.TileType);
 
-								JunctionMerge axisMerge = axisTile.type == junction ? JunctionMergeable.mergeTypes[axisTile.frameX / 18] : entryMerge;
+								JunctionMerge axisMerge = axisTile.TileType == junction ? JunctionMergeable.mergeTypes[axisTile.TileFrameX / 18] : entryMerge;
 								JunctionMerge axisMask = axisMerge & all;
 
 								if((axisMask & mask) != 0){
@@ -209,12 +209,12 @@ namespace TerraScience.Systems{
 			}
 
 			void TryAddMachine(Point16 dir){
-				Tile tile = null;
-				if(dir == ignoreLocation || Valid(dir))
-					tile = Framing.GetTileSafely(dir);
+				if(dir != ignoreLocation || Valid(dir))
+					return;
+				Tile tile = Framing.GetTileSafely(dir);
 
 				//Must be a machine tile
-				if(!TileUtils.tileToEntity.ContainsKey(tile?.type ?? 0))
+				if(!TileUtils.tileToEntity.ContainsKey(tile.TileType))
 					return;
 
 				//Top-leftmost tile
@@ -236,7 +236,7 @@ namespace TerraScience.Systems{
 
 				//Junction tiles and entries across their connections are added in TryAddJunctionOrJunctionEntry
 				//Thus, they need to be skipped here
-				if(ModContent.GetModTile(Framing.GetTileSafely(loc.X, loc.Y).type) is TransportJunction)
+				if(ModContent.GetModTile(Framing.GetTileSafely(loc.X, loc.Y).TileType) is TransportJunction)
 					continue;
 
 				if(!TryAddEntry(loc, new Point16(0, -1)))
@@ -286,10 +286,10 @@ namespace TerraScience.Systems{
 		}
 
 		private bool ValidTile(Tile tile){
-			if(!tile.active() || tile.type < TileID.Count)
+			if(!tile.HasTile || tile.TileType < TileID.Count)
 				return false;
 
-			var modTile = ModContent.GetModTile(tile.type);
+			var modTile = ModContent.GetModTile(tile.TileType);
 			return modTile is TTile || modTile is TransportJunction || (Type == JunctionType.Items && modTile is ItemPumpTile) || (Type == JunctionType.Fluids && modTile is FluidPumpTile);
 		}
 

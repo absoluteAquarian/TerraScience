@@ -11,13 +11,13 @@ namespace TerraScience.Content.Items.Materials{
 			Tooltip.SetDefault("The skull of a Dark Caster" +
 				"\nIt seems like it could phase out of existance at a moment's notice");
 
-			Main.RegisterItemAnimation(item.type, new UnstableSkullAnimation());
+			Main.RegisterItemAnimation(Item.type, new UnstableSkullAnimation());
 		}
 
 		public override void SetDefaults(){
-			item.value = Item.buyPrice(silver: 20, copper: 35);
-			item.rare = ItemRarityID.Blue;
-			item.maxStack = 99;
+			Item.value = Item.buyPrice(silver: 20, copper: 35);
+			Item.rare = ItemRarityID.Blue;
+			Item.maxStack = 99;
 		}
 	}
 
@@ -40,7 +40,7 @@ namespace TerraScience.Content.Items.Materials{
 			}
 		}
 
-		public override Rectangle GetFrame(Texture2D texture){
+		public override Rectangle GetFrame(Texture2D texture, int frameCounterOverride = -1){
 			int frame = Frame == -1 ? 0 : Frame;
 			return texture.Frame(1, FrameCount, 0, frame);
 		}

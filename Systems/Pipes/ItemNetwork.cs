@@ -60,13 +60,13 @@ namespace TerraScience.Systems.Pipes{
 
 			OnInitialPlace += pos => {
 				Tile tile = Framing.GetTileSafely(pos);
-				if(!(ModContent.GetModTile(tile.type) is ItemPumpTile))
+				if(!(ModContent.GetModTile(tile.TileType) is ItemPumpTile))
 					InformPathsOfNetUpdate(pos);
 			};
 
 			OnEntryKill += pos => {
 				Tile tile = Framing.GetTileSafely(pos);
-				if(!(ModContent.GetModTile(tile.type) is ItemPumpTile))
+				if(!(ModContent.GetModTile(tile.TileType) is ItemPumpTile))
 					InformPathsOfNetUpdate(pos);
 			};
 
@@ -133,7 +133,7 @@ namespace TerraScience.Systems.Pipes{
 				}
 
 				Tile tile = Framing.GetTileSafely(pos);
-				if(ModContent.GetModTile(tile.type) is ItemPumpTile){
+				if(ModContent.GetModTile(tile.TileType) is ItemPumpTile){
 					if(!pumpTimers.ContainsKey(pos))
 						pumpTimers.Add(pos, new Timer(){ value = 18 });
 
@@ -179,7 +179,7 @@ namespace TerraScience.Systems.Pipes{
 				}
 
 				Tile tile = Framing.GetTileSafely(pos);
-				if(ModContent.GetModTile(tile.type) is ItemPumpTile){
+				if(ModContent.GetModTile(tile.TileType) is ItemPumpTile){
 					pumpTimers.Remove(pos);
 
 					pumpPathsToMachines.Remove(pos);
@@ -224,7 +224,7 @@ namespace TerraScience.Systems.Pipes{
 
 		internal void RefreshPaths(Point16 pump){
 			//IDs of -1 are created from AStar.SimulateItemNetwork
-			if(!(ModContent.GetModTile(Framing.GetTileSafely(pump).type) is ItemPumpTile) || ID == -1)
+			if(!(ModContent.GetModTile(Framing.GetTileSafely(pump).TileType) is ItemPumpTile) || ID == -1)
 				return;
 
 			if(!pumpPathsToMachines.TryGetValue(pump, out var machineList))
@@ -280,7 +280,7 @@ namespace TerraScience.Systems.Pipes{
 			if(tag.GetList<Point16>("pumpPositions") is List<Point16> dirPos && tag.GetList<short>("pumpDirs") is List<short> dirDirs){
 				if(dirPos.Count == dirDirs.Count)
 					for(int i = 0; i < dirPos.Count; i++)
-						Framing.GetTileSafely(dirPos[i]).frameX = (short)(dirDirs[i] * 18);
+						Framing.GetTileSafely(dirPos[i]).TileFrameX = (short)(dirDirs[i] * 18);
 				else
 					TechMod.Instance.Logger.Error("Network data was modified by an external program (entries: \"pumpPositions\", \"pumpDirs\")");
 			}
@@ -408,9 +408,9 @@ logRefreshedPath:
 		}
 
 		public List<(Point16, short)> SavePumpDirs(){
-			var pumps = GetEntries().Where(e => ModContent.GetModTile(Framing.GetTileSafely(e.Position).type) is ItemPumpTile).ToList();
+			var pumps = GetEntries().Where(e => ModContent.GetModTile(Framing.GetTileSafely(e.Position).TileType) is ItemPumpTile).ToList();
 
-			return pumps.Count == 0 ? null : pumps.Select(e => (e.Position, (short)(Framing.GetTileSafely(e.Position).frameX / 18))).ToList();
+			return pumps.Count() == 0 ? null : pumps.Select(e => (e.Position, (short)(Framing.GetTileSafely(e.Position).TileFrameX / 18))).ToList();
 		}
 
 		private void InformPathsOfNetUpdate(Point16? updated = null){
@@ -437,7 +437,7 @@ logRefreshedPath:
 		public bool HasChestAt(Point16 tilePos){
 			//ChestUtils.FindChestByGuessingImproved searches a 2x2 area and returns the ID if any of the 4 tiles in that area have a chest
 			int chestID = ChestUtils.FindChestByGuessingImproved(tilePos.X, tilePos.Y);
-			return Framing.GetTileSafely(tilePos).active() && chestID != -1 && chests.Contains(chestID);
+			return Framing.GetTileSafely(tilePos).HasTile && chestID != -1 && chests.Contains(chestID);
 		}
 
 		public List<Func<Item, bool>> ValidMachineInputFuncs(){

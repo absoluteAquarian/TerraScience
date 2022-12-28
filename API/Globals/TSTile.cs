@@ -10,7 +10,7 @@ namespace TerraScience.API.Globals{
 			return true;
 		}
 
-		public override void PlaceInWorld(int i, int j, Item item){
+		public override void PlaceInWorld(int i, int j, int type, Item item){
 			Main.tileSolid[ModContent.TileType<TFWireTile>()] = false;
 		}
 	}

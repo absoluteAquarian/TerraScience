@@ -2,7 +2,7 @@
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
-using TerraScience.API.CrossMod.MagicStorage;
+//using TerraScience.API.CrossMod.MagicStorage;
 using TerraScience.Content.Items.Energy;
 using TerraScience.Content.Items.Materials;
 using TerraScience.Content.Items.Placeable;
@@ -34,13 +34,12 @@ namespace TerraScience {
 				.AddIngredient(ItemID.GrayBrick, 30);
 
 			DatalessMachineInfo.recipes.Add(ModContent.ItemType<ScienceWorkbenchItem>(), mod => {
-				ModRecipe recipe = new ModRecipe(mod);
-
+				Recipe recipe = Recipe.Create(Find<ModItem>("DatalessScienceWorkbench").Type);
 				scienceWorkbenchSet.Apply(recipe);
 
 				recipe.AddTile(TileID.WorkBenches);
-				recipe.SetResult(ItemType("DatalessScienceWorkbench"), 1);
-				recipe.AddRecipe();
+
+				recipe.Register();
 
 				scienceWorkbenchSet.recipeIndex = recipe.RecipeIndex;
 			});
@@ -125,8 +124,8 @@ namespace TerraScience {
 				.AddIngredient<BasicMachineCore>()
 				.AddIngredient<TFWireItem>(4));
 
-			if(MagicStorageHandler.handler.ModIsActive)
-				InitializeMagicStorageMachineRecipes();
+			//if(MagicStorageHandler.handler.ModIsActive)
+			//	InitializeMagicStorageMachineRecipes();
 
 			DatalessMachineInfo.Register<ItemCacheItem>(new RecipeIngredientSet()
 				.AddRecipeGroup(RecipeGroupID.IronBar, 5)
@@ -152,7 +151,7 @@ namespace TerraScience {
 					continue;
 
 				if(typeof(JunctionMergeable).IsAssignableFrom(type)){
-					int tileType = GetTile(type.Name).Type;
+					int tileType = this.Find<ModTile>(type.Name).Type;
 
 					foreach(var pair in TileUtils.tileToEntity){
 						if(pair.Value is PoweredMachineEntity){
@@ -164,12 +163,12 @@ namespace TerraScience {
 			}
 		}
 
-		[MethodImpl(MethodImplOptions.NoInlining)]
+		/*[MethodImpl(MethodImplOptions.NoInlining)]
 		private void InitializeMagicStorageMachineRecipes(){
 			DatalessMachineInfo.Register<MagicStorageConnectorItem>(new RecipeIngredientSet()
 				.AddIngredient(MagicStorageHandler.ItemType("StorageAccess"))
 				.AddIngredient<Silicon>(30)
 				.AddIngredient<ItemPump>(2));
-		}
+		}*/
 	}
 }

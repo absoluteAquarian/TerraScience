@@ -44,36 +44,36 @@ namespace TerraScience.Content.UI.Energy{
 			text.Add(power);
 		}
 
-		internal override void InitializeSlots(List<UIItemSlot> slots){
-			UIItemSlot battery = new UIItemSlot(){
+		internal override void InitializeSlots(List<UIItemSlotWrapper> slots){
+			UIItemSlotWrapper battery = new UIItemSlotWrapper(){
 				HAlign = 0.2f,
 				ValidItemFunc = item => item.IsAir || item.type == ModContent.ItemType<Battery9V>()
 			};
 			battery.Top.Set(180, 0);
 			slots.Add(battery);
 
-			UIItemSlot gas1Input = new UIItemSlot(){
+			UIItemSlotWrapper gas1Input = new UIItemSlotWrapper(){
 				HAlign = 0.45f,
-				ValidItemFunc = item => item.IsAir || (item.modItem is Capsule capsule && capsule.FluidType == MachineFluidID.None)
+				ValidItemFunc = item => item.IsAir || (item.ModItem is Capsule capsule && capsule.FluidType == MachineFluidID.None)
 			};
 			gas1Input.Top.Set(160, 0);
 			slots.Add(gas1Input);
 
-			UIItemSlot gas1Output = new UIItemSlot(){
+			UIItemSlotWrapper gas1Output = new UIItemSlotWrapper(){
 				HAlign = 0.48f,
 				ValidItemFunc = item => item.IsAir
 			};
 			gas1Output.Top.Set(230, 0);
 			slots.Add(gas1Output);
 
-			UIItemSlot gas2Input = new UIItemSlot(){
+			UIItemSlotWrapper gas2Input = new UIItemSlotWrapper(){
 				HAlign = 0.8f,
-				ValidItemFunc = item => item.IsAir || (item.modItem is Capsule capsule && capsule.FluidType == MachineFluidID.None)
+				ValidItemFunc = item => item.IsAir || (item.ModItem is Capsule capsule && capsule.FluidType == MachineFluidID.None)
 			};
 			gas2Input.Top.Set(160, 0);
 			slots.Add(gas2Input);
 
-			UIItemSlot gas2Output = new UIItemSlot(){
+			UIItemSlotWrapper gas2Output = new UIItemSlotWrapper(){
 				HAlign = 0.83f,
 				ValidItemFunc = item => item.IsAir
 			};

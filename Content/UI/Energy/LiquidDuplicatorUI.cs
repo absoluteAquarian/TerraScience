@@ -42,8 +42,8 @@ namespace TerraScience.Content.UI.Energy{
 			text.Add(power);
 		}
 
-		internal override void InitializeSlots(List<UIItemSlot> slots){
-			UIItemSlot input = new UIItemSlot(){
+		internal override void InitializeSlots(List<UIItemSlotWrapper> slots){
+			UIItemSlotWrapper input = new UIItemSlotWrapper(){
 				HAlign = 0.2f,
 				ValidItemFunc = item => item.IsAir || MiscUtils.GetFluidIDFromItem(item.type) != MachineFluidID.None
 			};

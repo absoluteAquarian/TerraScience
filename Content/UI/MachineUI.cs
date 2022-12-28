@@ -1,7 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
+using ReLogic.Content;
 using System;
 using System.Collections.Generic;
 using Terraria;
+using Terraria.Audio;
 using Terraria.GameContent.UI.Elements;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -32,7 +34,7 @@ namespace TerraScience.Content.UI{
 
 		private List<UIText> Text;
 
-		private List<UIItemSlot> ItemSlots;
+		private List<UIItemSlotWrapper> ItemSlots;
 
 		public abstract string Header{ get; }
 
@@ -43,10 +45,10 @@ namespace TerraScience.Content.UI{
 		internal abstract void InitializeText(List<UIText> text);
 
 		/// <summary>
-		/// Create and append <seealso cref="UIItemSlot"/> instances here
+		/// Create and append <seealso cref="UIItemSlotWrapper"/> instances here
 		/// </summary>
 		/// <param name="slots">The list of item slots.  All entries are directly appended to the UI panel</param>
-		internal abstract void InitializeSlots(List<UIItemSlot> slots);
+		internal abstract void InitializeSlots(List<UIItemSlotWrapper> slots);
 
 		/// <summary>
 		/// Gets the size of the UI panel
@@ -92,7 +94,7 @@ namespace TerraScience.Content.UI{
 		/// </summary>
 		public virtual void PostOpen(){ }
 
-		internal UIItemSlot GetSlot(int index) => ItemSlots[index];
+		internal UIItemSlotWrapper GetSlot(int index) => ItemSlots[index];
 
 		/// <summary>
 		/// The type of the <seealso cref="Machine"/> tile this UI state is bound to
@@ -104,12 +106,12 @@ namespace TerraScience.Content.UI{
 		/// <summary>
 		/// Called when the UI is opened.  Change what sound is played here
 		/// </summary>
-		public virtual void PlayOpenSound() => Main.PlaySound(SoundID.MenuOpen);
+		public virtual void PlayOpenSound() => SoundEngine.PlaySound(SoundID.MenuOpen);
 
 		/// <summary>
 		/// Called when the UI is closed.  Change what sound is played here
 		/// </summary>
-		public virtual void PlayCloseSound() => Main.PlaySound(SoundID.MenuClose);
+		public virtual void PlayCloseSound() => SoundEngine.PlaySound(SoundID.MenuClose);
 
 		public int UIDelay = -1;
 
@@ -164,7 +166,7 @@ namespace TerraScience.Content.UI{
 				panel.Append(text);
 
 			//Make the item slots
-			ItemSlots = new List<UIItemSlot>();
+			ItemSlots = new List<UIItemSlotWrapper>();
 			InitializeSlots(ItemSlots);
 			foreach(var slot in ItemSlots)
 				panel.Append(slot);
@@ -190,7 +192,7 @@ namespace TerraScience.Content.UI{
 				bool tooFar = Math.Abs(Main.LocalPlayer.Center.X - middle.X) > width * 8 + Main.LocalPlayer.lastTileRangeX * 16;
 				tooFar |= Math.Abs(Main.LocalPlayer.Center.Y - middle.Y) > height * 8 + Main.LocalPlayer.lastTileRangeY * 16;
 				if (Main.LocalPlayer.GetModPlayer<TerraSciencePlayer>().InventoryKeyPressed || tooFar){
-					TechMod.Instance.machineLoader.HideUI(MachineName);
+                    MachineUILoader.Instance.HideUI(MachineName);
 					Main.playerInventory = false;
 					return;
 				}

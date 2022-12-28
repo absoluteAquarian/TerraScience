@@ -12,7 +12,7 @@ namespace TerraScience.Content.Tiles.Energy {
 
 		public override void SafeSetDefaults(){
 			AddMapEntry(Color.Yellow);
-			drop = ModContent.ItemType<AdvancedTFWireItem>();
+			ItemDrop = ModContent.ItemType<AdvancedTFWireItem>();
 		}
 	}
 }

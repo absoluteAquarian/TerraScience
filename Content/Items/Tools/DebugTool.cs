@@ -14,9 +14,9 @@ using TerraScience.Utilities;
 
 namespace TerraScience.Content.Items.Tools{
 	public class DebugTool : ModItem{
-		public override string Texture => "Terraria/Item_" + ItemID.IronPickaxe;
+		public override string Texture => "Terraria/Images/Item_" + ItemID.IronPickaxe;
 
-		public override bool CloneNewInstances => true;
+		protected override bool CloneNewInstances => true;
 
 		public override void SetStaticDefaults(){
 			Tooltip.SetDefault("Displays debug information for Terraria Tech Mod" +
@@ -31,9 +31,9 @@ namespace TerraScience.Content.Items.Tools{
 		}
 
 		public override void SetDefaults(){
-			item.CloneDefaults(ItemID.IronPickaxe);
-			item.pick = 0;
-			item.value = 0;
+			Item.CloneDefaults(ItemID.IronPickaxe);
+			Item.pick = 0;
+			Item.value = 0;
 		}
 
 		public override void ModifyTooltips(List<TooltipLine> tooltips){
@@ -62,10 +62,10 @@ namespace TerraScience.Content.Items.Tools{
 		static uint oldUpdate = 0;
 
 		public override void HoldItem(Player player){
-			if(TechMod.debugging && Main.mouseRight && Main.mouseRightRelease && player.inventory[58] != item && Main.GameUpdateCount != oldUpdate){
+			if(TechMod.debugging && Main.mouseRight && Main.mouseRightRelease && player.inventory[58] != Item && Main.GameUpdateCount != oldUpdate){
 				var pos = Main.MouseWorld.ToTileCoordinates16();
 				var tile = Framing.GetTileSafely(pos.X, pos.Y);
-				var mTile = ModContent.GetModTile(tile.type);
+				var mTile = ModContent.GetModTile(tile.TileType);
 
 				if(mTile is MachineMufflerTile){
 					MachineMufflerTile.mufflers.Clear();
@@ -86,7 +86,7 @@ namespace TerraScience.Content.Items.Tools{
 					return;
 				}
 
-				if(!TileUtils.tileToEntity.ContainsKey(tile.type))
+				if(!TileUtils.tileToEntity.ContainsKey(tile.TileType))
 					return;
 
 				pos -= tile.TileCoord();

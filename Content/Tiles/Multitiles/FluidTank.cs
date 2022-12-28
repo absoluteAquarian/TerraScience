@@ -25,7 +25,7 @@ namespace TerraScience.Content.Tiles.Multitiles{
 
 		public override bool HandleMouse(Point16 pos){
 			var liquidItemFluidID = MiscUtils.GetFluidIDFromItem(Main.LocalPlayer.HeldItem.type);
-			var capsuleFluidID = (Main.LocalPlayer.HeldItem.modItem as Capsule)?.FluidType ?? MachineFluidID.None;
+			var capsuleFluidID = (Main.LocalPlayer.HeldItem.ModItem as Capsule)?.FluidType ?? MachineFluidID.None;
 
 			return TileUtils.HandleMouse<FluidTankEntity>(this, pos, () => liquidItemFluidID == MachineFluidID.None && capsuleFluidID == MachineFluidID.None);
 		}

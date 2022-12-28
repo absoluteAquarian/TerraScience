@@ -11,18 +11,18 @@ namespace TerraScience.Content.Items.Tools{
 		}
 
 		public override void SetDefaults(){
-			item.melee = true;
-			item.width = 34;
-			item.height = 46;
-			item.damage = 30;
-			item.knockBack = 4f;
-			item.value = Item.sellPrice(silver: 11, copper: 25);
-			item.rare = ItemRarityID.Blue;
-			item.useTime = 18;
-			item.useAnimation = 18;
-			item.useStyle = ItemUseStyleID.SwingThrow;
-			item.UseSound = SoundID.Item1;
-			item.autoReuse = true;
+			Item.DamageType = DamageClass.Melee;
+			Item.width = 34;
+			Item.height = 46;
+			Item.damage = 13;
+			Item.knockBack = 4f;
+			Item.value = Item.sellPrice(silver: 11, copper: 25);
+			Item.rare = ItemRarityID.Blue;
+			Item.useTime = 18;
+			Item.useAnimation = 18;
+			Item.useStyle = ItemUseStyleID.Swing;
+			Item.UseSound = SoundID.Item1;
+			Item.autoReuse = true;
 		}
 
 		public override void AddRecipes(){

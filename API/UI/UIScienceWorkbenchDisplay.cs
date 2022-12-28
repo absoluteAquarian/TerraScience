@@ -14,12 +14,12 @@ namespace TerraScience.API.UI{
 		public Color DrawColor{ get; set; } = Color.White;
 
 		public UIScienceWorkbenchDisplay(string texture, Rectangle? frame){
-			this.texture = ModContent.GetTexture(texture);
+			this.texture = ModContent.Request<Texture2D>(texture).Value;
 			this.frame = frame;
 		}
 
 		public void SetImage(string texture, Rectangle? frame){
-			this.texture = ModContent.GetTexture(texture);
+			this.texture = ModContent.Request<Texture2D>(texture).Value;
 			this.frame = frame;
 
 			Width.Set(frame?.Width ?? this.texture.Width, 0);

@@ -66,8 +66,8 @@ namespace TerraScience.API.Edits.MSIL{
 				method += " - After";
 
 			//And the storage path
-			string path = Platform.Current.GetStoragePath();
-			path = Path.Combine(path, "Terraria", "ModLoader", "TechMod");
+			string path = Platform.Get<IPathService>().GetStoragePath();
+			path = Path.Combine(path, "Terraria", "ModLoader", "Beta", "TechMod");
 			Directory.CreateDirectory(path);
 
 			//Get the class name

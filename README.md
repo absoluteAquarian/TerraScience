@@ -1,7 +1,5 @@
-# TerraScience
+# TerraTech
 <p align="center" >
-  <img src="http://i.imgur.com/kdcROYP.png"/>
-</p>
-<p align="center" >
-  Terran Automation - a mod made using the tModLoader framework.
+  TerraTech - a tech mod made using the tModLoader framework.
+  Forked from https://github.com/absoluteAquarian/TerraScience, and inspired mostly by GregTech (https://github.com/GregTech6)
 </p>

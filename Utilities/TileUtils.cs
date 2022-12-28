@@ -4,10 +4,12 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using Terraria;
+using Terraria.Audio;
 using Terraria.DataStructures;
 using Terraria.Enums;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.ModLoader.IO;
 using Terraria.ObjectData;
 using Terraria.UI;
 using TerraScience.Content.ID;
@@ -36,7 +38,7 @@ namespace TerraScience.Utilities{
 					continue;
 
 				if(typeof(MachineEntity).IsAssignableFrom(type)){
-					var entity = TechMod.Instance.GetTileEntity(type.Name) as MachineEntity;
+					var entity = TechMod.Instance.Find<ModTileEntity>(type.Name) as MachineEntity;
 					var tileType = entity.MachineTile;
 
 					Type tileTypeInst = TileLoader.GetTile(tileType).GetType();
@@ -60,14 +62,14 @@ namespace TerraScience.Utilities{
 		}
 
 		public static Point16 Frame(this Tile tile)
-			=> new Point16(tile.frameX, tile.frameY);
+			=> new Point16(tile.TileFrameX, tile.TileFrameY);
 
 		public static Point16 TileCoord(this Tile tile)
-			=> new Point16(tile.frameX / 18, tile.frameY / 18);
+			=> new Point16(tile.TileFrameX / 18, tile.TileFrameY / 18);
 
 		public static Texture2D GetEffectTexture(this ModTile multitile, string effect){
 			try{
-				return ModContent.GetTexture($"TerraScience/Content/Tiles/Multitiles/Overlays/Effect_{multitile.Name}_{effect}");
+				return ModContent.Request<Texture2D>($"TerraScience/Content/Tiles/Multitiles/Overlays/Effect_{multitile.Name}_{effect}").Value;
 			}catch{
 				throw new ContentLoadException($"Could not find overlay texture \"{effect}\" for machine \"{multitile.Name}\"");
 			}
@@ -81,8 +83,8 @@ namespace TerraScience.Utilities{
 			Machine mTile = ModContent.GetModTile(type) as Machine;
 			mTile.GetDefaultParams(out _, out _, out _, out int itemType);
 
-			int itemIndex = Item.NewItem(i * 16, j * 16, 16, 16, itemType);
-			MachineItem item = Main.item[itemIndex].modItem as MachineItem;
+			int itemIndex = Item.NewItem(new EntitySource_TileBreak(i, j), i * 16, j * 16, 16, 16, itemType);
+			MachineItem item = Main.item[itemIndex].ModItem as MachineItem;
 
 			Point16 tePos = new Point16(i, j) - tile.TileCoord();
 			if(TileEntity.ByPosition.ContainsKey(tePos)){
@@ -94,16 +96,19 @@ namespace TerraScience.Utilities{
 
 						//Drop the item and copy over any important data
 						if(drop.type > ItemID.None && drop.stack > 0){
-							int dropIndex = Item.NewItem(i * 16, j * 16, 16, 16, drop.type, drop.stack);
-							if(drop.modItem != null)
-								Main.item[dropIndex].modItem.Load(drop.modItem.Save());
+							int dropIndex = Item.NewItem(new EntitySource_TileBreak(i, j), i * 16, j * 16, 16, 16, drop.type, drop.stack);
+							if(drop.ModItem != null) {
+								TagCompound dropInfo = new TagCompound();
+								drop.ModItem.SaveData(dropInfo);
+								Main.item[dropIndex].ModItem.LoadData(dropInfo);
+							}
 						}
 
 						tileEntity.ClearItem(slot);
 					}
 				}
 
-				item.entityData = tileEntity.Save();
+				tileEntity.SaveData(item.entityData);
 
 				//Remove this machine from the wire networks if it's a powered machine
 				if(tileEntity is PoweredMachineEntity pme)
@@ -139,27 +144,26 @@ namespace TerraScience.Utilities{
 			name.SetDefault(mapName);
 			tile.AddMapEntry(new Color(0xd1, 0x89, 0x32), name);
 
-			tile.mineResist = 3f;
+			tile.MineResist = 3f;
 			//Metal sound
-			tile.soundType = SoundID.Tink;
-			tile.soundStyle = 1;
+			tile.HitSound = SoundID.Tink;
 		}
 
 		public static bool HandleMouse<TEntity>(Machine machine, Point16 tilePos, Func<bool> additionalCondition) where TEntity : MachineEntity{
 			if(MiscUtils.TryGetTileEntity(tilePos, out TEntity entity) && (additionalCondition?.Invoke() ?? true)){
 				TechMod instance = TechMod.Instance;
-				string name = tileToStructureName[instance.TileType(machine.Name)];
+				string name = tileToStructureName[instance.Find<ModTile>(machine.Name).Type];
 
-				UserInterface ui = instance.machineLoader.GetInterface(name);
+				UserInterface ui = MachineUILoader.Instance.GetInterface(name);
 
 				//Force the current one to close if another one of the same type is going to be opened
 				if(ui.CurrentState is MachineUI mui && mui.UIEntity.Position != tilePos)
-					instance.machineLoader.HideUI(mui.MachineName);
+                    MachineUILoader.Instance.HideUI(mui.MachineName);
 
 				if(ui.CurrentState == null)
-					instance.machineLoader.ShowUI(name, entity);
+                    MachineUILoader.Instance.ShowUI(name, entity);
 				else
-					instance.machineLoader.HideUI(name);
+                    MachineUILoader.Instance.HideUI(name);
 
 				return true;
 			}
@@ -253,12 +257,12 @@ namespace TerraScience.Utilities{
 
 				//null validTypes means any liquid can be put in the slot
 				int index;
-				if(id == MachineFluidID.None || (index = Array.FindIndex(entity.FluidEntries, entry => entry.isInput && (entry.validTypes is null || Array.Exists(entry.validTypes, t => t == id)))) == -1 || (entity.FluidEntries[index].id != MachineFluidID.None && entity.FluidEntries[index].id != id))
+				if (id == MachineFluidID.None || (index = Array.FindIndex(entity.FluidEntries, entry => entry.isInput && (entry.validTypes is null || Array.Exists(entry.validTypes, t => t == id)))) == -1 || (entity.FluidEntries[index].id != MachineFluidID.None && entity.FluidEntries[index].id != id))
 					return false;
 
 				var use = entity.FluidEntries[index];
 
-				if(use.current + 1 > use.max)
+				if (use.current + 1 > use.max)
 					return false;
 
 				if(use.id == MachineFluidID.None)
@@ -271,17 +275,17 @@ namespace TerraScience.Utilities{
 
 				entity.FluidPlaceDelay = ElectrolyzerEntity.MaxPlaceDelay;
 
-				Main.PlaySound(SoundID.Splash, TileEntityCenter(entity, machine.Type));
+				SoundEngine.PlaySound(SoundID.Splash, TileEntityCenter(entity, machine.Type));
 
 				Item heldItem = Main.LocalPlayer.HeldItem;
 
 				//And give the player back the container they used (unless it's the bottomless bucket)
-				if(heldItem.type == ItemID.WaterBucket){
+				if (heldItem.type == ItemID.WaterBucket) {
 					Main.LocalPlayer.HeldItem.stack--;
-					Main.LocalPlayer.QuickSpawnItem(ItemID.EmptyBucket);
-				}else if(heldItem.type == ModContent.ItemType<Vial_Water>() || heldItem.type == ModContent.ItemType<Vial_Saltwater>()){
+					Main.LocalPlayer.QuickSpawnItem(Main.LocalPlayer.GetSource_TileInteraction(tile.TileCoord().X, tile.TileCoord().Y), ItemID.EmptyBucket);
+				} else if (heldItem.type == ModContent.ItemType<Vial_Water>() || heldItem.type == ModContent.ItemType<Vial_Saltwater>()) {
 					Main.LocalPlayer.HeldItem.stack--;
-					Main.LocalPlayer.QuickSpawnItem(ModContent.ItemType<EmptyVial>());
+					Main.LocalPlayer.QuickSpawnItem(Main.LocalPlayer.GetSource_TileInteraction(tile.TileCoord().X, tile.TileCoord().Y), ModContent.ItemType<EmptyVial>());
 				}
 
 				//Success

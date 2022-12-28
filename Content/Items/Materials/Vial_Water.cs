@@ -10,17 +10,17 @@ namespace TerraScience.Content.Items.Materials{
 		}
 
 		public override void SetDefaults(){
-			item.rare = ItemRarityID.Blue;
-			item.value = Item.sellPrice(silver: 1);
-			item.maxStack = 99;
-			item.width = 26;
-			item.height = 26;
-			item.useStyle = ItemUseStyleID.SwingThrow;
-			item.useTime = 15;
-			item.useAnimation = 10;
-			item.autoReuse = true;
-			item.useTurn = true;
-			item.noMelee = true;
+			Item.rare = ItemRarityID.Blue;
+			Item.value = Item.sellPrice(silver: 1);
+			Item.maxStack = 99;
+			Item.width = 26;
+			Item.height = 26;
+			Item.useStyle = ItemUseStyleID.Swing;
+			Item.useTime = 15;
+			Item.useAnimation = 10;
+			Item.autoReuse = true;
+			Item.useTurn = true;
+			Item.noMelee = true;
 		}
 	}
 }

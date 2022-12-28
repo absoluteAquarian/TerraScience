@@ -1,6 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 using Terraria;
+using Terraria.Audio;
+using Terraria.GameContent;
 using Terraria.GameContent.UI.Elements;
 using Terraria.ID;
 using Terraria.Localization;
@@ -77,7 +79,7 @@ namespace TerraScience.Content.UI{
 
 			boundUI = uiToBindTo;
 
-			TechMod.Instance.machineLoader.tesseractNetworkInterface.SetState(this);
+            MachineUILoader.Instance.tesseractNetworkInterface.SetState(this);
 
 			UpdatePage(0);
 		}
@@ -86,7 +88,7 @@ namespace TerraScience.Content.UI{
 			if(boundUI is null)
 				return;
 
-			TechMod.Instance.machineLoader.tesseractNetworkInterface.SetState(null);
+            MachineUILoader.Instance.tesseractNetworkInterface.SetState(null);
 
 			oldWantedBoundNetwork = null;
 			wantedBoundNetwork = null;
@@ -162,7 +164,7 @@ namespace TerraScience.Content.UI{
 			knownPanel.Top.Set(50, 0);
 			panel.Append(knownPanel);
 
-			float textHeight = Main.fontMouseText.MeasureString("Very Cool Network\nPrivate: no").Y;
+			float textHeight = FontAssets.MouseText.Value.MeasureString("Very Cool Network\nPrivate: no").Y;
 
 			const int knownPanelBufferBottom = 40;
 			int rows = (int)((knownPanel.GetInnerDimensions().Height - knownPanelBufferBottom - 30) / textHeight);
@@ -224,7 +226,7 @@ namespace TerraScience.Content.UI{
 					configTarget = passwordParent = entry;
 
 					onPasswordSuccess += passwordEntry => {
-						TechMod.Instance.machineLoader.OnUpdateOnce += () => {
+                        MachineUILoader.Instance.OnUpdateOnce += () => {
 							knownPanel.Remove();
 
 							currentPanel = configPanel;
@@ -275,7 +277,7 @@ namespace TerraScience.Content.UI{
 				wantedBoundNetwork = null;
 				oldWantedBoundNetwork = null;
 
-				Main.PlaySound(SoundID.MenuTick);
+				SoundEngine.PlaySound(SoundID.MenuTick);
 
 				Main.NewText($"[Tesseract] Successfully bound entity to network \"{BoundNetwork}\".", Color.Green);
 
@@ -290,14 +292,14 @@ namespace TerraScience.Content.UI{
 				if(inputPassword.Parent != null || currentPanel != knownPanel)
 					return;
 
-				TechMod.Instance.machineLoader.OnUpdateOnce += () => {
+                MachineUILoader.Instance.OnUpdateOnce += () => {
 					knownPanel.Remove();
 					panel.Append(createPanel);
 				};
 
 				header.SetText("Create a Network");
 
-				Main.PlaySound(SoundID.MenuTick);
+				SoundEngine.PlaySound(SoundID.MenuTick);
 			};
 			panel.Append(createNetwork);
 
@@ -336,7 +338,7 @@ namespace TerraScience.Content.UI{
 				inputHidePassword.SetState(true);
 				inputPasswordPrompt.HideTextWhenDrawn = true;
 
-				TechMod.Instance.machineLoader.OnUpdateOnce += CloseInputPasswordMenu;
+                MachineUILoader.Instance.OnUpdateOnce += CloseInputPasswordMenu;
 			};
 			inputPassword.Append(inputPasswordPrompt);
 
@@ -346,7 +348,7 @@ namespace TerraScience.Content.UI{
 			ClickableButton inputPasswordCancel = new ClickableButton("Cancel");
 			inputPasswordCancel.Left.Set(-80, 1f);
 			inputPasswordCancel.Top.Set(50, 0f);
-			inputPasswordCancel.OnClick += (evt, e) => TechMod.Instance.machineLoader.OnUpdateOnce += CloseInputPasswordMenu;
+			inputPasswordCancel.OnClick += (evt, e) => MachineUILoader.Instance.OnUpdateOnce += CloseInputPasswordMenu;
 			inputPassword.Append(inputPasswordCancel);
 
 			destroyNetwork = new ClickableButton("Delete");
@@ -381,10 +383,10 @@ namespace TerraScience.Content.UI{
 						Main.NewText("[TESSERACT] Administrator privileges detected.  Bypassing password requirement.", Color.Green);
 
 					onPasswordSuccess?.Invoke(entry);
-					TechMod.Instance.machineLoader.OnUpdateOnce += CloseInputPasswordMenu;
+                    MachineUILoader.Instance.OnUpdateOnce += CloseInputPasswordMenu;
 				}
 
-				Main.PlaySound(SoundID.MenuTick);
+				SoundEngine.PlaySound(SoundID.MenuTick);
 			};
 			panel.Append(destroyNetwork);
 
@@ -455,13 +457,13 @@ namespace TerraScience.Content.UI{
 				pendingNetworkPassword = "";
 				pendingNetworkPrivate = false;
 
-				Main.PlaySound(SoundID.MenuTick);
+				SoundEngine.PlaySound(SoundID.MenuTick);
 
 				Main.NewText($"[TESSERACT] Network of name \"{entry.name}\" (private: {entry.entryIsPrivate}) was created.", Color.Green);
 
 				header.SetText("Tesseract Network");
 
-				TechMod.Instance.machineLoader.OnUpdateOnce += () => {
+                MachineUILoader.Instance.OnUpdateOnce += () => {
 					currentPanel = knownPanel;
 					createPanel.Remove();
 					panel.Append(knownPanel);
@@ -499,14 +501,14 @@ namespace TerraScience.Content.UI{
 				TesseractNetwork.UpdateIsPrivate(configTarget.name, pendingNetworkPrivate);
 				TesseractNetwork.UpdatePassword(configTarget.name, pendingNetworkPrivate ? pendingNetworkPassword : null);
 
-				TechMod.Instance.machineLoader.OnUpdateOnce += () => {
+                MachineUILoader.Instance.OnUpdateOnce += () => {
 					currentPanel = knownPanel;
 
 					configPanel.Remove();
 					panel.Append(knownPanel);
 				};
 
-				Main.PlaySound(SoundID.MenuTick);
+				SoundEngine.PlaySound(SoundID.MenuTick);
 
 				Main.NewText($"[TESSERACT] Network \"{configTarget.name}\" had its password changed.");
 
@@ -530,7 +532,7 @@ namespace TerraScience.Content.UI{
 			int oldPage = currentPage;
 			TesseractNetwork.UpdateNetworkUIEntries(visibleKnownNetworks, ref currentPage, out pageMax, BoundNetwork);
 
-			TechMod.Instance.machineLoader.OnUpdateOnce += () => {
+            MachineUILoader.Instance.OnUpdateOnce += () => {
 				//Hide all panels, then make only the ones with non-empty text visible
 				for(int i = 0; i < visibleKnownNetworkPanels.Length; i++)
 					visibleKnownNetworkPanels[i].Remove();
@@ -542,7 +544,7 @@ namespace TerraScience.Content.UI{
 
 			//It would be weird for sounds to play when the page limits have been reached
 			if(currentPage == oldPage){
-				Main.PlaySound(SoundID.MenuTick);
+				SoundEngine.PlaySound(SoundID.MenuTick);
 				oldWantedBoundNetwork = null;
 				wantedBoundNetwork = null;
 			}

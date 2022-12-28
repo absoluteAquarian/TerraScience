@@ -19,11 +19,11 @@ namespace TerraScience.Content.Items.Placeable.Machines.Energy.Generators{
 				produceTFLine: "Per game tick, amount production variable");
 
 		public override void SafeSetDefaults(){
-			item.width = 30;
-			item.height = 30;
-			item.scale = 0.82f;
-			item.rare = ItemRarityID.Blue;
-			item.value = Item.buyPrice(silver: 4, copper: 20);
+			Item.width = 30;
+			Item.height = 30;
+			Item.scale = 0.82f;
+			Item.rare = ItemRarityID.Blue;
+			Item.value = Item.buyPrice(silver: 4, copper: 20);
 		}
 	}
 }

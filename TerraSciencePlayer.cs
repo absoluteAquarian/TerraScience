@@ -23,9 +23,9 @@ namespace TerraScience{
 		}
 
 		public override void PostUpdate(){
-			if(player.HeldItem.modItem is BrazilOnTouchItem){
-				player.HeldItem.type = ItemID.None;
-				player.HeldItem.stack = 0;
+			if(Player.HeldItem.ModItem is BrazilOnTouchItem){
+				Player.HeldItem.type = ItemID.None;
+				Player.HeldItem.stack = 0;
 			}
 		}
 	}

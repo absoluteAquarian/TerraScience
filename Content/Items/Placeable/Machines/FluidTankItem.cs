@@ -19,11 +19,11 @@ namespace TerraScience.Content.Items.Placeable.Machines{
 				produceTFLine: null);
 
 		public override void SafeSetDefaults(){
-			item.width = 26;
-			item.height = 40;
-			item.scale = 0.7f;
-			item.rare = ItemRarityID.Blue;
-			item.value = Item.buyPrice(silver: 5, copper: 20);
+			Item.width = 26;
+			Item.height = 40;
+			Item.scale = 0.7f;
+			Item.rare = ItemRarityID.Blue;
+			Item.value = Item.buyPrice(silver: 5, copper: 20);
 		}
 	}
 }

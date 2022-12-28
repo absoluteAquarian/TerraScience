@@ -29,7 +29,7 @@ namespace TerraScience.Content.Tiles{
 		public static bool AnyMufflersNearby(MachineEntity entity)
 			=> AnyMufflersNearby(TileUtils.TileEntityCenter(entity, entity.MachineTile));
 
-		public override void SetDefaults(){
+		public override void SetStaticDefaults(){
 			Main.tileNoAttach[Type] = true;
 			Main.tileFrameImportant[Type] = true;
 			Main.tileBlockLight[Type] = true;
@@ -60,7 +60,9 @@ namespace TerraScience.Content.Tiles{
 			mufflers.Remove(orig + new Point16(1, 0));
 			mufflers.Remove(orig + new Point16(0, 1));
 			mufflers.Remove(orig + new Point16(1, 1));
-			Item.NewItem(i * 16, j * 16, 32, 32, ModContent.ItemType<MachineMuffler>());
+
+			//Should i, j here be multiplied by 16? Test this.
+			Item.NewItem(new EntitySource_TileBreak(i, j), new Vector2(i * 16, j * 16), new Vector2(32, 32), ModContent.ItemType<MachineMuffler>());
 		}
 	}
 }

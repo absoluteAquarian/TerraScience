@@ -1,0 +1,7 @@
+Mods: {
+    TechMod: {
+        Condition: {
+            MadeInMachine: This recipe displays results from a machine and cannot be used by the crafting interface.
+        }
+    }
+}

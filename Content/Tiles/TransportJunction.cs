@@ -9,7 +9,7 @@ using TerraScience.Systems;
 
 namespace TerraScience.Content.Tiles{
 	public class TransportJunction : ModTile{
-		public override void SetDefaults(){
+		public override void SetStaticDefaults(){
 			//Non-solid, but this is required.  Explanation is in TechMod.PreUpdateEntities()
 			Main.tileSolid[Type] = false;
 			Main.tileNoSunLight[Type] = false;
@@ -25,7 +25,7 @@ namespace TerraScience.Content.Tiles{
 			TileObjectData.addTile(Type);
 
 			AddMapEntry(Color.LightGray);
-			drop = ModContent.ItemType<TransportJunctionItem>();
+			ItemDrop = ModContent.ItemType<TransportJunctionItem>();
 		}
 
 		public override bool CanPlace(int i, int j){
@@ -40,19 +40,19 @@ namespace TerraScience.Content.Tiles{
 
 			var tile = Framing.GetTileSafely(i, j);
 			//Sanity check; TileObjectData should already handle this
-			tile.frameX = (short)(item.placeStyle * 18);
+			tile.TileFrameX = (short)(item.placeStyle * 18);
 
 			//Do each axis separately
-			var merge = JunctionMergeable.mergeTypes[tile.frameX / 18];
+			var merge = JunctionMergeable.mergeTypes[tile.TileFrameX / 18];
 			if((merge & JunctionMerge.Wires_All) != 0){
 				if((merge & JunctionMerge.Wires_UpDown) != 0){
-					tile.frameX = (short)(JunctionMergeable.FindMergeIndex(JunctionMerge.Wires_UpDown) * 18);
+					tile.TileFrameX = (short)(JunctionMergeable.FindMergeIndex(JunctionMerge.Wires_UpDown) * 18);
 
 					NetworkCollection.OnWirePlace(new Point16(i, j));
 				}
 
 				if((merge & JunctionMerge.Wires_LeftRight) != 0){
-					tile.frameX = (short)(JunctionMergeable.FindMergeIndex(JunctionMerge.Wires_LeftRight) * 18);
+					tile.TileFrameX = (short)(JunctionMergeable.FindMergeIndex(JunctionMerge.Wires_LeftRight) * 18);
 
 					NetworkCollection.OnWirePlace(new Point16(i, j));
 				}
@@ -60,13 +60,13 @@ namespace TerraScience.Content.Tiles{
 
 			if((merge & JunctionMerge.Items_All) != 0){
 				if((merge & JunctionMerge.Items_UpDown) != 0){
-					tile.frameX = (short)(JunctionMergeable.FindMergeIndex(JunctionMerge.Items_UpDown) * 18);
+					tile.TileFrameX = (short)(JunctionMergeable.FindMergeIndex(JunctionMerge.Items_UpDown) * 18);
 
 					NetworkCollection.OnItemPipePlace(new Point16(i, j));
 				}
 
 				if((merge & JunctionMerge.Items_LeftRight) != 0){
-					tile.frameX = (short)(JunctionMergeable.FindMergeIndex(JunctionMerge.Items_LeftRight) * 18);
+					tile.TileFrameX = (short)(JunctionMergeable.FindMergeIndex(JunctionMerge.Items_LeftRight) * 18);
 
 					NetworkCollection.OnItemPipePlace(new Point16(i, j));
 				}
@@ -74,21 +74,21 @@ namespace TerraScience.Content.Tiles{
 
 			if((merge & JunctionMerge.Fluids_All) != 0){
 				if((merge & JunctionMerge.Fluids_UpDown) != 0){
-					tile.frameX = (short)(JunctionMergeable.FindMergeIndex(JunctionMerge.Fluids_UpDown) * 18);
+					tile.TileFrameX = (short)(JunctionMergeable.FindMergeIndex(JunctionMerge.Fluids_UpDown) * 18);
 
 					NetworkCollection.OnFluidPipePlace(new Point16(i, j));
 				}
 
 				if((merge & JunctionMerge.Fluids_LeftRight) != 0){
-					tile.frameX = (short)(JunctionMergeable.FindMergeIndex(JunctionMerge.Fluids_LeftRight) * 18);
+					tile.TileFrameX = (short)(JunctionMergeable.FindMergeIndex(JunctionMerge.Fluids_LeftRight) * 18);
 
 					NetworkCollection.OnFluidPipePlace(new Point16(i, j));
 				}
 			}
 
 			//Make sure the tile uses the right thing
-			tile.frameX = (short)(item.placeStyle * 18);
-			tile.frameY = 0;
+			tile.TileFrameX = (short)(item.placeStyle * 18);
+			tile.TileFrameY = 0;
 		}
 
 		public override void KillTile(int i, int j, ref bool fail, ref bool effectOnly, ref bool noItem){
@@ -96,7 +96,7 @@ namespace TerraScience.Content.Tiles{
 				//Tile was mined.  Update the networks
 				var tile = Framing.GetTileSafely(i, j);
 
-				var merge = JunctionMergeable.mergeTypes[tile.frameX / 18];
+				var merge = JunctionMergeable.mergeTypes[tile.TileFrameX / 18];
 				if((merge & JunctionMerge.Wires_All) != 0)
 					NetworkCollection.OnWireKill(new Point16(i, j));
 				if((merge & JunctionMerge.Items_All) != 0)

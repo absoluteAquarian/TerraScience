@@ -4,6 +4,7 @@ using Terraria;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.GameContent;
 using TerraScience.Content.Items.Materials;
 using TerraScience.Content.Items.Placeable.Machines.Energy;
 using TerraScience.Content.TileEntities.Energy;
@@ -164,7 +165,7 @@ namespace TerraScience.Content.Tiles.Multitiles.EnergyMachines{
 				if(growTileType >= 0){
 					Main.instance.LoadTiles(growTileType);
 
-					var texture = Main.tileTexture[growTileType];
+					var texture = TextureAssets.Tile[growTileType].Value;
 
 					if(growTileType != TileID.Pumpkins){
 						Vector2 growFrameOffset = new Vector2(growFrame.Width / 2f, growFrame.Height);

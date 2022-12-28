@@ -3,6 +3,7 @@ using System.IO;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.ID;
+using Terraria.Audio;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using TerraScience.Content.ID;
@@ -123,8 +124,8 @@ namespace TerraScience.Content.TileEntities.Energy{
 			Item gas1Out = this.RetrieveItem(2);
 			Item gas2Out = this.RetrieveItem(4);
 
-			bool canOutput1 = gas1Out.IsAir || FluidEntries[1].id == MachineFluidID.None || (FluidEntries[1].id != MachineFluidID.None && gas1Out.modItem is Capsule capsule && capsule.FluidType == FluidEntries[1].id);
-			bool canOutput2 = gas2Out.IsAir || FluidEntries[2].id == MachineFluidID.None || (FluidEntries[2].id != MachineFluidID.None && gas2Out.modItem is Capsule capsule2 && capsule2.FluidType == FluidEntries[2].id);
+			bool canOutput1 = gas1Out.IsAir || FluidEntries[1].id == MachineFluidID.None || (FluidEntries[1].id != MachineFluidID.None && gas1Out.ModItem is Capsule capsule && capsule.FluidType == FluidEntries[1].id);
+			bool canOutput2 = gas2Out.IsAir || FluidEntries[2].id == MachineFluidID.None || (FluidEntries[2].id != MachineFluidID.None && gas2Out.ModItem is Capsule capsule2 && capsule2.FluidType == FluidEntries[2].id);
 
 			ReactionInProgress = CurBatteryCharge > 0
 				&& FluidEntries[0].current > 0
@@ -165,7 +166,7 @@ namespace TerraScience.Content.TileEntities.Energy{
 		internal override int[] GetOutputSlots() => new int[]{ 2, 4 };
 
 		internal override bool CanInputItem(int slot, Item item)
-			=> (slot == 0 && item.type == ModContent.ItemType<Battery9V>()) || ((slot == 1 || slot == 3) && item.modItem is Capsule capsule && capsule.FluidType == MachineFluidID.None);
+			=> (slot == 0 && item.type == ModContent.ItemType<Battery9V>()) || ((slot == 1 || slot == 3) && item.ModItem is Capsule capsule && capsule.FluidType == MachineFluidID.None);
 
 		public void TryImportFluid(Point16 pipePos) => this.TryImportFluids(pipePos, 0);
 

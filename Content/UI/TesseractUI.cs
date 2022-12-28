@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 using Terraria;
+using Terraria.GameContent;
 using Terraria.GameContent.UI.Elements;
 using Terraria.ModLoader;
 using Terraria.ModLoader.UI;
@@ -26,12 +27,12 @@ namespace TerraScience.Content.UI{
 			height = 500;
 		}
 
-		internal override void InitializeSlots(List<UIItemSlot> slots){
+		internal override void InitializeSlots(List<UIItemSlotWrapper> slots){
 			PanelSize(out int width, out int height);
 
 			int left = width / 2;
-			int slotWidth = Main.inventoryBack9Texture.Width;
-			int slotHeight = Main.inventoryBack9Texture.Height;
+			int slotWidth = TextureAssets.InventoryBack9.Value.Width;
+			int slotHeight = TextureAssets.InventoryBack9.Value.Height;
 
 			left -= (int)(slotWidth * 2.5f);
 			left -= 12;
@@ -61,12 +62,12 @@ namespace TerraScience.Content.UI{
 
 			top = height / 2 - 100;
 
-			UIItemSlot liquidIn = new UIItemSlot(){
+			UIItemSlotWrapper liquidIn = new UIItemSlotWrapper(){
 				ValidItemFunc = item => {
 					var entity = UIEntity as TesseractEntity;
 					var liquidSlot = entity.FluidEntries[0].id;
 
-					return item.IsAir || (item.modItem is Capsule capsule && (liquidSlot == MachineFluidID.None || capsule.FluidType == liquidSlot));
+					return item.IsAir || (item.ModItem is Capsule capsule && (liquidSlot == MachineFluidID.None || capsule.FluidType == liquidSlot));
 				}
 			};
 			liquidIn.Left.Set(left, 0);
@@ -76,7 +77,7 @@ namespace TerraScience.Content.UI{
 			left += 10;
 			top += slotHeight + 10;
 
-			UIItemSlot liquidInEmptyCapsules = new UIItemSlot(){
+			UIItemSlotWrapper liquidInEmptyCapsules = new UIItemSlotWrapper(){
 				ValidItemFunc = item => item.IsAir
 			};
 			liquidInEmptyCapsules.Left.Set(left, 0);
@@ -87,8 +88,8 @@ namespace TerraScience.Content.UI{
 
 			top = height / 2 - 100;
 
-			UIItemSlot liquidOutEmptyCapsules = new UIItemSlot(){
-				ValidItemFunc = item => item.IsAir || (item.modItem is Capsule capsule && capsule.FluidType == MachineFluidID.None)
+			UIItemSlotWrapper liquidOutEmptyCapsules = new UIItemSlotWrapper(){
+				ValidItemFunc = item => item.IsAir || (item.ModItem is Capsule capsule && capsule.FluidType == MachineFluidID.None)
 			};
 			liquidOutEmptyCapsules.Left.Set(left, 0);
 			liquidOutEmptyCapsules.Top.Set(top, 0);
@@ -97,7 +98,7 @@ namespace TerraScience.Content.UI{
 			left += 10;
 			top += slotHeight + 10;
 
-			UIItemSlot liquidOut = new UIItemSlot(){
+			UIItemSlotWrapper liquidOut = new UIItemSlotWrapper(){
 				ValidItemFunc = item => item.IsAir
 			};
 			liquidOut.Left.Set(left, 0);
@@ -132,7 +133,7 @@ namespace TerraScience.Content.UI{
 			UIImageButton config = new UIImageButton(UICommon.ButtonModConfigTexture);
 			config.Left.Set(-config.Width.Pixels - 15, 1f);
 			config.Top.Set(15, 0f);
-			config.OnClick += (evt, e) => TechMod.Instance.machineLoader.tesseractNetworkState.Open(this);
+			config.OnClick += (evt, e) => MachineUILoader.Instance.tesseractNetworkState.Open(this);
 			panel.Append(config);
 		}
 

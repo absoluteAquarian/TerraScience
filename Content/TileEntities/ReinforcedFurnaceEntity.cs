@@ -9,6 +9,8 @@ using TerraScience.Utilities;
 using TerraScience.Content.Items.Materials;
 using System.Collections.Generic;
 using System.IO;
+using Terraria.Audio;
+using Terraria.ID;
 
 namespace TerraScience.Content.TileEntities {
 	public class ReinforcedFurnaceEntity : MachineEntity{
@@ -70,7 +72,8 @@ namespace TerraScience.Content.TileEntities {
 
 				Vector2 center = TileUtils.TileEntityCenter(this, MachineTile);
 
-				burning = this.PlayCustomSound(center, "CampfireBurning");
+				// TODO: the campfire burning sound doesn't exist anymore, should get replaced
+				//burning = this.PlaySound(SoundID., center);
 			}else{
 				targetHeat = HeatMin;
 				burning?.Stop();
@@ -93,7 +96,7 @@ namespace TerraScience.Content.TileEntities {
 			 *          M = targetHeat
 			 *          T = Heat
 			 */
-			MachineUILoader loader = TechMod.Instance.machineLoader;
+			MachineUILoader loader = MachineUILoader.Instance;
 			float dt = (float)loader.lastUpdateUIGameTime.ElapsedGameTime.TotalSeconds;
 
 			if(!Heating && Heat - targetHeat < epsilon){

@@ -150,13 +150,13 @@ namespace TerraScience.Utilities {
 			=> watch.ElapsedTicks * 1e9d / Stopwatch.Frequency;
 
 		public static void FindAndModify(List<TooltipLine> tooltips, string searchPhrase, Func<string> replacePhrase){
-			int searchIndex = tooltips.FindIndex(t => t.text.Contains(searchPhrase));
+			int searchIndex = tooltips.FindIndex(t => t.Text.Contains(searchPhrase));
 			if(searchIndex >= 0)
-				tooltips[searchIndex].text = tooltips[searchIndex].text.Replace(searchPhrase, replacePhrase());
+				tooltips[searchIndex].Text = tooltips[searchIndex].Text.Replace(searchPhrase, replacePhrase());
 		}
 
 		public static void FindAndInsertLines(List<TooltipLine> tooltips, string searchLine, Func<string> replaceLines){
-			int searchIndex = tooltips.FindIndex(t => t.text == searchLine);
+			int searchIndex = tooltips.FindIndex(t => t.Text == searchLine);
 			if(searchIndex >= 0){
 				tooltips.RemoveAt(searchIndex);
 

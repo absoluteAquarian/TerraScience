@@ -76,7 +76,7 @@ namespace TerraScience.Content.TileEntities{
 					["id"] = type
 				}
 				: new TagCompound(){
-					["mod"] = (mItem = ModContent.GetModItem(type)).mod.Name,
+					["mod"] = (mItem = ModContent.GetModItem(type)).Mod.Name,
 					["name"] = mItem.Name
 				};
 		}
@@ -102,7 +102,7 @@ namespace TerraScience.Content.TileEntities{
 			if(modString == "Terraria")
 				return tag.GetInt("id");
 
-			return ModLoader.GetMod(modString).ItemType(tag.GetString("name"));
+			return ModLoader.GetMod(modString).Find<ModItem>(tag.GetString("name")).Type;
 		}
 
 		public override void ExtraNetReceive(BinaryReader reader){

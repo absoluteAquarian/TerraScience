@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Terraria;
+using Terraria.GameContent;
 using Terraria.GameContent.UI.Elements;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -33,18 +34,18 @@ namespace TerraScience.Content.UI.Energy{
 			text.Add(progress);
 		}
 
-		internal override void InitializeSlots(List<UIItemSlot> slots){
+		internal override void InitializeSlots(List<UIItemSlotWrapper> slots){
 			const int topOrig = 120;
 			const int leftOrig = 50;
-			UIItemSlot input = new UIItemSlot();
+			UIItemSlotWrapper input = new UIItemSlotWrapper();
 			input.Top.Set(topOrig, 0f);
 			input.Left.Set(leftOrig, 0f);
-			UIItemSlot block = new UIItemSlot();
-			block.Top.Set(topOrig + Main.inventoryBack9Texture.Height + 20, 0f);
-			block.Left.Set(leftOrig - Main.inventoryBack9Texture.Width / 2 - 10, 0f);
-			UIItemSlot modifier = new UIItemSlot();
-			modifier.Top.Set(topOrig + Main.inventoryBack9Texture.Height + 20, 0f);
-			modifier.Left.Set(leftOrig + Main.inventoryBack9Texture.Width / 2 + 10, 0f);
+			UIItemSlotWrapper block = new UIItemSlotWrapper();
+			block.Top.Set(topOrig + TextureAssets.InventoryBack9.Value.Height + 20, 0f);
+			block.Left.Set(leftOrig - TextureAssets.InventoryBack9.Value.Width / 2 - 10, 0f);
+			UIItemSlotWrapper modifier = new UIItemSlotWrapper();
+			modifier.Top.Set(topOrig + TextureAssets.InventoryBack9.Value.Height + 20, 0f);
+			modifier.Left.Set(leftOrig + TextureAssets.InventoryBack9.Value.Width / 2 + 10, 0f);
 
 			input.ValidItemFunc = item => item.stack <= 1
 				&& (item.IsAir || item.type == ItemID.Acorn || item.type == ItemID.DaybloomSeeds || item.type == ItemID.BlinkrootSeeds || item.type == ItemID.WaterleafSeeds || item.type == ItemID.DeathweedSeeds || item.type == ItemID.MoonglowSeeds || item.type == ItemID.ShiverthornSeeds || item.type == ItemID.FireblossomSeeds || item.type == ItemID.MushroomGrassSeeds || item.type == ItemID.Cactus || item.type == ItemID.PumpkinSeed)
@@ -61,17 +62,17 @@ namespace TerraScience.Content.UI.Energy{
 			slots.Add(modifier);
 
 			int top = topOrig + 60;
-			int left = leftOrig + Main.inventoryBack9Texture.Width / 2 + 10 + 120;
+			int left = leftOrig + TextureAssets.InventoryBack9.Value.Width / 2 + 10 + 120;
 
 			for(int c = 0; c < 3; c++){
 				//Can't place items, only remove them
-				UIItemSlot slot = new UIItemSlot(){
+				UIItemSlotWrapper slot = new UIItemSlotWrapper(){
 					ValidItemFunc = item => item.IsAir
 				};
 				slot.Left.Set(left, 0);
 				slot.Top.Set(top, 0);
 
-				left += Main.inventoryBack9Texture.Width + 15;
+				left += TextureAssets.InventoryBack9.Value.Width + 15;
 
 				slots.Add(slot);
 			}

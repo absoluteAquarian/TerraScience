@@ -1,12 +1,13 @@
 ﻿using Microsoft.Xna.Framework;
 using Terraria;
+using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 using TerraScience.Content.Items.Placeable;
 
 namespace TerraScience.Content.Tiles.Multitiles{
 	public class BlastBrickTile : ModTile{
-		public override void SetDefaults(){
+		public override void SetStaticDefaults(){
 			AddMapEntry(Color.DarkGray);
 
 			Main.tileSolid[Type] = true;
@@ -15,14 +16,14 @@ namespace TerraScience.Content.Tiles.Multitiles{
 			Main.tileMerge[Type][TileID.RedBrick] = true;
 			Main.tileMergeDirt[Type] = true;
 
-			drop = ModContent.ItemType<BlastBrick>();
+			ItemDrop = ModContent.ItemType<BlastBrick>();
 
-			mineResist = 3f;
-			minPick = 45;
+			MineResist = 3f;
+			MinPick = 45;
 
-			soundType = SoundID.Tink;
+            this.HitSound = SoundID.Tink;
 
-			dustType = 54;
+			DustType = 54;
 		}
 	}
 }

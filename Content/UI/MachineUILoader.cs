@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using Mono.Cecil.Cil;
 using System;
 using System.Collections.Generic;
 using Terraria;
@@ -8,7 +9,8 @@ using Terraria.UI;
 using TerraScience.Content.TileEntities;
 
 namespace TerraScience.Content.UI {
-	public class MachineUILoader {
+
+    public class MachineUILoader : ModSystem {
 		private Dictionary<string, UserInterface> interfaces;
 		private Dictionary<string, MachineUI> states;
 
@@ -26,15 +28,18 @@ namespace TerraScience.Content.UI {
 		internal static MouseState oldMouse;
 		internal static MouseState curMouse;
 
-		/// <summary>
-		/// Called on Mod.Load
-		/// </summary>
-		public void Load() {
+        public static MachineUILoader Instance => ModContent.GetInstance<MachineUILoader>();
+
+
+        /// <summary>
+        /// Called on Mod.Load
+        /// </summary>
+        public override void Load() {
 			if (!Main.dedServ) {
 				interfaces = new Dictionary<string, UserInterface>();
 				states = new Dictionary<string, MachineUI>();
 
-				var types = TechMod.types;
+                var types = TechMod.types;
 				foreach(var type in types){
 					//Ignore abstract classes
 					if(type.IsAbstract)
@@ -76,7 +81,7 @@ namespace TerraScience.Content.UI {
 		/// <summary>
 		/// Called on Mod.UpdateUI
 		/// </summary>
-		public void UpdateUI(GameTime gameTime) {
+		public override void UpdateUI(GameTime gameTime) {
 			lastUpdateUIGameTime = gameTime;
 
 			oldMouse = curMouse;
@@ -97,7 +102,7 @@ namespace TerraScience.Content.UI {
 		/// <summary>
 		/// Called on Mod.ModifyInterfaceLayers
 		/// </summary>
-		public void ModifyInterfaceLayers(List<GameInterfaceLayer> layers) {
+		public override void ModifyInterfaceLayers(List<GameInterfaceLayer> layers) {
 			int mouseTextIndex = layers.FindIndex(layer => layer.Name.Equals("Vanilla: Mouse Text"));
 
 			if (mouseTextIndex != -1) {
@@ -119,7 +124,7 @@ namespace TerraScience.Content.UI {
 		/// <summary>
 		/// Called on Mod.Unload
 		/// </summary>
-		public void Unload(){
+		public override void Unload(){
 			interfaces = null;
 			states = null;
 
@@ -149,6 +154,7 @@ namespace TerraScience.Content.UI {
 			machineState.UIEntity.LoadSlots();
 
 			interfaces[name].SetState(machineState);
+			interfaces[name].IsVisible = true;
 
 			machineState.PostOpen();
 		}
@@ -171,8 +177,9 @@ namespace TerraScience.Content.UI {
 			machineState.Active = false;
 
 			interfaces[name].SetState(null);
+            interfaces[name].IsVisible = false;
 
-			machineState.PostClose();
+            machineState.PostClose();
 
 			machineState.IsClosing = false;
 		}

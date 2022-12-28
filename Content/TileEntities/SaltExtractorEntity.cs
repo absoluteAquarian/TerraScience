@@ -77,7 +77,8 @@ namespace TerraScience.Content.TileEntities{
 
 			salt.stack++;
 
-			Main.PlaySound(new LegacySoundStyle(SoundID.Grab, 0).WithVolume(0.5f), Position.ToWorldCoordinates());
+			// TODO: make method for setting volume to half
+			this.PlaySound(SoundID.Grab, Position.ToWorldCoordinates());
 		}
 
 		public override void PostUpdateReaction(){

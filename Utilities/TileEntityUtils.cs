@@ -18,7 +18,7 @@ namespace TerraScience.Utilities{
 				return;
 
 			//Check that the output is either 1) air or 2) is storing the same type of gas as "intendedFluid"
-			if(output.IsAir || (output.modItem is Capsule capsule && capsule.FluidType == intendedFluid)){
+			if(output.IsAir || (output.ModItem is Capsule capsule && capsule.FluidType == intendedFluid)){
 				do{
 					if(output.IsAir){
 						output.SetDefaults(TechMod.GetCapsuleType(intendedFluid));
@@ -74,7 +74,7 @@ namespace TerraScience.Utilities{
 			entity = null;
 			
 			Tile tile = Framing.GetTileSafely(pos);
-			ModTile mTile = ModContent.GetModTile(tile.type);
+			ModTile mTile = ModContent.GetModTile(tile.TileType);
 
 			if(mTile is Machine){
 				Point16 origin = pos - tile.TileCoord();
@@ -100,7 +100,7 @@ namespace TerraScience.Utilities{
 				return;
 
 			Tile tile = Framing.GetTileSafely(pipePos);
-			ModTile modTile = ModContent.GetModTile(tile.type);
+			ModTile modTile = ModContent.GetModTile(tile.TileType);
 
 			float rate = modTile is FluidTransportTile transport
 				? transport.ExportRate
@@ -141,7 +141,7 @@ namespace TerraScience.Utilities{
 				return;
 
 			Tile tile = Framing.GetTileSafely(pumpPos);
-			ModTile modTile = ModContent.GetModTile(tile.type);
+			ModTile modTile = ModContent.GetModTile(tile.TileType);
 
 			if(!(modTile is FluidPumpTile pump) || pump.GetConnectedMachine(pumpPos) != entity)
 				return;

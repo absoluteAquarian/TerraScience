@@ -8,12 +8,12 @@ namespace TerraScience.Content.Items.Materials{
 		}
 
 		public override void SetDefaults(){
-			item.width = 28;
-			item.height = 22;
-			item.scale = 0.6f;
-			item.rare = ItemRarityID.Blue;
-			item.value = 5;
-			item.maxStack = 999;
+			Item.width = 28;
+			Item.height = 22;
+			Item.scale = 0.6f;
+			Item.rare = ItemRarityID.Blue;
+			Item.value = 5;
+			Item.maxStack = 999;
 		}
 
 		public override void AddRecipes(){

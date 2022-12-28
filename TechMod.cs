@@ -8,10 +8,11 @@ using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
+using Terraria.ModLoader.Core;
 using Terraria.UI;
 using Terraria.Utilities;
 using TerraScience.API.CrossMod;
-using TerraScience.API.CrossMod.MagicStorage;
+//using TerraScience.API.CrossMod.MagicStorage;
 using TerraScience.API.Networking;
 using TerraScience.API.UI;
 using TerraScience.Content.ID;
@@ -31,8 +32,24 @@ using TerraScience.Systems.Pipes;
 using TerraScience.Utilities;
 
 namespace TerraScience {
-	public partial class TechMod : Mod {
-		public static class ScienceRecipeGroups{
+
+
+    // TODO: Move this into a MaterialLoader?
+    public partial class TechMod : Mod {
+
+        public static readonly Action<Item> VialDefaults = i => {
+            i.maxStack = 99;
+            i.width = 26;
+            i.height = 26;
+            i.useStyle = ItemUseStyleID.Swing;
+            i.useTime = 15;
+            i.useAnimation = 10;
+            i.autoReuse = true;
+            i.useTurn = true;
+            i.noMelee = true;
+        };
+
+        public static class ScienceRecipeGroups{
 			public const string Sand = "TerraScience: Sand Blocks";
 			public const string EvilBars = "TerraScience: Evil Bars";
 
@@ -48,20 +65,19 @@ namespace TerraScience {
 		/// </summary>
 		public static TechMod Instance => ModContent.GetInstance<TechMod>();
 
-		internal MachineUILoader machineLoader;
-
-		public static ModHotKey DebugHotkey;
+        public static ModKeybind DebugHotkey;
 
 		public static bool debugging;
 
-		internal static Type[] types;
+
+		internal static Type[] types = AssemblyManager.GetLoadableTypes(typeof(TechMod).Assembly);
 
 		public const bool Release = false;
 
 		public override void Load(){
 			Logger.Debug("Loading localization...");
 
-			ModTranslation text = CreateTranslation("DefaultPromptText");
+            /*ModTranslation text = CreateTranslation("DefaultPromptText");
 			text.SetDefault("<enter a string>");
 			AddTranslation(text);
 
@@ -79,15 +95,13 @@ namespace TerraScience {
 
 			text = CreateTranslation("EnterNewNetworkPassword");
 			text.SetDefault("New network password...");
-			AddTranslation(text);
+			AddTranslation(text);*/
 
-			Logger.DebugFormat("Loading Factories and System Loaders...");
+            Logger.DebugFormat("Loading Factories and System Loaders...");
 
-			machineLoader = new MachineUILoader();
+            Logger.DebugFormat("Initializing dictionaries...");
 
-			Logger.DebugFormat("Initializing dictionaries...");
-
-			DebugHotkey = RegisterHotKey("Debugging", "J");
+			DebugHotkey = KeybindLoader.RegisterKeybind(this, "Debugging", "J");
 
 			TileUtils.tileToEntity = new Dictionary<int, MachineEntity>();
 			TileUtils.tileToStructureName = new Dictionary<int, string>();
@@ -117,33 +131,35 @@ namespace TerraScience {
 
 			Logger.DebugFormat("Adding other content...");
 
-			AddProjectile("PepperDust", new ShakerDust("Pepper Dust", new Color(){ PackedValue = 0xff2a2a2a }));
-			AddProjectile("SaltDust", new ShakerDust("Salt Dust", new Color(){ PackedValue = 0xffd5d5d5 }));
+            AddContent(new ShakerDust("PepperDust", "Pepper Dust", new Color() { PackedValue = 0xff2a2a2a }));
+            AddContent(new ShakerDust("SaltDust", "Salt Dust", new Color() { PackedValue = 0xffd5d5d5 }));
 
-			AddItem("Shaker_Pepper", new Shaker("Pepper Shaker",
-				"\"Time to spice up the competition a bit!\"",
-				() => ModContent.ItemType<Capsaicin>(),
-				item => {
-					item.damage = 28;
-					item.knockBack = 5.735f;
-					item.rare = ItemRarityID.Blue;
-					item.value = Item.sellPrice(silver: 4, copper: 20);
-					item.shoot = ProjectileType("PepperDust");
-				}));
-			AddItem("Shaker_Salt", new Shaker("Salt Shaker",
-				"\"Enemy #1 in the Slug Kingdom\"",
-				() => ModContent.ItemType<Salt>(),
-				item => {
-					item.damage = 11;
-					item.knockBack = 5.735f;
-					item.rare = ItemRarityID.Blue;
-					item.value = Item.sellPrice(silver: 4, copper: 20);
-					item.shoot = ProjectileType("SaltDust");
-				}));
+            AddContent(new Shaker("Shaker_Pepper",
+                "Pepper Shaker",
+                "\"Time to spice up the competition a bit!\"",
+                () => ModContent.ItemType<Capsaicin>(),
+                item => {
+                    item.damage = 28;
+                    item.knockBack = 5.735f;
+                    item.rare = ItemRarityID.Blue;
+                    item.value = Item.sellPrice(silver: 4, copper: 20);
+                    item.shoot = Find<ModProjectile>("PepperDust").Type;
+                }));
+            AddContent(new Shaker("Shaker_Salt",
+                "Salt Shaker",
+                "\"Enemy #1 in the Slug Kingdom\"",
+                () => ModContent.ItemType<Salt>(),
+                item => {
+                    item.damage = 11;
+                    item.knockBack = 5.735f;
+                    item.rare = ItemRarityID.Blue;
+                    item.value = Item.sellPrice(silver: 4, copper: 20);
+                    item.shoot = Find<ModProjectile>("SaltDust").Type;
+                }));
 
-			MachineFluidID[] fluidIDs = (MachineFluidID[])Enum.GetValues(typeof(MachineFluidID));
+            MachineFluidID[] fluidIDs = (MachineFluidID[])Enum.GetValues(typeof(MachineFluidID));
 			for(int i = 0; i < fluidIDs.Length; i++){
-				AddItem("Capsule_" + fluidIDs[i].EnumName(), new Capsule());
+				AddContent(new Capsule("Capsule_" + fluidIDs[i].EnumName()));
 				int id = ItemLoader.ItemCount - 1;
 				Capsule.fluidContainerTypes.Add(id, fluidIDs[i]);
 
@@ -151,7 +167,7 @@ namespace TerraScience {
 			}
 
 			for(int i = 1; i < fluidIDs.Length; i++){
-				AddItem("Fake" + fluidIDs[i].EnumName() + "FluidIngredient", new FakeCapsuleFluidItem());
+				AddContent(new FakeCapsuleFluidItem("Fake" + fluidIDs[i].EnumName() + "FluidIngredient"));
 				int id = ItemLoader.ItemCount - 1;
 				FakeCapsuleFluidItem.containerTypes.Add(id, fluidIDs[i]);
 
@@ -159,7 +175,6 @@ namespace TerraScience {
 			}
 
 			//Register the dataless machines
-			types = Code.GetTypes();
 			var datalessTypeNoArgs = typeof(DatalessMachineItem<>);
 			foreach(var type in types){
 				//Ignore abstract types and the "DatalessMachineItem<T>" type
@@ -173,13 +188,11 @@ namespace TerraScience {
 						throw new ArgumentException("Machine item type had an unexpected name: " + name);
 
 					var datalessType = datalessTypeNoArgs.MakeGenericType(type);
-					AddItem($"Dataless{name.Substring(0, name.LastIndexOf("Item"))}", (ModItem)Activator.CreateInstance(datalessType, new object[]{ false }));
-				}
-			}
+                    AddContent((ModItem)Activator.CreateInstance(datalessType, new object[] { $"Dataless{name.Substring(0, name.LastIndexOf("Item"))}" }));
+                }
+            }
 
 			Logger.DebugFormat("Inializing machines and UI...");
-
-			machineLoader.Load();
 
 			AirIonizerEntity.recipes = new Dictionary<int, (int requireStack, int resultType, int resultStack, float energyUsage, float convertTimeSeconds)>(){
 				[ItemID.CopperOre] =   (1, ItemID.TinOre,      1, 1000f, 8f),
@@ -239,8 +252,8 @@ namespace TerraScience {
 
 			Logger.Debug("Loading Cross-Mod Capabilities...");
 
-			MagicStorageHandler.handler = new ModHandler();
-			MagicStorageHandler.handler.Load("MagicStorage");
+			//MagicStorageHandler.handler = new ModHandler();
+			//MagicStorageHandler.handler.Load("MagicStorage");
 
 			//MUST do this here instead of PostSetupContent
 			//  ModItem.SetStaticDefaults is called in SetupContent, which expects the tile entities to be registered already in MachineItem
@@ -250,14 +263,14 @@ namespace TerraScience {
 		}
 
 		public static int GetCapsuleType(MachineFluidID fluid){
-			int type = Instance.ItemType("Capsule_" + fluid);
+			int type = Instance.Find<ModItem>("Capsule_" + fluid).Type;
 			if(type == 0)
 				throw new ArgumentException("Fluid ID requested was invalid: " + fluid.ToString());
 
 			return type;
 		}
 
-		public static int GetFakeIngredientType(MachineFluidID id) => Instance.ItemType("Fake" + id.EnumName() + "FluidIngredient");
+		public static int GetFakeIngredientType(MachineFluidID id) => Instance.Find<ModItem>("Fake" + id.EnumName() + "FluidIngredient").Type;
 
 		public override void AddRecipeGroups(){
 			RegisterRecipeGroup(ScienceRecipeGroups.Sand, ItemID.SandBlock, new int[]{ ItemID.SandBlock, ItemID.CrimsandBlock, ItemID.EbonsandBlock, ItemID.PearlsandBlock });
@@ -317,14 +330,13 @@ namespace TerraScience {
 
 		internal void SetNetworkTilesSolid(){
 			Main.tileSolid[ModContent.TileType<TransportJunction>()] = true;
-
 			foreach(var type in types){
 				if(type.IsAbstract)
 					continue;
 
 				if(typeof(JunctionMergeable).IsAssignableFrom(type)){
-					int tileType = GetTile(type.Name).Type;
-
+					int tileType = Find<ModTile>(type.Name).Type;
+					
 					Main.tileSolid[tileType] = true;
 				}
 			}
@@ -338,33 +350,17 @@ namespace TerraScience {
 					continue;
 
 				if(typeof(JunctionMergeable).IsAssignableFrom(type)){
-					int tileType = GetTile(type.Name).Type;
+					int tileType = Find<ModTile>(type.Name).Type;
 
 					Main.tileSolid[tileType] = false;
 				}
 			}
 		}
 
-		public override void PreUpdateEntities(){
-			//ModHooks.PreUpdateEntities() is called before WorldGen.UpdateWorld, which updates the tile entities
-			//So this is a good place to have the tile stuff update
 
-			//Sanity check
-			ResetNetworkTilesSolid();
 
-			//Reset the wire network export counts
-			NetworkCollection.ResetNetworkInfo();
-		}
 
-		public override void MidUpdateProjectileItem(){
-			NetworkCollection.UpdateItemNetworks();
-			NetworkCollection.UpdateFluidNetworks();
 
-			if(MagicStorageHandler.GUIRefreshPending && Main.GameUpdateCount % 120 == 0){
-				//A return of "true" means the GUIs were refreshed
-				MagicStorageHandler.GUIRefreshPending = !MagicStorageHandler.RefreshGUIs();
-			}
-		}
 
 		public override void Unload() {
 			//Revert the sand blocks to their original extractinator state
@@ -400,7 +396,7 @@ namespace TerraScience {
 
 			Logger.DebugFormat("Unloading machines and UI...");
 
-			machineLoader?.Unload();
+            //MachineUILoader.Instance.Unload();
 
 			AirIonizerEntity.recipes = null;
 
@@ -420,16 +416,8 @@ namespace TerraScience {
 
 			Logger.DebugFormat("Unloading Cross-Mod Capabilities...");
 
-			MagicStorageHandler.handler?.Unload();
-			MagicStorageHandler.handler = null;
-		}
-
-		public override void UpdateUI(GameTime gameTime) {
-			machineLoader.UpdateUI(gameTime);
-		}
-
-		public override void ModifyInterfaceLayers(List<GameInterfaceLayer> layers) {
-			machineLoader.ModifyInterfaceLayers(layers);
+			//MagicStorageHandler.handler?.Unload();
+			//MagicStorageHandler.handler = null;
 		}
 
 		public override void HandlePacket(BinaryReader reader, int whoAmI){
