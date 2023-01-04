@@ -1,3 +1,4 @@
 displayName = Terran Automation
-author = absoluteAquarian, GoodPro712
+author = The Terran Automation Team
 version = 0.1
+modReferences = SerousCommonLib, SerousEnergyLib

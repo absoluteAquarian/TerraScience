@@ -8,8 +8,18 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="RecursiveCraft">
-      <HintPath>lib\RecursiveCraft.dll</HintPath>
+    <Reference Include="SerousCommonLib">
+      <HintPath>lib\SerousCommonLib.dll</HintPath>
     </Reference>
+    <Reference Include="SerousEnergyLib">
+      <HintPath>lib\SerousEnergyLib.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="src\API\Edits\" />
+    <Folder Include="src\Common\UI\" />
+    <Folder Include="src\Common\Systems\" />
+    <Folder Include="src\Content\Machines\" />
+    <Folder Include="src\Content\Tools\" />
   </ItemGroup>
 </Project>
