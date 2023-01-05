@@ -2,9 +2,7 @@
 using SerousEnergyLib.Tiles;
 
 namespace TerraScience.Content.Tiles.Networks.Items {
-	public class BasicItemTransportTile : BaseNetworkTile, IItemTransportTile {
-		public override string Texture => base.Texture.Replace("Content", "Assets");
-
+	public class BasicItemTransportTile : BaseNetworkEntryTile, IItemTransportTile {
 		public override NetworkType NetworkTypeToPlace => NetworkType.Items;
 
 		public virtual double TransportSpeed => 3.5;

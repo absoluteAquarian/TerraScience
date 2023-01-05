@@ -1293,6 +1293,15 @@
             <param name="y">The tile Y-coordinate</param>
             <param name="type">The network types to clear from the tile</param>
         </member>
+        <member name="M:SerousEnergyLib.Systems.Network.GetNetworkAt(System.Int32,System.Int32,SerousEnergyLib.TileData.NetworkType)">
+            <summary>
+            Attempts to find a network at the location (<paramref name="x"/>, <paramref name="y"/>)
+            </summary>
+            <param name="x">The tile X-coordinate</param>
+            <param name="y">The tile Y=coordinate</param>
+            <param name="type">The filter to use when checking for networks.  Multiple network types can be searched through via OR-ing multiple <see cref="T:SerousEnergyLib.TileData.NetworkType"/> constants</param>
+            <returns>A valid <see cref="T:SerousEnergyLib.Systems.NetworkInstance"/> object, or <see langword="null"/> if one wasn't found at the provided location</returns>
+        </member>
         <member name="M:SerousEnergyLib.Systems.Network.GetItemNetworkAt(System.Int32,System.Int32)">
             <summary>
             Attempts to find an item network at location (<paramref name="x"/>, <paramref name="y"/>)

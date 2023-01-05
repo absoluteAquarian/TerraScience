@@ -62,6 +62,7 @@ namespace TerraScience.Content.Items.Networks {
 		}
 	}
 
+	/// <inheritdoc cref="BaseNetworkEntryPlacingItem"/>
 	public abstract class BaseNetworkEntryPlacingItem<T> : BaseNetworkEntryPlacingItem where T : BaseNetworkTile {
 		public sealed override int NetworkTile => ModContent.TileType<T>();
 	}
