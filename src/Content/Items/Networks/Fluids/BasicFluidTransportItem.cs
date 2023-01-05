@@ -3,7 +3,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using TerraScience.Content.Tiles.Networks.Fluids;
 
-namespace TerraScience.Content.Items.Networks.Items {
+namespace TerraScience.Content.Items.Networks.Fluids {
 	public class BasicFluidTransportItem : BaseNetworkEntryPlacingItem<BasicFluidTransportTile> {
 		public override void SetDefaults() {
 			base.SetDefaults();

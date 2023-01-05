@@ -59,6 +59,18 @@ namespace TerraScience.Content.Items.Networks {
 					"<POWER_RATES>",
 					$"{(double)powerTransport.TransferRate:0.###} {id.ShortName}/gt ({(double)powerTransport.TransferRate * 60:0.###} {id.ShortName}/s)");
 			}
+
+			if (tile is IItemPumpTile itemPump) {
+				TooltipHelper.FindAndModify(tooltips,
+					"<ITEM_PUMP_STACK>",
+					$"{itemPump.StackPerExtraction}");
+			}
+
+			if (tile is IFluidPumpTile fluidPump) {
+				TooltipHelper.FindAndModify(tooltips,
+					"<FLUID_PUMP_EXPORT>",
+					$"{fluidPump.MaxCapacity:0.###} L");
+			}
 		}
 	}
 

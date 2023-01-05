@@ -4,6 +4,8 @@
 			BasicTerraFluxWireItem: "Basic Wire"
 			BasicItemTransportItem: "Basic Item Pipe"
 			BasicFluidTransportItem: "Basic Fluid Pipe"
+			BasicItemPumpItem: "Basic Item Pump"
+			BasicFluidPumpItem: "Basic Fluid Pump"
 		}
 
 		ItemTooltip: {
@@ -24,6 +26,16 @@
 			{$Mods.TerraScience.CommonFooter.CannotExport.Fluids}
 			{$Mods.TerraScience.CommonFooter.FluidPipes}
 			'''
+			BasicItemPumpItem:
+			'''
+			Exports items from inventories
+			{$Mods.TerraScience.CommonFooter.ItemPumps}
+			'''
+			BasicFluidPumpItem:
+			'''
+			Exports fluids from machines
+			{$Mods.TerraScience.CommonFooter.FluidPumps}
+			'''
 		}
 
 		CommonFooter: {
@@ -39,7 +51,22 @@
 			FluidPipes:
 			'''
 			Placed pipes have a capacity of <FLUID_CAPACITY>
-			Placed pipes have an export rate of <FLUID_RATES>
+			Placed pipes can export fluids out of networks at a rate of <FLUID_RATES>
+			'''
+			Pumps:
+			'''
+			Placed pumps can export <PUMP_TYPE> every <PUMP_RATES>
+			'''
+			ItemPumps:
+			'''
+			Placed pumps have a transport speed of <ITEM_SPEED>
+			Placed pumps export <ITEM_PUMP_STACK> items per cycle
+			'''
+			FluidPumps:
+			'''
+			Placed pumps export <FLUID_PUMP_EXPORT> from a machine per cycle
+			Placed pumps have a capacity of <FLUID_CAPACITY>
+			Placed pumps can export fluids out of networks at a rate of <FLUID_RATES>
 			'''
 			
 			CannotExport: {
