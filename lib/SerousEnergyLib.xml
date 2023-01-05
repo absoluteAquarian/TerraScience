@@ -1,0 +1,1911 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>SerousEnergyLib</name>
+    </assembly>
+    <members>
+        <member name="T:SerousEnergyLib.API.Energy.Default.TerraFluxTypeID">
+            <summary>
+            The default energy type, Terra Flux
+            </summary>
+        </member>
+        <member name="T:SerousEnergyLib.API.Energy.EnergyConversions">
+            <summary>
+            The central class for loading <see cref="T:SerousEnergyLib.API.Energy.EnergyTypeID"/> classifications and converting between them
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.API.Energy.EnergyConversions.Convert(System.Double,System.Int32,System.Int32)">
+            <summary>
+            Converts a specified amount of energy from one type to another
+            </summary>
+            <param name="amount">The amount of energy represented by <paramref name="sourceType"/></param>
+            <param name="sourceType">The source ID of the energy to convert</param>
+            <param name="destinationType">The destination ID of the converted energy</param>
+            <returns>The amount of energy represented by <paramref name="destinationType"/></returns>
+        </member>
+        <member name="M:SerousEnergyLib.API.Energy.EnergyConversions.Convert``2(System.Double)">
+            <summary>
+            Converts a specified amount of energy from one type to another
+            </summary>
+            <typeparam name="TSource">The source type of the energy to convert</typeparam>
+            <typeparam name="TDestination">The destination type of the converted energy</typeparam>
+            <param name="amount">The amount of energy represented by <typeparamref name="TSource"/></param>
+            <returns>The amount of energy represented by <typeparamref name="TDestination"/></returns>
+        </member>
+        <member name="M:SerousEnergyLib.API.Energy.EnergyConversions.ConvertToTerraFlux(System.Double,System.Int32)">
+            <summary>
+            Converts a specified amount of energy from a type to <see cref="T:SerousEnergyLib.API.Energy.TerraFlux"/>
+            </summary>
+            <param name="amount">The amount of energy represented by <paramref name="sourceType"/></param>
+            <param name="sourceType">The source ID of the energy to convert</param>
+            <returns>The amount of energy represented by <see cref="T:SerousEnergyLib.API.Energy.TerraFlux"/></returns>
+        </member>
+        <member name="M:SerousEnergyLib.API.Energy.EnergyConversions.ConvertToTerraFlux``1(System.Double)">
+            <summary>
+            Converts a specified amount of energy from a type to <see cref="T:SerousEnergyLib.API.Energy.TerraFlux"/>
+            </summary>
+            <typeparam name="T">The source type of the energy to convert</typeparam>
+            <param name="amount">The amount of energy represented by <typeparamref name="T"/></param>
+            <returns>The amount of energy represented by <see cref="T:SerousEnergyLib.API.Energy.TerraFlux"/></returns>
+        </member>
+        <member name="M:SerousEnergyLib.API.Energy.EnergyConversions.ConvertFromTerraFlux(SerousEnergyLib.API.Energy.TerraFlux,System.Int32)">
+            <summary>
+            Converts a specified amount of energy from <see cref="T:SerousEnergyLib.API.Energy.TerraFlux"/> to another type
+            </summary>
+            <param name="flux">The amount of <see cref="T:SerousEnergyLib.API.Energy.TerraFlux"/> to convert</param>
+            <param name="destinationType">Te destination ID of the converted energy</param>
+            <returns>The amount of energy represented by <paramref name="destinationType"/></returns>
+        </member>
+        <member name="M:SerousEnergyLib.API.Energy.EnergyConversions.ConvertFromTerraFlux``1(SerousEnergyLib.API.Energy.TerraFlux)">
+            <summary>
+            Converts a specified amount of energy from <see cref="T:SerousEnergyLib.API.Energy.TerraFlux"/> to another type
+            </summary>
+            <typeparam name="T">The destination type of the converted energy</typeparam>
+            <param name="flux">The amount of <see cref="T:SerousEnergyLib.API.Energy.TerraFlux"/> to convert</param>
+            <returns>The amount of energy represented by <typeparamref name="T"/></returns>
+        </member>
+        <member name="T:SerousEnergyLib.API.Energy.EnergyTypeID">
+            <summary>
+            A classification of power that can be stored in machines
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.API.Energy.EnergyTypeID.Type">
+            <summary>
+            The ID of this energy type
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.API.Energy.EnergyTypeID.ConversionRatioToTerraFlux">
+            <summary>
+            The conversion ratio of this energy type to <see cref="T:SerousEnergyLib.API.Energy.TerraFlux"/><br/>
+            This property is a <b>multiplier</b>:  terra flux = original quantity * <see cref="P:SerousEnergyLib.API.Energy.EnergyTypeID.ConversionRatioToTerraFlux"/><br/>
+            Defaults to 1
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.API.Energy.EnergyTypeID.DisplayName">
+            <summary>
+            The translations for the display name of this energy type.
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.API.Energy.EnergyTypeID.ShortName">
+            <summary>
+            The short display name for this energy type (e.g. "TF")
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.API.Energy.EnergyTypeID.SetupContent">
+            <inheritdoc cref="M:Terraria.ModLoader.ModType.SetupContent"/>
+        </member>
+        <member name="M:SerousEnergyLib.API.Energy.EnergyTypeID.AutoStaticDefaults">
+            <summary>
+            Automatically sets certain static defaults. Override this if you do not want the properties to be set for you.
+            </summary>
+        </member>
+        <member name="T:SerousEnergyLib.API.Energy.FluxStorage">
+            <summary>
+            An object representing storage of power
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.API.Energy.FluxStorage.CurrentCapacity">
+            <summary>
+            The current amount of <see cref="T:SerousEnergyLib.API.Energy.TerraFlux"/> that's stored
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.API.Energy.FluxStorage.MaxCapacity">
+            <summary>
+            The maximum amount of <see cref="T:SerousEnergyLib.API.Energy.TerraFlux"/> that can be stored
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.API.Energy.FluxStorage.BaseMaxCapacity">
+            <summary>
+            The default maximum amount of <see cref="T:SerousEnergyLib.API.Energy.TerraFlux"/> that can be stored<br/>
+            This property can be used to reset <see cref="F:SerousEnergyLib.API.Energy.FluxStorage.MaxCapacity"/> when components that increase it are removed
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.API.Energy.FluxStorage.Import(SerousEnergyLib.API.Energy.TerraFlux@)">
+            <summary>
+            Imports at most <paramref name="amount"/> power into this storage.  Any leftover power will be contained in <paramref name="amount"/>
+            </summary>
+            <param name="amount">The amount of power to import</param>
+        </member>
+        <member name="M:SerousEnergyLib.API.Energy.FluxStorage.ImportFrom(SerousEnergyLib.API.Energy.FluxStorage,SerousEnergyLib.API.Energy.TerraFlux)">
+            <summary>
+            Imports at most <paramref name="import"/> power from <paramref name="source"/> into this storage.
+            </summary>
+            <param name="source">The storage to export power from</param>
+            <param name="import">The amount of power to import</param>
+        </member>
+        <member name="M:SerousEnergyLib.API.Energy.FluxStorage.Export(SerousEnergyLib.API.Energy.TerraFlux@)">
+            <summary>
+            Exports at most <paramref name="amount"/> power from this storage.  If there isn't enough power to fully export <paramref name="amount"/>, it will be reduced accordingly.
+            </summary>
+            <param name="amount">The amount of power to export</param>
+        </member>
+        <member name="M:SerousEnergyLib.API.Energy.FluxStorage.ExportTo(SerousEnergyLib.API.Energy.FluxStorage,SerousEnergyLib.API.Energy.TerraFlux)">
+            <summary>
+            Exports at most <paramref name="export"/> power from this storage into <paramref name="destination"/>.
+            </summary>
+            <param name="destination">The storage to import power into</param>
+            <param name="export">The amount of power to export</param>
+        </member>
+        <member name="T:SerousEnergyLib.API.Energy.TerraFlux">
+            <summary>
+            The default energy unit for machines
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.API.Energy.TerraFlux.Zero">
+            <summary>
+            An object reprsenting 0 Terra Flux
+            </summary>
+        </member>
+        <member name="T:SerousEnergyLib.API.Extensions">
+            <summary>
+            A class containing a collection of extension methods
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.API.Extensions.ReadPoint16(System.IO.BinaryReader)">
+            <summary>
+            Reads two <see langword="short"/> values from <paramref name="reader"/> and advances the current position of the stream by four bytes
+            </summary>
+            <param name="reader"></param>
+            <returns>A <see cref="T:Terraria.DataStructures.Point16"/> value read from the stream</returns>
+        </member>
+        <member name="M:SerousEnergyLib.API.Extensions.ReadFlux(System.IO.BinaryReader)">
+            <summary>
+            Reads one <see langword="double"/> values from <paramref name="reader"/> and advances the current position of the stream by eight bytes
+            </summary>
+            <param name="reader"></param>
+            <returns>A <see cref="T:SerousEnergyLib.API.Energy.TerraFlux"/> value read from the stream</returns>
+        </member>
+        <member name="M:SerousEnergyLib.API.Extensions.Write(System.IO.BinaryWriter,Terraria.DataStructures.Point16)">
+            <summary>
+            Writes a <see cref="T:Terraria.DataStructures.Point16"/> value to the current stream and advances the stream position by four bytes
+            </summary>
+            <param name="writer"></param>
+            <param name="point">The <see cref="T:Terraria.DataStructures.Point16"/> value to write</param>
+        </member>
+        <member name="M:SerousEnergyLib.API.Extensions.Write(System.IO.BinaryWriter,SerousEnergyLib.API.Energy.TerraFlux)">
+            <summary>
+            Writes a <see cref="T:SerousEnergyLib.API.Energy.TerraFlux"/> value to the current stream and advances the stream position by eight bytes
+            </summary>
+            <param name="writer"></param>
+            <param name="flux">The <see cref="T:SerousEnergyLib.API.Energy.TerraFlux"/> value to write</param>
+        </member>
+        <member name="M:SerousEnergyLib.API.Extensions.CanImportItem(Terraria.Chest,Terraria.Item,System.Int32@)">
+            <summary>
+            Checks if <paramref name="chest"/> can have <paramref name="item"/> imported into it
+            </summary>
+            <param name="chest">The chest instance</param>
+            <param name="item">The item to import</param>
+            <param name="stackImported">The quantity of <paramref name="item"/> that was imported</param>
+            <returns>Whether the item could be imported</returns>
+        </member>
+        <member name="M:SerousEnergyLib.API.Extensions.ImportItem(Terraria.Chest,System.Int32,Terraria.Item)">
+            <summary>
+            Imports <paramref name="item"/> into <paramref name="chest"/>
+            </summary>
+            <param name="chest">The chest instance</param>
+            <param name="chestNum">
+            The index of <paramref name="chest"/> in <see cref="F:Terraria.Main.chest"/><br/>
+            This parameter is required for netcode to properly send updates of the items in <paramref name="chest"/>
+            </param>
+            <param name="item">The item to import</param>
+        </member>
+        <member name="M:SerousEnergyLib.API.Extensions.ExtractItems(Terraria.Chest,System.Int32,SerousEnergyLib.Systems.Networks.ItemNetwork,System.Int32@,System.Boolean)">
+            <summary>
+            Extracts items from <paramref name="chest"/> into <paramref name="network"/>
+            </summary>
+            <param name="chest">The chest instance</param>
+            <param name="chestNum">
+            The index of <paramref name="chest"/> in <see cref="F:Terraria.Main.chest"/><br/>
+            This parameter is required for netcode to properly send updates of the items in <paramref name="chest"/>
+            </param>
+            <param name="network">The item network to import the items into</param>
+            <param name="extractCount">A counter for how many more items can be extracted from <paramref name="chest"/></param>
+            <param name="simulation">If <see langword="true"/>, items will not be removed from <paramref name="chest"/></param>
+            <returns>A list of extraction results for use in creating <see cref="T:SerousEnergyLib.Pathfinding.Objects.PipedItem"/> objects</returns>
+        </member>
+        <member name="M:SerousEnergyLib.API.Extensions.Contains(Microsoft.Xna.Framework.Rectangle,Microsoft.Xna.Framework.Vector2)">
+            <inheritdoc cref="M:Microsoft.Xna.Framework.Rectangle.Contains(Microsoft.Xna.Framework.Point)"/>
+        </member>
+        <member name="M:SerousEnergyLib.API.Extensions.ApplyTo(Terraria.ModLoader.StatModifier,System.Double)">
+            <inheritdoc cref="M:Terraria.ModLoader.StatModifier.ApplyTo(System.Single)"/>
+        </member>
+        <member name="T:SerousEnergyLib.API.Fluid.Default.WaterFluidID">
+            <summary>
+            A fluid ID representing <see cref="F:Terraria.ID.LiquidID.Water"/>
+            </summary>
+        </member>
+        <member name="T:SerousEnergyLib.API.Fluid.Default.LavaFluidID">
+            <summary>
+            A fluid ID representing <see cref="F:Terraria.ID.LiquidID.Lava"/>
+            </summary>
+        </member>
+        <member name="T:SerousEnergyLib.API.Fluid.Default.HoneyFluidID">
+            <summary>
+            A fluid ID representing <see cref="F:Terraria.ID.LiquidID.Honey"/>
+            </summary>
+        </member>
+        <member name="T:SerousEnergyLib.API.Fluid.Default.UnloadedFluidID">
+            <summary>
+            A fluid ID representing a fluid that is no longer loaded.  All <see cref="T:SerousEnergyLib.API.Fluid.Default.UnloadedFluidID"/> instances share the same type, but their data may not be the same.
+            </summary>
+        </member>
+        <member name="T:SerousEnergyLib.API.Fluid.FluidLoader">
+            <summary>
+            The central class for loading <see cref="T:SerousEnergyLib.API.Fluid.FluidTypeID"/> instances
+            </summary>
+        </member>
+        <member name="T:SerousEnergyLib.API.Fluid.FluidStorage">
+            <summary>
+            An object representing storage of fluids
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.API.Fluid.FluidStorage.FluidID">
+            <summary>
+            The <see cref="T:SerousEnergyLib.API.Fluid.FluidTypeID"/> that this storage contains, or nothing when this property is set to <c>null</c>
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.API.Fluid.FluidStorage.FluidType">
+            <summary>
+            The <see cref="T:SerousEnergyLib.API.Fluid.FluidTypeID"/> that this storage contains, represented as an integer.<br/>
+            If this storage contains no fluid, this property returns <see cref="F:SerousEnergyLib.API.Fluid.FluidTypeID.None"/>.
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.API.Fluid.FluidStorage.CurrentCapacity">
+            <summary>
+            The current amount of fluid that's stored
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.API.Fluid.FluidStorage.MaxCapacity">
+            <summary>
+            The maximum amount of fluid that can be stored
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.API.Fluid.FluidStorage.BaseMaxCapacity">
+            <summary>
+            The default maximum amount of fluid that can be stored<br/>
+            This property can be used to reset <see cref="F:SerousEnergyLib.API.Fluid.FluidStorage.MaxCapacity"/> when components that increase it are removed
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.API.Fluid.FluidStorage.AllowedFluidTypes">
+            <summary>
+            The fluid IDs that this storage permits storing
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.API.Fluid.FluidStorage.Import(System.Int32,System.Double@)">
+            <summary>
+            Imports at most <paramref name="amount"/> fluid into this storage.  Any leftover fluids will be contained in <paramref name="amount"/>
+            </summary>
+            <param name="fluidID">The fluid ID to import</param>
+            <param name="amount">The amount of fluid to import</param>
+            <remarks>
+            <see cref="T:SerousEnergyLib.API.Fluid.Default.UnloadedFluidID"/> cannot be imported.<br/>
+            If this storage runs out of fluid, <see cref="P:SerousEnergyLib.API.Fluid.FluidStorage.FluidID"/> is set to <see langword="null"/>.
+            </remarks>
+        </member>
+        <member name="M:SerousEnergyLib.API.Fluid.FluidStorage.ImportFrom(SerousEnergyLib.API.Fluid.FluidStorage,System.Double)">
+            <summary>
+            Imports at most <paramref name="import"/> fluid from <paramref name="source"/> into this storage.
+            </summary>
+            <param name="source">The storage to export fluid from</param>
+            <param name="import">The amount of fluid to import</param>
+        </member>
+        <member name="M:SerousEnergyLib.API.Fluid.FluidStorage.Export(System.Double@,System.Int32@)">
+            <summary>
+            Exports at most <paramref name="amount"/> fluid into this storage.
+            </summary>
+            <param name="amount">The amount of fluid to import</param>
+            <param name="exportedType">The fluid ID that was exported</param>
+            <remarks>
+            <see cref="T:SerousEnergyLib.API.Fluid.Default.UnloadedFluidID"/> cannot be exported.<br/>
+            If this storage runs out of fluid, <see cref="P:SerousEnergyLib.API.Fluid.FluidStorage.FluidID"/> is set to <see langword="null"/>.
+            </remarks>
+        </member>
+        <member name="M:SerousEnergyLib.API.Fluid.FluidStorage.ExportTo(SerousEnergyLib.API.Fluid.FluidStorage,System.Double)">
+            <summary>
+            Exports at most <paramref name="export"/> fluid from this storage into <paramref name="destination"/>.
+            </summary>
+            <param name="destination">The storage to import fluid into</param>
+            <param name="export">The amount of fluid to export</param>
+        </member>
+        <member name="M:SerousEnergyLib.API.Fluid.FluidStorage.Send(System.IO.BinaryWriter)">
+            <summary>
+            Sends information for this fluid storage to a data stream
+            </summary>
+            <param name="writer"></param>
+        </member>
+        <member name="M:SerousEnergyLib.API.Fluid.FluidStorage.Receive(System.IO.BinaryReader)">
+            <summary>
+            Receives information for this fluid storage from a data stream
+            </summary>
+            <param name="reader"></param>
+        </member>
+        <member name="T:SerousEnergyLib.API.Fluid.FluidTypeID">
+            <summary>
+            An ID representing a fluid (liquid/gas) that can be stored within machines and pipe networks
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.API.Fluid.FluidTypeID.None">
+            <summary>
+            An invalid ID representing "no fluid"
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.API.Fluid.FluidTypeID.Type">
+            <summary>
+            The ID assigned to this fluid type
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.API.Fluid.FluidTypeID.DisplayName">
+            <summary>
+            The translations for the display name of this fluid.
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.API.Fluid.FluidTypeID.IsLiquid">
+            <summary>
+            Whether this fluid is a liquid (<see langword="true"/>) or a gas (<see langword="false"/>)
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.API.Fluid.FluidTypeID.FluidColor">
+            <summary>
+            The colour used to render the fluid in pipes and <see cref="T:SerousEnergyLib.API.Machines.IFluidMachine"/> UIs
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.API.Fluid.FluidTypeID.AutoStaticDefaults">
+            <summary>
+            Automatically sets certain static defaults. Override this if you do not want the properties to be set for you.
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.API.Fluid.FluidTypeID.GetPrintedDisplayName">
+            <summary>
+            Gets the display name for this fluid ID
+            </summary>
+        </member>
+        <member name="T:SerousEnergyLib.API.InventoryExtractionResult">
+            <summary>
+            A structure representing the extraction of an item from an inventory
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.API.InventoryExtractionResult.item">
+            <summary>
+            The item that was extracted
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.API.InventoryExtractionResult.target">
+            <summary>
+            The tile coordinates of the inventory that this item will pathfind to
+            </summary>
+        </member>
+        <member name="T:SerousEnergyLib.API.Machines.Default.BaseInventoryEntity">
+            <summary>
+            A default implementation of <see cref="T:SerousEnergyLib.API.Machines.IMachine"/> and <see cref="T:SerousEnergyLib.API.Machines.IInventoryMachine"/>
+            </summary>
+        </member>
+        <member name="T:SerousEnergyLib.API.Machines.Default.BaseMachineEntity">
+            <summary>
+            A default implementation of <see cref="T:SerousEnergyLib.API.Machines.IMachine"/>
+            </summary>
+        </member>
+        <member name="T:SerousEnergyLib.API.Machines.Default.BasePoweredEntity">
+            <summary>
+            A base implementaiton of <see cref="T:SerousEnergyLib.API.Machines.IMachine"/> and <see cref="T:SerousEnergyLib.API.Machines.IPoweredMachine"/>
+            </summary>
+        </member>
+        <member name="T:SerousEnergyLib.API.Machines.Default.BasePowerGeneratorEntity">
+            <summary>
+            A base implementation of <see cref="T:SerousEnergyLib.API.Machines.IMachine"/> and <see cref="T:SerousEnergyLib.API.Machines.IPowerGeneratorMachine"/>
+            </summary>
+        </member>
+        <member name="T:SerousEnergyLib.API.Machines.IFluidMachine">
+            <summary>
+            An interface containing methods used by machines that can store fluids
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.API.Machines.IFluidMachine.FluidStorage">
+            <summary>
+            The fluid storages within this machine
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.IFluidMachine.CanMergeWithFluidPipe(System.Int32,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Whether the fluid pipe at position (<paramref name="pipeX"/>, <paramref name="pipeY"/>) can merge with this machine's sub-tile at position (<paramref name="machineX"/>, <paramref name="machineY"/>)
+            </summary>
+            <param name="pipeX">The tile X-coordinate for the fluid pipe</param>
+            <param name="pipeY">The tile Y-coordinate for the fluid pipe</param>
+            <param name="machineX">The tile X-coordinate for the machine sub-tile</param>
+            <param name="machineY">The tile Y-coordinate for the machine sub-tile</param>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.IFluidMachine.SelectFluidExportSource(Terraria.DataStructures.Point16,Terraria.DataStructures.Point16)">
+            <summary>
+            Select which fluid inventory can be exported from a given <paramref name="pump"/> location at the given <paramref name="subtile"/> location within this machine
+            </summary>
+            <param name="pump">The tile coordinates of the pump tile</param>
+            <param name="subtile">The tile coordinates of which sub-tile of this machine is being pumped from</param>
+            <returns>An instance from <see cref="P:SerousEnergyLib.API.Machines.IFluidMachine.FluidStorage"/> or <see langword="null"/> if no fluids can be extracted</returns>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.IFluidMachine.SelectFluidImportDestination(Terraria.DataStructures.Point16,Terraria.DataStructures.Point16)">
+            <summary>
+            Select which fluid inventory can be imported into from a given <paramref name="pipe"/> location at the given <paramref name="subtile"/> location within this machine
+            </summary>
+            <param name="pipe">The tile coordinates of the <see cref="T:SerousEnergyLib.Tiles.IFluidTransportTile"/> tile</param>
+            <param name="subtile">The tile coordinates of which sub-tile of this machine is being imported into</param>
+            <returns>An instance from <see cref="P:SerousEnergyLib.API.Machines.IFluidMachine.FluidStorage"/> or <see langword="null"/> if no fluid storages can be imported into</returns>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.IFluidMachine.CanUpgradeApplyTo(SerousEnergyLib.API.Upgrades.BaseUpgrade,System.Int32)">
+            <summary>
+            Whether <paramref name="upgrade"/> can apply to the storage in <see cref="P:SerousEnergyLib.API.Machines.IFluidMachine.FluidStorage"/> at index <paramref name="slot"/>
+            </summary>
+            <param name="upgrade">The upgrade to check</param>
+            <param name="slot">The index on <see cref="P:SerousEnergyLib.API.Machines.IFluidMachine.FluidStorage"/></param>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.IFluidMachine.GetAdjacentFluidNetworks">
+            <summary>
+            Returns an enumeration of <see cref="T:SerousEnergyLib.Systems.Networks.FluidNetwork"/> instances that are adjacent to this machine
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.IFluidMachine.TryGetHighestExportRate(SerousEnergyLib.API.Machines.IFluidMachine,SerousEnergyLib.Systems.Networks.FluidNetwork,System.Double@,Terraria.DataStructures.Point16@,Terraria.DataStructures.Point16@)">
+            <summary>
+            Attempts to find an adjacent transport tile in <see cref="T:SerousEnergyLib.Systems.Networks.FluidNetwork"/> with the highest transfer rate
+            </summary>
+            <param name="machine">The machine to try to export into</param>
+            <param name="source">The network to examine</param>
+            <param name="export">The highest exported rate, or zero if one could not be found.</param>
+            <param name="exportTileLocation">The tile location of the <see cref="T:SerousEnergyLib.Tiles.IFluidTransportTile"/> being exported from</param>
+            <param name="importSubtileLocation">The tile location of the sub-tile in <paramref name="machine"/> being imported into</param>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.IFluidMachine.Update(SerousEnergyLib.API.Machines.IFluidMachine)">
+            <summary>
+            This method applies any upgrades that can increase fluid storage capacity
+            </summary>
+            <param name="machine">The machine to process</param>
+        </member>
+        <member name="T:SerousEnergyLib.API.Machines.IInventoryMachine">
+            <summary>
+            An interface containing methods used by machines that can store items
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.API.Machines.IInventoryMachine.Inventory">
+            <summary>
+            The items contained within the machine
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.API.Machines.IInventoryMachine.DefaultInventoryCapacity">
+            <summary>
+            The default capacity of <see cref="P:SerousEnergyLib.API.Machines.IInventoryMachine.Inventory"/><br/>
+            In <see cref="M:SerousEnergyLib.API.Machines.IInventoryMachine.Update(SerousEnergyLib.API.Machines.IInventoryMachine)"/>, if <see cref="P:SerousEnergyLib.API.Machines.IInventoryMachine.Inventory"/> is <see langword="null"/>, it is initialzed to an array of empty items whose length is this property's value
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.IInventoryMachine.CanMergeWithItemPipe(System.Int32,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Whether the item pipe at position (<paramref name="pipeX"/>, <paramref name="pipeY"/>) can merge with this machine's sub-tile at position (<paramref name="machineX"/>, <paramref name="machineY"/>)
+            </summary>
+            <param name="pipeX">The tile X-coordinate for the item pipe</param>
+            <param name="pipeY">The tile Y-coordinate for the item pipe</param>
+            <param name="machineX">The tile X-coordinate for the machine sub-tile</param>
+            <param name="machineY">The tile Y-coordinate for the machine sub-tile</param>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.IInventoryMachine.GetInputSlots">
+            <summary>
+            Return the slots in <see cref="P:SerousEnergyLib.API.Machines.IInventoryMachine.Inventory"/> which can have items imported into them here, or <see langword="null"/> to indicate that all slots can be imported into.
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.IInventoryMachine.CanImportItemAtSlot(Terraria.Item,System.Int32,System.Int32@)">
+            <summary>
+            Whether <paramref name="import"/> can be inserted in this machine's inventory at the given <paramref name="slot"/> in <see cref="P:SerousEnergyLib.API.Machines.IInventoryMachine.Inventory"/>
+            </summary>
+            <param name="import">The item to be imported</param>
+            <param name="slot">The slot in <see cref="P:SerousEnergyLib.API.Machines.IInventoryMachine.Inventory"/></param>
+            <param name="stackImported">How many items would be imported should the import be successful</param>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.IInventoryMachine.CanImportItem(Terraria.Item,System.Int32@)">
+            <summary>
+            Whether <paramref name="import"/> can be imported into this machine's inventory
+            </summary>
+            <param name="import">The item to be imported</param>
+            <param name="stackImported">How many items would be imported should the import be successful</param>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.IInventoryMachine.ImportItemAtSlot(Terraria.Item,System.Int32)">
+            <summary>
+            Attempt to add <paramref name="import"/> to this machine's <see cref="P:SerousEnergyLib.API.Machines.IInventoryMachine.Inventory"/> here.<br/>
+            If any part of <paramref name="import"/>'s stack is to be sent back to the network, indicate as such by making its stack positive.
+            </summary>
+            <param name="import">The item to import</param>
+            <param name="slot">The slot in <see cref="P:SerousEnergyLib.API.Machines.IInventoryMachine.Inventory"/></param>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.IInventoryMachine.GetExportSlots">
+            <summary>
+            Return the slots in <see cref="P:SerousEnergyLib.API.Machines.IInventoryMachine.Inventory"/> which can have items exported from them here, or <see langword="null"/> to indicate that all slots can be exported from.
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.IInventoryMachine.CanExportItemAtSlot(System.Int32)">
+            <summary>
+            Whether the given <paramref name="slot"/> in <see cref="P:SerousEnergyLib.API.Machines.IInventoryMachine.Inventory"/> can be exported from
+            </summary>
+            <param name="slot">The slot in <see cref="P:SerousEnergyLib.API.Machines.IInventoryMachine.Inventory"/></param>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.IInventoryMachine.ExportItemAtSlot(SerousEnergyLib.Systems.Networks.ItemNetwork,System.Int32,System.Int32@,System.Boolean,SerousEnergyLib.API.InventoryExtractionResult@)">
+            <summary>
+            Attempt to extract an item at the given <paramref name="slot"/> in <see cref="P:SerousEnergyLib.API.Machines.IInventoryMachine.Inventory"/><br/>
+            By default, this method acts like extracting items from a chest
+            </summary>
+            <param name="network">The network to extract items to</param>
+            <param name="slot">The slot in <see cref="P:SerousEnergyLib.API.Machines.IInventoryMachine.Inventory"/></param>
+            <param name="extractCount">The remaining count of items to extract from this machine</param>
+            <param name="simulation">Whether to actually remove items from this inventory or just simulate the removal.</param>
+            <param name="result">A valid extraction result if the extraction was successful, <see langword="default"/> otherwise.</param>
+            <returns>Whether the extraction was successful</returns>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.IInventoryMachine.ExtractItems(SerousEnergyLib.Systems.Networks.ItemNetwork,System.Int32@,System.Boolean)">
+            <summary>
+            Extracts items from this machine into <paramref name="network"/>
+            </summary>
+            <param name="network">The item network to import the items into</param>
+            <param name="extractCount">A counter for how many more items can be extracted from this machine</param>
+            <param name="simulation">If <see langword="true"/>, items will not be removed from this machine</param>
+            <returns>A list of extraction results for use in creating <see cref="T:SerousEnergyLib.Pathfinding.Objects.PipedItem"/> objects</returns>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.IInventoryMachine.GetAdjacentItemNetworks">
+            <summary>
+            Returns an enumeration of <see cref="T:SerousEnergyLib.Systems.Networks.ItemNetwork"/> instances that are adjacent to this machine
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.IInventoryMachine.Update(SerousEnergyLib.API.Machines.IInventoryMachine)">
+            <summary>
+            This method ensures that <see cref="P:SerousEnergyLib.API.Machines.IInventoryMachine.Inventory"/> is not <see langword="null"/>.
+            If it is <see langword="null"/>, then it is initialized to an array of empty items whose length is <see cref="P:SerousEnergyLib.API.Machines.IInventoryMachine.DefaultInventoryCapacity"/>
+            </summary>
+            <param name="machine">The machine to process</param>
+        </member>
+        <member name="T:SerousEnergyLib.API.Machines.IMachine">
+            <summary>
+            The base interface used by all machine tile entities
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.API.Machines.IMachine.MachineTile">
+            <summary>
+            The ID of the tile that this machine should be bound to.
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.API.Machines.IMachine.MachineUI">
+            <summary>
+            The UI instance bound to this machine type.
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.IMachine.IsTileValid(SerousEnergyLib.API.Machines.IMachine,System.Int32,System.Int32)">
+            <summary>
+            This method returns true if the tile at location (<paramref name="x"/>, <paramref name="y"/>) is active, its type is equal to <see cref="P:SerousEnergyLib.API.Machines.IMachine.MachineTile"/> and its sprite frame is at position (0, 0)
+            </summary>
+            <param name="machine">The machine to retrieve the tile type from</param>
+            <param name="x">The tile X-coordinate</param>
+            <param name="y">The tile Y-coordinate</param>
+        </member>
+        <member name="P:SerousEnergyLib.API.Machines.IMachine.Upgrades">
+            <summary>
+            The collection of upgrades contained within this machine
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.IMachine.Update(SerousEnergyLib.API.Machines.IMachine)">
+            <summary>
+            This method ensures that <see cref="P:SerousEnergyLib.API.Machines.IMachine.Upgrades"/> is not <see langword="null"/>
+            </summary>
+            <param name="machine">The machine to process</param>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.IMachine.TryFindMachine(Terraria.DataStructures.Point16,SerousEnergyLib.API.Machines.IMachine@)">
+            <summary>
+            Attempts to find a machine bound to a multitile at <paramref name="location"/>
+            </summary>
+            <param name="location">The tile coordinates to look for a machine's entity at</param>
+            <param name="machine">The machine instance if one was found</param>
+            <returns>Whether a machine entity could be found</returns>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.IMachine.CalculateFromUpgrades``1(``0,System.Func{SerousEnergyLib.API.Upgrades.BaseUpgrade,``0,``0})">
+            <summary>
+            Iterates over <see cref="P:SerousEnergyLib.API.Machines.IMachine.Upgrades"/> and applies <paramref name="mutator"/> to each of them
+            </summary>
+            <param name="base">The default value for the calculated result</param>
+            <param name="mutator">A function which modifies the calculated result</param>
+            <returns>The final calculated result</returns>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.IMachine.CalculateFromUpgrades``1(``0,System.Collections.Generic.IEnumerable{SerousEnergyLib.API.Upgrades.BaseUpgrade},System.Func{SerousEnergyLib.API.Upgrades.BaseUpgrade,``0,``0})">
+            <summary>
+            Iterates over <paramref name="upgrades"/> and applies <paramref name="mutator"/> to each of them
+            </summary>
+            <param name="upgrades">An enumeration of upgrades</param>
+            <inheritdoc cref="M:SerousEnergyLib.API.Machines.IMachine.CalculateFromUpgrades``1(``0,System.Func{SerousEnergyLib.API.Upgrades.BaseUpgrade,``0,``0})"/>
+            <param name="base"></param>
+            <param name="mutator"></param>
+        </member>
+        <member name="T:SerousEnergyLib.API.Machines.IMachine.NetworkSearchResult">
+            <summary>
+            A struct representing a search result for an adjacent network
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.API.Machines.IMachine.NetworkSearchResult.network">
+            <summary>
+            The adjacent network instance
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.API.Machines.IMachine.NetworkSearchResult.tileInNetwork">
+            <summary>
+            The tile in the network that was adjacent to <see cref="F:SerousEnergyLib.API.Machines.IMachine.NetworkSearchResult.machineTileAdjacentToNetwork"/>
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.API.Machines.IMachine.NetworkSearchResult.machineTileAdjacentToNetwork">
+            <summary>
+            The tile within this machine that is adjacent to the network
+            </summary>
+        </member>
+        <member name="T:SerousEnergyLib.API.Machines.IPoweredMachine">
+            <summary>
+            An interface containing methods used by machines that can store and/or use power
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.API.Machines.IPoweredMachine.PowerStorage">
+            <summary>
+            The power storage within this machine
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.API.Machines.IPoweredMachine.EnergyID">
+            <summary>
+            The <see cref="T:SerousEnergyLib.API.Energy.EnergyTypeID"/> that this machine uses
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.IPoweredMachine.GetPowerConsumption(System.Double)">
+            <summary>
+            Return how much power in units represented by <see cref="P:SerousEnergyLib.API.Machines.IPoweredMachine.EnergyID"/> should be consumed for a duration of <paramref name="ticks"/>
+            </summary>
+            <param name="ticks">The amount of game ticks to calculate</param>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.IPoweredMachine.GetPowerConsumptionWithUpgrades(System.Double)">
+            <summary>
+            Applies <see cref="M:SerousEnergyLib.API.Upgrades.BaseUpgrade.GetPowerConsumptionMultiplier"/> to the result of <see cref="M:SerousEnergyLib.API.Machines.IPoweredMachine.GetPowerConsumption(System.Double)"/>
+            </summary>
+            <param name="ticks"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.IPoweredMachine.AttemptToConsumePower(System.Nullable{System.Double})">
+            <summary>
+            Attempts to consume power from this machine's flux storage
+            </summary>
+            <param name="power">A quantity of power or the default consumption rate per tick (see: <see cref="M:SerousEnergyLib.API.Machines.IPoweredMachine.GetPowerConsumptionWithUpgrades(System.Double)"/>) if <see langword="null"/>.</param>
+            <returns>Whether there was enough power for consumption</returns>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.IPoweredMachine.CanMergeWithWire(System.Int32,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Whether the wire at position (<paramref name="wireX"/>, <paramref name="wireY"/>) can merge with this machine's sub-tile at position (<paramref name="machineX"/>, <paramref name="machineY"/>)
+            </summary>
+            <param name="wireX">The tile X-coordinate for the wire</param>
+            <param name="wireY">The tile Y-coordinate for the wire</param>
+            <param name="machineX">The tile X-coordinate for the machine sub-tile</param>
+            <param name="machineY">The tile Y-coordinate for the machine sub-tile</param>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.IPoweredMachine.GetAdjacentPowerNetworks">
+            <summary>
+            Returns an enumeration of all <see cref="T:SerousEnergyLib.Systems.Networks.PowerNetwork"/> instances that are adjacent to this machine
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.IPoweredMachine.TryGetHighestTransferRate(SerousEnergyLib.API.Machines.IPoweredMachine,SerousEnergyLib.Systems.Networks.PowerNetwork,SerousEnergyLib.API.Energy.TerraFlux@)">
+            <summary>
+            Attempts to find an adjacent transport tile in <see cref="T:SerousEnergyLib.Systems.Networks.PowerNetwork"/> with the highest transfer rate
+            </summary>
+            <param name="machine">The machine to try to export from or insert into</param>
+            <param name="source">The network to examine</param>
+            <param name="transfer">The highest transfer rate, or <see cref="F:SerousEnergyLib.API.Energy.TerraFlux.Zero"/> if one could not be found.</param>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.IPoweredMachine.Update(SerousEnergyLib.API.Machines.IPoweredMachine)">
+            <summary>
+            This method applies the upgrades in <paramref name="machine"/> to <see cref="P:SerousEnergyLib.API.Machines.IPoweredMachine.PowerStorage"/>.MaxCapacity
+            </summary>
+            <param name="machine"></param>
+        </member>
+        <member name="T:SerousEnergyLib.API.Machines.IPowerGeneratorMachine">
+            <summary>
+            An interface containing methods used by machines that can generate power
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.IPowerGeneratorMachine.GetPowerGeneration(System.Double)">
+            <summary>
+            Return how much power in units represented by <see cref="P:SerousEnergyLib.API.Machines.IPoweredMachine.EnergyID"/> should be generated for a duration of <paramref name="ticks"/>
+            </summary>
+            <param name="ticks">The amount of game ticks to calculate</param>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.IPowerGeneratorMachine.GetPowerGenerationWithUpgrades(System.Double)">
+            <summary>
+            Applies <see cref="M:SerousEnergyLib.API.Upgrades.BaseUpgrade.GetPowerGenerationMultiplier"/> to the result of <see cref="M:SerousEnergyLib.API.Machines.IPowerGeneratorMachine.GetPowerGeneration(System.Double)"/>
+            </summary>
+            <param name="ticks"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.IPowerGeneratorMachine.GeneratePower">
+            <summary>
+            Generates power and adds it to this machine's flux storage
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.IPowerGeneratorMachine.ExportPowerToAdjacentNetworks">
+            <summary>
+            Exports power from this machine's storage to all adjacent <see cref="T:SerousEnergyLib.Systems.Networks.PowerNetwork"/> instances
+            </summary>
+        </member>
+        <member name="T:SerousEnergyLib.API.Machines.UI.BaseMachineUI">
+            <summary>
+            The base implementation of interfacing with an <see cref="T:SerousEnergyLib.API.Machines.IMachine"/>
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.API.Machines.UI.BaseMachineUI.panel">
+            <summary>
+            The UI element object containing the tabs and view area for this UI
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.API.Machines.UI.BaseMachineUI.pages">
+            <summary>
+            The pages contained by <see cref="F:SerousEnergyLib.API.Machines.UI.BaseMachineUI.panel"/>
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.API.Machines.UI.BaseMachineUI.CurrentPage">
+            <summary>
+            The current tab selected by this UI
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.API.Machines.UI.BaseMachineUI.PanelLeft">
+            <summary>
+            The left edge of this UI's panel
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.API.Machines.UI.BaseMachineUI.PanelTop">
+            <summary>
+            The top edge of this UI's panel
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.API.Machines.UI.BaseMachineUI.PanelWidth">
+            <summary>
+            The width of this UI's panel
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.API.Machines.UI.BaseMachineUI.PanelHeight">
+            <summary>
+            The height of this UI's panel
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.API.Machines.UI.BaseMachineUI.PanelRight">
+            <summary>
+            The right edge of this UI's panel
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.API.Machines.UI.BaseMachineUI.PanelBottom">
+            <summary>
+            The bottom edge of this UI's panel
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.UI.BaseMachineUI.GetMenuOptions">
+            <summary>
+            Return an enumeration of identifiers to be used by <see cref="M:SerousEnergyLib.API.Machines.UI.BaseMachineUI.InitPage(System.String)"/>
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.UI.BaseMachineUI.GetMenuOptionLocalization(System.String)">
+            <summary>
+            Return an enumeration of localized text for each page's tab
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.UI.BaseMachineUI.InitPage(System.String)">
+            <summary>
+            Initialize a page, given its identifier from <see cref="M:SerousEnergyLib.API.Machines.UI.BaseMachineUI.GetMenuOptions"/>
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.API.Machines.UI.BaseMachineUI.DefaultPage">
+            <summary>
+            The default page to display when opening this UI
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.UI.BaseMachineUI.GetPage(System.String)">
+            <summary>
+            Gets a page from this UI's menu
+            </summary>
+            <remarks>This method throws an exception if the page does not exist</remarks>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.UI.BaseMachineUI.GetPage``1(System.String)">
+            <summary>
+            Gets a page from this UI's menu and attempts to cast it to <typeparamref name="T"/>
+            </summary>
+            <remarks>This method throws an exception if the page does not exist</remarks>
+            <exception cref="T:System.InvalidCastException"/>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.UI.BaseMachineUI.GetDefaultPanelDimensions(System.Int32@,System.Int32@)">
+            <summary>
+            Assign the default values for this UI's panel width and height here
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.API.Machines.UI.BaseMachineUI.pendingUIChange">
+            <summary>
+            Set this field to <see langword="true"/> if you want the panel to reset to its default location on the screen
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.UI.BaseMachineUI.Open">
+            <summary>
+            Opens this UI, calls the relevant events and then sets its page to <see cref="P:SerousEnergyLib.API.Machines.UI.BaseMachineUI.DefaultPage"/>
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.UI.BaseMachineUI.Close">
+            <summary>
+            Closes this UI and calls the relevant events
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.UI.BaseMachineUI.Refresh">
+            <summary>
+            This method is executed whenever the UI recalculates itself in <see cref="M:SerousEnergyLib.API.Machines.UI.BaseMachineUI.Update(Microsoft.Xna.Framework.GameTime)"/>
+            </summary>
+        </member>
+        <member name="T:SerousEnergyLib.API.Machines.UI.BaseMachineUIPage">
+            <summary>
+            The base implementation of a page within a <see cref="T:SerousEnergyLib.API.Machines.UI.BaseMachineUI"/> state
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.API.Machines.UI.BaseMachineUIPage.Name">
+            <summary>
+            The name of this page
+            </summary>
+        </member>
+        <member name="E:SerousEnergyLib.API.Machines.UI.BaseMachineUIPage.OnPageSelected">
+            <summary>
+            The event that executes whenever this page is selected
+            </summary>
+        </member>
+        <member name="E:SerousEnergyLib.API.Machines.UI.BaseMachineUIPage.OnPageDeselected">
+            <summary>
+            The event that executes whenever this page is deselected
+            </summary>
+        </member>
+        <member name="T:SerousEnergyLib.API.Upgrades.BaseUpgrade">
+            <summary>
+            The base type for an upgrade that can be placed in a machine
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.API.Upgrades.BaseUpgrade.Type">
+            <summary>
+            The unique ID for this upgrade type
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.API.Upgrades.BaseUpgrade.DisplayName">
+            <summary>
+            The translations for the display name of this upgrade.
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.API.Upgrades.BaseUpgrade.Tooltip">
+            <summary>
+            The translations for the tooltip of this item.
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.API.Upgrades.BaseUpgrade.AutoStaticDefaults">
+            <summary>
+            Automatically sets certain static defaults. Override this if you do not want the properties to be set for you.
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.API.Upgrades.BaseUpgrade.CanApplyTo(SerousEnergyLib.API.Machines.IMachine)">
+            <summary>
+            Whether this upgrade can be applied to the specified machine
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.API.Upgrades.BaseUpgrade.GetPowerConsumptionMultiplier">
+            <summary>
+            Return a modifier for power conumption in an <see cref="T:SerousEnergyLib.API.Machines.IPoweredMachine"/> here
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.API.Upgrades.BaseUpgrade.GetPowerGenerationMultiplier">
+            <summary>
+            Return a modifier for power generation in an <see cref="T:SerousEnergyLib.API.Machines.IPowerGeneratorMachine"/> here
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.API.Upgrades.BaseUpgrade.GetPowerCapacityMultiplier">
+            <summary>
+            Return a modifier for the maximum power capacity in an <see cref="T:SerousEnergyLib.API.Machines.IPoweredMachine"/> here
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.API.Upgrades.BaseUpgrade.GetFluidCapacityMultiplier">
+            <summary>
+            Return a modifier for the maximum fluid storage capacity for a fluid storage in an <see cref="T:SerousEnergyLib.API.Machines.IFluidMachine"/> here
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:SerousEnergyLib.API.Upgrades.UpgradeLoader">
+            <summary>
+            The centeral class for loading <see cref="T:SerousEnergyLib.API.Upgrades.BaseUpgrade"/> instnaces
+            </summary>
+        </member>
+        <member name="T:SerousEnergyLib.ArrayFunctions">
+            <summary>
+            A helper class for array objects
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.ArrayFunctions.Create1DArray``1(``0,System.UInt32)">
+            <summary>
+            Creates a 1D array whose elements are all set to <paramref name="value"/>
+            </summary>
+            <param name="value">The value</param>
+            <param name="length">The length of the array</param>
+        </member>
+        <member name="T:SerousEnergyLib.IOHelper">
+            <summary>
+            A helper class for I/O logic
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.IOHelper.Compress(System.Byte[],Ionic.Zlib.CompressionLevel)">
+            <summary>
+            Compresses <paramref name="data"/> at the provided <paramref name="level"/>
+            </summary>
+            <param name="data">The decompressed byte array</param>
+            <param name="level">The compression level</param>
+            <returns>The compressed byte array</returns>
+        </member>
+        <member name="M:SerousEnergyLib.IOHelper.Decompress(System.Byte[],Ionic.Zlib.CompressionLevel)">
+            <summary>
+            Decompresses <paramref name="data"/> at the provided <paramref name="level"/>
+            </summary>
+            <param name="data">The compressed byte array</param>
+            <param name="level">The compression level</param>
+            <returns>The decompressed byte array</returns>
+        </member>
+        <member name="M:SerousEnergyLib.IOHelper.ComputeDataHash(System.Byte[])">
+            <summary>
+            Generates a hash for a byte array.  This method is <b>NOT</b> optimized for <see cref="M:System.Object.GetHashCode"/> usage!
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.IOHelper.ComputeDataHash(Terraria.ModLoader.IO.TagCompound)">
+            <summary>
+            Generates a hash for a <see cref="T:Terraria.ModLoader.IO.TagCompound"/>.  This method is <b>NOT</b> optimized for <see cref="M:System.Object.GetHashCode"/> usage!
+            </summary>
+        </member>
+        <member name="T:SerousEnergyLib.ItemFunctions">
+            <summary>
+            A helper class containing methods for manipulating and using <see cref="T:Terraria.Item"/> instance
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.ItemFunctions.NewClonedItem(Terraria.DataStructures.IEntitySource,Microsoft.Xna.Framework.Vector2,Terraria.Item,System.Int32,System.Int32)">
+            <summary>
+            Spawns <paramref name="item"/> with the provided arguments
+            </summary>
+            <param name="source">The spawn source</param>
+            <param name="position">The position to spawn the item at</param>
+            <param name="item">The item instance</param>
+            <param name="stack">The stack of the spawned item</param>
+            <param name="prefix">The prefix of the spawned item</param>
+            <returns>The index of the spawned item in <see cref="F:Terraria.Main.item"/></returns>
+        </member>
+        <member name="M:SerousEnergyLib.ItemFunctions.AreStrictlyEqual(Terraria.Item,Terraria.Item,System.Boolean,System.Boolean)">
+            <summary>
+            Returns <see langword="true"/> if <paramref name="item1"/> and <paramref name="item2"/> are considered equal
+            </summary>
+            <param name="item1">The first item</param>
+            <param name="item2">The second item</param>
+            <param name="checkStack">Whether to check the stack of the items</param>
+            <param name="checkPrefix">Whehter to check thep prefixes of the items</param>
+        </member>
+        <member name="M:SerousEnergyLib.ItemFunctions.DrawItemInWorld(Microsoft.Xna.Framework.Graphics.SpriteBatch,Terraria.Item,Microsoft.Xna.Framework.Vector2,System.Single,System.Single)">
+            <summary>
+            Draws an item in the world
+            </summary>
+            <param name="spriteBatch"></param>
+            <param name="item">The item to draw</param>
+            <param name="position">The position to draw the item at</param>
+            <param name="size">The maximum width of the square the item's sprite will be contained inside of</param>
+            <param name="rotation">The rotation of the item</param>
+        </member>
+        <member name="T:SerousEnergyLib.Items.BaseMachineItem">
+            <summary>
+            The base implementation for an item that can place a machine
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.Items.BaseMachineItem.MachineData">
+            <summary>
+            The stored machine data in this item.<br/>
+            <b>NOTE:</b> Writing to this property will recalulate <see cref="P:SerousEnergyLib.Items.BaseMachineItem.DataHash"/>
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.Items.BaseMachineItem.DataHash">
+            <summary>
+            The data hash for <see cref="P:SerousEnergyLib.Items.BaseMachineItem.MachineData"/><br/>
+            This property serves no practical purpose and is just for aesthetics
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.Items.BaseMachineItem.MachineTIle">
+            <summary>
+            The tile ID of the machine to place
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.Items.BaseMachineItem.MachineUsesEnergyPerTick">
+            <summary>
+            If this item's machine is an <see cref="T:SerousEnergyLib.API.Machines.IPoweredMachine"/>, this property indicates whether the tooltip line should be "per game tick" or "per operation"
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.Items.BaseMachineItem.MachineGeneratesEnergyPerTick">
+            <summary>
+            If this item's machine is an <see cref="T:SerousEnergyLib.API.Machines.IPowerGeneratorMachine"/>, this property indicates whether the tooltip line should be "per game tick" or "per operation"
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.Items.BaseMachineItem.SafeSetDefaults">
+            <inheritdoc cref="M:SerousEnergyLib.Items.BaseMachineItem.SetDefaults"/>
+        </member>
+        <member name="M:SerousEnergyLib.Items.BaseMachineItem.GetEnergyUsageString(System.Boolean)">
+            <summary>
+            Gets the energy usage as a string
+            </summary>
+            <param name="perGameTick">Whether the rates are displayed as "X/gt" and "X/s" (<see langword="true"/>) or "X/operation" (<see langword="false"/>)</param>
+        </member>
+        <member name="M:SerousEnergyLib.Items.BaseMachineItem.GetEnergyGenerationString(System.Boolean)">
+            <summary>
+            Gets the energy generation as a string
+            </summary>
+            <param name="perGameTick">Whether the rates are displayed as "X/gt" and "X/s" (<see langword="true"/>) or "X/operation" (<see langword="false"/>)</param>
+        </member>
+        <member name="T:SerousEnergyLib.Items.BaseMachineItem`1">
+            <inheritdoc cref="T:SerousEnergyLib.Items.BaseMachineItem"/>
+        </member>
+        <member name="T:SerousEnergyLib.NetworkHelper">
+            <summary>
+            A helper class containing methods used by the merging logic for <see cref="T:SerousEnergyLib.Tiles.BaseNetworkTile"/> tiles
+            </summary>
+        </member>
+        <member name="T:SerousEnergyLib.Pathfinding.AStar`1">
+            <summary>
+            Performs an A* pathfinding algorithm
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.Pathfinding.AStar`1.GetPath(Terraria.DataStructures.Point16,Terraria.DataStructures.Point16)">
+            <summary>
+            Attempts to generate a path from <paramref name="start"/> to <paramref name="end"/>
+            </summary>
+            <param name="start">The starting tile coordinate</param>
+            <param name="end">The final tile coordinate</param>
+            <returns>A list of tile positions to traverse, or <see langword="null"/> if no path could be found</returns>
+            <exception cref="T:System.ObjectDisposedException"/>
+        </member>
+        <member name="T:SerousEnergyLib.Pathfinding.IAStarEntry">
+            <summary>
+            An interface representing an entry in an <see cref="T:SerousEnergyLib.Pathfinding.AStar`1"/> object
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.Pathfinding.IAStarEntry.Location">
+            <summary>
+            The tile location of the entry
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.Pathfinding.IAStarEntry.Parent">
+            <summary>
+            The entry that this entry was walked from
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.Pathfinding.IAStarEntry.Heuristic">
+            <summary>
+            The heuristic of the entry
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.Pathfinding.IAStarEntry.TileDistance">
+            <summary>
+            How far away this entry is from the target
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.Pathfinding.IAStarEntry.TravelTime">
+            <summary>
+            The "travel time" for the entry from the start of the path
+            </summary>
+        </member>
+        <member name="T:SerousEnergyLib.Pathfinding.IPriorityNode`1">
+            <summary>
+            An interface representing an entry in a <see cref="T:SerousEnergyLib.Pathfinding.PriorityQueue`1"/>
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.Pathfinding.IPriorityNode`1.OnNodeUpdate(`0,`0@)">
+            <summary>
+            Called when a <see cref="T:SerousEnergyLib.Pathfinding.PriorityQueue`1"/> updates an existing node entry.
+            Update the data in <paramref name="replacement"/> according to the data in <paramref name="existing"/> here.
+            </summary>
+            <param name="existing">The existing node in the queue</param>
+            <param name="replacement">The new node that will replace <paramref name="existing"/></param>
+        </member>
+        <member name="T:SerousEnergyLib.Pathfinding.Nodes.CoarseNode">
+            <summary>
+            A node representing a 10x10 tile area in the world
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.Pathfinding.Nodes.CoarseNode.Stride">
+            <summary>
+            How large each coarse square of tiles is in one dimension
+            </summary>
+        </member>
+        <member name="T:SerousEnergyLib.Pathfinding.Nodes.CoarseNodePathHeuristic">
+            <summary>
+            A structure representing a path within a coarse node within the world
+            </summary>
+        </member>
+        <member name="T:SerousEnergyLib.Pathfinding.Nodes.CoarseNodeThresholdTile">
+            <summary>
+            A structure representing a tile at the edge of a coarse node within the world
+            </summary>
+        </member>
+        <member name="T:SerousEnergyLib.Pathfinding.Objects.PipedItem">
+            <summary>
+            An object representing an item moving in an item pipe
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.Pathfinding.Objects.PipedItem.Target">
+            <summary>
+            The tile coordinates where this item is heading toward
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.Pathfinding.Objects.PipedItem.PreviousTile">
+            <summary>
+            The tile that this item was previously located at
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.Pathfinding.Objects.PipedItem.CurrentTile">
+            <summary>
+            The tile that this item is currently located at
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.Pathfinding.Objects.PipedItem.NextTile">
+            <summary>
+            The next tile that this item will be located at
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.Pathfinding.Objects.PipedItem.network">
+            <summary>
+            The network that this item is assigned to
+            </summary>
+        </member>
+        <member name="T:SerousEnergyLib.Pathfinding.PriorityQueue`1">
+            <summary>
+            PriorityQueue provides a stack-like interface, except that objects
+            "pushed" in arbitrary order are "popped" in order of priority, i.e.,
+            from least to greatest as defined by the specified comparer.
+            </summary>
+            <remarks>
+            Push and Pop are each O(log N). Pushing N objects and them popping
+            them all is equivalent to performing a heap sort and is O(N log N).
+            </remarks>
+        </member>
+        <member name="P:SerousEnergyLib.Pathfinding.PriorityQueue`1.Count">
+            <summary>
+            Gets the number of items in the priority queue.
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.Pathfinding.PriorityQueue`1.Top">
+            <summary>
+            Gets the first or topmost object in the priority queue, which is the
+            object with the minimum value.
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.Pathfinding.PriorityQueue`1.Clear">
+            <summary>
+            Clears the queue and removes any values stored in it
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.Pathfinding.PriorityQueue`1.Push(`0)">
+            <summary>
+            Adds an object to the priority queue.
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.Pathfinding.PriorityQueue`1.Pop">
+            <summary>
+            Removes the first node (i.e., the logical root) from the heap.
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.Pathfinding.PriorityQueue`1.HeapParent(System.Int32)">
+            <summary>
+            Calculate the parent node index given a child node's index, taking advantage
+            of the "shape" property.
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.Pathfinding.PriorityQueue`1.HeapLeftChild(System.Int32)">
+            <summary>
+            Calculate the left child's index given the parent's index, taking advantage of
+            the "shape" property. If there is no left child, the return value is >= _count.
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.Pathfinding.PriorityQueue`1.HeapRightFromLeft(System.Int32)">
+            <summary>
+            Calculate the right child's index from the left child's index, taking advantage
+            of the "shape" property (i.e., sibling nodes are always adjacent). If there is
+            no right child, the return value >= _count.
+            </summary>
+        </member>
+        <member name="T:SerousEnergyLib.Systems.Netcode">
+            <summary>
+            The central class for all netcode logic in this mod
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.Netcode.SyncNetworkInfo(System.Int32,System.Int32)">
+            <summary>
+            Syncs the <see cref="T:SerousEnergyLib.TileData.NetworkInfo"/> and <see cref="T:SerousEnergyLib.TileData.NetworkTaggedInfo"/> at a tile location
+            </summary>
+            <param name="x"></param>
+            <param name="y"></param>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.Netcode.RequestNetworkEntryPlacement(System.Int32,System.Int32,SerousEnergyLib.TileData.NetworkType)">
+            <summary>
+            Sends a request to the server for placing a tile that can be be assigned to networks for items, fluids and/or power
+            </summary>
+            <param name="x"></param>
+            <param name="y"></param>
+            <param name="type"></param>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.Netcode.RequestNetworkEntryRemoval(System.Int32,System.Int32,SerousEnergyLib.TileData.NetworkType)">
+            <summary>
+            Sends a request to the server for removing a tile that can be assigned to networks for items, fluids and/or power
+            </summary>
+            <param name="x"></param>
+            <param name="y"></param>
+            <param name="type"></param>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.Netcode.SyncNetworkInfoDiamond(System.Int32,System.Int32)">
+            <summary>
+            
+            </summary>
+            <param name="x"></param>
+            <param name="y"></param>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.Netcode.SyncFullNetworkData(System.Int32)">
+            <summary>
+            Syncs a <see cref="T:SerousEnergyLib.Systems.NetworkInstance"/> instance's data to all clients
+            </summary>
+            <param name="id">The <see cref="P:SerousEnergyLib.Systems.NetworkInstance.ID"/> of the network to sync</param>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.Netcode.RequestFullNetworkData(System.Int32)">
+            <summary>
+            Sends a requst to the server for the data of a <see cref="T:SerousEnergyLib.Systems.NetworkInstance"/> instance
+            </summary>
+            <param name="id">The <see cref="P:SerousEnergyLib.Systems.NetworkInstance.ID"/> of the network to sync</param>
+        </member>
+        <member name="T:SerousEnergyLib.Systems.Network">
+            <summary>
+            An abstraction over accessing and manipulating <see cref="T:SerousEnergyLib.TileData.NetworkInfo"/> data in tiles
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.Network.PlaceEntry(System.Int32,System.Int32,SerousEnergyLib.TileData.NetworkType)">
+            <summary>
+            Updates the tile at position (<paramref name="x"/>, <paramref name="y"/>) and the 4 entries adjacent to it in the cardinal directions
+            </summary>
+            <param name="x">The tile X-coordinate</param>
+            <param name="y">The tile Y-coordinate</param>
+            <param name="type">The new classification for the entry</param>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.Network.RemoveEntry(System.Int32,System.Int32,SerousEnergyLib.TileData.NetworkType)">
+            <summary>
+            Clears the <see cref="T:SerousEnergyLib.TileData.NetworkInfo"/> information in the tile at position (<paramref name="x"/>, <paramref name="y"/>) and updates the 4 entries adjacent to it in the cardinal directions
+            </summary>
+            <param name="x">The tile X-coordinate</param>
+            <param name="y">The tile Y-coordinate</param>
+            <param name="type">The network types to clear from the tile</param>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.Network.GetItemNetworkAt(System.Int32,System.Int32)">
+            <summary>
+            Attempts to find an item network at location (<paramref name="x"/>, <paramref name="y"/>)
+            </summary>
+            <param name="x">The tile X-coordinate</param>
+            <param name="y">The tile Y-coordinate</param>
+            <returns>An <see cref="T:SerousEnergyLib.Systems.Networks.ItemNetwork"/> instance if one was found, <see langword="null"/> otherwise.</returns>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.Network.GetFluidNetworkAt(System.Int32,System.Int32)">
+            <summary>
+            Attempts to find a fluid network at location (<paramref name="x"/>, <paramref name="y"/>)
+            </summary>
+            <param name="x">The tile X-coordinate</param>
+            <param name="y">The tile Y-coordinate</param>
+            <returns>A <see cref="T:SerousEnergyLib.Systems.Networks.FluidNetwork"/> instance if one was found, <see langword="null"/> otherwise.</returns>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.Network.GetPowerNetworkAt(System.Int32,System.Int32)">
+            <summary>
+            Attempts to find a power network at location (<paramref name="x"/>, <paramref name="y"/>)
+            </summary>
+            <param name="x">The tile X-coordinate</param>
+            <param name="y">The tile Y-coordinate</param>
+            <returns>An <see cref="T:SerousEnergyLib.Systems.Networks.PowerNetwork"/> instance if one was found, <see langword="null"/> otherwise.</returns>
+        </member>
+        <member name="T:SerousEnergyLib.Systems.NetworkInstance">
+            <summary>
+            An object representing pathfinding trees in a network of <see cref="T:SerousEnergyLib.Tiles.BaseNetworkTile"/> tiles
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.Systems.NetworkInstance.Filter">
+            <summary>
+            Which type of network tiles this network can detect when performing pathfinding
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.NetworkInstance.Update">
+            <summary>
+            Update the network instance here
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.NetworkInstance.HasEntry(Terraria.DataStructures.Point16)">
+            <summary>
+            Returns <see langword="true"/> if this network contains a node at <paramref name="location"/>
+            </summary>
+            <param name="location">The tile coordinate</param>
+            <exception cref="T:System.ObjectDisposedException"/>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.NetworkInstance.HasEntry(System.Int32,System.Int32)">
+            <summary>
+            Returns <see langword="true"/> if this network contains a node at location (<paramref name="x"/>, <paramref name="y"/>)
+            </summary>
+            <param name="x">The tile X-coordinate</param>
+            <param name="y">The tile Y-coordinate</param>
+            <exception cref="T:System.ObjectDisposedException"/>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.NetworkInstance.TryGetEntry(Terraria.DataStructures.Point16,SerousEnergyLib.Systems.NetworkInstanceNode@)">
+            <summary>
+            Attempts to find a node within this network
+            </summary>
+            <param name="location">The tile location</param>
+            <param name="result">The node if it was found, <see langword="default"/> otherwise.</param>
+            <returns>Whether the node was found</returns>
+            <exception cref="T:System.ObjectDisposedException"/>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.NetworkInstance.HasKnownJunction(Terraria.DataStructures.Point16)">
+            <summary>
+            Whether this network has an entry at <paramref name="location"/> and said entry is a <see cref="T:SerousEnergyLib.Tiles.NetworkJunction"/> tile
+            </summary>
+            <param name="location">The tile location</param>
+            <exception cref="T:System.ObjectDisposedException"/>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.NetworkInstance.HasPump(Terraria.DataStructures.Point16,SerousEnergyLib.TileData.PumpDirection@)">
+            <summary>
+            Whether this network has an entry at location <paramref name="location"/> and said entry is an <see cref="T:SerousEnergyLib.Tiles.IPumpTile"/> tile
+            </summary>
+            <param name="location">The tile location</param>
+            <param name="direction">The direction of the pump's head if one was found, <see cref="F:SerousEnergyLib.TileData.PumpDirection.Left"/> otherwise</param>
+            <exception cref="T:System.ObjectDisposedException"/>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.NetworkInstance.OnEntryAdded(Terraria.DataStructures.Point16)">
+            <summary>
+            This method is called after am entry is added to this network
+            </summary>
+            <param name="location">The tile location of the entry</param>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.NetworkInstance.OnNetworkCloned">
+            <summary>
+            This method is called after this network was cloned from another network and this network's nodes were updated
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.NetworkInstance.OnEntryRemoved(Terraria.DataStructures.Point16)">
+            <summary>
+            This method is called after an entry is removed from this network, but before its corresponding tile is destroyed
+            </summary>
+            <param name="location">The tile location of the entry to remove</param>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.NetworkInstance.Recalculate(Terraria.DataStructures.Point16)">
+            <summary>
+            Completely recalculates the paths for this network instance.<br/>
+            Calling this method is <b>NOT</b> recommended when adding/removing entries from the network.  Use the appropriate methods for those instead.
+            </summary>
+            <param name="start">The first tile to process when recalculating the paths</param>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.NetworkInstance.OnNetworkReset">
+            <summary>
+            This method is called when the network is reset before recalulation of its paths begins
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.NetworkInstance.OnRecalculate(System.Collections.Generic.IReadOnlyDictionary{Terraria.DataStructures.Point16,SerousEnergyLib.Systems.NetworkInstanceNode})">
+            <summary>
+            This method is called after the network has recalculated its paths
+            </summary>
+            <param name="nodes">The collection of entries in the network, indexed by tile position</param>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.NetworkInstance.UpdateCoarseNode(Terraria.DataStructures.Point16)">
+            <summary>
+            Updates the paths within a coarse node at <paramref name="coarseLocation"/>
+            </summary>
+            <param name="coarseLocation">The "coarse location" for the node to update.  Nodes take up square areas of length <see cref="F:SerousEnergyLib.Pathfinding.Nodes.CoarseNode.Stride"/></param>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.NetworkInstance.GeneratePath(Terraria.DataStructures.Point16,Terraria.DataStructures.Point16,System.Double@)">
+            <summary>
+            Attempts to generate a path from <paramref name="start"/> to <paramref name="end"/>
+            </summary>
+            <param name="start">The starting tile location</param>
+            <param name="end">The final tile location</param>
+            <param name="travelTime">The "travel time" for the path if one was found</param>
+            <returns>A list of tile coordinates for pathfinding, or <see langword="null"/> if no path was found</returns>
+            <exception cref="T:System.ObjectDisposedException"/>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.NetworkInstance.SaveExtraData(Terraria.ModLoader.IO.TagCompound)">
+            <summary>
+            Save additional data to this network here
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.NetworkInstance.LoadExtraData(Terraria.ModLoader.IO.TagCompound)">
+            <summary>
+            Load additional data from <paramref name="tag"/> to this network here
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.NetworkInstance.SendExtraData(System.IO.BinaryWriter)">
+            <summary>
+            This method is called when a network is going to be synced to a client
+            </summary>
+            <param name="writer">The outgoing data stream</param>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.NetworkInstance.ReceiveExtraData(System.IO.BinaryReader)">
+            <summary>
+            This method is called when a network sync is being received by a client
+            </summary>
+            <param name="reader">The incoming data stream</param>
+        </member>
+        <member name="T:SerousEnergyLib.Systems.NetworkInstanceNode">
+            <summary>
+            A structure representing an entry in a <see cref="T:SerousEnergyLib.Systems.NetworkInstance"/>
+            </summary>
+        </member>
+        <member name="T:SerousEnergyLib.Systems.Networks.FluidNetwork">
+            <summary>
+            An object representing a <see cref="T:SerousEnergyLib.Systems.NetworkInstance"/> for fluid tiles
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.Systems.Networks.FluidNetwork.Storage">
+            <summary>
+            The fluid storage within this network
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.Networks.FluidNetwork.AddAdjacentFluidStorage(Terraria.DataStructures.Point16)">
+            <summary>
+            Attempts to add an adjacent <see cref="T:SerousEnergyLib.API.Machines.IFluidMachine"/> machine entry location at <paramref name="storage"/>
+            </summary>
+            <param name="storage">The tile location of the adjacent machine to add</param>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.Networks.FluidNetwork.RemoveAdjacentFluidStorage(Terraria.DataStructures.Point16)">
+            <summary>
+            Removes an adjacent <see cref="T:SerousEnergyLib.API.Machines.IFluidMachine"/> machine entry location
+            </summary>
+            <param name="storage">The tile location of the adjacent machine to remove</param>
+        </member>
+        <member name="T:SerousEnergyLib.Systems.Networks.ItemNetwork">
+            <summary>
+            An object representing a <see cref="T:SerousEnergyLib.Systems.NetworkInstance"/> for item tiles
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.Networks.ItemNetwork.AddPipedItem(SerousEnergyLib.Pathfinding.Objects.PipedItem)">
+            <summary>
+            Attempts to find the first index of a destoyed or null <see cref="T:SerousEnergyLib.Pathfinding.Objects.PipedItem"/> instance in this network's collection, then overwrites it with <paramref name="item"/>
+            </summary>
+            <param name="item">The item to add</param>
+            <returns>The index of <paramref name="item"/> in this network's collection</returns>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.Networks.ItemNetwork.AddAdjacentInventory(Terraria.DataStructures.Point16)">
+            <summary>
+            Attempts to add an adjacent <see cref="T:SerousEnergyLib.API.Machines.IInventoryMachine"/> machine or <see cref="T:Terraria.Chest"/> entry location at <paramref name="inventory"/>
+            </summary>
+            <param name="inventory">The tile location of the adjacent machine or chest to add</param>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.Networks.ItemNetwork.RemoveAdjacentInventory(Terraria.DataStructures.Point16)">
+            <summary>
+            Removes an adjacent <see cref="T:SerousEnergyLib.API.Machines.IInventoryMachine"/> machine or <see cref="T:Terraria.Chest"/> entry location
+            </summary>
+            <param name="inventory">The tile location of the adjacent machine or chest to remove</param>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.Networks.ItemNetwork.FindValidImportTarget(Terraria.Item,Terraria.DataStructures.Point16@,System.Int32@)">
+            <summary>
+            Attempts to find a valid inventory that can have <paramref name="import"/> inserted into it.
+            </summary>
+            <param name="import">The item to attempt to insert.</param>
+            <param name="inventory">The location of the inventory's tile if one was found</param>
+            <param name="stackImported">The quantity of <paramref name="import"/> that can be inserted in the found target, or zero if no target was found</param>
+            <returns>Whether a valid inventory was found</returns>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.Networks.ItemNetwork.AttemptToGeneratePathToInventoryTarget(Terraria.DataStructures.Point16,Terraria.DataStructures.Point16)">
+            <summary>
+            Attempts to generate a path from <paramref name="current"/> to <paramref name="inventory"/>
+            </summary>
+            <param name="current">The tile coordinate to start the pathfinding at</param>
+            <param name="inventory">The tile coordinate to end the pathfinding at</param>
+            <returns>A list of tile coordinates for pathfinding, or <see langword="null"/> if no path was found</returns>
+        </member>
+        <member name="T:SerousEnergyLib.Systems.Networks.PowerNetwork">
+            <summary>
+            An object representing a <see cref="T:SerousEnergyLib.Systems.NetworkInstance"/> for power tiles
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.Systems.Networks.PowerNetwork.Storage">
+            <summary>
+            The power storage within this network
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.Systems.Networks.PowerNetwork.NetPower">
+            <summary>
+            The net gain/loss of power in this power network
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.Networks.PowerNetwork.AddAdjacentFluxStorage(Terraria.DataStructures.Point16)">
+            <summary>
+            Attempts to add an adjacent <see cref="T:SerousEnergyLib.API.Machines.IPoweredMachine"/> machine entry location at <paramref name="storage"/>
+            </summary>
+            <param name="storage">The tile location of the adjacent machine to add</param>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.Networks.PowerNetwork.RemoveAdjacentFluxStorage(Terraria.DataStructures.Point16)">
+            <summary>
+            Removes an adjacent <see cref="T:SerousEnergyLib.API.Machines.IPoweredMachine"/> machine entry location
+            </summary>
+            <param name="storage">The tile location of the adjacent machine to remove</param>
+        </member>
+        <member name="T:SerousEnergyLib.Systems.UIHandler">
+            <summary>
+            The central class for interfacing with machine UIs
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.Systems.UIHandler.ActiveMachine">
+            <summary>
+            Which machine instance is currently open, or <see langword="null"/> if no machine UI is open
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.UIHandler.OpenUI(SerousEnergyLib.API.Machines.IMachine)">
+            <summary>
+            Closes the current machine UI if one is open, then opens the UI for <paramref name="machine"/>
+            </summary>
+            <param name="machine"></param>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.UIHandler.CloseUI">
+            <summary>
+            Closes the current machine UI if one is open
+            </summary>
+        </member>
+        <member name="T:SerousEnergyLib.TileData.ConnectionDirection">
+            <summary>
+            A set of indicators representing connection directions in a <see cref="T:SerousEnergyLib.Tiles.BaseNetworkTile"/> tile
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.TileData.ConnectionDirection.None">
+            <summary>
+            No connections
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.TileData.ConnectionDirection.Up">
+            <summary>
+            The tile is connected to the tlie above it
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.TileData.ConnectionDirection.Left">
+            <summary>
+            The tile is connected to the tile to the left of it
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.TileData.ConnectionDirection.Right">
+            <summary>
+            The tile is connected to the tile to the right of it
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.TileData.ConnectionDirection.Down">
+            <summary>
+            The tile is connected to the tile below it
+            </summary>
+        </member>
+        <member name="T:SerousEnergyLib.TileData.NetworkColor">
+            <summary>
+            A set of indicators representing pathfinding exclusion
+            </summary>
+        </member>
+        <member name="T:SerousEnergyLib.TileData.NetworkInfo">
+            <summary>
+            A structure representing information for a <see cref="T:SerousEnergyLib.Tiles.BaseNetworkTile"/> tile
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.TileData.NetworkInfo.netData">
+            <summary>
+            DDDD PTTT<para/>
+            DDDD = connection flags (0001 = Up, 0010 = Left, 0100 = Right, 1000 = Down)<br/>
+            P = pump flag<br/>
+            TTT = pipe/wire type flags (001 = Item, 010 = Fluid, 100 = Power)
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.TileData.NetworkInfo.Connections">
+            <summary>
+            The directions that this network tile is connected with.  Due to the nature of <see cref="T:SerousEnergyLib.TileData.ConnectionDirection"/>, one tile can be connected to multiple directions at once.
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.TileData.NetworkInfo.IsPump">
+            <summary>
+            Whether this network tile is classified as a pump.  If it is, the pump direction will be derived from <see cref="T:SerousEnergyLib.TileData.NetworkTaggedInfo"/>
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.TileData.NetworkInfo.Type">
+            <summary>
+            The type of network(s) contained at this tile.  Due to the nature of <see cref="T:SerousEnergyLib.TileData.NetworkType"/>, one tile can contain all 3 of the possible network types.
+            </summary>
+        </member>
+        <member name="T:SerousEnergyLib.TileData.NetworkTaggedInfo">
+            <summary>
+            A structure representing information for a <see cref="T:SerousEnergyLib.Tiles.BaseNetworkTile"/> tile
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.TileData.NetworkTaggedInfo.tagData">
+            <summary>
+            --PP CCCC<para/>
+            PP = pump direction (00 = left, 01 = up, 10 = right, 11 = down)<br/>
+            CCCC = network color (see: <see cref="T:SerousEnergyLib.TileData.NetworkColor"/>)
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.TileData.NetworkTaggedInfo.PumpDirection">
+            <summary>
+            If this network tile is a pump (see: <see cref="P:SerousEnergyLib.TileData.NetworkInfo.IsPump"/>), this property indicates which direction its head is facing.
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.TileData.NetworkTaggedInfo.Color">
+            <summary>
+            The color of the network tile.  Network tiles with differing colors cannot merge nor pathfind to each other, but can merge to a network tile set to <see cref="F:SerousEnergyLib.TileData.NetworkColor.None"/>
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.TileData.NetworkTaggedInfo.CanMergeColors(SerousEnergyLib.TileData.NetworkTaggedInfo,SerousEnergyLib.TileData.NetworkTaggedInfo)">
+            <summary>
+            Whether two tiles can merge together based on their <see cref="T:SerousEnergyLib.TileData.NetworkColor"/> values
+            </summary>
+            <param name="from"></param>
+            <param name="to"></param>
+        </member>
+        <member name="M:SerousEnergyLib.TileData.NetworkTaggedInfo.DoesOrientationMatchPumpDirection(Terraria.DataStructures.Point16,SerousEnergyLib.TileData.PumpDirection)">
+            <summary>
+            Whether <paramref name="offset"/> matches a pre-defined offset derived from <paramref name="direction"/>
+            </summary>
+            <param name="offset"></param>
+            <param name="direction"></param>
+            <exception cref="T:System.ArgumentOutOfRangeException"/>
+        </member>
+        <member name="T:SerousEnergyLib.TileData.NetworkType">
+            <summary>
+            A set of indicators for what kind of <see cref="T:SerousEnergyLib.Systems.NetworkInstance"/> network a tile can belong to
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.TileData.NetworkType.None">
+            <summary>
+            The tile does not belong to any network
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.TileData.NetworkType.Items">
+            <summary>
+            The tile can exist in <see cref="T:SerousEnergyLib.Systems.Networks.ItemNetwork"/> networks
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.TileData.NetworkType.Fluids">
+            <summary>
+            The tile can exist in <see cref="T:SerousEnergyLib.Systems.Networks.FluidNetwork"/> networks
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.TileData.NetworkType.Power">
+            <summary>
+            The tile can exist in <see cref="T:SerousEnergyLib.Systems.Networks.PowerNetwork"/> networks
+            </summary>
+        </member>
+        <member name="T:SerousEnergyLib.TileData.PumpDirection">
+            <summary>
+            A set of indicators for the current direction of an <see cref="T:SerousEnergyLib.Tiles.IPumpTile"/> tile
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.TileData.PumpDirection.Left">
+            <summary>
+            The pump's head is facing left
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.TileData.PumpDirection.Up">
+            <summary>
+            The pump's head is facing up
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.TileData.PumpDirection.Right">
+            <summary>
+            The pump's head is facing right
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.TileData.PumpDirection.Down">
+            <summary>
+            The pump's head is facing down
+            </summary>
+        </member>
+        <member name="T:SerousEnergyLib.TileFunctions">
+            <summary>
+            A helper class for functions related to tiles
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.TileFunctions.GetTopLeftTileInMultitile(System.Int32,System.Int32)">
+            <summary>
+            Atttempts to find the top-left corner of a multitile at location (<paramref name="x"/>, <paramref name="y"/>)
+            </summary>
+            <param name="x">The tile X-coordinate</param>
+            <param name="y">The tile Y-coordinate</param>
+            <returns>The tile location of the multitile's top-left corner, or the input location if no tile is present or the tile is not part of a multitile</returns>
+        </member>
+        <member name="M:SerousEnergyLib.TileFunctions.GetLightingDrawOffset">
+            <summary>
+            Gets the drawing offset caused by certain zoom levels and/or lighting modes
+            </summary>
+        </member>
+        <member name="T:SerousEnergyLib.Tiles.BaseMachineTile">
+            <summary>
+            The base implementation for a placeable machine's tiles
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.Tiles.BaseMachineTile.PreRegisterTileObjectData">
+            <summary>
+            This is called after the default values are assigned to <see cref="F:Terraria.ObjectData.TileObjectData.newTile"/>, but before it's added
+            </summary>
+        </member>
+        <member name="T:SerousEnergyLib.Tiles.BaseMachineTile`2">
+            <inheritdoc cref="T:SerousEnergyLib.Tiles.BaseMachineTile"/>
+        </member>
+        <member name="T:SerousEnergyLib.Tiles.BaseNetworkTile">
+            <summary>
+            The base type for a 1x1 network tile<br/>
+            <b>NOTE:</b> The <see cref="F:Terraria.Main.tileSolid"/> index for this type will be modified during runtime!
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.Tiles.BaseNetworkTile.NetworkTypeToPlace">
+            <summary>
+            The network state to apply to the <see cref="T:SerousEnergyLib.TileData.NetworkInfo"/> data when this tile is placed
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.Tiles.BaseNetworkTile.PreRegisterTileObjectData">
+            <summary>
+            This is called after the default values are assigned to <see cref="F:Terraria.ObjectData.TileObjectData.newTile"/>, but before it's added
+            </summary>
+        </member>
+        <member name="T:SerousEnergyLib.Tiles.IFluidPumpTile">
+            <summary>
+            An interface representing a tile that can pump fluids out of fluid storages
+            </summary>
+        </member>
+        <member name="T:SerousEnergyLib.Tiles.IFluidTransportTile">
+            <summary>
+            An interface representing a tile that contains metadata for fluid transportation
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.Tiles.IFluidTransportTile.MaxCapacity">
+            <summary>
+            How many Liters (L) of fluid can be stored in this tile<br/>
+            For <see cref="T:SerousEnergyLib.Tiles.IFluidPumpTile"/>, this also dictates the max amount of fluid that can be pumped out per cycle
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.Tiles.IFluidTransportTile.ExportRate">
+            <summary>
+            How many Liters (L) can be exported from this tile's network at its location, per game tick
+            </summary>
+        </member>
+        <member name="T:SerousEnergyLib.Tiles.IItemPumpTile">
+            <summary>
+            An interface representing a tile that can pump items out of inventories
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.Tiles.IItemPumpTile.StackPerExtraction">
+            <summary>
+            How many items can be extracted from an inventory per pump cycle
+            </summary>
+        </member>
+        <member name="T:SerousEnergyLib.Tiles.IItemTransportTile">
+            <summary>
+            An interface representing a tile that contains metadata for item transportation pathfinding
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.Tiles.IItemTransportTile.TransportSpeed">
+            <summary>
+            How fast an item can move in this tile, measured in tiles per second
+            </summary>
+        </member>
+        <member name="T:SerousEnergyLib.Tiles.IMachineTile">
+            <summary>
+            The base interface used by all machine tiles
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.Tiles.IMachineTile.GetMachineDimensions(System.UInt32@,System.UInt32@)">
+            <summary>
+            Return the dimensions of this machine, measured in tiles
+            </summary>
+            <param name="width">The width in tiles</param>
+            <param name="height">The height in tiles</param>
+        </member>
+        <member name="M:SerousEnergyLib.Tiles.IMachineTile.GetMachineMapEntryName">
+            <summary>
+            Return the name that should appear when hovering over the machine on the minimap, or <see langword="null"/> to use the names from loaded HJSON files.
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.Tiles.IMachineTile.GetMachineEntity">
+            <summary>
+            Return an instance of a <see cref="T:Terraria.ModLoader.ModTileEntity"/> that inherits from <see cref="T:SerousEnergyLib.API.Machines.IMachine"/> here
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.Tiles.IMachineTile.MachineItem">
+            <summary>
+            The ID of the item to drop when killing this machine
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.Tiles.IMachineTile.MultitileDefaults(SerousEnergyLib.Tiles.IMachineTile,Microsoft.Xna.Framework.Color)">
+            <summary>
+            Modifies <see cref="F:Terraria.ObjectData.TileObjectData.newTile"/> and other properties in <paramref name="machine"/> to contain the default values for machines.<br/>
+            <see cref="M:Terraria.ObjectData.TileObjectData.addTile(System.Int32)"/> is purosefully not called so that <see cref="F:Terraria.ObjectData.TileObjectData.newTile"/> can be further modified.
+            </summary>
+            <param name="machine">The machine to retrieve information from</param>
+            <param name="mapColor">The color of this machine's tiles on the minimap</param>
+        </member>
+        <member name="M:SerousEnergyLib.Tiles.IMachineTile.DefaultPlaceInWorld(SerousEnergyLib.Tiles.IMachineTile,System.Int32,System.Int32,Terraria.Item)">
+            <summary>
+            This method executes the standard logic for placing a machine's tile entity in the world
+            </summary>
+            <param name="machine">The machine to retrieve information from</param>
+            <param name="i">The tile X-coordinate that the machine is being placed at</param>
+            <param name="j">The tile Y=coordinate that the machine is being placed at</param>
+            <param name="item">The item used to place the machine</param>
+        </member>
+        <member name="M:SerousEnergyLib.Tiles.IMachineTile.DefaultKillMultitile(SerousEnergyLib.Tiles.IMachineTile,System.Int32,System.Int32,System.Boolean)">
+            <summary>
+            This method executes the standard logic for destroying a machine multitile, which encompasses dropping its item and destroying its tile entity
+            </summary>
+            <param name="machine"></param>
+            <param name="x"></param>
+            <param name="y"></param>
+            <param name="dropItem"></param>
+            <exception cref="T:System.ArgumentException"></exception>
+            <exception cref="T:System.InvalidOperationException"></exception>
+        </member>
+        <member name="T:SerousEnergyLib.Tiles.IPipedItemDrawingTile">
+            <summary>
+            An interface representing an item pathfinding entry that can draw the item located in it
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.Tiles.IPipedItemDrawingTile.GetItemSize(System.Int32,System.Int32)">
+            <summary>
+            Return the max width for an item being drawn in this transport tile here.<br/>
+            E.g. if this method were to return <c>6f</c>, then an item's sprite would be scaled down to fit within a 6x6 pixel area.
+            </summary>
+            <param name="x">The tile X-coordinate of the transport tile</param>
+            <param name="y">The tile Y-coordinate of the transport tile</param>
+        </member>
+        <member name="T:SerousEnergyLib.Tiles.IPowerTransportTile">
+            <summary>
+            An interface representing a tile that contains metadata for power transportation
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.Tiles.IPowerTransportTile.MaxCapacity">
+            <summary>
+            How much power in Terra Flux (TF) can be stored in this tile.<br/>
+            To convert from a custom power type to Terra Flux, use <see cref="M:SerousEnergyLib.API.Energy.EnergyConversions.ConvertToTerraFlux(System.Double,System.Int32)"/> or <see cref="M:SerousEnergyLib.API.Energy.EnergyConversions.ConvertToTerraFlux``1(System.Double)"/>
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.Tiles.IPowerTransportTile.TransferRate">
+            <summary>
+            How much Terra Flux (TF) can be imported into and exported from this tile's network at its location, per game tick
+            </summary>
+        </member>
+        <member name="T:SerousEnergyLib.Tiles.IPumpTile">
+            <summary>
+            An interface representing a pump tile of any kind
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.Tiles.IPumpTile.GetDirection(System.Int32,System.Int32)">
+            <summary>
+            Return the pump direction of a placed <see cref="T:SerousEnergyLib.Tiles.IPumpTile"/> tile here
+            </summary>
+            <param name="x">The tile X-coordinate</param>
+            <param name="y">The tile Y-coordinate</param>
+        </member>
+        <member name="M:SerousEnergyLib.Tiles.IPumpTile.GetMaxTimer(System.Int32,System.Int32)">
+            <summary>
+            Return the value this pump's timer should reset to here
+            </summary>
+            <param name="x">The tile X-coordinate</param>
+            <param name="y">The tile Y-coordinate</param>
+            <returns>The duration of the timer, measured in game ticks</returns>
+        </member>
+        <member name="T:SerousEnergyLib.Tiles.NetworkJunction">
+            <summary>
+            A tile representing a junction between two networks
+            </summary>
+        </member>
+    </members>
+</doc>

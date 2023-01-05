@@ -16,10 +16,14 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Assets\" />
     <Folder Include="src\API\Edits\" />
     <Folder Include="src\Common\UI\" />
     <Folder Include="src\Common\Systems\" />
+    <Folder Include="src\Content\Items\Networks\Fluids\" />
+    <Folder Include="src\Content\Items\Networks\Items\" />
+    <Folder Include="src\Content\Items\Networks\Power\" />
     <Folder Include="src\Content\Machines\" />
-    <Folder Include="src\Content\Tools\" />
+    <Folder Include="src\Content\Tiles\Networks\Fluids\" />
   </ItemGroup>
 </Project>

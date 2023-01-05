@@ -1,0 +1,51 @@
+﻿Mods: {
+	TerraScience: {
+		ItemName: {
+			BasicTerraFluxWireItem: "Basic Wire"
+			BasicItemTransportItem: "Basic Item Pipe"
+			BasicFluidTransportItem: "Basic Fluid Pipe"
+		}
+
+		ItemTooltip: {
+			BasicTerraFluxWireItem:
+			'''
+			Used to connect machines to power sources
+			{$Mods.TerraScience.CommonFooter.Wires]
+			'''
+			BasicItemTransportItem:
+			'''
+			Transfers items between inventories
+			{$Mods.TerraScience.CommonFooter.CannotExport.Items}
+			{$Mods.TerraScience.CommonFooter.ItemPipes}
+			'''
+			BasicFluidTransportItem:
+			'''
+			Transfers fluids between machines
+			{$Mods.TerraScience.CommonFooter.CannotExport.Fluids}
+			{$Mods.TerraScience.CommonFooter.FluidPipes}
+			'''
+		}
+
+		CommonFooter: {
+			Wires:
+			'''
+			Placed wires have a capacity of <POWER_CAPACITY>
+			Placed wires have an import/export rate of <POWER_RATES>
+			'''
+			ItemPipes:
+			'''
+			Placed pipes have a transport speed of <ITEM_SPEED>
+			'''
+			FluidPipes:
+			'''
+			Placed pipes have a capacity of <FLUID_CAPACITY>
+			Placed pipes have an export rate of <FLUID_RATES>
+			'''
+			
+			CannotExport: {
+				Items: "Cannot export items out of inventories"
+				Fluids: "Cannot export fluids out of machines"
+			}
+		}
+	}
+}
