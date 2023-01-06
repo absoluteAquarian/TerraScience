@@ -6,6 +6,8 @@
 			BasicFluidTransportItem: "Basic Fluid Pipe"
 			BasicItemPumpItem: "Basic Item Pump"
 			BasicFluidPumpItem: "Basic Fluid Pump"
+			MachineWorkbenchItem: "Machine Workbench"
+			CraftableMachineWorkbenchItem: ""
 		}
 
 		ItemTooltip: {
@@ -72,6 +74,26 @@
 			CannotExport: {
 				Items: "Cannot export items out of inventories"
 				Fluids: "Cannot export fluids out of machines"
+			}
+		}
+
+		MapObject: {
+			MachineWorkbench: "Machine Workbench"
+		}
+
+		MachineText: {
+			MachineWorkbench: {
+				Description: "Displays information about machines"
+
+				Page: {
+					Workbench: "Workbench"
+				}
+
+				RecipeText: {
+					Ingredients: "Required Ingredients: {0}"
+					Tiles: "Required Tiles: {0}"
+					Conditions: "Conditions: {0}"
+				}
 			}
 		}
 	}

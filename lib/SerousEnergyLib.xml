@@ -4,6 +4,59 @@
         <name>SerousEnergyLib</name>
     </assembly>
     <members>
+        <member name="T:SerousEnergyLib.API.CrossMod.IMachineWorkbenchViewableMachine">
+            <summary>
+            An interface representing a machine that can have its information be displayed in the Machine Workbench machine from Terran Automation
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.API.CrossMod.IMachineWorkbenchViewableMachine.GetRegistry">
+            <summary>
+            Return an instance of this machine type's display for the Machine Workbench here<br/>
+            The registry instance is treated as a singleton
+            </summary>
+        </member>
+        <member name="T:SerousEnergyLib.API.CrossMod.MachineRegistryDisplayAnimationState">
+            <summary>
+            An object representing the animation state for a machine being displayed in the Machine Workbench machine from Terran Automation
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.API.CrossMod.MachineRegistryDisplayAnimationState.asset">
+            <summary>
+            The asset to draw
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.API.CrossMod.MachineRegistryDisplayAnimationState.frame">
+            <summary>
+            The source rectangle within <see cref="F:SerousEnergyLib.API.CrossMod.MachineRegistryDisplayAnimationState.asset"/> to draw
+            </summary>
+        </member>
+        <member name="T:SerousEnergyLib.API.CrossMod.GetDisplayStateDelegate">
+            <summary>
+            A delegate taking the current update tick as input and returning an object used for handling a machine's display in the Machine Workbench machine from Terran Automation
+            </summary>
+        </member>
+        <member name="T:SerousEnergyLib.API.CrossMod.MachineWorkbenchRegistry">
+            <summary>
+            An object representing information used to render a machine in the Machine Workbench machine from Terran Automation
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.API.CrossMod.MachineWorkbenchRegistry.MachineTile">
+            <summary>
+            The ID of the <see cref="T:SerousEnergyLib.Tiles.IMachineTile"/> tile entity that this registry should retrieve its information from
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.API.CrossMod.MachineWorkbenchRegistry.GetMachineTile">
+            <summary>
+            Returns a new instance of the tile indicated by <see cref="F:SerousEnergyLib.API.CrossMod.MachineWorkbenchRegistry.MachineTile"/>
+            </summary>
+            <remarks>This method will throw an exception if <see cref="F:SerousEnergyLib.API.CrossMod.MachineWorkbenchRegistry.MachineTile"/> is invalid or does not refer to an <see cref="T:SerousEnergyLib.Tiles.IMachineTile"/> tile</remarks>
+            <exception cref="T:System.InvalidOperationException"/>
+        </member>
+        <member name="M:SerousEnergyLib.API.CrossMod.MachineWorkbenchRegistry.GetDescriptorLines">
+            <summary>
+            Examines the machine returned by <see cref="M:SerousEnergyLib.API.CrossMod.MachineWorkbenchRegistry.GetMachineTile"/> and returns an enumeration of descriptors for its entity
+            </summary>
+        </member>
         <member name="T:SerousEnergyLib.API.Energy.Default.TerraFluxTypeID">
             <summary>
             The default energy type, Terra Flux
@@ -574,6 +627,13 @@
             </summary>
             <param name="machine">The machine to process</param>
         </member>
+        <member name="M:SerousEnergyLib.API.Machines.IInventoryMachine.DropItemInInventory(SerousEnergyLib.API.Machines.IInventoryMachine,System.Int32)">
+            <summary>
+            Removes the item at index <paramref name="slot"/> within <see cref="P:SerousEnergyLib.API.Machines.IInventoryMachine.Inventory"/> and drops it in the world
+            </summary>
+            <param name="machine">The machine to process</param>
+            <param name="slot">The index in <see cref="P:SerousEnergyLib.API.Machines.IInventoryMachine.Inventory"/></param>
+        </member>
         <member name="T:SerousEnergyLib.API.Machines.IMachine">
             <summary>
             The base interface used by all machine tile entities
@@ -802,7 +862,7 @@
         </member>
         <member name="M:SerousEnergyLib.API.Machines.UI.BaseMachineUI.GetMenuOptionLocalization(System.String)">
             <summary>
-            Return an enumeration of localized text for each page's tab
+            Return an instance of localized text for a page, given its key from <see cref="M:SerousEnergyLib.API.Machines.UI.BaseMachineUI.GetMenuOptions"/>
             </summary>
         </member>
         <member name="M:SerousEnergyLib.API.Machines.UI.BaseMachineUI.InitPage(System.String)">
@@ -1057,6 +1117,11 @@
         <member name="T:SerousEnergyLib.Items.BaseMachineItem`1">
             <inheritdoc cref="T:SerousEnergyLib.Items.BaseMachineItem"/>
         </member>
+        <member name="T:SerousEnergyLib.Items.DatalessMachineItem`1">
+            <summary>
+            A base implementation of a <see cref="T:SerousEnergyLib.Items.BaseMachineItem"/> that destroys its data and has a max stack of 999
+            </summary>
+        </member>
         <member name="T:SerousEnergyLib.NetworkHelper">
             <summary>
             A helper class containing methods used by the merging logic for <see cref="T:SerousEnergyLib.Tiles.BaseNetworkTile"/> tiles
@@ -1271,6 +1336,22 @@
             Sends a requst to the server for the data of a <see cref="T:SerousEnergyLib.Systems.NetworkInstance"/> instance
             </summary>
             <param name="id">The <see cref="P:SerousEnergyLib.Systems.NetworkInstance.ID"/> of the network to sync</param>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.Netcode.SyncMachineInventorySlot(SerousEnergyLib.API.Machines.IInventoryMachine,System.Int32)">
+            <summary>
+            Syncs the inventory <paramref name="slot"/> in <paramref name="machine"/>
+            </summary>
+            <param name="machine">The machine to process.  Must refer to a <see cref="T:Terraria.ModLoader.ModTileEntity"/> instance or an error will be thrown</param>
+            <param name="slot">The slot in the machine's inventory</param>
+            <exception cref="T:System.ArgumentException"/>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.Netcode.SyncMachineInventorySlot(Terraria.DataStructures.Point16,System.Int32)">
+            <summary>
+            Syncs the inventory <paramref name="slot"/> in the machine entity at the provided <paramref name="location"/>
+            </summary>
+            <param name="location">The tile coordinates of othe machine.  Must refer to a <see cref="T:Terraria.ModLoader.ModTileEntity"/> and <see cref="T:SerousEnergyLib.API.Machines.IInventoryMachine"/> instance or an error will be thrown</param>
+            <param name="slot">The slot in the machine's inventory</param>
+            <exception cref="T:System.ArgumentException"/>
         </member>
         <member name="T:SerousEnergyLib.Systems.Network">
             <summary>
