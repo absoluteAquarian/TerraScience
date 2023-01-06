@@ -1,5 +1,4 @@
-﻿using Microsoft.Xna.Framework.Graphics;
-using SerousEnergyLib.TileData;
+﻿using SerousEnergyLib.TileData;
 using SerousEnergyLib.Tiles;
 
 namespace TerraScience.Content.Tiles.Networks.Items {

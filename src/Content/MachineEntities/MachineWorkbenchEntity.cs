@@ -1,5 +1,4 @@
-﻿using SerousEnergyLib.API.CrossMod;
-using SerousEnergyLib.API.Machines.Default;
+﻿using SerousEnergyLib.API.Machines.Default;
 using SerousEnergyLib.API.Machines.UI;
 using System;
 using Terraria.ModLoader;
