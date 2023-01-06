@@ -1117,10 +1117,12 @@
         <member name="T:SerousEnergyLib.Items.BaseMachineItem`1">
             <inheritdoc cref="T:SerousEnergyLib.Items.BaseMachineItem"/>
         </member>
-        <member name="T:SerousEnergyLib.Items.DatalessMachineItem`1">
+        <member name="T:SerousEnergyLib.Items.DatalessMachineItem`2">
             <summary>
             A base implementation of a <see cref="T:SerousEnergyLib.Items.BaseMachineItem"/> that destroys its data and has a max stack of 999
             </summary>
+            <typeparam name="TItem">The corresponding item type which contains the texture and defaults for this item</typeparam>
+            <typeparam name="TTile">The tile that this item should place</typeparam>
         </member>
         <member name="T:SerousEnergyLib.NetworkHelper">
             <summary>
