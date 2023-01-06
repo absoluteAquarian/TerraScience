@@ -1917,6 +1917,15 @@
             The ID of the item to drop when killing this machine
             </summary>
         </member>
+        <member name="M:SerousEnergyLib.Tiles.IMachineTile.PreRightClick(SerousEnergyLib.API.Machines.IMachine,System.Int32,System.Int32)">
+            <summary>
+            This method runs before the standard right click logic for this machine is processed in <see cref="M:SerousEnergyLib.Tiles.IMachineTile.HandleRightClick(SerousEnergyLib.Tiles.IMachineTile,System.Int32,System.Int32)"/>
+            </summary>
+            <param name="machine">The entity located on this machine.  It is guaranteed to be a <see cref="T:Terraria.ModLoader.ModTileEntity"/> instance</param>
+            <param name="x">The tile X-coordinate that the player clicked</param>
+            <param name="y">The tile Y=coordinate that the player clicked</param>
+            <returns><see langword="true"/> if the logic for opening this machine's UI should be blocked, <see langword="false"/> otherwise.</returns>
+        </member>
         <member name="M:SerousEnergyLib.Tiles.IMachineTile.MultitileDefaults(SerousEnergyLib.Tiles.IMachineTile,Microsoft.Xna.Framework.Color)">
             <summary>
             Modifies <see cref="F:Terraria.ObjectData.TileObjectData.newTile"/> and other properties in <paramref name="machine"/> to contain the default values for machines.<br/>
@@ -1938,12 +1947,21 @@
             <summary>
             This method executes the standard logic for destroying a machine multitile, which encompasses dropping its item and destroying its tile entity
             </summary>
-            <param name="machine"></param>
-            <param name="x"></param>
-            <param name="y"></param>
-            <param name="dropItem"></param>
-            <exception cref="T:System.ArgumentException"></exception>
-            <exception cref="T:System.InvalidOperationException"></exception>
+            <param name="machine">The machine to retrieve information from</param>
+            <param name="x">The tile X-coordinate of the top-left corner for the multitile</param>
+            <param name="y">The tile Y-coorindate of the top-left corner for the multitile</param>
+            <param name="dropItem">Whether to drop this machine's item</param>
+            <exception cref="T:System.ArgumentException"/>
+            <exception cref="T:System.InvalidOperationException"/>
+        </member>
+        <member name="M:SerousEnergyLib.Tiles.IMachineTile.HandleRightClick(SerousEnergyLib.Tiles.IMachineTile,System.Int32,System.Int32)">
+            <summary>
+            This method executes the standard logic for right clicking a machine, which encompasses opening its UI
+            </summary>
+            <param name="machine">The machine being clicked</param>
+            <param name="x">The tile X-coordinate that the player clicked</param>
+            <param name="y">The tile Y=coordinate that the player clicked</param>
+            <returns><see langword="true"/> to indicate that a tile interaction occurred, which blocks further right click logic in the player</returns>
         </member>
         <member name="T:SerousEnergyLib.Tiles.IPipedItemDrawingTile">
             <summary>
