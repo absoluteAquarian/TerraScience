@@ -17,6 +17,7 @@ using Terraria.Map;
 using Terraria.ModLoader;
 using Terraria.UI;
 using TerraScience.Common.Systems;
+using TerraScience.Common.UI.Elements;
 using TerraScience.Content.Items.Machines;
 using TerraScience.Content.MachineEntities;
 
@@ -249,7 +250,7 @@ namespace TerraScience.Common.UI.Machines {
 					recipeIngredients.SetText(Language.GetTextValue("Mods.TerraScience.MachineText.MachineWorkbench.RecipeText.Ingredients", ""));
 
 					for (int i = 0; i < recipe.requiredItem.Count; i++) {
-						EnhancedItemSlot ingredient = new EnhancedItemSlot(totalSlots) {
+						EnhancedItemSlot ingredient = new EnhancedItemSlot(totalSlots, context: ItemSlot.Context.BankItem) {
 							IgnoreClicks = true
 						};
 						ingredient.Left.Set(10 + numSlot * slotWidth, 0f);

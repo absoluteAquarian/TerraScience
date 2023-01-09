@@ -7,7 +7,10 @@
 			BasicItemPumpItem: "Basic Item Pump"
 			BasicFluidPumpItem: "Basic Fluid Pump"
 			MachineWorkbenchItem: "Machine Workbench"
-			CraftableMachineWorkbenchItem: ""
+			CraftableMachineWorkbenchItem: "{$Mods.TerraScience.ItemName.MachineWorkbenchItem}"
+			Charcoal: "Charcoal"
+			ReinforcedFurnaceItem: "Reinforced Furnace"
+			CraftableReinforcedFurnaceItem: "{$Mods.TerraScience.ItemName.ReinforcedFurnaceItem}"
 		}
 
 		ItemTooltip: {
@@ -38,6 +41,22 @@
 			Exports fluids from machines
 			{$Mods.TerraScience.CommonFooter.FluidPumps}
 			'''
+			MachineWorkbenchItem:
+			'''
+			The common crafting station for making all machines in Terran Automation
+			Once placed, this machine can be right clicked to view the stats for most machines
+			'''
+			CraftableMachineWorkbenchItem: "{$Mods.TerraScience.ItemTooltip.MachineWorkbenchItem}"
+			Charcoal:
+			'''
+			Charred wood
+			It appears to have better fuel efficiency than regular wood
+			'''
+			ReinforcedFurnaceItem:
+			'''
+			Burns wood and other materials to create new materials
+			'''
+			CraftableReinforcedFurnaceItem: "{$Mods.TerraScience.ItemTooltip.ReinforcedFurnaceItem}"
 		}
 
 		CommonFooter: {
@@ -81,7 +100,27 @@
 			MachineWorkbench: "Machine Workbench"
 		}
 
+		MachineUpgradeName: {
+			MoreOutputUpgrade: "Basic Duplication Matrix Upgrade"
+		}
+
+		MachineUpgradeTooltip: {
+			MoreOutputUpgrade:
+			'''
+			Causes a machine to have a low chance to produce extra outputs
+			Slightly increases power consumption when placed in powered machines
+			'''
+		}
+
+		UI: {
+			ThermostatHover: "Temperature: {0:0.###} C / [1:0.###] C"
+		}
+
 		MachineText: {
+			DefaultPage: {
+				Upgrades: "Upgrades"
+			}
+
 			MachineWorkbench: {
 				Description: "Displays information about machines"
 
@@ -93,6 +132,15 @@
 					Ingredients: "Required Ingredients: {0}"
 					Tiles: "Required Tiles: {0}"
 					Conditions: "Conditions: {0}"
+				}
+			}
+
+			ReinforcedFurnace: {
+				Description: "Burns wood and other materials to create new materials"
+
+				Page: {
+					Furnace: "Furnace"
+					Upgrades: "Upgrades"
 				}
 			}
 		}

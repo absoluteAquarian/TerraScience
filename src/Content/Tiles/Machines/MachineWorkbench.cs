@@ -10,10 +10,8 @@ namespace TerraScience.Content.Tiles.Machines {
 			height = 3;
 		}
 
-		public override string GetMachineMapEntryName() => null;
-
 		public override MachineWorkbenchRegistry GetRegistry() {
-			return new(Type, static tick => new MachineRegistryDisplayAnimationState("TerraScience/Assets/Machines/MachineWorkbench/Example_tile"));
+			return new(Type, static tick => new MachineRegistryDisplayAnimationState("TerraScience/Assets/Machines/MachineWorkbench/Example_tile", 1, 1, 0, 0));
 		}
 	}
 }

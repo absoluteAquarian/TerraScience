@@ -6,7 +6,7 @@ using Terraria.GameContent.UI.Elements;
 using Terraria.ModLoader;
 using Terraria.UI;
 
-namespace TerraScience.Common.UI {
+namespace TerraScience.Common.UI.Elements {
 	public class MachineWorkbenchDisplay : UIElement, IColorable {
 		private Asset<Texture2D> Texture;
 		private Rectangle frame;

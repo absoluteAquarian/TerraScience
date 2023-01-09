@@ -15,4 +15,7 @@
       <HintPath>lib\SerousEnergyLib.dll</HintPath>
     </Reference>
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Assets\Sounds\FX\" />
+  </ItemGroup>
 </Project>

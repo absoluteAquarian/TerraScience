@@ -14,5 +14,15 @@ namespace TerraScience.Content.Items.Machines {
 	}
 
 	// This item places the tile, but the tile drops MachineWorkbenchItem instead since that item has a maxStack of 1 and needs to store the data in unique stacks
-	public class CraftableMachineWorkbenchItem : BaseDatalessMachinePlacingItem<MachineWorkbenchItem, MachineWorkbench> { }
+	public class CraftableMachineWorkbenchItem : BaseDatalessMachinePlacingItem<MachineWorkbenchItem, MachineWorkbench> {
+		public override void AddRecipes() {
+			CreateRecipe()
+				.AddRecipeGroup(RecipeGroupID.Wood, 20)
+				.AddRecipeGroup(nameof(ItemID.CopperBar), 5)
+				.AddIngredient(ItemID.Glass, 8)
+				.AddIngredient(ItemID.GrayBrick, 30)
+				.AddTile(TileID.WorkBenches)
+				.Register();
+		}
+	}
 }
