@@ -1,9 +1,12 @@
-﻿using Terraria;
+﻿using SerousEnergyLib.Items;
+using Terraria;
 using Terraria.ID;
 using TerraScience.Content.Tiles.Machines;
 
 namespace TerraScience.Content.Items.Machines {
-	public class MachineWorkbenchItem : BaseMachinePlacingItem<MachineWorkbench>, ICraftableMachineItem<CraftableMachineWorkbenchItem> {
+	public class MachineWorkbenchItem : BaseMachineItem<MachineWorkbench>, ICraftableMachineItem<CraftableMachineWorkbenchItem> {
+		public override string Texture => base.Texture.Replace("Content", "Assets");
+
 		public override void SafeSetDefaults() {
 			Item.width = 24;
 			Item.height = 24;
@@ -14,7 +17,9 @@ namespace TerraScience.Content.Items.Machines {
 	}
 
 	// This item places the tile, but the tile drops MachineWorkbenchItem instead since that item has a maxStack of 1 and needs to store the data in unique stacks
-	public class CraftableMachineWorkbenchItem : BaseDatalessMachinePlacingItem<MachineWorkbenchItem, MachineWorkbench> {
+	public class CraftableMachineWorkbenchItem : DatalessMachineItem<MachineWorkbenchItem, MachineWorkbench> {
+		public override string Texture => base.Texture.Replace("Content", "Assets");
+
 		public override void AddRecipes() {
 			CreateRecipe()
 				.AddRecipeGroup(RecipeGroupID.Wood, 20)

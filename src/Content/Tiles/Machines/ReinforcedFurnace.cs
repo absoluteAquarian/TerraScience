@@ -15,6 +15,8 @@ using TerraScience.Content.MachineEntities;
 
 namespace TerraScience.Content.Tiles.Machines {
 	public class ReinforcedFurnace : BaseMachineTile<ReinforcedFurnaceEntity, ReinforcedFurnaceItem> {
+		public override string Texture => base.Texture.Replace("Content", "Assets");
+
 		private static MachineSpriteEffectInformation FireEffectSheet;
 		private static Asset<Texture2D> FireAsset;
 

@@ -1,9 +1,12 @@
-﻿using Terraria;
+﻿using SerousEnergyLib.Items;
+using Terraria;
 using Terraria.ID;
 using TerraScience.Content.Tiles.Machines;
 
 namespace TerraScience.Content.Items.Machines {
-	public class ReinforcedFurnaceItem : BaseMachinePlacingItem<ReinforcedFurnace> {
+	public class ReinforcedFurnaceItem : BaseMachineItem<ReinforcedFurnace> {
+		public override string Texture => base.Texture.Replace("Content", "Assets");
+
 		public override void SafeSetDefaults() {
 			Item.width = 36;
 			Item.height = 24;
@@ -14,7 +17,9 @@ namespace TerraScience.Content.Items.Machines {
 	}
 
 	// This item places the tile, but the tile drops MachineWorkbenchItem instead since that item has a maxStack of 1 and needs to store the data in unique stacks
-	public class CraftableReinforcedFurnaceItem : BaseDatalessMachinePlacingItem<ReinforcedFurnaceItem, ReinforcedFurnace> {
+	public class CraftableReinforcedFurnaceItem : DatalessMachineItem<ReinforcedFurnaceItem, ReinforcedFurnace> {
+		public override string Texture => base.Texture.Replace("Content", "Assets");
+
 		public override void AddRecipes() {
 			CreateRecipe()
 				.AddIngredient(ItemID.Furnace, 1)

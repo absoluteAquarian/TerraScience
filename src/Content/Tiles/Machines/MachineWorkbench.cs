@@ -5,6 +5,8 @@ using TerraScience.Content.MachineEntities;
 
 namespace TerraScience.Content.Tiles.Machines {
 	public class MachineWorkbench : BaseMachineTile<MachineWorkbenchEntity, MachineWorkbenchItem> {
+		public override string Texture => base.Texture.Replace("Content", "Assets");
+
 		public override void GetMachineDimensions(out uint width, out uint height) {
 			width = 3;
 			height = 3;
