@@ -65,7 +65,7 @@ namespace TerraScience.Content.Tiles.Machines {
 
 			bool lastTile = orig.X - topLeft.X == width - 1 && orig.Y - topLeft.Y == height - 1;
 
-			if (lastTile && IMachine.TryFindMachineExact(topLeft, out ReinforcedFurnaceEntity machine)) {
+			if (lastTile && IMachine.TryFindMachineExact(topLeft, out ReinforcedFurnaceEntity machine) && machine.IsActive(out double requiredHeat)) {
 				// Draw the input and flame when applicable
 				var ingredientSprite = TechMod.Sets.ReinforcedFurnace.ItemInFurnace[machine.Inventory[0].type];
 
@@ -76,13 +76,15 @@ namespace TerraScience.Content.Tiles.Machines {
 
 				sprite.Draw(spriteBatch, topLeft);
 
-				// Animate the fire
-				FireAsset ??= ModContent.Request<Texture2D>(FireEffectSheet.asset, AssetRequestMode.ImmediateLoad);
+				if (machine.CurrentTemperature >= requiredHeat) {
+					// Animate the fire
+					FireAsset ??= ModContent.Request<Texture2D>(FireEffectSheet.asset, AssetRequestMode.ImmediateLoad);
 
-				sprite = FireEffectSheet.GetDrawInformation();
-				sprite.frame = FireAsset.Frame(1, 4, 0, (int)(Main.GameUpdateCount % 60 / 15));
+					sprite = FireEffectSheet.GetDrawInformation();
+					sprite.frame = FireAsset.Frame(1, 4, 0, (int)(Main.GameUpdateCount % 60 / 15));
 
-				sprite.Draw(spriteBatch, topLeft);
+					sprite.Draw(spriteBatch, topLeft);
+				}
 			}
 		}
 	}

@@ -11,6 +11,7 @@ using SerousEnergyLib.TileData;
 using System;
 using SerousEnergyLib.Tiles;
 using Terraria.ModLoader;
+using SerousEnergyLib.Common.Configs;
 
 namespace TerraScience.Common {
 	public static class NetworkDrawing {
@@ -85,12 +86,16 @@ namespace TerraScience.Common {
 			          /    |    \             \       /|         \
 			    '-__-'     |     '-__-'        '-___-' |          '-
 			 */
+			float sin;
 
-			float max = pump.GetMaxTimer(location.X, location.Y);
-			//Get the value on the graph for this sinusoidal movement
-			float time = (timer - max / 4) / (max / 2);
-			float radians = MathHelper.Pi * time;
-			float sin = (float)Math.Sin(radians);
+			if (RenderingConfig.PlayPumpAnimations) {
+				float max = pump.GetMaxTimer(location.X, location.Y);
+				//Get the value on the graph for this sinusoidal movement
+				float time = (timer - max / 4) / (max / 2);
+				float radians = MathHelper.Pi * time;
+				sin = (float)Math.Sin(radians);
+			} else
+				sin = -1;
 
 			// Move it up to above the X-axis
 			sin += 1;

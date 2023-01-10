@@ -38,7 +38,6 @@ namespace TerraScience.Content.Tiles.Networks {
 		public virtual string BarTexture => (GetType().Namespace + "/Effect_" + Name + "_bar").Replace('.', '/').Replace("Content", "Assets");
 
 		public override void PostDraw(int i, int j, SpriteBatch spriteBatch) {
-			// TODO: config for disabling bar drawing
 			NetworkDrawing.DrawPumpBar(spriteBatch,
 				ModAssets.PumpBar[Type],
 				new Point16(i, j));

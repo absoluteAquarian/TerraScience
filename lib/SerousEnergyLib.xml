@@ -1524,6 +1524,21 @@
             <param name="value">The value</param>
             <param name="length">The length of the array</param>
         </member>
+        <member name="T:SerousEnergyLib.Common.Configs.RenderingConfig">
+            <summary>
+            The configuration for handling rendering in this mod
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.Common.Configs.RenderingConfig.PlayPumpAnimations">
+            <summary>
+            Whether item/fluid pump tiles should animate
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.Common.Configs.RenderingConfig.RenderItemsInPipes">
+            <summary>
+            Whether items moving in item networks should be rendered
+            </summary>
+        </member>
         <member name="T:SerousEnergyLib.IOHelper">
             <summary>
             A helper class for I/O logic
