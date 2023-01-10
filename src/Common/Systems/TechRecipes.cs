@@ -1,9 +1,11 @@
 ﻿using SerousEnergyLib.API;
 using System.Collections.Generic;
+using System.Linq;
 using Terraria;
 using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
+using Terraria.ModLoader.Core;
 using TerraScience.Content.Items.Materials;
 using TerraScience.Content.Tiles.Machines;
 
@@ -20,20 +22,33 @@ namespace TerraScience.Common.Systems {
 		}
 
 		public override void AddRecipes() {
-			Sets.ReinforcedFurnace = new List<MachineRecipe>() {
-				new MachineRecipe<ReinforcedFurnace>()
-					.AddRecipeGroup(RecipeGroupID.Wood, 1)
-					.AddPossibleOutput<Charcoal>(1)
-					.CreateAndRegisterAllPossibleRecipes()
-			};
+			LoaderUtils.ResetStaticMembers(typeof(Sets), true);
+
+			Ticks woodToCharcoalMin = TechMod.Sets.ReinforcedFurnace.ConversionDuration.Min();
+			Ticks woodToCharcoalMax = TechMod.Sets.ReinforcedFurnace.ConversionDuration.Max();
+
+			Sets.ReinforcedFurnace.all.Add(new MachineRecipe<ReinforcedFurnace>(
+				minimumDuration: woodToCharcoalMin,
+				maximumDuration: woodToCharcoalMax)
+				.AddRecipeGroup(RecipeGroupID.Wood, 1)
+				.AddPossibleOutput<Charcoal>(1)
+				.CreateAndRegisterAllPossibleRecipes());
 		}
 
 		public override void Unload() {
-			Sets.ReinforcedFurnace = null;
+			Sets.ReinforcedFurnace.all = null;
 		}
 
 		public static class Sets {
-			public static List<MachineRecipe> ReinforcedFurnace { get; internal set; }
+			public static void RegisterRecipe(List<MachineRecipe> all, ref MachineRecipe recipeField, MachineRecipe recipeObject) {
+				recipeField = recipeObject;
+				all.Add(recipeField);
+			}
+
+			public static class ReinforcedFurnace {
+				internal static List<MachineRecipe> all = new();
+				public static IReadOnlyList<MachineRecipe> All => all;
+			}
 		}
 	}
 }

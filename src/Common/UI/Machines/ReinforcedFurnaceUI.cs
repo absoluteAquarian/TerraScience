@@ -1,4 +1,5 @@
-﻿using SerousEnergyLib.API.Machines;
+﻿using Microsoft.Xna.Framework;
+using SerousEnergyLib.API.Machines;
 using SerousEnergyLib.API.Machines.UI;
 using SerousEnergyLib.Systems;
 using System;
@@ -41,10 +42,17 @@ namespace TerraScience.Common.UI.Machines {
 				page.Refresh(machine.Upgrades.Count + 1, maxSlotsPerRow: 10);
 		}
 
+		public override void GetDefaultPanelDimensions(out int width, out int height) {
+			width = 450;
+			height = 300;
+		}
+
 		public class MainPage : BaseMachineUIPage {
 			public Thermostat thermostat;
 			public MachineInventoryItemSlot inputSlot;
 			public MachineInventoryItemSlotZone itemZone;
+
+			public BasicThinArrow arrow;
 
 			public MainPage(BaseMachineUI parent) : base(parent, "Furnace") { }
 
@@ -56,14 +64,26 @@ namespace TerraScience.Common.UI.Machines {
 
 				inputSlot = new MachineInventoryItemSlot(0, context: ItemSlot.Context.BankItem);
 				inputSlot.HAlign = 0.5f;
-				inputSlot.VAlign = 0.25f;
+				inputSlot.Top.Set(40, 0f);
 				Append(inputSlot);
 
 				IInventoryMachine singleton = ModContent.GetInstance<ReinforcedFurnaceEntity>();
 				itemZone = new MachineInventoryItemSlotZone(singleton.GetExportSlotsOrDefault(), maxSlotsPerRow: 5, context: ItemSlot.Context.BankItem);
 				itemZone.HAlign = 0.5f;
-				itemZone.VAlign = 0.75f;
+				itemZone.Top.Set(-40 - itemZone.Height.Pixels, 1f);
 				Append(itemZone);
+
+				arrow = new BasicThinArrow(ArrowElementOrientation.Down, targetLength: 150);
+				arrow.HAlign = 0.5f;
+				arrow.VAlign = 0.5f;
+				Append(arrow);
+			}
+
+			public override void Update(GameTime gameTime) {
+				base.Update(gameTime);
+
+				if (UIHandler.ActiveMachine is ReinforcedFurnaceEntity furnace)
+					arrow.FillPercentage = furnace.Progress.Progress;
 			}
 		}
 	}

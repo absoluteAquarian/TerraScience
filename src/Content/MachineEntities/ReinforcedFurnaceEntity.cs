@@ -29,6 +29,8 @@ namespace TerraScience.Content.MachineEntities {
 
 		public override int[] GetInputSlots() => new int[] { 0 };
 
+		public override int[] GetInputSlotsForRecipes() => GetInputSlots();
+
 		#region Conversion Rate Fields/Properties
 		/// <summary>
 		/// The current temperature of this furnace, measured in Celsius
@@ -76,6 +78,7 @@ namespace TerraScience.Content.MachineEntities {
 
 		// Used to track when the input item's type has changed
 		private int oldItem;
+		private MachineRecipe activeRecipe;
 
 		public override void Update() {
 			// Do not remove.
@@ -86,7 +89,7 @@ namespace TerraScience.Content.MachineEntities {
 
 			Item input = Inventory[0];
 
-			if (IsActive(out _, out MachineRecipe resultRecipe)) {
+			if (IsActive(out _)) {
 				// Warm up the furnace
 				DoHeatPhysics(
 					increaseHeat: true,
@@ -146,13 +149,14 @@ namespace TerraScience.Content.MachineEntities {
 				speed = new StatModifier(speed.Additive, 3, speed.Flat, speed.Base);
 
 			// Attempt to convert items
-			if (input.type != oldItem || input.IsAir || resultRecipe is null) {
+			if (input.type != oldItem || input.IsAir || activeRecipe is null) {
 				// Reset the progress
 				Progress.Progress = 0;
+				activeRecipe = null;
 			} else if (CurrentTemperature >= requiredHeat) {
-				float time = TechMod.Sets.ReinforcedFurnace.ConversionDuration[input.type];
+				Ticks time = TechMod.Sets.ReinforcedFurnace.ConversionDuration[input.type];
 
-				if (Progress.Step(time / 60)) {
+				if (Progress.Step(time.ticks / 60f)) {
 					// Conversion was completed
 					input.stack--;
 
@@ -161,7 +165,7 @@ namespace TerraScience.Content.MachineEntities {
 
 					Netcode.SyncMachineInventorySlot(this, 0);
 
-					IItemOutputGeneratorMachine.AddRecipeOutputsToExportInventory(this, resultRecipe);
+					IItemOutputGeneratorMachine.AddRecipeOutputsToExportInventory(this, activeRecipe);
 				}
 			}
 
@@ -198,19 +202,17 @@ namespace TerraScience.Content.MachineEntities {
 
 			maxHeat = 1000;
 
-			ingredientBurnHeat = IsActive(out double required, out _) ? required : -1;
+			ingredientBurnHeat = IsActive(out double required) ? required : -1;
 		}
 
 		/// <summary>
 		/// Whether this entity is currently processing items
 		/// </summary>
 		/// <param name="requiredHeat">The required heat to start converting this machine's input item if it's valid, <c>-1</c> otherwise</param>
-		/// <param name="resultRecipe">The first valid recipe detected for creating outputs</param>
-		public bool IsActive(out double requiredHeat, [NotNullWhen(true)] out MachineRecipe resultRecipe) {
+		public bool IsActive(out double requiredHeat) {
 			Item input = Inventory[0];
 
 			requiredHeat = -1;
-			resultRecipe = null;
 
 			if (input.IsAir)
 				return false;
@@ -224,10 +226,12 @@ namespace TerraScience.Content.MachineEntities {
 			if (requiredHeat < 0)
 				return false;
 
-			Item[] inv = new Item[] { input };
-			resultRecipe = TechRecipes.Sets.ReinforcedFurnace.Where(m => m.IngredientSetMatches(inv)).FirstOrDefault();
+			if (activeRecipe is null) {
+				Item[] inv = new Item[] { input };
+				activeRecipe = TechRecipes.Sets.ReinforcedFurnace.All.Where(m => m.IngredientSetMatches(this)).FirstOrDefault();
+			}
 
-			return resultRecipe is not null;
+			return activeRecipe is not null;
 		}
 
 		#region Implement ISoundEmittingMachine
@@ -272,6 +276,8 @@ namespace TerraScience.Content.MachineEntities {
 			writer.Write(speed.Base);
 
 			writer.Write(oldItem);
+
+			writer.Write(activeRecipe is null);
 		}
 
 		public void ReducedNetReceive(BinaryReader reader) {
@@ -289,6 +295,9 @@ namespace TerraScience.Content.MachineEntities {
 			};
 
 			oldItem = reader.ReadInt32();
+
+			if (reader.ReadBoolean())
+				activeRecipe = null;
 		}
 		#endregion
 	}

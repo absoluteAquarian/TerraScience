@@ -18,6 +18,8 @@ namespace TerraScience.Content.MachineEntities {
 
 		public override int[] GetInputSlots() => Array.Empty<int>();
 
+		public override int[] GetInputSlotsForRecipes() => GetInputSlots();
+
 		public override void Load() {
 			MachineUISingletons.RegisterUI<MachineWorkbenchEntity>(new MachineWorkbenchUI());
 		}
