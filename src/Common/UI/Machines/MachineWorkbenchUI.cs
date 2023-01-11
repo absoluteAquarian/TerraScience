@@ -90,14 +90,14 @@ namespace TerraScience.Common.UI.Machines {
 				list = new();
 				list.SetPadding(0);
 				list.Width.Set(-20, 1f);
-				list.Height.Set(0, 0.9f);
+				list.Height.Set(0, 0.96f);
 				list.Left.Set(20, 0);
 				list.Top.Set(0, 0.05f);
 
 				scroll = new();
 				scroll.Width.Set(20, 0);
-				scroll.Height.Set(0, 0.825f);
-				scroll.Left.Set(0, 0.95f);
+				scroll.Height.Set(0, 0.885f);
+				scroll.Left.Set(-20, 1f);
 				scroll.Top.Set(0, 0.1f);
 
 				list.SetScrollbar(scroll);
@@ -149,7 +149,7 @@ namespace TerraScience.Common.UI.Machines {
 				panelDisplays.Left.Set(20, 0f);
 
 				panelStats = new UIPanel();
-				panelStats.Width.Set(-40, 1f);
+				panelStats.Width.Set(-80, 1f);
 				panelStats.Height.Set(160, 0);
 				panelStats.Left.Set(20, 0);
 
@@ -157,7 +157,7 @@ namespace TerraScience.Common.UI.Machines {
 				list.Add(panelStats);
 
 				panelDescription = new UIPanel();
-				panelDescription.Width.Set(-40, 1f);
+				panelDescription.Width.Set(-80, 1f);
 				panelDescription.Height.Set(170, 0);
 				panelDescription.Left.Set(20, 0);
 
@@ -165,7 +165,7 @@ namespace TerraScience.Common.UI.Machines {
 				list.Add(panelDescription);
 
 				panelRecipe = new UIPanel();
-				panelRecipe.Width.Set(-40, 1f);
+				panelRecipe.Width.Set(-80, 1f);
 				panelRecipe.Left.Set(20, 0);
 			}
 
