@@ -51,11 +51,11 @@ namespace TerraScience.Content.MachineEntities {
 		/// <summary>
 		/// The logarithmic factor used when this machine is heating up
 		/// </summary>
-		public const double Heat_K = 0.0915;
+		public const double Heat_K = 0.0425;
 		/// <summary>
 		/// The logarithmic factor used when this machine is cooling down
 		/// </summary>
-		public const double Cool_K = 0.2132;
+		public const double Cool_K = 0.2631;
 		public const double Epsilon = 0.005;
 
 		public CraftingProgress Progress { get; private set; } = new CraftingProgress();
@@ -134,7 +134,7 @@ namespace TerraScience.Content.MachineEntities {
 			// Adjust the conversion rate
 			ref var speed = ref Progress.SpeedFactor;
 
-			if (active && requiredHeat >= 0 && CurrentTemperature >= requiredHeat) {
+			if (active && ConversionAvailable) {
 				// Increase the conversion speed
 				speed *= 1 + 0.06f / 60f;
 			} else {
