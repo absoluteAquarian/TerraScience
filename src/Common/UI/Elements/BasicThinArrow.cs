@@ -172,7 +172,7 @@ namespace TerraScience.Common.UI.Elements {
 
 			// Draw the bottom slice
 			float bottomY = Height.Pixels - bottomSrc.Height;
-			spriteBatch.Draw(texture, position + new Vector2(bottomY, 0), bottomSrc, Color.White);
+			spriteBatch.Draw(texture, position + new Vector2(0, bottomY), bottomSrc, Color.White);
 		}
 
 		private void DrawHorizontalArrowFill(SpriteBatch spriteBatch, Rectangle leftSrc, int leftFillRange, Rectangle bodySrc, Rectangle rightSrc, int rightFillRange, bool leftToRight) {

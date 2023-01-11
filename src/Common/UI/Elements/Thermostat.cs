@@ -87,11 +87,11 @@ namespace TerraScience.Common.UI.Elements {
 			double percentage = FillPercentage;
 
 			if (percentage < 0.1)
-				return new Color() { PackedValue = 0xff0026ff };  // Dark blue
+				return new Color() { PackedValue = 0xffff2600 };  // Dark blue
 			else if (percentage < 0.1 + 0.8 / 5.0)
-				return new Color() { PackedValue = 0xff0094ff };  // Blue
+				return new Color() { PackedValue = 0xffff9400 };  // Blue
 			else if (percentage < 0.1 + 2 * 0.8 / 5)
-				return new Color() { PackedValue = 0xff00d8ff };  // Sky blue
+				return new Color() { PackedValue = 0xffffd800 };  // Sky blue
 			else if (percentage < 0.1 + 3 * 0.8 / 5)
 				return new Color() { PackedValue = 0xff00ffff };  // Yellow
 			else if (percentage < 0.1 + 4 * 0.8 / 5)
@@ -185,7 +185,7 @@ namespace TerraScience.Common.UI.Elements {
 			var position = GetDimensions().Position();
 
 			for (int i = 0; i < bodySegments; i++)
-				spriteBatch.Draw(texture, position + new Vector2(0, Height.Pixels - bottomHeight - (i + i) * middleHeight), new Rectangle(0, middleY, width, middleHeight), Color.White);
+				spriteBatch.Draw(texture, position + new Vector2(0, Height.Pixels - bottomHeight - (i + 1) * middleHeight), new Rectangle(0, middleY, width, middleHeight), Color.White);
 		}
 
 		private void DrawOutline_Top(SpriteBatch spriteBatch) {

@@ -46,7 +46,7 @@ namespace TerraScience.Common.UI.Machines {
 
 		public override void GetDefaultPanelDimensions(out int width, out int height) {
 			width = 450;
-			height = 300;
+			height = 500;
 		}
 
 		public class MainPage : BaseMachineUIPage {
