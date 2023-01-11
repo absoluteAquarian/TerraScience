@@ -11,7 +11,7 @@ namespace TerraScience.Common.UI.Elements {
 		public override Item StoredItem => GetItemAtSlotInActiveMachine();
 
 		public MachineInventoryItemSlot(int slot, int context = ItemSlot.Context.InventoryItem, float scale = 1) : base(slot, context, scale) {
-			OnItemChanged = UpdateItemAtSlotInActiveMachine;
+			OnItemChanged += UpdateItemAtSlotInActiveMachine;
 		}
 
 		private Item GetItemAtSlotInActiveMachine() {

@@ -1049,6 +1049,19 @@
             <param name="type">The network types to filter</param>
             <param name="allowDuplicates">Whether a network can appear multiple times in the enumeration</param>
         </member>
+        <member name="T:SerousEnergyLib.API.Machines.IMachineUIAutoloading">
+            <summary>
+            An interface representing automation for initializing and loading <see cref="P:SerousEnergyLib.API.Machines.IMachine.MachineUI"/>
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.IMachineUIAutoloading.RegisterUI">
+            <summary>
+            Registers the UI for this machine.  This method is called in <see cref="M:SerousEnergyLib.Systems.MachineUISingletons.PostSetupContent"/>
+            </summary>
+        </member>
+        <member name="T:SerousEnergyLib.API.Machines.IMachineUIAutoloading`2">
+            <inheritdoc cref="T:SerousEnergyLib.API.Machines.IMachineUIAutoloading"/>
+        </member>
         <member name="T:SerousEnergyLib.API.Machines.IPoweredMachine">
             <summary>
             An interface containing methods used by machines that can store and/or use power
@@ -1314,6 +1327,11 @@
         <member name="F:SerousEnergyLib.API.Machines.UI.BaseMachineUI.pendingUIChange">
             <summary>
             Set this field to <see langword="true"/> if you want the panel to reset to its default location on the screen
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.API.Machines.UI.BaseMachineUI.IsUpgradesPageOpen">
+            <summary>
+            Whether the upgrades page for this UI's machine is currently open
             </summary>
         </member>
         <member name="M:SerousEnergyLib.API.Machines.UI.BaseMachineUI.Open">
@@ -1885,6 +1903,34 @@
             A regex that searches for the appended stack text in an item's name
             </summary>
         </member>
+        <member name="T:SerousEnergyLib.Systems.MachineUISingletons">
+            <summary>
+            The central class for storing and retrieving machine UIs
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.MachineUISingletons.RegisterUI``1(SerousEnergyLib.API.Machines.UI.BaseMachineUI)">
+            <summary>
+            Registers a <see cref="T:SerousEnergyLib.API.Machines.UI.BaseMachineUI"/> instance and ties it to a machine entity type
+            </summary>
+            <param name="ui">The instance</param>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.MachineUISingletons.RegisterUI(System.Int32,SerousEnergyLib.API.Machines.UI.BaseMachineUI)">
+            <summary>
+            Registers a <see cref="T:SerousEnergyLib.API.Machines.UI.BaseMachineUI"/> instance and ties it to a machine entity type
+            </summary>
+            <param name="type">The ID of the machine entity to tie the <see cref="T:SerousEnergyLib.API.Machines.UI.BaseMachineUI"/> instance to</param>
+            <param name="ui">The instance</param>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.MachineUISingletons.GetInstance``1">
+            <summary>
+            Retrieves the <see cref="T:SerousEnergyLib.API.Machines.UI.BaseMachineUI"/> instance tied to a machine entity type
+            </summary>
+            <returns>A valid <see cref="T:SerousEnergyLib.API.Machines.UI.BaseMachineUI"/> if one was registered for this machine entity type, <see langword="null"/> otherwise.</returns>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.MachineUISingletons.GetInstance(System.Int32)">
+            <inheritdoc cref="M:SerousEnergyLib.Systems.MachineUISingletons.GetInstance``1"/>
+            <param name="type">The ID of the machine entity to retrieve the <see cref="T:SerousEnergyLib.API.Machines.UI.BaseMachineUI"/> instance from</param>
+        </member>
         <member name="T:SerousEnergyLib.Systems.Netcode">
             <summary>
             The central class for all netcode logic in this mod
@@ -2349,13 +2395,19 @@
         </member>
         <member name="M:SerousEnergyLib.Systems.UIHandler.OpenUI(SerousEnergyLib.API.Machines.IMachine)">
             <summary>
-            Closes the current machine UI if one is open, then opens the UI for <paramref name="machine"/>
+            Closes the current machine UI if one is open, then opens the UI for <paramref name="machine"/>.<br/>
+            If the current machine UI is the same object from <paramref name="machine"/>, the UI is not reopened.
             </summary>
-            <param name="machine"></param>
+            <param name="machine">The machine entity which opened the UI</param>
         </member>
         <member name="M:SerousEnergyLib.Systems.UIHandler.CloseUI">
             <summary>
             Closes the current machine UI if one is open
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.UIHandler.CloseEverythingButUI">
+            <summary>
+            This method closes everything in preparation for opening a machine's UI
             </summary>
         </member>
         <member name="T:SerousEnergyLib.TileData.ConnectionDirection">

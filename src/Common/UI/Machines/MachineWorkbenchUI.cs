@@ -25,6 +25,8 @@ namespace TerraScience.Common.UI.Machines {
 	public class MachineWorkbenchUI : BaseMachineUI {
 		public override string DefaultPage => "Workbench";
 
+		public override bool IsUpgradesPageOpen => false;  // Machine Workbench does not have upgrades
+
 		protected override LocalizedText GetMenuOptionLocalization(string key) {
 			return Language.GetText("Mods.TerraScience.MachineText.MachineWorkbench.Page." + key);
 		}

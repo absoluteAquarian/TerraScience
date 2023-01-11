@@ -14,6 +14,8 @@ namespace TerraScience.Common.UI.Machines {
 	public class ReinforcedFurnaceUI : BaseMachineUI {
 		public override string DefaultPage => "Furnace";
 
+		public override bool IsUpgradesPageOpen => CurrentPage is BasicUpgradesPage;
+
 		protected override LocalizedText GetMenuOptionLocalization(string key) {
 			if (key == "Upgrades")
 				return Language.GetText("Mods.TerraScience.MachineText.DefaultPage.Upgrades");

@@ -4,14 +4,214 @@
         <name>SerousCommonLib</name>
     </assembly>
     <members>
+        <member name="T:SerousCommonLib.API.Edit">
+            <summary>
+            A simple class for loading and unloading edits
+            </summary>
+        </member>
+        <member name="T:SerousCommonLib.API.Extensions">
+            <summary>
+            A helper class containing extension methods for certain types
+            </summary>
+        </member>
         <member name="M:SerousCommonLib.API.Extensions.IterateRandomly``1(System.Collections.Generic.IEnumerable{``0})">
             <summary>
             Iterates through <paramref name="source"/> randomly without repetitions
             </summary>
         </member>
+        <member name="M:SerousCommonLib.API.Extensions.MakeLocalVariable``1(MonoMod.Cil.ILContext)">
+            <summary>
+            Defines a local variable
+            </summary>
+            <param name="il">The context</param>
+            <returns>The index of the local variable in the locals table</returns>
+        </member>
         <member name="M:SerousCommonLib.API.Extensions.IncomingHandlers(MonoMod.Cil.ILCursor)">
             <summary>
             Enumerates all exception handlers whose catch/finally clause end points to the current instruction (<c>handler.HandlerEnd == Next</c>)
+            </summary>
+        </member>
+        <member name="M:SerousCommonLib.API.Extensions.EmitIfBlock(MonoMod.Cil.ILCursor,MonoMod.Cil.ILLabel@,System.Func{System.Boolean},System.Action{MonoMod.Cil.ILCursor},MonoMod.Cil.ILLabel[])">
+            <summary>
+            Emits the IL equivalent of an "if" block
+            </summary>
+            <param name="c">The cursor</param>
+            <param name="targetAfterBlock">A label representing the a branching label to the instruction after this "if" block</param>
+            <param name="condition">The boolean condition within the "if" statement</param>
+            <param name="action">Write instructions that would go inside the "if" block here</param>
+            <param name="targetsToUpdate">A list of branching labels to update to point to the start of this "if" block</param>
+        </member>
+        <member name="M:SerousCommonLib.API.Extensions.EmitIfBlock(MonoMod.Cil.ILCursor,MonoMod.Cil.ILLabel@,System.Func{System.Boolean},System.Action{MonoMod.Cil.ILCursor},System.Collections.Generic.IEnumerable{MonoMod.Cil.ILLabel})">
+            <inheritdoc cref="M:SerousCommonLib.API.Extensions.EmitIfBlock(MonoMod.Cil.ILCursor,MonoMod.Cil.ILLabel@,System.Func{System.Boolean},System.Action{MonoMod.Cil.ILCursor},MonoMod.Cil.ILLabel[])"/>
+        </member>
+        <member name="M:SerousCommonLib.API.Extensions.EmitElseIfBlock(MonoMod.Cil.ILCursor,MonoMod.Cil.ILLabel@,MonoMod.Cil.ILLabel,System.Func{System.Boolean},System.Action{MonoMod.Cil.ILCursor},MonoMod.Cil.ILLabel[])">
+            <summary>
+            Emits the IL equivalent of an "else if" block
+            </summary>
+            <param name="c">The cursor</param>
+            <param name="targetAfterIfBlock">A label representing the a branching label to the instruction after this "else if" block</param>
+            <param name="targetAfterEverything">A label representing where to jump to after executing this "else if" block's instructions</param>
+            <param name="condition">The boolean condition within the "else if" statement</param>
+            <param name="action">Write instructions that would go inside the "else if" block here</param>
+            <param name="targetsToUpdate">A list of branching labels to update to point to the start of this "else if" block</param>
+        </member>
+        <member name="M:SerousCommonLib.API.Extensions.EmitElseIfBlock(MonoMod.Cil.ILCursor,MonoMod.Cil.ILLabel@,MonoMod.Cil.ILLabel,System.Func{System.Boolean},System.Action{MonoMod.Cil.ILCursor},System.Collections.Generic.IEnumerable{MonoMod.Cil.ILLabel})">
+            <inheritdoc cref="M:SerousCommonLib.API.Extensions.EmitElseIfBlock(MonoMod.Cil.ILCursor,MonoMod.Cil.ILLabel@,MonoMod.Cil.ILLabel,System.Func{System.Boolean},System.Action{MonoMod.Cil.ILCursor},MonoMod.Cil.ILLabel[])"/>
+        </member>
+        <member name="M:SerousCommonLib.API.Extensions.EmitIfElseBlock(MonoMod.Cil.ILCursor,MonoMod.Cil.ILLabel@,MonoMod.Cil.ILLabel@,System.Func{System.Boolean},System.Action{MonoMod.Cil.ILCursor},System.Action{MonoMod.Cil.ILCursor},MonoMod.Cil.ILLabel[])">
+            <summary>
+            Emits the IL equivalent of an "if - else" chain
+            </summary>
+            <param name="c">The cursor</param>
+            <param name="targetAfterIfBlock">A label representing the a branching label to the instruction after the "if" block</param>
+            <param name="targetAfterEverything">A label representing where to jump to after executing the "if" block's instructions</param>
+            <param name="condition">The boolean condition within the "if" statement</param>
+            <param name="actionWhenTrueCondition">Write instructions that would go inside the "if" block here</param>
+            <param name="actionWhenFalseCondition">Write instructions that would go inside the "else" block here</param>
+            <param name="targetsToUpdate">A list of branching labels to update to point to the start of this "if" block</param>
+        </member>
+        <member name="M:SerousCommonLib.API.Extensions.EmitIfElseBlock(MonoMod.Cil.ILCursor,MonoMod.Cil.ILLabel@,MonoMod.Cil.ILLabel@,System.Func{System.Boolean},System.Action{MonoMod.Cil.ILCursor},System.Action{MonoMod.Cil.ILCursor},System.Collections.Generic.IEnumerable{MonoMod.Cil.ILLabel})">
+            <inheritdoc cref="M:SerousCommonLib.API.Extensions.EmitIfElseBlock(MonoMod.Cil.ILCursor,MonoMod.Cil.ILLabel@,MonoMod.Cil.ILLabel@,System.Func{System.Boolean},System.Action{MonoMod.Cil.ILCursor},System.Action{MonoMod.Cil.ILCursor},MonoMod.Cil.ILLabel[])"/>
+        </member>
+        <member name="M:SerousCommonLib.API.Extensions.EmitIfElseChainBlock(MonoMod.Cil.ILCursor,MonoMod.Cil.ILLabel[]@,SerousCommonLib.API.ILElseIfBlock[],System.Action{MonoMod.Cil.ILCursor},MonoMod.Cil.ILLabel[])">
+            <summary>
+            Emits the IL equivalent  of an "if - else if - else" chain
+            </summary>
+            <param name="c">The cursor</param>
+            <param name="blockEndTargets">A list of branching labels pointing where code flow should move to next when the condition for a block in this chain fails</param>
+            <param name="blocks">A list of structures representing the "if" and "else if" blocks in this chain</param>
+            <param name="elseBlockAction">Write the instructions that would go inside the "else" block here, or set this parameter to <see langword="null"/> to not generate an "else" block</param>
+            <param name="targetsToUpdate">A list of branching labels to update to point to the start of this "if" block</param>
+        </member>
+        <member name="M:SerousCommonLib.API.Extensions.EmitIfElseChainBlock(MonoMod.Cil.ILCursor,MonoMod.Cil.ILLabel[]@,SerousCommonLib.API.ILElseIfBlock[],System.Action{MonoMod.Cil.ILCursor},System.Collections.Generic.IEnumerable{MonoMod.Cil.ILLabel})">
+            <inheritdoc cref="M:SerousCommonLib.API.Extensions.EmitIfElseChainBlock(MonoMod.Cil.ILCursor,MonoMod.Cil.ILLabel[]@,SerousCommonLib.API.ILElseIfBlock[],System.Action{MonoMod.Cil.ILCursor},MonoMod.Cil.ILLabel[])"/>
+        </member>
+        <member name="M:SerousCommonLib.API.Extensions.EmitForLoop(MonoMod.Cil.ILCursor,System.Action{MonoMod.Cil.ILCursor},System.Action{MonoMod.Cil.ILCursor,MonoMod.Cil.ILLabel},System.Action{MonoMod.Cil.ILCursor},System.Action{MonoMod.Cil.ILCursor})">
+            <summary>
+            Emits the IL equivalent of a "for (start; condition; step)" block
+            </summary>
+            <param name="c">The cursor</param>
+            <param name="init">Write the instructions that should go in the loop initialization here</param>
+            <param name="condition">Write the instructions that should go in the loop condition here.  The second argument is the branching label pointing to the start of <paramref name="body"/></param>
+            <param name="step">Write the instructions that should go in the loop step here</param>
+            <param name="body">Write instructions that should go in the body of the loop here</param>
+        </member>
+        <member name="M:SerousCommonLib.API.Extensions.EmitSimpleForLoop(MonoMod.Cil.ILCursor,System.Int32,System.Int32,System.Func{System.Int32,System.Boolean},System.Action{System.Int32})">
+            <summary>
+            Writes the IL equivalent of a "for (int i = <paramref name="start"/>; condition(i); i += <paramref name="step"/>)" block<br/>
+            This method is a specialized version of <see cref="M:SerousCommonLib.API.Extensions.EmitForLoop(MonoMod.Cil.ILCursor,System.Action{MonoMod.Cil.ILCursor},System.Action{MonoMod.Cil.ILCursor,MonoMod.Cil.ILLabel},System.Action{MonoMod.Cil.ILCursor},System.Action{MonoMod.Cil.ILCursor})"/>
+            </summary>
+            <param name="c">The </param>
+            <param name="start">The starting value for the loop variable</param>
+            <param name="step">How much the loop variable should be incremented/decremented by per loop cycle</param>
+            <param name="condition">The condition for the loop variable</param>
+            <param name="body">The body of the loop</param>
+        </member>
+        <member name="M:SerousCommonLib.API.Extensions.GetSimplifiedGenericTypeName(System.Type)">
+            <summary>
+            Gets a formatted string representing <paramref name="type"/>
+            </summary>
+        </member>
+        <member name="T:SerousCommonLib.API.CrossModAccess">
+            <summary>
+            A helper class for accessing/setting information in other mods
+            </summary>
+        </member>
+        <member name="M:SerousCommonLib.API.CrossModAccess.GetTypeFromAssembly(Terraria.ModLoader.Mod,System.String)">
+            <summary>
+            Attempts to retrieve a type whose name is <paramref name="fullName"/> from <paramref name="mod"/>'s assembly<br/>
+            This method will throw an exception if the type does not exist
+            </summary>
+            <param name="mod">The mod instance</param>
+            <param name="fullName">The full <c>namespace.class</c> name of the type</param>
+            <returns>The found type</returns>
+            <exception cref="T:System.Exception"/>
+        </member>
+        <member name="M:SerousCommonLib.API.CrossModAccess.GetMethod(System.Type,System.String,System.Type[],System.String@)">
+            <summary>
+            Retrieves a <see cref="T:System.Reflection.MethodInfo"/> representing a method from a type<br/>
+            This method will throw an exception if the method does not exist
+            </summary>
+            <param name="type">The type</param>
+            <param name="method">The name of the method</param>
+            <param name="argTypes">An array of the method's argument types, or <see langword="null"/> for no arguments</param>
+            <param name="key">A unique identifier for the <see cref="T:System.Reflection.MethodInfo"/> object</param>
+            <returns>The found method</returns>
+            <exception cref="T:System.Exception"/>
+        </member>
+        <member name="M:SerousCommonLib.API.CrossModAccess.FindAndInvoke``1(System.Type,System.String,System.Type[],System.Object,System.Object[])">
+            <summary>
+            Attempts to find a method within <paramref name="type"/>, invokes it then returns its return value casted to <typeparamref name="T"/><br/>
+            This method will throw an exception if either the method does not exist or its return value cannot be cast to <typeparamref name="T"/>
+            </summary>
+            <param name="type">The type</param>
+            <param name="method">The name of the method</param>
+            <param name="argTypes">An array of the method's argument types, or <see langword="null"/> for no arguments</param>
+            <param name="instance">The instance to call the method on, or <see langword="null"/> if the method is static</param>
+            <param name="args">An array of arguments passed to the method</param>
+            <returns>The return value from the method</returns>
+            <exception cref="T:System.Exception"/>
+        </member>
+        <member name="M:SerousCommonLib.API.CrossModAccess.FindAndInvoke(System.Type,System.String,System.Type[],System.Object,System.Object[])">
+            <summary>
+            Attempts to find a method within <paramref name="type"/>, invokes it then returns its return value
+            This method will throw an exception if the method does not exist
+            </summary>
+            <param name="type">The type</param>
+            <param name="method">The name of the method</param>
+            <param name="argTypes">An array of the method's argument types, or <see langword="null"/> for no arguments</param>
+            <param name="instance">The instance to call the method on, or <see langword="null"/> if the method is static</param>
+            <param name="args">An array of arguments passed to the method</param>
+            <returns>The return value from the method</returns>
+            <exception cref="T:System.Exception"/>
+        </member>
+        <member name="M:SerousCommonLib.API.CrossModAccess.GetField(System.Type,System.String,System.String@)">
+            <summary>
+            Retrieves a <see cref="T:System.Reflection.FieldInfo"/> representing a field from <paramref name="type"/><br/>
+            This method will throw an exception if the field does not exist
+            </summary>
+            <param name="type">The type</param>
+            <param name="field">The name of the field</param>
+            <param name="key">A unique identifier for the <see cref="T:System.Reflection.FieldInfo"/> object</param>
+            <returns>The found field</returns>
+            <exception cref="T:System.Exception"/>
+        </member>
+        <member name="M:SerousCommonLib.API.CrossModAccess.FindAndGet``1(System.Type,System.String,System.Object)">
+            <summary>
+            Attempts to find a field within <paramref name="type"/>, retrieves its value and then casts it to <typeparamref name="T"/><br/>
+            This method will throw an exception if either the field does not exist or it cannot be cast to <typeparamref name="T"/>
+            </summary>
+            <param name="type">The type</param>
+            <param name="field">The name of the field</param>
+            <param name="instance">The instance to retrieve the field from, or <see langword="null"/> if the field is static</param>
+            <returns>The field's value</returns>
+            <exception cref="T:System.Exception"/>
+        </member>
+        <member name="M:SerousCommonLib.API.CrossModAccess.FindAndGet(System.Type,System.String,System.Object)">
+            <summary>
+            Attempts to find a field within <paramref name="type"/> and retrieves its value<br/>
+            This method will throw an exception if the field does not exist
+            </summary>
+            <param name="type">The type</param>
+            <param name="field">The name of the field</param>
+            <param name="instance">The instance to retrieve the field from, or <see langword="null"/> if the field is static</param>
+            <returns>The field's value</returns>
+            <exception cref="T:System.Exception"/>
+        </member>
+        <member name="M:SerousCommonLib.API.CrossModAccess.FindAndSet(System.Type,System.String,System.Object,System.Object)">
+            <summary>
+            Attempts to find a field within <paramref name="type"/> and assign it a value<br/>
+            This method will throw an exception if either the field does not exist or the value cannot be assigned to the field
+            </summary>
+            <param name="type">The type</param>
+            <param name="field">The name of the field</param>
+            <param name="instance">The instance to retrieve the field from, or <see langword="null"/> if the field is static</param>
+            <param name="value">The value to assign to the field</param>
+            <exception cref="T:System.Exception"/>
+        </member>
+        <member name="T:SerousCommonLib.API.ILHelper">
+            <summary>
+            A helper class for manipulating and logging <see cref="T:MonoMod.Cil.ILCursor"/> objects
             </summary>
         </member>
         <member name="M:SerousCommonLib.API.ILHelper.LogMethodBody(MonoMod.Cil.ILCursor,System.String)">
@@ -20,6 +220,12 @@
             </summary>
             <param name="c">The IL editing cursor</param>
             <param name="logFilePath">The destination file</param>
+        </member>
+        <member name="M:SerousCommonLib.API.ILHelper.UpdateInstructionOffsets(MonoMod.Cil.ILCursor)">
+            <summary>
+            Updates the instruction offsets within <paramref name="c"/>
+            </summary>
+            <param name="c">The cursor</param>
         </member>
         <member name="M:SerousCommonLib.API.ILHelper.InitMonoModDumps">
             <summary>
@@ -50,9 +256,119 @@
             </param>
             <exception cref="T:System.NullReferenceException"/>
         </member>
+        <member name="T:SerousCommonLib.API.ILHelper.PatchingContextDelegate">
+            <summary>
+            A delegate taking in a cursor and default error message as input and returns if the edit was successful
+            </summary>
+            <param name="c">The cursor</param>
+            <param name="badReturnReason">The error message to display when the edit fails</param>
+            <returns></returns>
+        </member>
+        <member name="M:SerousCommonLib.API.ILHelper.CommonPatchingWrapper(MonoMod.Cil.ILContext,Terraria.ModLoader.Mod,SerousCommonLib.API.ILHelper.PatchingContextDelegate)">
+            <summary>
+            This method logs the instructions within the method tied to <paramref name="il"/>, invokes <paramref name="doEdits"/> and then logss the instructions within the method again
+            </summary>
+            <param name="il">The context</param>
+            <param name="patchSource">Which mod is performing the edits.  This affects the output directory of the file</param>
+            <param name="doEdits">The delegate used to perform the edit</param>
+            <remarks>The generated log file will be at <c>Documents/My Games/Terraria/tModLoader/aA Mods/ModName/</c></remarks>
+            <exception cref="T:System.Exception"/>
+        </member>
+        <member name="T:SerousCommonLib.API.Helpers.LocalizationHelper">
+            <summary>
+            A helper class for using localized text
+            </summary>
+        </member>
+        <member name="M:SerousCommonLib.API.Helpers.LocalizationHelper.ForceLoadModHJsonLocalization(Terraria.ModLoader.Mod)">
+            <summary>
+            Forces the localization for the given mod, <paramref name="mod"/>, to be loaded for use with <seealso cref="T:Terraria.Localization.Language"/>
+            </summary>
+            <param name="mod">The mod instance</param>
+        </member>
+        <member name="T:SerousCommonLib.API.Helpers.ModLoadingProgressHelper">
+            <summary>
+            A helper class for modifying the "sub-text" located under the loading bar during mod loading
+            </summary>
+        </member>
+        <member name="P:SerousCommonLib.API.Helpers.ModLoadingProgressHelper.ProgressText_FinishResourceLoading">
+            <summary>
+            Gets the localized string for "Finishing Resource Loading"
+            </summary>
+        </member>
+        <member name="M:SerousCommonLib.API.Helpers.ModLoadingProgressHelper.SetLoadingSubProgressText(System.String)">
+            <summary>
+            Sets the loading "sub-text" to <paramref name="text"/>
+            </summary>
+            <param name="text">The text string to display</param>
+        </member>
+        <member name="T:SerousCommonLib.API.LootHelper">
+            <summary>
+            A helper class for manipulating item/NPC loot
+            </summary>
+        </member>
+        <member name="M:SerousCommonLib.API.LootHelper.FindRecursive(System.Collections.Generic.List{Terraria.GameContent.ItemDropRules.IItemDropRule},System.Predicate{Terraria.GameContent.ItemDropRules.IItemDropRule})">
+            <summary>
+            Recursively searches through all rules and subrules within <paramref name="rules"/> and returns the first successful match
+            </summary>
+        </member>
+        <member name="M:SerousCommonLib.API.LootHelper.FindRecursive(System.Collections.Generic.List{Terraria.GameContent.ItemDropRules.IItemDropRuleChainAttempt},System.Predicate{Terraria.GameContent.ItemDropRules.IItemDropRule})">
+            <summary>
+            Recursively searches through all rules and subrules within <paramref name="rules"/> and returns the first successful match
+            </summary>
+        </member>
+        <member name="M:SerousCommonLib.API.LootHelper.IsLastTwinStanding(Terraria.GameContent.ItemDropRules.DropAttemptInfo)">
+            <summary>
+            Returns <see langword="true"/> if no Twins are alive
+            </summary>
+        </member>
+        <member name="T:SerousCommonLib.API.TooltipHelper">
+            <summary>
+            A helper class for manipulating tooltips
+            </summary>
+        </member>
+        <member name="M:SerousCommonLib.API.TooltipHelper.FindAndModify(System.Collections.Generic.List{Terraria.ModLoader.TooltipLine},System.String,System.String)">
+            <summary>
+            Finds the first <see cref="T:Terraria.ModLoader.TooltipLine"/> instance in <paramref name="tooltips"/> which contains the phrase <paramref name="searchPhrase"/>, then replaces it with <paramref name="replacePhrase"/>
+            </summary>
+            <param name="tooltips">The list of tooltips</param>
+            <param name="searchPhrase">The search text to look for</param>
+            <param name="replacePhrase">The replacement text</param>
+        </member>
+        <member name="M:SerousCommonLib.API.TooltipHelper.FindAndRemoveLine(System.Collections.Generic.List{Terraria.ModLoader.TooltipLine},System.String)">
+            <summary>
+            Finds the first <see cref="T:Terraria.ModLoader.TooltipLine"/> instance in <paramref name="tooltips"/> whose text is exactly equal to <paramref name="fullLine"/> and removes it
+            </summary>
+            <param name="tooltips">The list of tooltips</param>
+            <param name="fullLine">The line to search for</param>
+        </member>
+        <member name="M:SerousCommonLib.API.TooltipHelper.FindAndInsertLines(Terraria.ModLoader.Mod,System.Collections.Generic.List{Terraria.ModLoader.TooltipLine},System.String,System.Func{System.Int32,System.String},System.String)">
+            <summary>
+            Finds the forst <see cref="T:Terraria.ModLoader.TooltipLine"/> instance in <paramref name="tooltips"/> whose text is exactly equal to <paramref name="searchLine"/>, removes it, then adds a series of tooltip lines starting where it was located
+            </summary>
+            <param name="mod">The mod adding the tooltips</param>
+            <param name="tooltips">The list of tooltips</param>
+            <param name="searchLine">The line to search for</param>
+            <param name="lineNames">A function taking an integer and returning a line of text</param>
+            <param name="replaceLines">The lines to insert, separated by <c>'\n'</c></param>
+        </member>
         <member name="M:SerousCommonLib.API.TooltipHelper.FindLastTooltipLine(Terraria.Item,System.Collections.Generic.List{Terraria.ModLoader.TooltipLine})">
             <summary>
             Returns the index of the last "TooltipX" line in <paramref name="tooltips"/> or the index of the tooltip line that would be immediately before the tooltip if no "TooltipX" line exists
+            </summary>
+        </member>
+        <member name="T:SerousCommonLib.API.ILElseIfBlock">
+            <summary>
+            A structure representing an "else if" block in IL
+            </summary>
+        </member>
+        <member name="F:SerousCommonLib.API.ILElseIfBlock.condition">
+            <summary>
+            The condition for the block
+            </summary>
+        </member>
+        <member name="F:SerousCommonLib.API.ILElseIfBlock.action">
+            <summary>
+            The instructions to write in the block's body
             </summary>
         </member>
         <member name="T:SerousCommonLib.API.Iterators.Iterator`1">
@@ -138,6 +454,129 @@
             An iterator that randomly iterates through each item of an <see cref="T:System.Collections.Generic.IEnumerable`1"/>
             </summary>
             <typeparam name="TSource">The type of the source enumerable.</typeparam>
+        </member>
+        <member name="T:SerousCommonLib.API.TargetContext">
+            <summary>
+            A helper structure for quickly modifying branching labels
+            </summary>
+        </member>
+        <member name="F:SerousCommonLib.API.TargetContext.cursor">
+            <summary>
+            The cursor performing edits
+            </summary>
+        </member>
+        <member name="F:SerousCommonLib.API.TargetContext.targetIndex">
+            <summary>
+            The index of the instruction to redirect <see cref="F:SerousCommonLib.API.TargetContext.incomingLabels"/> and <see cref="F:SerousCommonLib.API.TargetContext.incomingHandlers"/> to
+            </summary>
+        </member>
+        <member name="F:SerousCommonLib.API.TargetContext.incomingLabels">
+            <summary>
+            A list of branching labels
+            </summary>
+        </member>
+        <member name="F:SerousCommonLib.API.TargetContext.incomingHandlers">
+            <summary>
+            A list of branching labels for try-catch-finally clauses
+            </summary>
+        </member>
+        <member name="M:SerousCommonLib.API.TargetContext.UpdateInstructions">
+            <summary>
+            Updates the instructions in <see cref="F:SerousCommonLib.API.TargetContext.cursor"/> whose target's instruction index has been modified
+            </summary>
+        </member>
+        <member name="T:SerousCommonLib.UI.IsItemValidForSlotDelegate">
+            <summary>
+            This delegate is used by <see cref="T:SerousCommonLib.UI.EnhancedItemSlot"/> to indicate whether the item currently on the mouse is valid
+            </summary>
+            <param name="mouseItem">Shortcut of <see cref="F:Terraria.Main.mouseItem"/></param>
+        </member>
+        <member name="T:SerousCommonLib.UI.OnItemSlotItemChangedDelegate">
+            <summary>
+            This delegate is used by <see cref="T:SerousCommonLib.UI.EnhancedItemSlot"/> when its bound item instance has changed
+            </summary>
+            <param name="newItem">The new state of the bound item</param>
+        </member>
+        <member name="T:SerousCommonLib.UI.EnhancedItemSlot">
+            <summary>
+            An enhanced version of <see cref="T:Terraria.UI.ItemSlot"/> containing various functions used when inserting items, removing items, etc.
+            </summary>
+        </member>
+        <member name="P:SerousCommonLib.UI.EnhancedItemSlot.Context">
+            <summary>
+            The <see cref="T:Terraria.UI.ItemSlot.Context"/> to draw this item slot with
+            </summary>
+        </member>
+        <member name="P:SerousCommonLib.UI.EnhancedItemSlot.Scale">
+            <summary>
+            The scale to draw this item slot at
+            </summary>
+        </member>
+        <member name="P:SerousCommonLib.UI.EnhancedItemSlot.StoredItem">
+            <summary>
+            The public property used to retrieve the item in this item slot.
+            By default, this property simply retrieves the <see cref="T:Terraria.Item"/> instance bound to this item slot
+            </summary>
+        </member>
+        <member name="F:SerousCommonLib.UI.EnhancedItemSlot.storedItem">
+            <summary>
+            The <see cref="T:Terraria.Item"/> instance bound to this item slot
+            </summary>
+        </member>
+        <member name="P:SerousCommonLib.UI.EnhancedItemSlot.ItemChanged">
+            <summary>
+            Whether this item slot's bound item's type, stack and/or prefix have been changed
+            </summary>
+        </member>
+        <member name="P:SerousCommonLib.UI.EnhancedItemSlot.ItemTypeChanged">
+            <summary>
+            Whether this item slot's bound item's type has changed
+            </summary>
+        </member>
+        <member name="F:SerousCommonLib.UI.EnhancedItemSlot.ValidItemFunc">
+            <summary>
+            A function indicating whether the item on the player's mouse can be inserted into this item slot or can be swapped with this item slot's bound item
+            </summary>
+        </member>
+        <member name="E:SerousCommonLib.UI.EnhancedItemSlot.OnItemChanged">
+            <summary>
+            An event that is invoked whenever the bound item in this item slot has changed
+            </summary>
+        </member>
+        <member name="P:SerousCommonLib.UI.EnhancedItemSlot.IgnoreClicks">
+            <summary>
+            Whether this item slot should ignore left and right click actions.  Defaults to <see langword="false"/>
+            </summary>
+        </member>
+        <member name="P:SerousCommonLib.UI.EnhancedItemSlot.IgnoreNextHandleAction">
+            <summary>
+            Whether this item slot should not run its item handling logic the next time it is attempted to be executed.  Defaults to <see langword="false"/>
+            </summary>
+        </member>
+        <member name="F:SerousCommonLib.UI.EnhancedItemSlot.slot">
+            <summary>
+            An integer that can be used for easily tying this item slot to an inventory of items.  This type does not use it directly
+            </summary>
+        </member>
+        <member name="T:SerousCommonLib.UI.NewUIList">
+            <summary>
+            A copy of <see cref="T:Terraria.GameContent.UI.Elements.UIList"/> that uses a <see cref="T:SerousCommonLib.UI.NewUIScrollbar"/> instead of a <see cref="T:Terraria.GameContent.UI.Elements.UIScrollbar"/>
+            </summary>
+        </member>
+        <member name="T:SerousCommonLib.UI.NewUIScrollbar">
+            <summary>
+            A copy of <see cref="T:Terraria.GameContent.UI.Elements.UIScrollbar"/>, but modified for convenience
+            </summary>
+        </member>
+        <member name="T:SerousCommonLib.UI.UIDragablePanel">
+            <summary>
+            An object representing a panel with "page tabs" that can be moved around
+            </summary>
+        </member>
+        <member name="T:SerousCommonLib.UI.UIPanelTab">
+            <summary>
+            A shorthand for <see cref="T:Terraria.GameContent.UI.Elements.UITextPanel`1"/>
+            </summary>
         </member>
     </members>
 </doc>

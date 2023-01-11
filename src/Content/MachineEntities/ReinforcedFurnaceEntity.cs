@@ -6,7 +6,6 @@ using SerousEnergyLib.API.Machines.Default;
 using SerousEnergyLib.API.Machines.UI;
 using SerousEnergyLib.API.Sounds;
 using SerousEnergyLib.Systems;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using Terraria;
@@ -18,9 +17,10 @@ using TerraScience.Content.Sounds;
 using TerraScience.Content.Tiles.Machines;
 
 namespace TerraScience.Content.MachineEntities {
-	public class ReinforcedFurnaceEntity : BaseInventoryEntity, IItemOutputGeneratorMachine, ISoundEmittingMachine, IReducedNetcodeMachine {
+	public class ReinforcedFurnaceEntity : BaseInventoryEntity, IItemOutputGeneratorMachine, ISoundEmittingMachine, IReducedNetcodeMachine, IMachineUIAutoloading<ReinforcedFurnaceEntity, ReinforcedFurnaceUI> {
 		public override int MachineTile => ModContent.TileType<ReinforcedFurnace>();
 
+		// BaseInventoryEntity usage requires overriding this, even though IMachineUIAutoloading<,> does this already
 		public override BaseMachineUI MachineUI => MachineUISingletons.GetInstance<ReinforcedFurnaceEntity>();
 
 		public override int DefaultInventoryCapacity => 6;
@@ -70,11 +70,8 @@ namespace TerraScience.Content.MachineEntities {
 				return requiredHeat > -1;
 			}
 		}
-		#endregion
 
-		public override void Load() {
-			MachineUISingletons.RegisterUI<MachineWorkbenchEntity>(new ReinforcedFurnaceUI());
-		}
+		#endregion
 
 		// Used to track when the input item's type has changed
 		private int oldItem;
