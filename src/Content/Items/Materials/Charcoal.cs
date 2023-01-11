@@ -13,12 +13,5 @@ namespace TerraScience.Content.Items.Materials {
 			Item.maxStack = 999;
 			Item.value = 10;
 		}
-
-		public override void AddRecipes(){
-			CreateRecipe(Type)
-				.AddRecipeGroup(RecipeGroupID.Wood)
-				.AddTile(ModContent.TileType<ReinforcedFurnace>())
-				.Register();
-		}
 	}
 }
