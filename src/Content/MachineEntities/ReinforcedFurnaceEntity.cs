@@ -11,6 +11,7 @@ using System.Linq;
 using Terraria;
 using Terraria.Audio;
 using Terraria.ModLoader;
+using Terraria.ModLoader.IO;
 using TerraScience.Common.Systems;
 using TerraScience.Common.UI.Machines;
 using TerraScience.Content.Sounds;
@@ -38,17 +39,6 @@ namespace TerraScience.Content.MachineEntities {
 		public double CurrentTemperature { get; private set; }
 
 		/// <summary>
-		/// Whether this entity is able to start converting its input item
-		/// </summary>
-		public bool ConversionAvailable {
-			get {
-				GetHeatTargets(out _, out _, out double requiredHeat);
-
-				return requiredHeat >= 0 && CurrentTemperature >= requiredHeat;
-			}
-		}
-
-		/// <summary>
 		/// The logarithmic factor used when this machine is heating up
 		/// </summary>
 		public const double Heat_K = 0.0425;
@@ -59,17 +49,6 @@ namespace TerraScience.Content.MachineEntities {
 		public const double Epsilon = 0.005;
 
 		public CraftingProgress Progress { get; private set; } = new CraftingProgress();
-
-		/// <summary>
-		/// Whether this entity should increase its temperature
-		/// </summary>
-		public bool Heating {
-			get {
-				GetHeatTargets(out _, out _, out double requiredHeat);
-
-				return requiredHeat > -1;
-			}
-		}
 
 		#endregion
 
@@ -137,7 +116,7 @@ namespace TerraScience.Content.MachineEntities {
 			// Adjust the conversion rate
 			ref var speed = ref Progress.SpeedFactor;
 
-			if (active && ConversionAvailable) {
+			if (active && requiredHeat >= 0 && CurrentTemperature >= requiredHeat) {
 				// Increase the conversion speed
 				speed *= 1 + 0.06f / 60f;
 			} else {
@@ -241,6 +220,25 @@ namespace TerraScience.Content.MachineEntities {
 			}
 
 			return activeRecipe is not null;
+		}
+
+		public override void SaveData(TagCompound tag) {
+			base.SaveData(tag);
+
+			tag["temp"] = CurrentTemperature;
+			TagCompound progress = new();
+			Progress.SaveData(progress);
+			tag["progress"] = progress;
+		}
+
+		public override void LoadData(TagCompound tag) {
+			base.LoadData(tag);
+
+			CurrentTemperature = tag.GetFloat("temp");
+			if (tag.GetCompound("progress") is TagCompound progress)
+				Progress.LoadData(progress);
+			else
+				Progress = new();
 		}
 
 		#region Implement ISoundEmittingMachine
