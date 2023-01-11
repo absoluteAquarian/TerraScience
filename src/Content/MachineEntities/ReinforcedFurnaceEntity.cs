@@ -104,9 +104,12 @@ namespace TerraScience.Content.MachineEntities {
 					furnace.GetMachineDimensions(out uint width, out uint height);
 					Vector2 burningSoundPos = Position.ToWorldCoordinates(width * 8, height * 8);
 
+					// Allow singleplayer to mute the sound when the game window isn't active
+					float volumeAdjustment = Main.dedServ || Main.instance.IsActive ? 1f : 0f;
+
 					ISoundEmittingMachine.EmitSound(
 						emitter: this,
-						RegisteredSounds.Styles.ReinforcedFurnace.Burning,
+						RegisteredSounds.Styles.ReinforcedFurnace.Burning.WithVolumeScale(volumeAdjustment),
 						NetcodeSoundMode.SendPosition | NetcodeSoundMode.SendVolume,
 						ref burning,
 						ref servPlayingSound,
