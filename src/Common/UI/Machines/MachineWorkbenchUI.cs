@@ -48,8 +48,8 @@ namespace TerraScience.Common.UI.Machines {
 		}
 
 		protected override void OnClose() {
-			if (UIHandler.ActiveMachine is MachineWorkbenchEntity machine)
-				IInventoryMachine.DropItemInInventory(machine, 0);
+			if (UIHandler.ActiveMachine is MachineWorkbenchEntity machine && !machine.Inventory[0].IsAir)
+				IInventoryMachine.DropItemInInventory(machine, 0, quickSpawn: true);
 
 			if (GetPage<MainPage>("Workbench") is MainPage page) {
 				page.SetDisplay(ref page.leftDisplay, null, left: true);
