@@ -55,6 +55,9 @@ namespace TerraScience.Common.UI.Machines {
 				page.SetDisplay(ref page.leftDisplay, null, left: true);
 				page.SetDisplay(ref page.rightDisplay, null, left: false);
 
+				page.leftDisplay = null;
+				page.rightDisplay = null;
+
 				page.UpdateItemDisplay(null, null, new Item());
 			}
 		}
@@ -169,7 +172,7 @@ namespace TerraScience.Common.UI.Machines {
 				panelRecipe.Left.Set(20, 0);
 			}
 
-			private bool resetPanels;
+			private bool resetRecipePanel;
 			private Recipe pendingRecipe;
 
 			internal void UpdateItemDisplay(IInventoryMachine machine, Item oldItem, Item newItem) {
@@ -179,7 +182,7 @@ namespace TerraScience.Common.UI.Machines {
 
 					pendingRecipe = null;
 
-					resetPanels = true;
+					resetRecipePanel = true;
 					return;
 				}
 
@@ -213,7 +216,7 @@ namespace TerraScience.Common.UI.Machines {
 				SetDisplay(ref leftDisplay, left, left: true);
 				SetDisplay(ref rightDisplay, right, left: false);
 
-				resetPanels = true;
+				resetRecipePanel = true;
 			}
 
 			private void InitRecipeSlots(Recipe recipe) {
@@ -308,45 +311,50 @@ namespace TerraScience.Common.UI.Machines {
 			}
 
 			public override void Update(GameTime gameTime) {
-				if (resetPanels) {
-					InitRecipeSlots(pendingRecipe);
-					pendingRecipe = null;
-
+				if (resetRecipePanel) {
 					list.Remove(panelDisplays);
 					list.Remove(panelStats);
 					list.Remove(panelDescription);
 					list.Remove(panelRecipe);
+					
+					InitRecipeSlots(pendingRecipe);
 
 					list.Add(panelDisplays);
 					list.Add(panelStats);
 					list.Add(panelDescription);
-					list.Add(panelRecipe);
 
-					resetPanels = false;
-				}
+					if (pendingRecipe is not null)
+						list.Add(panelRecipe);
 
-				if (UIHandler.ActiveMachine is not MachineWorkbenchEntity) {
-					InitRecipeSlots(null);
-					return;
+					pendingRecipe = null;
+					resetRecipePanel = false;
 				}
 
 				// If there's a machine in the slot and it has multiple recipes, choose a random recipe that creates it every 3 seconds
 				// Otherwise, display the one recipe it has or nothing if it has no recipe
-				if (machineSlot.StoredItem.IsAir) {
+				if (UIHandler.ActiveMachine is not MachineWorkbenchEntity || machineSlot.StoredItem.IsAir || machineSlot.StoredItem.ModItem is not BaseMachineItem item) {
+					SetDisplay(ref leftDisplay, null, left: true);
+					SetDisplay(ref rightDisplay, null, left: false);
 					InitRecipeSlots(null);
+					list.Remove(panelDisplays);
 					return;
 				}
 
-				if (machineSlot.StoredItem.ModItem is BaseMachineItem item) {
-					if (RecipeCache.MachineItemToRecipes.TryGetValue(item.Type, out var recipes) || (item is ICraftableMachineItem alt && RecipeCache.MachineItemToRecipes.TryGetValue(alt.AlternativeItemType, out recipes))) {
-						if (recipes.Length == 1)
-							InitRecipeSlots(recipes[0]);
-						else if (recipes.Length > 1) {
-							if (Main.GameUpdateCount % 180 == 0)
-								InitRecipeSlots(ChooseRandomRecipeExceptForCurrentRecipe(recipes));
-						} else
-							InitRecipeSlots(null);  // No recipe
-					}
+				if (RecipeCache.MachineItemToRecipes.TryGetValue(item.Type, out var recipes) || (item is ICraftableMachineItem alt && RecipeCache.MachineItemToRecipes.TryGetValue(alt.AlternativeItemType, out recipes))) {
+					if (recipes.Length == 1) {
+						InitRecipeSlots(recipes[0]);
+
+						if (panelRecipe.Parent is null)
+							list.Add(panelRecipe);
+					} else if (recipes.Length > 1) {
+						if (Main.GameUpdateCount % 180 == 0) {
+							InitRecipeSlots(ChooseRandomRecipeExceptForCurrentRecipe(recipes));
+
+							if (panelRecipe.Parent is null)
+								list.Add(panelRecipe);
+						}
+					} else
+						list.Remove(panelRecipe);  // No recipe
 				}
 			}
 
@@ -371,7 +379,7 @@ namespace TerraScience.Common.UI.Machines {
 					return;
 				}
 
-				bool create = display is null;
+				bool create = display?.Parent is null;
 
 				int width = state.frame.Width;
 				int height = state.frame.Height;

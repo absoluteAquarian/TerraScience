@@ -130,20 +130,21 @@ namespace TerraScience.Common.UI.Elements {
 				if (fillingHeight <= thresholdBottom)
 					break;
 
-				int fillTop, fillHeight;
+				int fillTop, fillHeight, heightOffset;
 				if (fillingHeight < thresholdTop) {
-					int heightOffset = thresholdTop - fillingHeight;
+					heightOffset = thresholdTop - fillingHeight;
 
 					fillTop = middleY + heightOffset;
 					fillHeight = middleHeight - heightOffset;
 				} else {
+					heightOffset = 0;
 					fillTop = middleY;
 					fillHeight = middleHeight;
 				}
 
 				Rectangle rect = new Rectangle(fillX, fillTop, width, fillHeight);
 
-				spriteBatch.Draw(texture, position + new Vector2(0, Height.Pixels - bottomHeight - (i + 1) * middleHeight), rect, color);
+				spriteBatch.Draw(texture, position + new Vector2(0, Height.Pixels - bottomHeight - (i + 1) * middleHeight + heightOffset), rect, color);
 			}
 		}
 

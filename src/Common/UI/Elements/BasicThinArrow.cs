@@ -33,7 +33,7 @@ namespace TerraScience.Common.UI.Elements {
 
 		private int PixelsDrawn => (int)(MaxFill * FillPercentage);
 
-		public Color Color { get; set; }
+		public Color Color { get; set; } = Color.White;
 
 		public BasicThinArrow(ArrowElementOrientation orientation, int targetLength) {
 			this.orientation = orientation;
@@ -199,7 +199,7 @@ namespace TerraScience.Common.UI.Elements {
 			var tailFillRange = topToBottom ? topFillRange : bottomFillRange;
 
 			DrawArrowFillTail(spriteBatch, position, tailFillRange, tailSrc, topToBottom, false);
-			DrawArrowFillBody(spriteBatch, position, tailSrc.Width, bodySrc, tailFillRange, headFillRange, topToBottom, false);
+			DrawArrowFillBody(spriteBatch, position, tailSrc.Height, bodySrc, tailFillRange, headFillRange, topToBottom, false);
 			DrawArrowFillHead(spriteBatch, position, headFillRange, headSrc, topToBottom, false);
 		}
 
@@ -249,7 +249,7 @@ namespace TerraScience.Common.UI.Elements {
 
 			int max = MaxFill;
 
-			int destSize = pixels <= max - headFillRange ? (int)((pixels - tailFillRange) * BodyScale) : (int)((max - tailFillRange - headFillRange) * BodyScale);
+			int destSize = pixels <= max - headFillRange ? pixels - tailFillRange : max - tailFillRange - headFillRange;
 
 			int bodyCoord;
 			if (fromLeftOrTop)

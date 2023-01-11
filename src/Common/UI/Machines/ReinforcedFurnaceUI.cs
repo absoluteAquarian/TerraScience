@@ -66,13 +66,13 @@ namespace TerraScience.Common.UI.Machines {
 
 				inputSlot = new MachineInventoryItemSlot(0, context: ItemSlot.Context.BankItem);
 				inputSlot.HAlign = 0.5f;
-				inputSlot.Top.Set(40, 0f);
+				inputSlot.Top.Set(65, 0f);
 				Append(inputSlot);
 
 				IInventoryMachine singleton = ModContent.GetInstance<ReinforcedFurnaceEntity>();
 				itemZone = new MachineInventoryItemSlotZone(singleton.GetExportSlotsOrDefault(), maxSlotsPerRow: 5, context: ItemSlot.Context.BankItem);
 				itemZone.HAlign = 0.5f;
-				itemZone.Top.Set(-40 - itemZone.Height.Pixels, 1f);
+				itemZone.Top.Set(-15 - itemZone.Height.Pixels, 1f);
 				Append(itemZone);
 
 				arrow = new BasicThinArrow(ArrowElementOrientation.Down, targetLength: 150);
@@ -84,8 +84,14 @@ namespace TerraScience.Common.UI.Machines {
 			public override void Update(GameTime gameTime) {
 				base.Update(gameTime);
 
-				if (UIHandler.ActiveMachine is ReinforcedFurnaceEntity furnace)
+				if (UIHandler.ActiveMachine is ReinforcedFurnaceEntity furnace) {
 					arrow.FillPercentage = furnace.Progress.Progress;
+
+					furnace.GetHeatTargets(out double min, out double max, out _);
+
+					thermostat.CurrentTemperature = furnace.CurrentTemperature;
+					thermostat.SetTemperatureBounds(min, max);
+				}
 			}
 		}
 	}

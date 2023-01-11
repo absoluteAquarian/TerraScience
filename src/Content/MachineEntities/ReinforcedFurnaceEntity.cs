@@ -86,7 +86,9 @@ namespace TerraScience.Content.MachineEntities {
 
 			Item input = Inventory[0];
 
-			if (IsActive(out _)) {
+			bool active = IsActive(out _);
+
+			if (active) {
 				// Warm up the furnace
 				DoHeatPhysics(
 					increaseHeat: true,
@@ -132,7 +134,7 @@ namespace TerraScience.Content.MachineEntities {
 			// Adjust the conversion rate
 			ref var speed = ref Progress.SpeedFactor;
 
-			if (CurrentTemperature >= requiredHeat) {
+			if (active && requiredHeat >= 0 && CurrentTemperature >= requiredHeat) {
 				// Increase the conversion speed
 				speed *= 1 + 0.06f / 60f;
 			} else {
@@ -153,7 +155,7 @@ namespace TerraScience.Content.MachineEntities {
 			} else if (CurrentTemperature >= requiredHeat) {
 				Ticks time = TechMod.Sets.ReinforcedFurnace.ConversionDuration[input.type];
 
-				if (Progress.Step(time.ticks / 60f)) {
+				if (Progress.Step(1f / time.ticks)) {
 					// Conversion was completed
 					input.stack--;
 
@@ -214,17 +216,24 @@ namespace TerraScience.Content.MachineEntities {
 			if (input.IsAir)
 				return false;
 
-			Item output = Inventory[1];
+			var slots = (this as IInventoryMachine).GetExportSlotsOrDefault();
+			var inv = Inventory;
 
-			if (output.stack >= output.maxStack)
-				return false;
+			for (int i = 0; i < slots.Length; i++) {
+				int slot = slots[i];
+
+				Item output = inv[slot];
+
+				if (output.IsAir || output.stack < output.maxStack)
+					break;
+			}
 
 			requiredHeat = TechMod.Sets.ReinforcedFurnace.MinimumHeatForConversion[input.type];
 			if (requiredHeat < 0)
 				return false;
 
 			if (activeRecipe is null) {
-				Item[] inv = new Item[] { input };
+				inv = new Item[] { input };
 				activeRecipe = TechRecipes.Sets.ReinforcedFurnace.All.Where(m => m.IngredientSetMatches(this)).FirstOrDefault();
 			}
 
