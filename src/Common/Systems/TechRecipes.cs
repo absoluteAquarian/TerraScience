@@ -27,11 +27,10 @@ namespace TerraScience.Common.Systems {
 			Ticks woodToCharcoalMin = TechMod.Sets.ReinforcedFurnace.ConversionDuration.Min();
 			Ticks woodToCharcoalMax = TechMod.Sets.ReinforcedFurnace.ConversionDuration.Max();
 
-			Sets.ReinforcedFurnace.all.Add(new MachineRecipe<ReinforcedFurnace>(
-				minimumDuration: woodToCharcoalMin,
-				maximumDuration: woodToCharcoalMax)
+			Sets.ReinforcedFurnace.all.Add(new MachineRecipe<ReinforcedFurnace>()
 				.AddRecipeGroup(RecipeGroupID.Wood, 1)
 				.AddPossibleOutput<Charcoal>(1)
+				.AddTimeVarianceRequirement(woodToCharcoalMin, woodToCharcoalMax)
 				.CreateAndRegisterAllPossibleRecipes());
 		}
 

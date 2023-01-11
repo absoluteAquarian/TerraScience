@@ -538,6 +538,35 @@
         <member name="M:SerousEnergyLib.API.MachineRecipe.AddRecipeGroup(Terraria.RecipeGroup,System.Int32)">
             <inheritdoc cref="M:Terraria.Recipe.AddRecipeGroup(Terraria.RecipeGroup,System.Int32)"/>
         </member>
+        <member name="M:SerousEnergyLib.API.MachineRecipe.AddFluidIngredient(System.Int32,System.Double)">
+            <summary>
+            Adds a fluid ingredient to this recipe of the given type and quantity
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.API.MachineRecipe.AddFluidIngredient``1(System.Double)">
+            <inheritdoc cref="M:SerousEnergyLib.API.MachineRecipe.AddFluidIngredient(System.Int32,System.Double)"/>
+        </member>
+        <member name="M:SerousEnergyLib.API.MachineRecipe.AddPowerRequirement(SerousEnergyLib.API.Energy.TerraFlux)">
+            <summary>
+            Adds a power requirement to this recipe
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.API.MachineRecipe.AddPowerRequirement(System.Int32,System.Int32)">
+            <inheritdoc cref="M:SerousEnergyLib.API.MachineRecipe.AddPowerRequirement(SerousEnergyLib.API.Energy.TerraFlux)"/>
+        </member>
+        <member name="M:SerousEnergyLib.API.MachineRecipe.AddPowerRequirement``1(System.Int32)">
+            <inheritdoc cref="M:SerousEnergyLib.API.MachineRecipe.AddPowerRequirement(SerousEnergyLib.API.Energy.TerraFlux)"/>
+        </member>
+        <member name="M:SerousEnergyLib.API.MachineRecipe.AddTimeRequirement(SerousEnergyLib.API.Ticks)">
+            <summary>
+            Adds a time requirement to this recipe
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.API.MachineRecipe.AddTimeVarianceRequirement(SerousEnergyLib.API.Ticks,SerousEnergyLib.API.Ticks)">
+            <summary>
+            Adds a variable time requirement to this recipe
+            </summary>
+        </member>
         <member name="M:SerousEnergyLib.API.MachineRecipe.AddPossibleOutput(System.Int32,System.Int32,System.Double)">
             <summary>
             Adds a possible output to this recipe with the given item type, stack size and probability. Ex: <c>recipe.AddPossibleOutput(ItemID.IronAxe, 0.25)</c>
@@ -1729,6 +1758,11 @@
         <member name="T:SerousEnergyLib.Items.Materials.TimeMaximumRangeRecipeItem">
             <summary>
             An item representing a time requirement for a <see cref="T:SerousEnergyLib.API.MachineRecipe"/>
+            </summary>
+        </member>
+        <member name="T:SerousEnergyLib.Items.Materials.TimeNoDurationRecipeItem">
+            <summary>
+            An item representing a lack of a time requirement for a <see cref="T:SerousEnergyLib.API.MachineRecipe"/>
             </summary>
         </member>
         <member name="T:SerousEnergyLib.NetworkHelper">

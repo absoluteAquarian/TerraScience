@@ -169,15 +169,17 @@ namespace TerraScience.Common.UI.Machines {
 				panelRecipe.Left.Set(20, 0);
 			}
 
+			private bool resetPanels;
+			private Recipe pendingRecipe;
+
 			internal void UpdateItemDisplay(IInventoryMachine machine, Item oldItem, Item newItem) {
 				if (newItem.IsAir || newItem.ModItem is not BaseMachineItem) {
 					stats.SetText(DefaultStatText);
 					description.SetText(DefaultDescriptionText);
 
-					InitRecipeSlots(null);
+					pendingRecipe = null;
 
-					list.Remove(panelDisplays);
-					list.Remove(panelRecipe);
+					resetPanels = true;
 					return;
 				}
 
@@ -211,15 +213,7 @@ namespace TerraScience.Common.UI.Machines {
 				SetDisplay(ref leftDisplay, left, left: true);
 				SetDisplay(ref rightDisplay, right, left: false);
 
-				list.Remove(panelDisplays);
-				list.Remove(panelStats);
-				list.Remove(panelDescription);
-				list.Remove(panelRecipe);
-
-				list.Add(panelDisplays);
-				list.Add(panelStats);
-				list.Add(panelDescription);
-				list.Add(panelRecipe);
+				resetPanels = true;
 			}
 
 			private void InitRecipeSlots(Recipe recipe) {
@@ -314,6 +308,23 @@ namespace TerraScience.Common.UI.Machines {
 			}
 
 			public override void Update(GameTime gameTime) {
+				if (resetPanels) {
+					InitRecipeSlots(pendingRecipe);
+					pendingRecipe = null;
+
+					list.Remove(panelDisplays);
+					list.Remove(panelStats);
+					list.Remove(panelDescription);
+					list.Remove(panelRecipe);
+
+					list.Add(panelDisplays);
+					list.Add(panelStats);
+					list.Add(panelDescription);
+					list.Add(panelRecipe);
+
+					resetPanels = false;
+				}
+
 				if (UIHandler.ActiveMachine is not MachineWorkbenchEntity) {
 					InitRecipeSlots(null);
 					return;
