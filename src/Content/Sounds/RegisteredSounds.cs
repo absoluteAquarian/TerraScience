@@ -7,7 +7,8 @@ namespace TerraScience.Content.Sounds {
 		public override void Load() {
 			Styles.ReinforcedFurnace.Burning = new SoundStyle("TerraScience/Assets/Sounds/FX/CampfireBurning") with {
 				Volume = 0.23f,
-				SoundLimitBehavior = SoundLimitBehavior.IgnoreNew
+				SoundLimitBehavior = SoundLimitBehavior.IgnoreNew,
+				IsLooped = true
 			};
 			IDs.ReinforcedFurnace.Burning = MachineSounds.RegisterSound(Styles.ReinforcedFurnace.Burning);
 
