@@ -83,15 +83,12 @@ namespace TerraScience.Content.MachineEntities {
 					furnace.GetMachineDimensions(out uint width, out uint height);
 					Vector2 burningSoundPos = Position.ToWorldCoordinates(width * 8, height * 8);
 
-					// Allow singleplayer to mute the sound when the game window isn't active
-					float volumeAdjustment = Main.dedServ || Main.instance.IsActive ? 1f : 0f;
-
 					ISoundEmittingMachine.EmitSound(
 						emitter: this,
-						RegisteredSounds.Styles.ReinforcedFurnace.Burning.WithVolumeScale(volumeAdjustment),
+						RegisteredSounds.Styles.ReinforcedFurnace.Burning,
 						NetcodeSoundMode.SendPosition | NetcodeSoundMode.SendVolume,
 						ref burning,
-						ref servPlayingSound,
+						ref servPlayingBurningSound,
 						burningSoundPos);
 				}
 			} else {
@@ -110,7 +107,7 @@ namespace TerraScience.Content.MachineEntities {
 					emitter: this,
 					RegisteredSounds.IDs.ReinforcedFurnace.Burning,
 					ref burning,
-					ref servPlayingSound);
+					ref servPlayingBurningSound);
 			}
 
 			// Adjust the conversion rate
@@ -147,6 +144,25 @@ namespace TerraScience.Content.MachineEntities {
 					Netcode.SyncMachineInventorySlot(this, 0);
 
 					IItemOutputGeneratorMachine.AddRecipeOutputsToExportInventory(this, activeRecipe);
+
+					if (TileLoader.GetTile(Main.tile[Position.X, Position.Y].TileType) is ReinforcedFurnace furnace) {
+						ISoundEmittingMachine.StopSound(
+							emitter: this,
+							RegisteredSounds.IDs.ReinforcedFurnace.Output,
+							ref output,
+							ref servPlayingOutputSound);
+
+						furnace.GetMachineDimensions(out uint width, out uint height);
+						Vector2 outputSoundPos = Position.ToWorldCoordinates(width * 8, height * 8);
+
+						ISoundEmittingMachine.EmitSound(
+							emitter: this,
+							RegisteredSounds.Styles.ReinforcedFurnace.Output,
+							NetcodeSoundMode.SendVolume,
+							ref output,
+							ref servPlayingOutputSound,
+							outputSoundPos);
+					}
 				}
 			}
 
@@ -234,7 +250,7 @@ namespace TerraScience.Content.MachineEntities {
 		public override void LoadData(TagCompound tag) {
 			base.LoadData(tag);
 
-			CurrentTemperature = tag.GetFloat("temp");
+			CurrentTemperature = tag.GetDouble("temp");
 			if (tag.GetCompound("progress") is TagCompound progress)
 				Progress.LoadData(progress);
 			else
@@ -242,21 +258,27 @@ namespace TerraScience.Content.MachineEntities {
 		}
 
 		#region Implement ISoundEmittingMachine
-		private SlotId burning = SlotId.Invalid;
-		private bool servPlayingSound;
+		private SlotId burning = SlotId.Invalid, output = SlotId.Invalid;
+		private bool servPlayingBurningSound, servPlayingOutputSound;
 
 		public void OnSoundPlayingPacketReceived(in SlotId soundSlot, int id, int extraInformation) {
 			if (id == RegisteredSounds.IDs.ReinforcedFurnace.Burning)
 				burning = soundSlot;
+			else if (id == RegisteredSounds.IDs.ReinforcedFurnace.Output)
+				output = soundSlot;
 		}
 
 		public void OnSoundUpdatePacketReceived(int id, SoundStyle data, NetcodeSoundMode mode, Vector2? location, int extraInformation) {
-			if (id == RegisteredSounds.IDs.ReinforcedFurnace.Burning && SoundEngine.TryGetActiveSound(burning, out var activeSound)) {
-				if ((mode & NetcodeSoundMode.SendPosition) == NetcodeSoundMode.SendPosition)
-					activeSound.Position = location;
-				if ((mode & NetcodeSoundMode.SendVolume) == NetcodeSoundMode.SendVolume)
-					activeSound.Volume = data.Volume;
+			if (id == RegisteredSounds.IDs.ReinforcedFurnace.Burning) {
+				if (SoundEngine.TryGetActiveSound(burning, out var activeSound)) {
+					if ((mode & NetcodeSoundMode.SendPosition) == NetcodeSoundMode.SendPosition)
+						activeSound.Position = location;
+					if ((mode & NetcodeSoundMode.SendVolume) == NetcodeSoundMode.SendVolume)
+						activeSound.Volume = data.Volume;
+				}
 			}
+
+			// Output sound will not be updated
 		}
 
 		public void OnSoundStopPacketReceived(int id, int extraInformation) {
@@ -265,6 +287,11 @@ namespace TerraScience.Content.MachineEntities {
 					activeSound.Stop();
 
 				burning = SlotId.Invalid;
+			} else if (id == RegisteredSounds.IDs.ReinforcedFurnace.Output) {
+				if (SoundEngine.TryGetActiveSound(output, out var activeSound))
+					activeSound.Stop();
+
+				output = SlotId.Invalid;
 			}
 		}
 		#endregion

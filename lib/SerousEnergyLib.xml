@@ -1239,7 +1239,7 @@
             <param name="id">The registered sound ID for the sound to stop</param>
             <param name="extraInformation">Extra information sent by the sound packet</param>
         </member>
-        <member name="M:SerousEnergyLib.API.Machines.ISoundEmittingMachine.EmitSound``1(``0,Terraria.Audio.SoundStyle,SerousEnergyLib.API.Sounds.NetcodeSoundMode,ReLogic.Utilities.SlotId@,System.Boolean@,System.Nullable{Microsoft.Xna.Framework.Vector2},System.Int32)">
+        <member name="M:SerousEnergyLib.API.Machines.ISoundEmittingMachine.EmitSound``1(``0,Terraria.Audio.SoundStyle,SerousEnergyLib.API.Sounds.NetcodeSoundMode,ReLogic.Utilities.SlotId@,System.Boolean@,System.Nullable{Microsoft.Xna.Framework.Vector2},System.Int32,System.Boolean)">
             <summary>
             This method plays/updates a sound (when playing singleplayer) or sends the appropriate packets to clients (when playing multiplayer)
             </summary>
@@ -1250,6 +1250,7 @@
             <param name="serverPlayingFlag">The variable used to track if the sound is playing on the server</param>
             <param name="location">The location to play the sound at.  Defaults to <see langword="null"/>, which indicates a "directionless" sound</param>
             <param name="extraInformation">Extra information to sent to clients</param>
+            <param name="allowClientsideSoundMuting">Whether clients should be able to mute the sound while their game window is inactive</param>
         </member>
         <member name="M:SerousEnergyLib.API.Machines.ISoundEmittingMachine.StopSound``1(``0,System.Int32,ReLogic.Utilities.SlotId@,System.Boolean@,System.Int32)">
             <summary>
@@ -1670,7 +1671,7 @@
             This property serves no practical purpose and is just for aesthetics
             </summary>
         </member>
-        <member name="P:SerousEnergyLib.Items.BaseMachineItem.MachineTIle">
+        <member name="P:SerousEnergyLib.Items.BaseMachineItem.MachineTile">
             <summary>
             The tile ID of the machine to place
             </summary>
@@ -2042,7 +2043,7 @@
             </summary>
             <param name="location">The tile coordinates of the tile entity</param>
         </member>
-        <member name="M:SerousEnergyLib.Systems.Netcode.SendSoundToClients(Terraria.Audio.SoundStyle@,SerousEnergyLib.API.Sounds.NetcodeSoundMode,System.Nullable{Microsoft.Xna.Framework.Vector2})">
+        <member name="M:SerousEnergyLib.Systems.Netcode.SendSoundToClients(Terraria.Audio.SoundStyle@,SerousEnergyLib.API.Sounds.NetcodeSoundMode,System.Nullable{Microsoft.Xna.Framework.Vector2},System.Boolean)">
             <summary>
             Sends a packet from the server to all clients telling them to play a sound
             </summary>
@@ -2053,8 +2054,9 @@
             This argument is only used when <paramref name="mode"/> has <see cref="F:SerousEnergyLib.API.Sounds.NetcodeSoundMode.SendPosition"/> set.<br/>
             If that is not the case, this argument is ignored and the sound is treated as a "directionless" sound
             </param>
+            <param name="allowClientsideSoundMuting">Whether clients should be able to mute the sound while their game window is inactive</param>
         </member>
-        <member name="M:SerousEnergyLib.Systems.Netcode.SendSoundToClients``1(``0,Terraria.Audio.SoundStyle@,SerousEnergyLib.API.Sounds.NetcodeSoundMode,System.Nullable{Microsoft.Xna.Framework.Vector2},System.Int32)">
+        <member name="M:SerousEnergyLib.Systems.Netcode.SendSoundToClients``1(``0,Terraria.Audio.SoundStyle@,SerousEnergyLib.API.Sounds.NetcodeSoundMode,System.Nullable{Microsoft.Xna.Framework.Vector2},System.Int32,System.Boolean)">
             <summary>
             Sends a packet from the server to all clients telling them to play a sound
             </summary>
@@ -2067,6 +2069,7 @@
             If that is not the case, this argument is ignored and the sound is treated as a "directionless" sound
             </param>
             <param name="extraInformation">An optional argument for specifying any additional information that should be conveyed to clients</param>
+            <param name="allowClientsideSoundMuting">Whether clients should be able to mute the sound while their game window is inactive</param>
         </member>
         <member name="M:SerousEnergyLib.Systems.Netcode.SendSoundStopToClients``1(``0,System.Int32,System.Int32)">
             <summary>
@@ -2077,11 +2080,11 @@
             <param name="extraInformation">An optional argument for specifying any additional information that should be conveyed to clients</param>
             <exception cref="T:System.ArgumentException"/>
         </member>
-        <member name="M:SerousEnergyLib.Systems.Netcode.SendSoundUpdateToClients``1(``0,Terraria.Audio.SoundStyle,SerousEnergyLib.API.Sounds.NetcodeSoundMode,System.Nullable{Microsoft.Xna.Framework.Vector2},System.Int32)">
+        <member name="M:SerousEnergyLib.Systems.Netcode.SendSoundUpdateToClients``1(``0,Terraria.Audio.SoundStyle,SerousEnergyLib.API.Sounds.NetcodeSoundMode,System.Nullable{Microsoft.Xna.Framework.Vector2},System.Int32,System.Boolean)">
             <summary>
             Sends a packet from the server to all clients telling them to update a sound
             </summary>
-            <inheritdoc cref="M:SerousEnergyLib.Systems.Netcode.SendSoundToClients``1(``0,Terraria.Audio.SoundStyle@,SerousEnergyLib.API.Sounds.NetcodeSoundMode,System.Nullable{Microsoft.Xna.Framework.Vector2},System.Int32)"/>
+            <inheritdoc cref="M:SerousEnergyLib.Systems.Netcode.SendSoundToClients``1(``0,Terraria.Audio.SoundStyle@,SerousEnergyLib.API.Sounds.NetcodeSoundMode,System.Nullable{Microsoft.Xna.Framework.Vector2},System.Int32,System.Boolean)"/>
         </member>
         <member name="M:SerousEnergyLib.Systems.Netcode.SendReducedData(SerousEnergyLib.API.Machines.IReducedNetcodeMachine)">
             <summary>

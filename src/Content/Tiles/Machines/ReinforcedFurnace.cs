@@ -43,7 +43,7 @@ namespace TerraScience.Content.Tiles.Machines {
 		public override MachineWorkbenchRegistry GetRegistry() {
 			return new(Type,
 				static tick => new MachineRegistryDisplayAnimationState("TerraScience/Assets/Machines/ReinforcedFurnace/Example_tile", 1, 1, 0, 0),
-				static tick => new MachineRegistryDisplayAnimationState("TerraScience/Assets/Machines/ReinforcedFurnace/Example_anim", 1, 4, 0, tick % 24 / 6));
+				static tick => new MachineRegistryDisplayAnimationState("TerraScience/Assets/Machines/ReinforcedFurnace/Example_anim", 1, 4, 0, tick % 60 / 15));
 		}
 
 		public override void ModifyLight(int i, int j, ref float r, ref float g, ref float b) {

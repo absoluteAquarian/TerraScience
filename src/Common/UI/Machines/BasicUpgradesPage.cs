@@ -14,9 +14,13 @@ namespace TerraScience.Common.UI.Machines {
 
 		public override void OnInitialize() {
 			itemZone = new MachineUpgradeItemSlotZone(context: ItemSlot.Context.InventoryItem);
-			
+			itemZone.Left.Set(20, 0f);
+			itemZone.Top.Set(20, 0f);
+
 			foreach (var upgradeSlot in itemZone.Slots)
 				upgradeSlot.OnRemoveItem += (machine, slot, oldItem) => RecalculateParent();
+
+			Append(itemZone);
 		}
 
 		public void Refresh(int slotCount, int maxSlotsPerRow) {

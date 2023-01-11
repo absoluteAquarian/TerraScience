@@ -1,4 +1,5 @@
 ﻿using SerousEnergyLib.API;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Terraria;
@@ -36,6 +37,39 @@ namespace TerraScience.Common.Systems {
 
 		public override void Unload() {
 			Sets.ReinforcedFurnace.all = null;
+		}
+
+		public static Item GetIngredientItem(Recipe recipe, int index) {
+			if (recipe is null || index < 0 || index >= recipe.requiredItem.Count)
+				return new Item();
+
+			Item item = recipe.requiredItem[index].Clone();
+			if (recipe.HasRecipeGroup(RecipeGroupID.Wood) && item.type == ItemID.Wood)
+				item.SetNameOverride(Language.GetText("LegacyMisc.37").Value + " " + Lang.GetItemNameValue(ItemID.Wood));
+			if (recipe.HasRecipeGroup(RecipeGroupID.Sand) && item.type == ItemID.SandBlock)
+				item.SetNameOverride(Language.GetText("LegacyMisc.37").Value + " " + Lang.GetItemNameValue(ItemID.SandBlock));
+			if (recipe.HasRecipeGroup(RecipeGroupID.IronBar) && item.type == ItemID.IronBar)
+				item.SetNameOverride(Language.GetText("LegacyMisc.37").Value + " " + Lang.GetItemNameValue(ItemID.IronBar));
+			if (recipe.HasRecipeGroup(RecipeGroupID.Fragment) && item.type == ItemID.FragmentSolar)
+				item.SetNameOverride(Language.GetText("LegacyMisc.37").Value + " " + Language.GetText("LegacyMisc.51").Value);
+			if (recipe.HasRecipeGroup(RecipeGroupID.PressurePlate) && item.type == ItemID.GrayPressurePlate)
+				item.SetNameOverride(Language.GetText("LegacyMisc.37").Value + " " + Language.GetText("LegacyMisc.38").Value);
+			if (ProcessGroupsForText(recipe, item.type, out string nameOverride))
+				item.SetNameOverride(nameOverride);
+
+			return item;
+		}
+
+		internal static bool ProcessGroupsForText(Recipe recipe, int type, out string theText) {
+			foreach (int num in recipe.acceptedGroups) {
+				if (RecipeGroup.recipeGroups[num].ContainsItem(type)) {
+					theText = RecipeGroup.recipeGroups[num].GetText();
+					return true;
+				}
+			}
+
+			theText = "";
+			return false;
 		}
 
 		public static class Sets {

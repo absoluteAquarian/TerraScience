@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Microsoft.Win32;
+using Microsoft.Xna.Framework;
 using SerousCommonLib.UI;
 using SerousEnergyLib.API.CrossMod;
 using SerousEnergyLib.API.Machines;
@@ -15,6 +16,7 @@ using Terraria.GameContent.UI.Elements;
 using Terraria.Localization;
 using Terraria.Map;
 using Terraria.ModLoader;
+using Terraria.ModLoader.UI;
 using Terraria.UI;
 using TerraScience.Common.Systems;
 using TerraScience.Common.UI.Elements;
@@ -52,8 +54,7 @@ namespace TerraScience.Common.UI.Machines {
 				IInventoryMachine.DropItemInInventory(machine, 0, quickSpawn: true);
 
 			if (GetPage<MainPage>("Workbench") is MainPage page) {
-				page.SetDisplay(ref page.leftDisplay, null, left: true);
-				page.SetDisplay(ref page.rightDisplay, null, left: false);
+				page.ClearDisplay();
 
 				page.leftDisplay = null;
 				page.rightDisplay = null;
@@ -65,11 +66,12 @@ namespace TerraScience.Common.UI.Machines {
 		public class MainPage : BaseMachineUIPage {
 			public MachineInventoryItemSlot machineSlot;
 			
-			private List<EnhancedItemSlot> recipeIngredientSlots;
+			private MachineWorkbenchRecipeIngredientItemSlotZone recipeIngredientSlots;
 			private UIText recipeIngredients, recipeTiles, recipeConditions;
 			private Recipe lastKnownRecipe;
 
 			public MachineWorkbenchDisplay leftDisplay, rightDisplay;
+			private MachineWorkbenchRegistry activeRegistry;
 
 			public UIPanel panelDisplays, panelStats, panelDescription, panelRecipe;
 			public UIText stats, description;
@@ -77,14 +79,15 @@ namespace TerraScience.Common.UI.Machines {
 			public NewUIList list;
 			private NewUIScrollbar scroll;
 
-			private const string DefaultStatText = "Place a machine item in the slot to the left" +
-				"\nto see statistics for its machine";
+			private const string DefaultStatText = "Place a machine item in the slot to see statistics for its machine";
 
 			private const string DefaultDescriptionText = "The description for the machine would go here";
 
 			private const float MaxDisplaySize = 80f;
 
-			public MainPage(BaseMachineUI parent) : base(parent, "Workbench") { }
+			public MainPage(BaseMachineUI parent) : base(parent, "Workbench") {
+				OnPageSelected += CheckItem;
+			}
 
 			public override void OnInitialize() {
 				base.OnInitialize();
@@ -122,38 +125,50 @@ namespace TerraScience.Common.UI.Machines {
 				// Initialize the text elements
 				stats = new UIText(DefaultStatText) {
 					IsWrapped = true,
-					Width = StyleDimension.Fill
+					Width = StyleDimension.Fill,
+					WrappedTextBottomPadding = 10,
+					TextOriginX = 0
 				};
 
 				description = new UIText(DefaultDescriptionText) {
 					IsWrapped = true,
-					Width = StyleDimension.Fill
+					Width = StyleDimension.Fill,
+					WrappedTextBottomPadding = 10,
+					TextOriginX = 0
 				};
 
-				recipeIngredients = new UIText("");
+				recipeIngredients = new UIText("") {
+					IsWrapped = true,
+					Width = StyleDimension.Fill,
+					WrappedTextBottomPadding = 0,
+					TextOriginX = 0
+				};
 				recipeIngredients.Left.Set(8, 0);
 
 				recipeTiles = new UIText("") {
 					IsWrapped = true,
-					Width = StyleDimension.Fill
+					Width = StyleDimension.Fill,
+					WrappedTextBottomPadding = 0,
+					TextOriginX = 0
 				};
 				recipeTiles.Left.Set(8, 0);
 
 				recipeConditions = new UIText("") {
 					IsWrapped = true,
-					Width = StyleDimension.Fill
+					Width = StyleDimension.Fill,
+					WrappedTextBottomPadding = 0,
+					TextOriginX = 0
 				};
 				recipeConditions.Left.Set(8, 0);
 
 				// Initialize the panels that align the elements
 				panelDisplays = new UIPanel();
-				panelDisplays.Width.Set(-40, 1f);
+				panelDisplays.Width.Set(180, 0f);
 				panelDisplays.Height.Set(MaxDisplaySize, 0f);
 				panelDisplays.Left.Set(20, 0f);
 
 				panelStats = new UIPanel();
 				panelStats.Width.Set(-80, 1f);
-				panelStats.Height.Set(160, 0);
 				panelStats.Left.Set(20, 0);
 
 				panelStats.Append(stats);
@@ -161,7 +176,6 @@ namespace TerraScience.Common.UI.Machines {
 
 				panelDescription = new UIPanel();
 				panelDescription.Width.Set(-80, 1f);
-				panelDescription.Height.Set(170, 0);
 				panelDescription.Left.Set(20, 0);
 
 				panelDescription.Append(description);
@@ -170,15 +184,30 @@ namespace TerraScience.Common.UI.Machines {
 				panelRecipe = new UIPanel();
 				panelRecipe.Width.Set(-80, 1f);
 				panelRecipe.Left.Set(20, 0);
+
+				panelRecipe.Append(recipeIngredients);
+				panelRecipe.Append(recipeIngredientSlots);
+				panelRecipe.Append(recipeTiles);
+				panelRecipe.Append(recipeConditions);
 			}
 
 			private bool resetRecipePanel;
 			private Recipe pendingRecipe;
 
+			private void CheckItem() {
+				if (UIHandler.ActiveMachine is MachineWorkbenchEntity machine)
+					UpdateItemDisplay(machine, null, machine.Inventory[0]);
+			}
+
 			internal void UpdateItemDisplay(IInventoryMachine machine, Item oldItem, Item newItem) {
-				if (newItem.IsAir || newItem.ModItem is not BaseMachineItem) {
+				if (newItem.IsAir || newItem.ModItem is not BaseMachineItem machineItem) {
 					stats.SetText(DefaultStatText);
+					panelStats.Height.Set(stats.MinHeight.Pixels + 8, 0f);
+					panelStats.Recalculate();
+					
 					description.SetText(DefaultDescriptionText);
+					panelDescription.Height.Set(description.MinHeight.Pixels + 8, 0f);
+					panelDescription.Recalculate();
 
 					pendingRecipe = null;
 
@@ -186,7 +215,7 @@ namespace TerraScience.Common.UI.Machines {
 					return;
 				}
 
-				ModTile tile = TileLoader.GetTile(machine.MachineTile);
+				ModTile tile = TileLoader.GetTile(machineItem.MachineTile);
 				if (tile is not IMachineTile machineTile)
 					throw new InvalidOperationException("InventoryMachine.MachineTile did not refer to an IMachineTile instance");
 
@@ -195,26 +224,23 @@ namespace TerraScience.Common.UI.Machines {
 
 				// Update the stats
 				machineTile.GetMachineDimensions(out uint width, out uint height);
-				var registry = registryTile.GetRegistry();
+				activeRegistry = registryTile.GetRegistry();
 
 				stats.SetText($"Machine: {Language.GetTextValue($"Mods.{tile.Mod.Name}.MapObject.{tile.Name}")}" +
 					$"\nSize: {width} x {height} blocks" +
-					$"\n{string.Join("\n", registry.GetDescriptorLines())}");
+					$"\n{string.Join("\n", activeRegistry.GetDescriptorLines())}");
+
+				panelStats.Height.Set(stats.MinHeight.Pixels + 8, 0f);
+
+				panelStats.Recalculate();
 
 				description.SetText(Language.GetTextValue($"Mods.{tile.Mod.Name}.MachineText.{tile.Name}.Description"));
 
-				var left = registry.GetFirstDisplay(Main.GameUpdateCount);
-				var right = registry.GetSecondDisplay?.Invoke(Main.GameUpdateCount);
+				panelDescription.Height.Set(description.MinHeight.Pixels + 8, 0f);
 
-				// If the left display is null, but the right one isn't, make the right display be the left display
-				if (left is null && right is not null) {
-					left = right;
-					right = null;
-				}
+				panelDescription.Recalculate();
 
-				// Set the displays
-				SetDisplay(ref leftDisplay, left, left: true);
-				SetDisplay(ref rightDisplay, right, left: false);
+				UpdateDisplays();
 
 				resetRecipePanel = true;
 			}
@@ -225,48 +251,33 @@ namespace TerraScience.Common.UI.Machines {
 
 				lastKnownRecipe = recipe;
 
-				foreach (var element in recipeIngredientSlots)
-					element?.Remove();
-
-				recipeIngredientSlots.Clear();
-
 				if (recipe is null) {
 					list.Remove(panelRecipe);
+					recipeIngredientSlots.InitializeSlots(null, 0);
 					return;
 				}
 
-				const int maxColumns = 21;
-				int numSlot = 0;
-				int totalSlots = 1;
+				const int maxColumns = 11;
 
 				float top = 0;
 
-				int slotWidth = TextureAssets.InventoryBack9.Value.Width + 5;
-				int slotHeight = TextureAssets.InventoryBack9.Value.Height + 5;
-
 				// Add the ingredient slots
-				if (recipe.requiredItem.Count > 0) {
+				if (recipe.requiredItem.Count > 0 || recipe.acceptedGroups.Count > 0) {
 					recipeIngredients.SetText(Language.GetTextValue("Mods.TerraScience.MachineText.MachineWorkbench.RecipeText.Ingredients", ""));
 
-					for (int i = 0; i < recipe.requiredItem.Count; i++) {
-						EnhancedItemSlot ingredient = new EnhancedItemSlot(totalSlots, context: ItemSlot.Context.BankItem) {
-							IgnoreClicks = true
-						};
-						ingredient.Left.Set(10 + numSlot * slotWidth, 0f);
-						ingredient.Top.Set(top, 0f);
+					top += recipeIngredients.MinHeight.Pixels + 4;
 
-						if (++numSlot >= maxColumns) {
-							top += slotHeight;
-							numSlot = 0;
-						}
+					recipeIngredientSlots.Top.Set(top, 0f);
+					recipeIngredientSlots.InitializeSlots(recipe, maxColumns);
 
-						recipeIngredientSlots.Add(ingredient);
-						panelRecipe.Append(ingredient);
-					}
-				} else
+					top += recipeIngredientSlots.Height.Pixels + 8;
+				} else {
 					recipeIngredients.SetText(Language.GetTextValue("Mods.TerraScience.MachineText.MachineWorkbench.RecipeText.Ingredients", Language.GetTextValue("LegacyInterface.23")));
 
-				top += recipeIngredients.MinHeight.Pixels + 8;
+					recipeIngredientSlots.Remove();
+
+					top += recipeIngredients.MinHeight.Pixels + 8;
+				}
 
 				static void AddText(StringBuilder sb, string text) {
 					if (sb.Length > 0)
@@ -304,7 +315,7 @@ namespace TerraScience.Common.UI.Machines {
 				recipeConditions.SetText(Language.GetTextValue("Mods.TerraScience.MachineText.MachineWorkbench.RecipeText.Conditions", text));
 				recipeConditions.Top.Set(top, 0f);
 
-				top += recipeConditions.MinHeight.Pixels + 8;
+				top += recipeConditions.MinHeight.Pixels;
 
 				panelRecipe.Height.Set(top + 10, 0f);
 				panelRecipe.Recalculate();
@@ -332,13 +343,17 @@ namespace TerraScience.Common.UI.Machines {
 
 				// If there's a machine in the slot and it has multiple recipes, choose a random recipe that creates it every 3 seconds
 				// Otherwise, display the one recipe it has or nothing if it has no recipe
-				if (UIHandler.ActiveMachine is not MachineWorkbenchEntity || machineSlot.StoredItem.IsAir || machineSlot.StoredItem.ModItem is not BaseMachineItem item) {
+				if (UIHandler.ActiveMachine is not MachineWorkbenchEntity || machineSlot.StoredItem.IsAir || machineSlot.StoredItem.ModItem is not BaseMachineItem item || activeRegistry is null) {
 					SetDisplay(ref leftDisplay, null, left: true);
 					SetDisplay(ref rightDisplay, null, left: false);
 					InitRecipeSlots(null);
 					list.Remove(panelDisplays);
+					activeRegistry = null;
 					return;
 				}
+
+				if (activeRegistry is not null)
+					UpdateDisplays();
 
 				if (RecipeCache.MachineItemToRecipes.TryGetValue(item.Type, out var recipes) || (item is ICraftableMachineItem alt && RecipeCache.MachineItemToRecipes.TryGetValue(alt.AlternativeItemType, out recipes))) {
 					if (recipes.Length == 1) {
@@ -373,7 +388,38 @@ namespace TerraScience.Common.UI.Machines {
 				return recipe;
 			}
 
-			internal void SetDisplay(ref MachineWorkbenchDisplay display, MachineRegistryDisplayAnimationState state, bool left) {
+			internal void ClearDisplay() {
+				activeRegistry = null;
+				SetDisplay(ref leftDisplay, null, left: true);
+				SetDisplay(ref rightDisplay, null, left: false);
+			}
+
+			private void UpdateDisplays() {
+				var left = activeRegistry.GetFirstDisplay(Main.GameUpdateCount);
+				var right = activeRegistry.GetSecondDisplay?.Invoke(Main.GameUpdateCount);
+
+				// If the left display is null, but the right one isn't, make the right display be the left display
+				if (left is null && right is not null) {
+					left = right;
+					right = null;
+				}
+
+				// Set the displays
+				SetDisplay(ref leftDisplay, left, left: true);
+				SetDisplay(ref rightDisplay, right, left: false);
+
+				rightDisplay?.Left.Set(leftDisplay.Width.Pixels + 10, 0f);
+
+				float width = leftDisplay.Left.Pixels + leftDisplay.Width.Pixels + (rightDisplay?.Parent is null ? 0 : rightDisplay.Width.Pixels + 10);
+				panelDisplays.Width.Set(width + 20, 0f);
+
+				float height = rightDisplay?.PaddingRight is null ? leftDisplay.Height.Pixels : Math.Max(leftDisplay.Height.Pixels, rightDisplay.Height.Pixels);
+				panelDisplays.Height.Set(height + 20, 0f);
+
+				panelDisplays.Recalculate();
+			}
+
+			private void SetDisplay(ref MachineWorkbenchDisplay display, MachineRegistryDisplayAnimationState state, bool left) {
 				if (state is null) {
 					display?.Remove();
 					return;
@@ -386,6 +432,9 @@ namespace TerraScience.Common.UI.Machines {
 
 				int max = Math.Max(width, height);
 
+				float entryWidth = Math.Min(max, MaxDisplaySize);
+				float entryHeight = Math.Min(max, MaxDisplaySize);
+
 				float scale = max > MaxDisplaySize ? MaxDisplaySize / max : 1f;
 
 				if (create)
@@ -393,10 +442,10 @@ namespace TerraScience.Common.UI.Machines {
 				else
 					display.SetImage(state.asset, state.frame);
 
-				display.Left.Set(left ? 0 : MaxDisplaySize + 20, 0f);
+				display.Left.Set(0, 0f);
 				display.Top.Set(0, 0f);
-				display.Width.Set(MaxDisplaySize, 0f);
-				display.Height.Set(MaxDisplaySize, 0f);
+				display.Width.Set(entryWidth, 0f);
+				display.Height.Set(entryHeight, 0f);
 				display.Scale = scale;
 
 				if (create)

@@ -6,14 +6,14 @@ namespace TerraScience.Content.Sounds {
 	public class RegisteredSounds : ModSystem {
 		public override void Load() {
 			Styles.ReinforcedFurnace.Burning = new SoundStyle("TerraScience/Assets/Sounds/FX/CampfireBurning") with {
-				Volume = 0.23f,
+				Volume = 0.08f,
 				SoundLimitBehavior = SoundLimitBehavior.IgnoreNew,
 				IsLooped = true
 			};
 			IDs.ReinforcedFurnace.Burning = MachineSounds.RegisterSound(Styles.ReinforcedFurnace.Burning);
 
-			Styles.ReinforcedFurnace.Output = new SoundStyle("TerraScience/Assets/Sounds/FX/Fire Arrow") with {
-				Volume = 0.35f,
+			Styles.ReinforcedFurnace.Output = new SoundStyle("TerraScience/Assets/Sounds/FX/Flame Arrow") with {
+				Volume = 0.10f,
 				SoundLimitBehavior = SoundLimitBehavior.IgnoreNew
 			};
 			IDs.ReinforcedFurnace.Output = MachineSounds.RegisterSound(Styles.ReinforcedFurnace.Output);
