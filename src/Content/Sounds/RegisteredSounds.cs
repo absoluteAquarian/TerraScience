@@ -5,7 +5,7 @@ using Terraria.ModLoader;
 namespace TerraScience.Content.Sounds {
 	public class RegisteredSounds : ModSystem {
 		public override void Load() {
-			Styles.ReinforcedFurnace.Burning = new SoundStyle("TerraScience/Assets/Sounds/FX/CampFireBurning") with {
+			Styles.ReinforcedFurnace.Burning = new SoundStyle("TerraScience/Assets/Sounds/FX/CampfireBurning") with {
 				Volume = 0.23f,
 				SoundLimitBehavior = SoundLimitBehavior.IgnoreNew
 			};
