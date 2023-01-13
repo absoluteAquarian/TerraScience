@@ -13,7 +13,7 @@ namespace TerraScience.Content.Upgrades.InventoryMachines {
 		public override int GetItemOutputGeneratorExtraStack(int upgradeStack, int originalStack) {
 			// 5% multiplicative chance to add at most 10% of the output stack, with a minimum of 1 extra item
 			float threshold = 0.95f;
-			for (int i = 0; i < upgradeStack; i++)
+			for (int i = 1; i < upgradeStack; i++)
 				threshold *= 0.95f;
 
 			if (Main.rand.NextFloat() > 1f - threshold)

@@ -1862,6 +1862,13 @@
             A helper class containing methods used by the merging logic for <see cref="T:SerousEnergyLib.Tiles.BaseNetworkTile"/> tiles
             </summary>
         </member>
+        <member name="M:SerousEnergyLib.NetworkHelper.GetNetColor(System.Double,System.Double)">
+            <summary>
+            Retrieves a color indicator string for use with chat tags
+            </summary>
+            <param name="current">The current capacity of the network</param>
+            <param name="netChange">The change in capacity for the network</param>
+        </member>
         <member name="T:SerousEnergyLib.Pathfinding.AStar`1">
             <summary>
             Performs an A* pathfinding algorithm
@@ -2449,6 +2456,12 @@
             </summary>
             <param name="storage">The tile location of the adjacent machine to remove</param>
         </member>
+        <member name="M:SerousEnergyLib.Systems.Networks.FluidNetwork.HasAdjacentFluidStorage(Terraria.DataStructures.Point16)">
+            <summary>
+            Returns whether the tile at <paramref name="storage"/> is considered an adjacent fluid storage to this network
+            </summary>
+            <param name="storage">The tile location of the adjacent tile</param>
+        </member>
         <member name="T:SerousEnergyLib.Systems.Networks.ItemNetwork">
             <summary>
             An object representing a <see cref="T:SerousEnergyLib.Systems.NetworkInstance"/> for item tiles
@@ -2472,6 +2485,12 @@
             Removes an adjacent <see cref="T:SerousEnergyLib.API.Machines.IInventoryMachine"/> machine or <see cref="T:Terraria.Chest"/> entry location
             </summary>
             <param name="inventory">The tile location of the adjacent machine or chest to remove</param>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.Networks.ItemNetwork.HasAdjacentInventory(Terraria.DataStructures.Point16)">
+            <summary>
+            Returns whether the tile at <paramref name="inventory"/> is considered an adjacent inventory to this network
+            </summary>
+            <param name="inventory">The tile location of the adjacent tile</param>
         </member>
         <member name="F:SerousEnergyLib.Systems.Networks.ItemNetwork.ignoredValidTargets">
             <summary>
@@ -2521,6 +2540,12 @@
             Removes an adjacent <see cref="T:SerousEnergyLib.API.Machines.IPoweredMachine"/> machine entry location
             </summary>
             <param name="storage">The tile location of the adjacent machine to remove</param>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.Networks.PowerNetwork.HasAdjacentFluxStorage(Terraria.DataStructures.Point16)">
+            <summary>
+            Returns whether the tile at <paramref name="storage"/> is considered an adjacent flux storage to this network
+            </summary>
+            <param name="storage">The tile location of the adjacent tile</param>
         </member>
         <member name="T:SerousEnergyLib.Systems.UIHandler">
             <summary>
