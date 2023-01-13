@@ -166,6 +166,7 @@ namespace TerraScience.Common.UI.Machines {
 
 				panelStats = new UIPanel();
 				panelStats.Width.Set(-80, 1f);
+				panelStats.Height.Set(stats.MinHeight.Pixels + 8, 0f);
 				panelStats.Left.Set(20, 0);
 
 				panelStats.Append(stats);
@@ -173,6 +174,7 @@ namespace TerraScience.Common.UI.Machines {
 
 				panelDescription = new UIPanel();
 				panelDescription.Width.Set(-80, 1f);
+				panelDescription.Height.Set(description.MinHeight.Pixels + 8, 0f);
 				panelDescription.Left.Set(20, 0);
 
 				panelDescription.Append(description);
@@ -180,6 +182,7 @@ namespace TerraScience.Common.UI.Machines {
 
 				panelRecipe = new UIPanel();
 				panelRecipe.Width.Set(-80, 1f);
+				panelRecipe.Height.Set(200, 1f);  // Large value to ensure that text wrapping works
 				panelRecipe.Left.Set(20, 0);
 
 				panelRecipe.Append(recipeIngredients);
@@ -253,6 +256,9 @@ namespace TerraScience.Common.UI.Machines {
 					recipeIngredientSlots.InitializeSlots(null, 0);
 					return;
 				}
+
+				// Ensure that the width/height are properly set...
+				panelRecipe.Recalculate();
 
 				const int maxColumns = 11;
 
