@@ -4,9 +4,10 @@ using SerousEnergyLib.Tiles;
 using Terraria.DataStructures;
 using Terraria.ModLoader;
 using TerraScience.Common;
+using TerraScience.Content.Items.Networks.Fluids;
 
 namespace TerraScience.Content.Tiles.Networks.Fluids {
-	public class BasicFluidTransportTile : BaseNetworkEntryTile, IFluidTransportTile {
+	public class BasicFluidTransportTile : BaseNetworkEntryTile<BasicFluidTransportItem>, IFluidTransportTile {
 		public override NetworkType NetworkTypeToPlace => NetworkType.Items;
 
 		public virtual double MaxCapacity => 0.25;  // 0.25 Liters

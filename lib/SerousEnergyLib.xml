@@ -246,6 +246,21 @@
             A class containing a collection of extension methods
             </summary>
         </member>
+        <member name="M:SerousEnergyLib.API.Extensions.Populate``1(``0[],``0)">
+            <summary>
+            Fills <paramref name="array"/> with <paramref name="defaultValue"/>, then returns it
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.API.Extensions.Populate``1(``0[],System.Func{``0})">
+            <summary>
+            Fills <paramref name="array"/> with the value returned by <paramref name="defaultValue"/>, then returns it
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.API.Extensions.Populate``1(``0[],System.Func{System.Int32,``0})">
+            <summary>
+            Fills <paramref name="array"/> with the value returned by <paramref name="defaultValue"/>, then returns it
+            </summary>
+        </member>
         <member name="M:SerousEnergyLib.API.Extensions.ReadPoint16(System.IO.BinaryReader)">
             <summary>
             Reads two <see langword="short"/> values from <paramref name="reader"/> and advances the current position of the stream by four bytes
@@ -288,6 +303,15 @@
             <param name="writer"></param>
             <param name="flux">The <see cref="T:SerousEnergyLib.API.Energy.TerraFlux"/> value to write</param>
         </member>
+        <member name="M:SerousEnergyLib.API.Extensions.IsChestAt(Terraria.Chest,System.Int32,System.Int32)">
+            <summary>
+            Performs a better check for locating a chest than <see cref="M:Terraria.Chest.FindChestByGuessing(System.Int32,System.Int32)"/>
+            </summary>
+            <param name="chest"></param>
+            <param name="x"></param>
+            <param name="y"></param>
+            <returns>Whether any sub-tile of <paramref name="chest"/> was located at (<paramref name="x"/>, <paramref name="y"/>)</returns>
+        </member>
         <member name="M:SerousEnergyLib.API.Extensions.CanImportItem(Terraria.Chest,Terraria.Item,System.Int32@)">
             <summary>
             Checks if <paramref name="chest"/> can have <paramref name="item"/> imported into it
@@ -296,6 +320,15 @@
             <param name="item">The item to import</param>
             <param name="stackImported">The quantity of <paramref name="item"/> that was imported</param>
             <returns>Whether the item could be imported</returns>
+        </member>
+        <member name="M:SerousEnergyLib.API.Extensions.CheckItemImportPrediction(Terraria.Chest,SerousEnergyLib.Systems.Networks.ItemNetwork,Terraria.Item,System.Int32@)">
+            <summary>
+            Simulates importing <paramref name="item"/> and the items in <paramref name="network"/> into <paramref name="chest"/> and returns <see langword="true"/> if the import for <paramref name="item"/> would be successful
+            </summary>
+            <param name="chest">The chest instance</param>
+            <param name="network">The item network</param>
+            <param name="item">The item to import</param>
+            <param name="stackImported">The quantity of <paramref name="item"/> that was imported into <paramref name="chest"/></param>
         </member>
         <member name="M:SerousEnergyLib.API.Extensions.ImportItem(Terraria.Chest,System.Int32,Terraria.Item)">
             <summary>
@@ -308,7 +341,7 @@
             </param>
             <param name="item">The item to import</param>
         </member>
-        <member name="M:SerousEnergyLib.API.Extensions.ExtractItems(Terraria.Chest,System.Int32,SerousEnergyLib.Systems.Networks.ItemNetwork,System.Int32@,System.Boolean)">
+        <member name="M:SerousEnergyLib.API.Extensions.ExtractItems(Terraria.Chest,System.Int32,SerousEnergyLib.Systems.Networks.ItemNetwork,Terraria.DataStructures.Point16,System.Int32@,System.Boolean)">
             <summary>
             Extracts items from <paramref name="chest"/> into <paramref name="network"/>
             </summary>
@@ -318,6 +351,7 @@
             This parameter is required for netcode to properly send updates of the items in <paramref name="chest"/>
             </param>
             <param name="network">The item network to import the items into</param>
+            <param name="inventoryTile">The sub-tile that the extraction is performed from</param>
             <param name="extractCount">A counter for how many more items can be extracted from <paramref name="chest"/></param>
             <param name="simulation">If <see langword="true"/>, items will not be removed from <paramref name="chest"/></param>
             <returns>A list of extraction results for use in creating <see cref="T:SerousEnergyLib.Pathfinding.Objects.PipedItem"/> objects</returns>
@@ -483,6 +517,38 @@
             Gets the display name for this fluid ID
             </summary>
         </member>
+        <member name="T:SerousEnergyLib.API.Helpers.ChestFinder">
+            <summary>
+            A helper class for finding chests
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.API.Helpers.ChestFinder.FindByGuessingImproved(System.Int32,System.Int32)">
+            <summary>
+            <see cref="M:Terraria.Chest.FindChestByGuessing(System.Int32,System.Int32)"/> fails when <paramref name="x"/> and <paramref name="y"/> refer to any sub-tile in a chest that isn't the top-left subtile.<br/>
+            This method performs a correct "guessing" algorithm which accounts for all corners
+            </summary>
+            <param name="x">The tile X-coordinate</param>
+            <param name="y">The tile Y-coordinate</param>
+            <returns>The index of the chest in <see cref="F:Terraria.Main.chest"/>, or <c>-1</c> if no chest was found</returns>
+        </member>
+        <member name="M:SerousEnergyLib.API.Helpers.ChestFinder.FindChestAtCenterOrCardinalTiles(System.Int32,System.Int32,Terraria.DataStructures.Point16@)">
+            <summary>
+            Performs a similar algorithm as <see cref="M:SerousEnergyLib.API.Helpers.ChestFinder.FindByGuessingImproved(System.Int32,System.Int32)"/> to find a chest at location (<paramref name="centerX"/>, <paramref name="centerY"/>) or its adjacent cardinal tiles
+            </summary>
+            <param name="centerX">The tile X-coordinate</param>
+            <param name="centerY">The tile Y-coordinate</param>
+            <param name="tile">The tile coordinates that the chest was found at, or <see cref="F:Terraria.DataStructures.Point16.NegativeOne"/> if no chest was found</param>
+            <returns>The index of the chest in <see cref="F:Terraria.Main.chest"/>, or <c>-1</c> if no chest was found</returns>
+        </member>
+        <member name="M:SerousEnergyLib.API.Helpers.ChestFinder.FindChestAtCardinalTiles(System.Int32,System.Int32,Terraria.DataStructures.Point16@)">
+            <summary>
+            Performs a similar algorithm as <see cref="M:SerousEnergyLib.API.Helpers.ChestFinder.FindByGuessingImproved(System.Int32,System.Int32)"/> to find a chest at the adjacent cardinal tiles for location (<paramref name="centerX"/>, <paramref name="centerY"/>)
+            </summary>
+            <param name="centerX">The tile X-coordinate</param>
+            <param name="centerY">The tile Y-coordinate</param>
+            <param name="tile">The tile coordinates that the chest was found at, or <see cref="F:Terraria.DataStructures.Point16.NegativeOne"/> if no chest was found</param>
+            <returns>The index of the chest in <see cref="F:Terraria.Main.chest"/>, or <c>-1</c> if no chest was found</returns>
+        </member>
         <member name="T:SerousEnergyLib.API.InventoryExtractionResult">
             <summary>
             A structure representing the extraction of an item from an inventory
@@ -496,6 +562,21 @@
         <member name="F:SerousEnergyLib.API.InventoryExtractionResult.target">
             <summary>
             The tile coordinates of the inventory that this item will pathfind to
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.API.InventoryExtractionResult.source">
+            <summary>
+            The tile coordinates of the inventory that this item will pathfind from
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.API.InventoryExtractionResult.sourceSlot">
+            <summary>
+            The index in the source inventory that this item was extracted from
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.API.InventoryExtractionResult.UndoExtraction">
+            <summary>
+            Forces this extraction result back into the inventory that it originated from
             </summary>
         </member>
         <member name="T:SerousEnergyLib.API.MachineRecipe">
@@ -854,6 +935,15 @@
             <param name="import">The item to be imported</param>
             <param name="stackImported">How many items would be imported should the import be successful</param>
         </member>
+        <member name="M:SerousEnergyLib.API.Machines.IInventoryMachine.CheckItemImportPrediction(SerousEnergyLib.API.Machines.IInventoryMachine,SerousEnergyLib.Systems.Networks.ItemNetwork,Terraria.Item,System.Int32@)">
+            <summary>
+            Simulates importing <paramref name="item"/> and the items in <paramref name="network"/> into <paramref name="machine"/> and returns <see langword="true"/> if the import for <paramref name="item"/> would be successful
+            </summary>
+            <param name="machine">The machine instance</param>
+            <param name="network">The item network</param>
+            <param name="item">The item to import</param>
+            <param name="stackImported">The quantity of <paramref name="item"/> that was imported into <paramref name="machine"/></param>
+        </member>
         <member name="M:SerousEnergyLib.API.Machines.IInventoryMachine.ImportItemAtSlot(Terraria.Item,System.Int32)">
             <summary>
             Attempt to add <paramref name="import"/> to this machine's <see cref="P:SerousEnergyLib.API.Machines.IInventoryMachine.Inventory"/> here.<br/>
@@ -892,12 +982,13 @@
             <param name="result">A valid extraction result if the extraction was successful, <see langword="default"/> otherwise.</param>
             <returns>Whether the extraction was successful</returns>
         </member>
-        <member name="M:SerousEnergyLib.API.Machines.IInventoryMachine.ExtractItems(SerousEnergyLib.API.Machines.IInventoryMachine,SerousEnergyLib.Systems.Networks.ItemNetwork,System.Int32@,System.Boolean)">
+        <member name="M:SerousEnergyLib.API.Machines.IInventoryMachine.ExtractItems(SerousEnergyLib.API.Machines.IInventoryMachine,SerousEnergyLib.Systems.Networks.ItemNetwork,Terraria.DataStructures.Point16,System.Int32@,System.Boolean)">
             <summary>
             Extracts items from <paramref name="machine"/> into <paramref name="network"/>
             </summary>
             <param name="machine">The machine to process</param>
             <param name="network">The item network to import the items into</param>
+            <param name="inventoryTile">The sub-tile that the extraction is performed from</param>
             <param name="extractCount">A counter for how many more items can be extracted from this machine</param>
             <param name="simulation">If <see langword="true"/>, items will not be removed from this machine</param>
             <returns>A list of extraction results for use in creating <see cref="T:SerousEnergyLib.Pathfinding.Objects.PipedItem"/> objects</returns>
@@ -2209,6 +2300,11 @@
             Update the network instance here
             </summary>
         </member>
+        <member name="M:SerousEnergyLib.Systems.NetworkInstance.CopyExtraData(SerousEnergyLib.Systems.NetworkInstance)">
+            <summary>
+            Copy extra data from <paramref name="source"/> into this network here
+            </summary>
+        </member>
         <member name="M:SerousEnergyLib.Systems.NetworkInstance.HasEntry(Terraria.DataStructures.Point16)">
             <summary>
             Returns <see langword="true"/> if this network contains a node at <paramref name="location"/>
@@ -2254,7 +2350,7 @@
             </summary>
             <param name="location">The tile location of the entry</param>
         </member>
-        <member name="M:SerousEnergyLib.Systems.NetworkInstance.OnNetworkCloned">
+        <member name="M:SerousEnergyLib.Systems.NetworkInstance.OnNetworkCloned(SerousEnergyLib.Systems.NetworkInstance)">
             <summary>
             This method is called after this network was cloned from another network and this network's nodes were updated
             </summary>
@@ -2377,9 +2473,14 @@
             </summary>
             <param name="inventory">The tile location of the adjacent machine or chest to remove</param>
         </member>
+        <member name="F:SerousEnergyLib.Systems.Networks.ItemNetwork.ignoredValidTargets">
+            <summary>
+            The list of coordinates that <see cref="M:SerousEnergyLib.Systems.Networks.ItemNetwork.FindValidImportTarget(Terraria.Item,Terraria.DataStructures.Point16@,System.Int32@)"/> should ignore
+            </summary>
+        </member>
         <member name="M:SerousEnergyLib.Systems.Networks.ItemNetwork.FindValidImportTarget(Terraria.Item,Terraria.DataStructures.Point16@,System.Int32@)">
             <summary>
-            Attempts to find a valid inventory that can have <paramref name="import"/> inserted into it.
+            Attempts to find a valid adjacent inventory that can have <paramref name="import"/> inserted into it.
             </summary>
             <param name="import">The item to attempt to insert.</param>
             <param name="inventory">The location of the inventory's tile if one was found</param>
@@ -2640,9 +2741,19 @@
             The network state to apply to the <see cref="T:SerousEnergyLib.TileData.NetworkInfo"/> data when this tile is placed
             </summary>
         </member>
+        <member name="P:SerousEnergyLib.Tiles.BaseNetworkTile.NetworkItem">
+            <summary>
+            The item ID that's automatically assigned to <see cref="P:Terraria.ModLoader.ModBlockType.ItemDrop"/>
+            </summary>
+        </member>
         <member name="M:SerousEnergyLib.Tiles.BaseNetworkTile.PreRegisterTileObjectData">
             <summary>
             This is called after the default values are assigned to <see cref="F:Terraria.ObjectData.TileObjectData.newTile"/>, but before it's added
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.Tiles.BaseNetworkTile.IgnoreSpriteSheetFraming">
+            <summary>
+            Whether this tile should ignore the logic in <see cref="M:SerousEnergyLib.Tiles.BaseNetworkTile.TileFrame(System.Int32,System.Int32,System.Boolean@,System.Boolean@)"/> that modifies the tile's TileFrameX and TileFrameY
             </summary>
         </member>
         <member name="T:SerousEnergyLib.Tiles.IFluidPumpTile">
@@ -2705,7 +2816,8 @@
         </member>
         <member name="M:SerousEnergyLib.Tiles.IMachineTile.GetMachineEntity">
             <summary>
-            Return an instance of a <see cref="T:Terraria.ModLoader.ModTileEntity"/> that inherits from <see cref="T:SerousEnergyLib.API.Machines.IMachine"/> here
+            Return an instance of a <see cref="T:Terraria.ModLoader.ModTileEntity"/> that inherits from <see cref="T:SerousEnergyLib.API.Machines.IMachine"/> here.<br/>
+            This property should be treated as a singleton.
             </summary>
         </member>
         <member name="P:SerousEnergyLib.Tiles.IMachineTile.MachineItem">

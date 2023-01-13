@@ -27,6 +27,11 @@ namespace TerraScience.Common.UI.Elements {
 			InitializeSlots(slots, maxSlotsPerRow);
 		}
 
+		/// <summary>
+		/// This event is called after adding an item or updating an existing item's stack in the inventory for <see cref="UIHandler.ActiveMachine"/>
+		/// </summary>
+		public event MachineInventorySlotUpdateItemDelegate OnUpdateItem;
+
 		public void InitializeSlots(int[] slots, int maxSlotsPerRow) {
 			foreach (var instance in this.slots)
 				instance?.Remove();
@@ -41,6 +46,7 @@ namespace TerraScience.Common.UI.Elements {
 
 			foreach (int slot in slots) {
 				var instance = new MachineInventoryItemSlot(slot, DefaultContext, DefaultScale);
+				instance.OnUpdateItem += (machine, oldItem, newItem) => OnUpdateItem?.Invoke(machine, oldItem, newItem);
 
 				instance.Left.Set(numSlot * slotWidth, 0f);
 				instance.Top.Set(top, 0f);

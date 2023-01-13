@@ -4,9 +4,10 @@ using SerousEnergyLib.Tiles;
 using Terraria.DataStructures;
 using Terraria.ModLoader;
 using TerraScience.Common;
+using TerraScience.Content.Items.Networks.Fluids;
 
 namespace TerraScience.Content.Tiles.Networks.Fluids {
-	public class BasicFluidPumpTile : BasePumpTile, IFluidPumpTile {
+	public class BasicFluidPumpTile : BasePumpTile<BasicFluidPumpItem>, IFluidPumpTile {
 		public override NetworkType NetworkTypeToPlace => NetworkType.Fluids;
 
 		public override int GetMaxTimer(int x, int y) => 34;

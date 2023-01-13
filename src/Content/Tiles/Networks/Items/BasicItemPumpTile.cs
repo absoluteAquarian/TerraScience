@@ -1,8 +1,9 @@
 ﻿using SerousEnergyLib.TileData;
 using SerousEnergyLib.Tiles;
+using TerraScience.Content.Items.Networks.Items;
 
 namespace TerraScience.Content.Tiles.Networks.Items {
-	public class BasicItemPumpTile : BasePumpTile, IItemPumpTile {
+	public class BasicItemPumpTile : BasePumpTile<BasicItemPumpItem>, IItemPumpTile {
 		public override NetworkType NetworkTypeToPlace => NetworkType.Items;
 
 		public virtual int StackPerExtraction => 1;

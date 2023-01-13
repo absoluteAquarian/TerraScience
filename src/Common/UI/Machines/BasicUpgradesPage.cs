@@ -14,6 +14,9 @@ namespace TerraScience.Common.UI.Machines {
 
 		public override void OnInitialize() {
 			itemZone = new MachineUpgradeItemSlotZone(context: ItemSlot.Context.InventoryItem);
+			itemZone.OnUpdateItem += (machine, oldItem, newItem) => parentUI.NeedsToRecalculate = true;
+			itemZone.OnRemoveItem += (machine, slot, oldItem) => parentUI.NeedsToRecalculate = true;
+
 			itemZone.Left.Set(20, 0f);
 			itemZone.Top.Set(20, 0f);
 

@@ -11,6 +11,7 @@
 			Charcoal: "Charcoal"
 			ReinforcedFurnaceItem: "Reinforced Furnace"
 			CraftableReinforcedFurnaceItem: "{$Mods.TerraScience.ItemName.ReinforcedFurnaceItem}"
+			MoreOutputUpgradeItem: "{$Mods.TerraScience.MachineUpgradeName.MoreOutputUpgrade}"
 		}
 
 		ItemTooltip: {
@@ -57,6 +58,7 @@
 			Burns wood and other materials to create new materials
 			'''
 			CraftableReinforcedFurnaceItem: "{$Mods.TerraScience.ItemTooltip.ReinforcedFurnaceItem}"
+			MoreOutputUpgradeItem: "{$Mods.TerraScience.MachineUpgradeTooltip.MoreOutputUpgrade}"
 		}
 
 		CommonFooter: {
@@ -74,21 +76,33 @@
 			Placed pipes have a capacity of <FLUID_CAPACITY>
 			Placed pipes can export fluids out of networks at a rate of <FLUID_RATES>
 			'''
-			Pumps:
-			'''
-			Placed pumps can export <PUMP_TYPE> every <PUMP_RATES>
-			'''
 			ItemPumps:
 			'''
 			Placed pumps have a transport speed of <ITEM_SPEED>
 			Placed pumps export <ITEM_PUMP_STACK> items per cycle
+			<PUMP_MODE>
 			'''
 			FluidPumps:
 			'''
 			Placed pumps export <FLUID_PUMP_EXPORT> from a machine per cycle
 			Placed pumps have a capacity of <FLUID_CAPACITY>
 			Placed pumps can export fluids out of networks at a rate of <FLUID_RATES>
+			<PUMP_MODE>
 			'''
+
+			PumpMode: {
+				Placing:
+				'''
+				This item is currently in [c/00ff00:placing] mode.
+				Right click while holding this item to switch to [c/ff0000:orientation] mode.
+				'''
+				Orientation:
+				'''
+				This item is currently in [c/ff0000:orientation] mode.
+				Tile placing is blocked while in [c/ff0000:orientation] mode.
+				Left click while holding this item to switch to [c/00ff00:placing] mode.
+				'''
+			}
 			
 			CannotExport: {
 				Items: "Cannot export items out of inventories"

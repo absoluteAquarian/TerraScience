@@ -3,6 +3,7 @@ using SerousEnergyLib.API.Energy.Default;
 using SerousEnergyLib.Tiles;
 using System.Collections.Generic;
 using Terraria.ID;
+using Terraria.Localization;
 using Terraria.ModLoader;
 
 namespace TerraScience.Content.Items.Networks {
@@ -70,6 +71,13 @@ namespace TerraScience.Content.Items.Networks {
 				TooltipHelper.FindAndModify(tooltips,
 					"<FLUID_PUMP_EXPORT>",
 					$"{fluidPump.MaxCapacity:0.###} L");
+			}
+
+			if (tile is IPumpTile pump) {
+				TooltipHelper.FindAndInsertLines(Mod, tooltips,
+					"<PUMP_MODE>",
+					static i => "PumpDesc_" + i,
+					Language.GetTextValue("Mods.TerraScience.CommonFooter.PumpMode." + (Item.createTile == -1 ? "Orientation" : "Placing")));
 			}
 		}
 	}

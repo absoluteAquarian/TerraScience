@@ -19,6 +19,12 @@ namespace TerraScience.Common.UI.Elements {
 			DefaultScale = scale;
 		}
 
+		/// <inheritdoc cref="MachineUpgradeItemSlot.OnUpdateItem"/>
+		public event MachineUpgradeSlotUpdateItemDelegate OnUpdateItem;
+
+		/// <inheritdoc cref="MachineUpgradeItemSlot.OnRemoveItem"/>
+		public event MachineUpgradeSlotRemovedDelegate OnRemoveItem;
+
 		public void InitializeSlots(int slotCount, int maxSlotsPerRow) {
 			foreach (var instance in slots)
 				instance?.Remove();
@@ -33,6 +39,8 @@ namespace TerraScience.Common.UI.Elements {
 
 			for (int slot = 0; slot < slotCount; slot++) {
 				var instance = new MachineUpgradeItemSlot(slot, DefaultContext, DefaultScale);
+				instance.OnUpdateItem += (machine, oldItem, newItem) => OnUpdateItem?.Invoke(machine, oldItem, newItem);
+				instance.OnRemoveItem += (machine, slot, oldItem) => OnRemoveItem?.Invoke(machine, slot, oldItem);
 
 				instance.Left.Set(numSlot * slotWidth, 0f);
 				instance.Top.Set(top, 0f);

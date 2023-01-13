@@ -3,8 +3,9 @@ using SerousEnergyLib.TileData;
 using SerousEnergyLib.Tiles;
 using Terraria;
 using Terraria.DataStructures;
-using Terraria.ObjectData;
+using Terraria.ModLoader;
 using TerraScience.Common;
+using TerraScience.Content.Items.Networks;
 
 namespace TerraScience.Content.Tiles.Networks {
 	/// <summary>
@@ -27,10 +28,7 @@ namespace TerraScience.Content.Tiles.Networks {
 
 		public abstract int GetMaxTimer(int x, int y);
 
-		protected override void PreRegisterTileObjectData() {
-			TileObjectData.newTile.StyleHorizontal = true;
-			TileObjectData.newTile.StyleWrapLimit = 16;
-		}
+		protected override bool IgnoreSpriteSheetFraming => true;
 
 		/// <summary>
 		/// The path to the spritesheet used to draw this pump's moving bar
@@ -42,5 +40,10 @@ namespace TerraScience.Content.Tiles.Networks {
 				ModAssets.PumpBar[Type],
 				new Point16(i, j));
 		}
+	}
+
+	/// <inheritdoc cref="BasePumpTile"/>
+	public abstract class BasePumpTile<T> : BasePumpTile where T : BasePumpItem {
+		public override int NetworkItem => ModContent.ItemType<T>();
 	}
 }

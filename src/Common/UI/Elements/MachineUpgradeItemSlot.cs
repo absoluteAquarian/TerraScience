@@ -23,6 +23,10 @@ namespace TerraScience.Common.UI.Elements {
 			if (item.IsAir)
 				return true;  // Always permit removing items from the slot
 
+			// Only do special logic when clicking...
+			if (!Main.mouseLeft && !Main.mouseRight)
+				return false;
+
 			if (item.ModItem is not BaseUpgradeItem upgrade)
 				return false;
 
@@ -36,12 +40,13 @@ namespace TerraScience.Common.UI.Elements {
 			int type = upgrade.Type;
 
 			int existing = machine.Upgrades.FindIndex(u => u.Upgrade.Type == type);
+
 			if (existing > -1) {
 				// Only permit "placing" item stacks onto stacks which match them
 				if (existing != slot)
 					return false;
-			} else if (slot == machine.Upgrades.Count) {
-				// Item doesn't exist... Add a new item to the upgrade list
+			} else if (slot == machine.Upgrades.Count && Main.mouseLeft) {
+				// Item doesn't exist... Add a new item to the upgrade list before the new item is added
 				BaseUpgradeItem clone = new Item(upgrade.Item.type, stack: 0).ModItem as BaseUpgradeItem;
 
 				machine.Upgrades.Add(clone);
@@ -97,6 +102,13 @@ namespace TerraScience.Common.UI.Elements {
 				OnRemoveItem?.Invoke(machine, slot, oldItem);
 
 				machine.Upgrades.RemoveAt(slot);
+
+				// Ensure that the max stack is set properly
+				// TODO: proper shift-click out of storage
+				if (Main.mouseItem.ModItem is BaseUpgradeItem mouse)
+					mouse.Item.maxStack = ContentSamples.ItemsByType[mouse.Type].maxStack;
+				if (Main.LocalPlayer.trashItem.ModItem is BaseUpgradeItem trash)
+					trash.Item.maxStack = ContentSamples.ItemsByType[trash.Type].maxStack;
 			} else {
 				machine.Upgrades[slot] = upgrade;
 

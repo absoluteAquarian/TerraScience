@@ -41,7 +41,7 @@ namespace TerraScience.Common.UI.Machines {
 				return;
 
 			if (GetPage<BasicUpgradesPage>("Upgrades") is BasicUpgradesPage page)
-				page.Refresh(machine.Upgrades.Count + 1, maxSlotsPerRow: 10);
+				page.Refresh(machine.Upgrades.Count + 1, maxSlotsPerRow: 7);
 		}
 
 		public override void GetDefaultPanelDimensions(out int width, out int height) {

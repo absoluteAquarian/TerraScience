@@ -1,6 +1,5 @@
 ﻿using Terraria.ID;
 using Terraria.ModLoader;
-using TerraScience.Content.Tiles.Machines;
 
 namespace TerraScience.Content.Items.Materials {
 	public class Charcoal : ModItem {

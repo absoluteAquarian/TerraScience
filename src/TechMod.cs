@@ -1,5 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using SerousEnergyLib.API;
+﻿using SerousEnergyLib.API;
 using SerousEnergyLib.Tiles;
 using Terraria.ID;
 using Terraria.ModLoader;

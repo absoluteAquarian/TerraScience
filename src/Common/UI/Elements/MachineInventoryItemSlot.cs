@@ -27,6 +27,9 @@ namespace TerraScience.Common.UI.Elements {
 			return machine.Inventory[slot];
 		}
 
+		/// <summary>
+		/// This event is called after adding an item or updating an existing item's stack in the inventory for <see cref="UIHandler.ActiveMachine"/>
+		/// </summary>
 		public event MachineInventorySlotUpdateItemDelegate OnUpdateItem;
 
 		private void UpdateItemAtSlotInActiveMachine(Item oldItem) {
