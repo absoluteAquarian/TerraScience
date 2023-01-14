@@ -1873,6 +1873,11 @@
             Performs an A* pathfinding algorithm
             </summary>
         </member>
+        <member name="F:SerousEnergyLib.Pathfinding.AStar`1.startingDirection">
+            <summary>
+            The initial "moving direction".  Defaults to <see cref="F:Terraria.DataStructures.Point16.NegativeOne"/>
+            </summary>
+        </member>
         <member name="M:SerousEnergyLib.Pathfinding.AStar`1.GetPath(Terraria.DataStructures.Point16,Terraria.DataStructures.Point16)">
             <summary>
             Attempts to generate a path from <paramref name="start"/> to <paramref name="end"/>
@@ -2434,6 +2439,17 @@
             <returns>A list of tile coordinates for pathfinding, or <see langword="null"/> if no path was found</returns>
             <exception cref="T:System.ObjectDisposedException"/>
         </member>
+        <member name="F:SerousEnergyLib.Systems.NetworkInstance.junctionDirectionRedirect">
+            <summary>
+            Indexed by <c>[mode, direction]</c><br/>
+            Mode = tile frame X / 18<br/>
+            Directions:<br/>
+            Left = 0<br/>
+            Down = 1<br/>
+            Right = 2<br/>
+            Up = 3<br/>
+            </summary>
+        </member>
         <member name="M:SerousEnergyLib.Systems.NetworkInstance.SaveExtraData(Terraria.ModLoader.IO.TagCompound)">
             <summary>
             Save additional data to this network here
@@ -2537,6 +2553,11 @@
             <param name="inventory">The location of the inventory's tile if one was found</param>
             <param name="stackImported">The quantity of <paramref name="import"/> that can be inserted in the found target, or zero if no target was found</param>
             <returns>Whether a valid inventory was found</returns>
+        </member>
+        <member name="F:SerousEnergyLib.Systems.Networks.ItemNetwork.pipedItemDirection">
+            <summary>
+            This field is used to initialize the pathfinding for <see cref="M:SerousEnergyLib.Systems.Networks.ItemNetwork.AttemptToGeneratePathToInventoryTarget(Terraria.DataStructures.Point16,Terraria.DataStructures.Point16)"/>
+            </summary>
         </member>
         <member name="M:SerousEnergyLib.Systems.Networks.ItemNetwork.AttemptToGeneratePathToInventoryTarget(Terraria.DataStructures.Point16,Terraria.DataStructures.Point16)">
             <summary>
