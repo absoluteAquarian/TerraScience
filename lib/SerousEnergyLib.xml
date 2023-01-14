@@ -1862,11 +1862,10 @@
             A helper class containing methods used by the merging logic for <see cref="T:SerousEnergyLib.Tiles.BaseNetworkTile"/> tiles
             </summary>
         </member>
-        <member name="M:SerousEnergyLib.NetworkHelper.GetNetColor(System.Double,System.Double)">
+        <member name="M:SerousEnergyLib.NetworkHelper.GetNetColor(System.Double)">
             <summary>
             Retrieves a color indicator string for use with chat tags
             </summary>
-            <param name="current">The current capacity of the network</param>
             <param name="netChange">The change in capacity for the network</param>
         </member>
         <member name="T:SerousEnergyLib.Pathfinding.AStar`1">
@@ -2266,7 +2265,7 @@
             <param name="x">The tile X-coordinate</param>
             <param name="y">The tile Y=coordinate</param>
             <param name="type">The filter to use when checking for networks.  Multiple network types can be searched through via OR-ing multiple <see cref="T:SerousEnergyLib.TileData.NetworkType"/> constants</param>
-            <returns>A valid <see cref="T:SerousEnergyLib.Systems.NetworkInstance"/> object, or <see langword="null"/> if one wasn't found at the provided location</returns>
+            <returns>The first valid <see cref="T:SerousEnergyLib.Systems.NetworkInstance"/> object, or <see langword="null"/> if one wasn't found at the provided location</returns>
         </member>
         <member name="M:SerousEnergyLib.Systems.Network.GetItemNetworkAt(System.Int32,System.Int32)">
             <summary>
@@ -2274,7 +2273,7 @@
             </summary>
             <param name="x">The tile X-coordinate</param>
             <param name="y">The tile Y-coordinate</param>
-            <returns>An <see cref="T:SerousEnergyLib.Systems.Networks.ItemNetwork"/> instance if one was found, <see langword="null"/> otherwise.</returns>
+            <returns>The first <see cref="T:SerousEnergyLib.Systems.Networks.ItemNetwork"/> instance if one was found, <see langword="null"/> otherwise</returns>
         </member>
         <member name="M:SerousEnergyLib.Systems.Network.GetFluidNetworkAt(System.Int32,System.Int32)">
             <summary>
@@ -2282,7 +2281,7 @@
             </summary>
             <param name="x">The tile X-coordinate</param>
             <param name="y">The tile Y-coordinate</param>
-            <returns>A <see cref="T:SerousEnergyLib.Systems.Networks.FluidNetwork"/> instance if one was found, <see langword="null"/> otherwise.</returns>
+            <returns>The first <see cref="T:SerousEnergyLib.Systems.Networks.FluidNetwork"/> instance if one was found, <see langword="null"/> otherwise</returns>
         </member>
         <member name="M:SerousEnergyLib.Systems.Network.GetPowerNetworkAt(System.Int32,System.Int32)">
             <summary>
@@ -2290,7 +2289,40 @@
             </summary>
             <param name="x">The tile X-coordinate</param>
             <param name="y">The tile Y-coordinate</param>
-            <returns>An <see cref="T:SerousEnergyLib.Systems.Networks.PowerNetwork"/> instance if one was found, <see langword="null"/> otherwise.</returns>
+            <returns>The first <see cref="T:SerousEnergyLib.Systems.Networks.PowerNetwork"/> instance if one was found, <see langword="null"/> otherwise</returns>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.Network.GetNetworksAt(System.Int32,System.Int32,SerousEnergyLib.TileData.NetworkType)">
+            <summary>
+            Attempts to find any networks at the location (<paramref name="x"/>, <paramref name="y"/>)
+            </summary>
+            <param name="x">The tile X-coordinate</param>
+            <param name="y">The tile Y=coordinate</param>
+            <param name="type">The filter to use when checking for networks.  Multiple network types can be searched through via OR-ing multiple <see cref="T:SerousEnergyLib.TileData.NetworkType"/> constants</param>
+            <returns>An enumeration of valid <see cref="T:SerousEnergyLib.Systems.NetworkInstance"/> objects if any where found, an empty enumeration otherwise</returns>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.Network.GetItemNetworksAt(System.Int32,System.Int32)">
+            <summary>
+            Attempts to find an item network at location (<paramref name="x"/>, <paramref name="y"/>)
+            </summary>
+            <param name="x">The tile X-coordinate</param>
+            <param name="y">The tile Y-coordinate</param>
+            <returns>An enumeration of <see cref="T:SerousEnergyLib.Systems.Networks.ItemNetwork"/> instances if any were found, an empty enumeration otherwise</returns>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.Network.GetFluidNetworksAt(System.Int32,System.Int32)">
+            <summary>
+            Attempts to find a fluid network at location (<paramref name="x"/>, <paramref name="y"/>)
+            </summary>
+            <param name="x">The tile X-coordinate</param>
+            <param name="y">The tile Y-coordinate</param>
+            <returns>An enumeration of <see cref="T:SerousEnergyLib.Systems.Networks.FluidNetwork"/> instances if any were found, an empty enumeration otherwise</returns>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.Network.GetPowerNetworksAt(System.Int32,System.Int32)">
+            <summary>
+            Attempts to find a power network at location (<paramref name="x"/>, <paramref name="y"/>)
+            </summary>
+            <param name="x">The tile X-coordinate</param>
+            <param name="y">The tile Y-coordinate</param>
+            <returns>An enumeration of <see cref="T:SerousEnergyLib.Systems.Networks.PowerNetwork"/> instances if any were found, an empty enumeration otherwise</returns>
         </member>
         <member name="T:SerousEnergyLib.Systems.NetworkInstance">
             <summary>

@@ -77,7 +77,7 @@ namespace TerraScience.Content.Items.Networks {
 				TooltipHelper.FindAndInsertLines(Mod, tooltips,
 					"<PUMP_MODE>",
 					static i => "PumpDesc_" + i,
-					Language.GetTextValue("Mods.TerraScience.CommonFooter.PumpMode." + (Item.createTile == -1 ? "Orientation" : "Placing")));
+					Language.GetTextValue("Mods.SerousEnergyLib.JunctionTooltips." + (Item.createTile == -1 ? "Orientation" : "Placing")));
 			}
 		}
 	}

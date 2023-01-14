@@ -89,20 +89,6 @@
 			Placed pumps can export fluids out of networks at a rate of <FLUID_RATES>
 			<PUMP_MODE>
 			'''
-
-			PumpMode: {
-				Placing:
-				'''
-				This item is currently in [c/00ff00:placing] mode.
-				Right click while holding this item to switch to [c/ff0000:orientation] mode.
-				'''
-				Orientation:
-				'''
-				This item is currently in [c/ff0000:orientation] mode.
-				Tile placing is blocked while in [c/ff0000:orientation] mode.
-				Left click while holding this item to switch to [c/00ff00:placing] mode.
-				'''
-			}
 			
 			CannotExport: {
 				Items: "Cannot export items out of inventories"
