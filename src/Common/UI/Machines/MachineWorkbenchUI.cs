@@ -166,7 +166,6 @@ namespace TerraScience.Common.UI.Machines {
 
 				panelStats = new UIPanel();
 				panelStats.Width.Set(-80, 1f);
-				panelStats.Height.Set(stats.MinHeight.Pixels + 8, 0f);
 				panelStats.Left.Set(20, 0);
 
 				panelStats.Append(stats);
@@ -174,7 +173,6 @@ namespace TerraScience.Common.UI.Machines {
 
 				panelDescription = new UIPanel();
 				panelDescription.Width.Set(-80, 1f);
-				panelDescription.Height.Set(description.MinHeight.Pixels + 8, 0f);
 				panelDescription.Left.Set(20, 0);
 
 				panelDescription.Append(description);
@@ -189,6 +187,11 @@ namespace TerraScience.Common.UI.Machines {
 				panelRecipe.Append(recipeIngredientSlots);
 				panelRecipe.Append(recipeTiles);
 				panelRecipe.Append(recipeConditions);
+
+				// Force a recalculate to ensure that all widths/heights are correct
+				Recalculate();
+
+				SetMachineText(DefaultStatText, DefaultDescriptionText);
 			}
 
 			private bool resetRecipePanel;
@@ -201,13 +204,7 @@ namespace TerraScience.Common.UI.Machines {
 
 			internal void UpdateItemDisplay(IInventoryMachine machine, Item oldItem, Item newItem) {
 				if (newItem.IsAir || newItem.ModItem is not BaseMachineItem machineItem) {
-					stats.SetText(DefaultStatText);
-					panelStats.Height.Set(stats.MinHeight.Pixels + 8, 0f);
-					panelStats.Recalculate();
-					
-					description.SetText(DefaultDescriptionText);
-					panelDescription.Height.Set(description.MinHeight.Pixels + 8, 0f);
-					panelDescription.Recalculate();
+					SetMachineText(DefaultStatText, DefaultDescriptionText);
 
 					pendingRecipe = null;
 
@@ -226,23 +223,29 @@ namespace TerraScience.Common.UI.Machines {
 				machineTile.GetMachineDimensions(out uint width, out uint height);
 				activeRegistry = registryTile.GetRegistry();
 
-				stats.SetText($"Machine: {Language.GetTextValue($"Mods.{tile.Mod.Name}.MapObject.{tile.Name}")}" +
-					$"\nSize: {width} x {height} blocks" +
-					$"\n{string.Join("\n", activeRegistry.GetDescriptorLines())}");
+				SetMachineText(
+					statsText: $"Machine: {Language.GetTextValue($"Mods.{tile.Mod.Name}.MapObject.{tile.Name}")}" +
+						$"\nSize: {width} x {height} blocks" +
+						$"\n{string.Join("\n", activeRegistry.GetDescriptorLines())}",
+					descriptionText: Language.GetTextValue($"Mods.{tile.Mod.Name}.MachineText.{tile.Name}.Description"));
+
+				UpdateDisplays();
+
+				resetRecipePanel = true;
+			}
+
+			private void SetMachineText(string statsText, string descriptionText) {
+				stats.SetText(statsText);
 
 				panelStats.Height.Set(stats.MinHeight.Pixels + 8, 0f);
 
 				panelStats.Recalculate();
 
-				description.SetText(Language.GetTextValue($"Mods.{tile.Mod.Name}.MachineText.{tile.Name}.Description"));
+				description.SetText(descriptionText);
 
 				panelDescription.Height.Set(description.MinHeight.Pixels + 8, 0f);
 
 				panelDescription.Recalculate();
-
-				UpdateDisplays();
-
-				resetRecipePanel = true;
 			}
 
 			private void InitRecipeSlots(Recipe recipe) {
