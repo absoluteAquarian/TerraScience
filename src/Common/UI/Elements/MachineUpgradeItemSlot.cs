@@ -37,7 +37,7 @@ namespace TerraScience.Common.UI.Elements {
 			int maxUpgrades = upgrade.Upgrade.MaxUpgradesPerMachine;
 
 			// Local capturing
-			int type = upgrade.Type;
+			int type = upgrade.Upgrade.Type;
 
 			int existing = machine.Upgrades.FindIndex(u => u.Upgrade.Type == type);
 
