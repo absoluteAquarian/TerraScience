@@ -232,7 +232,7 @@ namespace TerraScience.Content.MachineEntities {
 
 			if (activeRecipe is null) {
 				inv = new Item[] { input };
-				activeRecipe = TechRecipes.Sets.ReinforcedFurnace.All.Where(m => m.IngredientSetMatches(this)).FirstOrDefault();
+				activeRecipe = TechRecipes.Sets.ReinforcedFurnace.Where(m => m.IngredientSetMatches(this)).FirstOrDefault();
 			}
 
 			return activeRecipe is not null;

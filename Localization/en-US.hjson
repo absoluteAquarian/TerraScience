@@ -12,6 +12,8 @@
 			ReinforcedFurnaceItem: "Reinforced Furnace"
 			CraftableReinforcedFurnaceItem: "{$Mods.TerraScience.ItemName.ReinforcedFurnaceItem}"
 			MoreOutputUpgradeItem: "{$Mods.TerraScience.MachineUpgradeName.MoreOutputUpgrade}"
+			FluidTankItem: "Basic Fluid Tank"
+			CraftableFluidTankItem: "{$Mods.TerraScience.ItemName.FluidTankItem}"
 		}
 
 		ItemTooltip: {
@@ -46,6 +48,7 @@
 			'''
 			The common crafting station for making all machines in Terran Automation
 			Once placed, this machine can be right clicked to view the stats for most machines
+			{$Mods.SerousEnergyLib.CommonMachineItemTooltipFooter}
 			'''
 			CraftableMachineWorkbenchItem: "{$Mods.TerraScience.ItemTooltip.MachineWorkbenchItem}"
 			Charcoal:
@@ -56,9 +59,16 @@
 			ReinforcedFurnaceItem:
 			'''
 			Burns wood and other materials to create new materials
+			{$Mods.SerousEnergyLib.CommonMachineItemTooltipFooter}
 			'''
 			CraftableReinforcedFurnaceItem: "{$Mods.TerraScience.ItemTooltip.ReinforcedFurnaceItem}"
 			MoreOutputUpgradeItem: "{$Mods.TerraScience.MachineUpgradeTooltip.MoreOutputUpgrade}"
+			FluidTankItem:
+			'''
+			Stores 10 Liters of fluids
+			{$Mods.SerousEnergyLib.CommonMachineItemTooltipFooter}
+			'''
+			CraftableFluidTankItem: "{$Mods.TerraScience.ItemTooltip.FluidTankItem}"
 		}
 
 		CommonFooter: {
@@ -99,6 +109,7 @@
 		MapObject: {
 			MachineWorkbench: "Machine Workbench"
 			ReinforcedFurnace: "Reinforced Furnace"
+			FluidTank: "Basic Fluid Tank"
 		}
 
 		MachineUpgradeName: {
@@ -115,6 +126,7 @@
 
 		UI: {
 			ThermostatHover: "Temperature: {0:0.###} C / {1:0.###} C"
+			FluidGaugeHover: "{0:0.###} L / {1:0.###} L"
 		}
 
 		MachineText: {
@@ -141,7 +153,14 @@
 
 				Page: {
 					Furnace: "Furnace"
-					Upgrades: "Upgrades"
+				}
+			}
+
+			FluidTank: {
+				Description: "Stores fluids"
+
+				Page: {
+					Storage: "Storage"
 				}
 			}
 		}

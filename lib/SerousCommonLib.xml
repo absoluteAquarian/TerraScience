@@ -301,6 +301,18 @@
             </summary>
             <param name="text">The text string to display</param>
         </member>
+        <member name="T:SerousCommonLib.API.Helpers.TileScanning">
+            <summary>
+            A helper class for retrieving biome information around a given area
+            </summary>
+        </member>
+        <member name="M:SerousCommonLib.API.Helpers.TileScanning.Scan(Microsoft.Xna.Framework.Vector2)">
+            <summary>
+            Performs biome scanning with <paramref name="worldCenter"/> as the center of the scanning area
+            </summary>
+            <param name="worldCenter">The world coordinates for the center of the scanning area</param>
+            <returns>A <see cref="T:Terraria.SceneMetrics"/> instance containing biome information, or <see langword="null"/> if an exception was caught</returns>
+        </member>
         <member name="T:SerousCommonLib.API.LootHelper">
             <summary>
             A helper class for manipulating item/NPC loot

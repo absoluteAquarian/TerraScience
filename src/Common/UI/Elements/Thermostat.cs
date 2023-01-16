@@ -8,7 +8,7 @@ using Terraria.ModLoader;
 using Terraria.UI;
 
 namespace TerraScience.Common.UI.Elements {
-	public sealed class Thermostat : UIElement {
+	public class Thermostat : UIElement {
 		private int bodySegments;
 
 		private double minTemp, maxTemp, currentTemp;

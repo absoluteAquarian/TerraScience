@@ -2,7 +2,6 @@
 using SerousEnergyLib.TileData;
 using SerousEnergyLib.Tiles;
 using Terraria.DataStructures;
-using Terraria.ModLoader;
 using TerraScience.Common;
 using TerraScience.Content.Items.Networks.Fluids;
 
@@ -14,7 +13,7 @@ namespace TerraScience.Content.Tiles.Networks.Fluids {
 
 		public override bool PreDraw(int i, int j, SpriteBatch spriteBatch) {
 			NetworkDrawing.DrawFluid(spriteBatch,
-				ModContent.Request<Texture2D>("TerraScience/Assets/Tiles/Networks/Fluids/Effect_BasicFluidPumpTile_fluid"),
+				ModAssets.FluidPumpFill,
 				new Point16(i, j),
 				columnsPerSet: 4,
 				rowsPerSet: 1);

@@ -1,4 +1,5 @@
 ﻿using SerousEnergyLib.API;
+using SerousEnergyLib.API.Fluid.Default;
 using System.Collections.Generic;
 using System.Linq;
 using Terraria;
@@ -24,18 +25,41 @@ namespace TerraScience.Common.Systems {
 		public override void AddRecipes() {
 			LoaderUtils.ResetStaticMembers(typeof(Sets), true);
 
+			// ===== Reinforced Furnace recipes =====
 			Ticks woodToCharcoalMin = TechMod.Sets.ReinforcedFurnace.ConversionDuration.Min();
 			Ticks woodToCharcoalMax = TechMod.Sets.ReinforcedFurnace.ConversionDuration.Max();
 
-			Sets.ReinforcedFurnace.all.Add(new MachineRecipe<ReinforcedFurnace>()
+			Sets.ReinforcedFurnace.Add(new MachineRecipe<ReinforcedFurnace>()
 				.AddRecipeGroup(RecipeGroupID.Wood, 1)
 				.AddPossibleOutput<Charcoal>(1)
 				.AddTimeVarianceRequirement(woodToCharcoalMin, woodToCharcoalMax)
 				.CreateAndRegisterAllPossibleRecipes());
+
+			// ===== Fluid Tank recipes =====
+			Sets.FluidTank.Add(new MachineRecipe<FluidTank>()
+				.AddIngredient(ItemID.EmptyBucket)
+				.AddFluidIngredient<WaterFluidID>(1d)
+				.AddPossibleOutput(ItemID.WaterBucket)
+				.AddTimeRequirement(new Ticks(1))
+				.CreateAndRegisterAllPossibleRecipes());
+
+			Sets.FluidTank.Add(new MachineRecipe<FluidTank>()
+				.AddIngredient(ItemID.EmptyBucket)
+				.AddFluidIngredient<LavaFluidID>(1d)
+				.AddPossibleOutput(ItemID.LavaBucket)
+				.AddTimeRequirement(new Ticks(1))
+				.CreateAndRegisterAllPossibleRecipes());
+
+			Sets.FluidTank.Add(new MachineRecipe<FluidTank>()
+				.AddIngredient(ItemID.EmptyBucket)
+				.AddFluidIngredient<HoneyFluidID>(1d)
+				.AddPossibleOutput(ItemID.HoneyBucket)
+				.AddTimeRequirement(new Ticks(1))
+				.CreateAndRegisterAllPossibleRecipes());
 		}
 
 		public override void Unload() {
-			Sets.ReinforcedFurnace.all = null;
+			Sets.ReinforcedFurnace = null;
 		}
 
 		public static Item GetIngredientItem(Recipe recipe, int index) {
@@ -72,15 +96,8 @@ namespace TerraScience.Common.Systems {
 		}
 
 		public static class Sets {
-			public static void RegisterRecipe(List<MachineRecipe> all, ref MachineRecipe recipeField, MachineRecipe recipeObject) {
-				recipeField = recipeObject;
-				all.Add(recipeField);
-			}
-
-			public static class ReinforcedFurnace {
-				internal static List<MachineRecipe> all = new();
-				public static IReadOnlyList<MachineRecipe> All => all;
-			}
+			public static List<MachineRecipe> ReinforcedFurnace = new();
+			public static List<MachineRecipe> FluidTank = new();
 		}
 	}
 }

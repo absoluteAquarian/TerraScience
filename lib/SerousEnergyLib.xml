@@ -341,7 +341,7 @@
             </param>
             <param name="item">The item to import</param>
         </member>
-        <member name="M:SerousEnergyLib.API.Extensions.ExtractItems(Terraria.Chest,System.Int32,SerousEnergyLib.Systems.Networks.ItemNetwork,Terraria.DataStructures.Point16,System.Int32@,System.Boolean)">
+        <member name="M:SerousEnergyLib.API.Extensions.ExtractItems(Terraria.Chest,System.Int32,SerousEnergyLib.Systems.Networks.ItemNetwork,Terraria.DataStructures.Point16,Terraria.DataStructures.Point16,System.Int32@,System.Boolean)">
             <summary>
             Extracts items from <paramref name="chest"/> into <paramref name="network"/>
             </summary>
@@ -352,6 +352,7 @@
             </param>
             <param name="network">The item network to import the items into</param>
             <param name="inventoryTile">The sub-tile that the extraction is performed from</param>
+            <param name="pathfindingStart">The starting tile for pathfinding to possible inventories</param>
             <param name="extractCount">A counter for how many more items can be extracted from <paramref name="chest"/></param>
             <param name="simulation">If <see langword="true"/>, items will not be removed from <paramref name="chest"/></param>
             <returns>A list of extraction results for use in creating <see cref="T:SerousEnergyLib.Pathfinding.Objects.PipedItem"/> objects</returns>
@@ -564,6 +565,11 @@
             The tile coordinates of the inventory that this item will pathfind to
             </summary>
         </member>
+        <member name="F:SerousEnergyLib.API.InventoryExtractionResult.path">
+            <summary>
+            The path that this item will use to move to the target inventory
+            </summary>
+        </member>
         <member name="F:SerousEnergyLib.API.InventoryExtractionResult.source">
             <summary>
             The tile coordinates of the inventory that this item will pathfind from
@@ -574,9 +580,19 @@
             The index in the source inventory that this item was extracted from
             </summary>
         </member>
-        <member name="M:SerousEnergyLib.API.InventoryExtractionResult.UndoExtraction">
+        <member name="T:SerousEnergyLib.API.InventoryInsertionResult">
             <summary>
-            Forces this extraction result back into the inventory that it originated from
+            A structure representing the insertion of an item into an inventory
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.API.InventoryInsertionResult.target">
+            <summary>
+            The tile coordinates of the inventory that this item will attempt to pathfind to
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.API.InventoryInsertionResult.stackImported">
+            <summary>
+            The quantity of the item that would be imported into the target inventory
             </summary>
         </member>
         <member name="T:SerousEnergyLib.API.MachineRecipe">
@@ -715,11 +731,6 @@
             The path to the effect's sprite
             </summary>
         </member>
-        <member name="F:SerousEnergyLib.API.MachineSpriteEffectInformation.drawBehind">
-            <summary>
-            Whether the effect draws behind the machine (<see langword="true"/>) or in front of it (<see langword="false"/>)
-            </summary>
-        </member>
         <member name="F:SerousEnergyLib.API.MachineSpriteEffectInformation.offset">
             <summary>
             The offset from the top-left corner of the machine tile to draw the effect at<br/>
@@ -736,12 +747,11 @@
             Whether this effect's draw color is affected by the lighting in the world where it's drawn
             </summary>
         </member>
-        <member name="M:SerousEnergyLib.API.MachineSpriteEffectInformation.#ctor(System.String,System.Boolean,Microsoft.Xna.Framework.Vector2,System.Nullable{Microsoft.Xna.Framework.Rectangle},System.Boolean)">
+        <member name="M:SerousEnergyLib.API.MachineSpriteEffectInformation.#ctor(System.String,Microsoft.Xna.Framework.Vector2,System.Nullable{Microsoft.Xna.Framework.Rectangle},System.Boolean)">
             <summary>
             Creates a new <see cref="T:SerousEnergyLib.API.MachineSpriteEffectInformation"/> instance
             </summary>
             <param name="asset">The path to the effect's sprite</param>
-            <param name="drawBehind">Whether the effect draws behind the machine (<see langword="true"/>) or in front of it (<see langword="false"/>)</param>
             <param name="offset">
             The offset from the top-left corner of the machine tile to draw the effect at<br/>
             <b>NOTE:</b> This parameter is in world coordinates, not tile coordinates
@@ -759,30 +769,135 @@
             A base implementaiton of <see cref="T:SerousEnergyLib.API.Machines.IMachine"/> and <see cref="T:SerousEnergyLib.API.Machines.IFluidMachine"/>
             </summary>
         </member>
+        <member name="P:SerousEnergyLib.API.Machines.Default.BaseFluidsMachine.Upgrades">
+            <inheritdoc cref="P:SerousEnergyLib.API.Machines.IMachine.Upgrades"/>
+        </member>
+        <member name="P:SerousEnergyLib.API.Machines.Default.BaseFluidsMachine.IsDummyInstance">
+            <summary>
+            Whether this entity instance is a clone used for item tooltips
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.Default.BaseFluidsMachine.CanUpgradeApply(SerousEnergyLib.API.Upgrades.BaseUpgrade)">
+            <inheritdoc cref="M:SerousEnergyLib.API.Machines.IMachine.CanUpgradeApply(SerousEnergyLib.API.Upgrades.BaseUpgrade)"/>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.Default.BaseFluidsMachine.CanMergeWithFluidPipe(System.Int32,System.Int32,System.Int32,System.Int32)">
+            <inheritdoc cref="M:SerousEnergyLib.API.Machines.IFluidMachine.CanMergeWithFluidPipe(System.Int32,System.Int32,System.Int32,System.Int32)"/>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.Default.BaseFluidsMachine.CanUpgradeApplyTo(SerousEnergyLib.API.Upgrades.BaseUpgrade,System.Int32)">
+            <inheritdoc cref="M:SerousEnergyLib.API.Machines.IFluidMachine.CanUpgradeApplyTo(SerousEnergyLib.API.Upgrades.BaseUpgrade,System.Int32)"/>
+        </member>
         <member name="T:SerousEnergyLib.API.Machines.Default.BaseInventoryEntity">
             <summary>
             A default implementation of <see cref="T:SerousEnergyLib.API.Machines.IMachine"/> and <see cref="T:SerousEnergyLib.API.Machines.IInventoryMachine"/>
             </summary>
+        </member>
+        <member name="P:SerousEnergyLib.API.Machines.Default.BaseInventoryEntity.Upgrades">
+            <inheritdoc cref="P:SerousEnergyLib.API.Machines.IMachine.Upgrades"/>
+        </member>
+        <member name="P:SerousEnergyLib.API.Machines.Default.BaseInventoryEntity.Inventory">
+            <inheritdoc cref="P:SerousEnergyLib.API.Machines.IInventoryMachine.Inventory"/>
+        </member>
+        <member name="P:SerousEnergyLib.API.Machines.Default.BaseInventoryEntity.IsDummyInstance">
+            <summary>
+            Whether this entity instance is a clone used for item tooltips
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.Default.BaseInventoryEntity.CanUpgradeApply(SerousEnergyLib.API.Upgrades.BaseUpgrade)">
+            <inheritdoc cref="M:SerousEnergyLib.API.Machines.IMachine.CanUpgradeApply(SerousEnergyLib.API.Upgrades.BaseUpgrade)"/>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.Default.BaseInventoryEntity.CanMergeWithItemPipe(System.Int32,System.Int32,System.Int32,System.Int32)">
+            <inheritdoc cref="M:SerousEnergyLib.API.Machines.IInventoryMachine.CanMergeWithItemPipe(System.Int32,System.Int32,System.Int32,System.Int32)"/>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.Default.BaseInventoryEntity.CanExportItemAtSlot(System.Int32,Terraria.DataStructures.Point16)">
+            <inheritdoc cref="M:SerousEnergyLib.API.Machines.IInventoryMachine.CanExportItemAtSlot(System.Int32,Terraria.DataStructures.Point16)"/>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.Default.BaseInventoryEntity.ExportItemAtSlot(SerousEnergyLib.Systems.Networks.ItemNetwork,System.Int32,Terraria.DataStructures.Point16,System.Int32@,System.Boolean,SerousEnergyLib.API.InventoryExtractionResult@)">
+            <inheritdoc cref="M:SerousEnergyLib.API.Machines.IInventoryMachine.ExportItemAtSlot(SerousEnergyLib.Systems.Networks.ItemNetwork,System.Int32,Terraria.DataStructures.Point16,System.Int32@,System.Boolean,SerousEnergyLib.API.InventoryExtractionResult@)"/>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.Default.BaseInventoryEntity.CanImportItemAtSlot(Terraria.Item,Terraria.DataStructures.Point16,System.Int32,System.Int32@)">
+            <inheritdoc cref="M:SerousEnergyLib.API.Machines.Default.BaseInventoryEntity.CanImportItemAtSlot(Terraria.Item,Terraria.DataStructures.Point16,System.Int32,System.Int32@)"/>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.Default.BaseInventoryEntity.ImportItemAtSlot(Terraria.Item,System.Int32)">
+            <inheritdoc cref="M:SerousEnergyLib.API.Machines.Default.BaseInventoryEntity.ImportItemAtSlot(Terraria.Item,System.Int32)"/>
         </member>
         <member name="T:SerousEnergyLib.API.Machines.Default.BaseMachineEntity">
             <summary>
             A default implementation of <see cref="T:SerousEnergyLib.API.Machines.IMachine"/>
             </summary>
         </member>
+        <member name="P:SerousEnergyLib.API.Machines.Default.BaseMachineEntity.IsDummyInstance">
+            <summary>
+            Whether this entity instance is a clone used for item tooltips
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.Default.BaseMachineEntity.CanUpgradeApply(SerousEnergyLib.API.Upgrades.BaseUpgrade)">
+            <inheritdoc cref="M:SerousEnergyLib.API.Machines.IMachine.CanUpgradeApply(SerousEnergyLib.API.Upgrades.BaseUpgrade)"/>
+        </member>
         <member name="T:SerousEnergyLib.API.Machines.Default.BasePoweredEntity">
             <summary>
             A base implementaiton of <see cref="T:SerousEnergyLib.API.Machines.IMachine"/> and <see cref="T:SerousEnergyLib.API.Machines.IPoweredMachine"/>
             </summary>
+        </member>
+        <member name="P:SerousEnergyLib.API.Machines.Default.BasePoweredEntity.Upgrades">
+            <inheritdoc cref="P:SerousEnergyLib.API.Machines.IMachine.Upgrades"/>
+        </member>
+        <member name="P:SerousEnergyLib.API.Machines.Default.BasePoweredEntity.EnergyID">
+            <inheritdoc cref="P:SerousEnergyLib.API.Machines.IPoweredMachine.EnergyID"/>
+        </member>
+        <member name="P:SerousEnergyLib.API.Machines.Default.BasePoweredEntity.IsDummyInstance">
+            <summary>
+            Whether this entity instance is a clone used for item tooltips
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.Default.BasePoweredEntity.CanUpgradeApply(SerousEnergyLib.API.Upgrades.BaseUpgrade)">
+            <inheritdoc cref="M:SerousEnergyLib.API.Machines.IMachine.CanUpgradeApply(SerousEnergyLib.API.Upgrades.BaseUpgrade)"/>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.Default.BasePoweredEntity.CanMergeWithWire(System.Int32,System.Int32,System.Int32,System.Int32)">
+            <inheritdoc cref="M:SerousEnergyLib.API.Machines.IPoweredMachine.CanMergeWithWire(System.Int32,System.Int32,System.Int32,System.Int32)"/>
         </member>
         <member name="T:SerousEnergyLib.API.Machines.Default.BasePowerGeneratorEntity">
             <summary>
             A base implementation of <see cref="T:SerousEnergyLib.API.Machines.IMachine"/> and <see cref="T:SerousEnergyLib.API.Machines.IPowerGeneratorMachine"/>
             </summary>
         </member>
+        <member name="P:SerousEnergyLib.API.Machines.Default.BasePowerGeneratorEntity.Upgrades">
+            <inheritdoc cref="P:SerousEnergyLib.API.Machines.IMachine.Upgrades"/>
+        </member>
+        <member name="P:SerousEnergyLib.API.Machines.Default.BasePowerGeneratorEntity.EnergyID">
+            <inheritdoc cref="P:SerousEnergyLib.API.Machines.IPoweredMachine.EnergyID"/>
+        </member>
+        <member name="P:SerousEnergyLib.API.Machines.Default.BasePowerGeneratorEntity.IsDummyInstance">
+            <summary>
+            Whether this entity instance is a clone used for item tooltips
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.Default.BasePowerGeneratorEntity.CanUpgradeApply(SerousEnergyLib.API.Upgrades.BaseUpgrade)">
+            <inheritdoc cref="M:SerousEnergyLib.API.Machines.IMachine.CanUpgradeApply(SerousEnergyLib.API.Upgrades.BaseUpgrade)"/>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.Default.BasePowerGeneratorEntity.CanMergeWithWire(System.Int32,System.Int32,System.Int32,System.Int32)">
+            <inheritdoc cref="M:SerousEnergyLib.API.Machines.IPoweredMachine.CanMergeWithWire(System.Int32,System.Int32,System.Int32,System.Int32)"/>
+        </member>
         <member name="T:SerousEnergyLib.API.Machines.Default.BasePowerStorageEntity">
             <summary>
             A base implementaiton of <see cref="T:SerousEnergyLib.API.Machines.IMachine"/> and <see cref="T:SerousEnergyLib.API.Machines.IPowerStorageMachine"/>
             </summary>
+        </member>
+        <member name="P:SerousEnergyLib.API.Machines.Default.BasePowerStorageEntity.Upgrades">
+            <inheritdoc cref="P:SerousEnergyLib.API.Machines.IMachine.Upgrades"/>
+        </member>
+        <member name="P:SerousEnergyLib.API.Machines.Default.BasePowerStorageEntity.EnergyID">
+            <inheritdoc cref="P:SerousEnergyLib.API.Machines.IPoweredMachine.EnergyID"/>
+        </member>
+        <member name="P:SerousEnergyLib.API.Machines.Default.BasePowerStorageEntity.IsDummyInstance">
+            <summary>
+            Whether this entity instance is a clone used for item tooltips
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.Default.BasePowerStorageEntity.CanUpgradeApply(SerousEnergyLib.API.Upgrades.BaseUpgrade)">
+            <inheritdoc cref="M:SerousEnergyLib.API.Machines.IMachine.CanUpgradeApply(SerousEnergyLib.API.Upgrades.BaseUpgrade)"/>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.Default.BasePowerStorageEntity.CanMergeWithWire(System.Int32,System.Int32,System.Int32,System.Int32)">
+            <inheritdoc cref="M:SerousEnergyLib.API.Machines.IPoweredMachine.CanMergeWithWire(System.Int32,System.Int32,System.Int32,System.Int32)"/>
         </member>
         <member name="T:SerousEnergyLib.API.Machines.IFluidMachine">
             <summary>
@@ -919,30 +1034,60 @@
             Return the slots in <see cref="P:SerousEnergyLib.API.Machines.IInventoryMachine.Inventory"/> that can be used in recipes, or <see langword="null"/> to indicate that all slots can be used.
             </summary>
         </member>
-        <member name="M:SerousEnergyLib.API.Machines.IInventoryMachine.CanImportItemAtSlot(Terraria.Item,System.Int32,System.Int32@)">
+        <member name="M:SerousEnergyLib.API.Machines.IInventoryMachine.CanImportItemAtSlot(Terraria.Item,Terraria.DataStructures.Point16,System.Int32,System.Int32@)">
             <summary>
             Whether <paramref name="import"/> can be inserted in this machine's inventory at the given <paramref name="slot"/> in <see cref="P:SerousEnergyLib.API.Machines.IInventoryMachine.Inventory"/>
             </summary>
             <param name="import">The item to be imported</param>
+            <param name="subtile">
+            The sub-tile within this machine that the item would be imported to.<br/>
+            This parameter will be <see cref="F:Terraria.DataStructures.Point16.NegativeOne"/> if the sub-tile could not be determined.
+            </param>
             <param name="slot">The slot in <see cref="P:SerousEnergyLib.API.Machines.IInventoryMachine.Inventory"/></param>
             <param name="stackImported">How many items would be imported should the import be successful</param>
         </member>
-        <member name="M:SerousEnergyLib.API.Machines.IInventoryMachine.CanImportItem(SerousEnergyLib.API.Machines.IInventoryMachine,Terraria.Item,System.Int32@)">
+        <member name="M:SerousEnergyLib.API.Machines.IInventoryMachine.DefaultCanImportItemAtSlot(SerousEnergyLib.API.Machines.IInventoryMachine,Terraria.Item,Terraria.DataStructures.Point16,System.Int32,System.Int32@)">
+            <summary>
+            This method executes the standard logic for <see cref="M:SerousEnergyLib.API.Machines.IInventoryMachine.CanImportItemAtSlot(Terraria.Item,Terraria.DataStructures.Point16,System.Int32,System.Int32@)"/>
+            </summary>
+            <param name="machine">The machine to process</param>
+            <param name="import">The item to be imported</param>
+            <param name="subtile">
+            The sub-tile within this machine that the item would be imported to.<br/>
+            Set this parameter to <see cref="F:Terraria.DataStructures.Point16.NegativeOne"/> to indicate that the sub-tile cannot be determined.
+            </param>
+            <param name="slot">The slot in <see cref="P:SerousEnergyLib.API.Machines.IInventoryMachine.Inventory"/></param>
+            <param name="stackImported">How many items would be imported should the import be successful</param>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.IInventoryMachine.CanImportItem(SerousEnergyLib.API.Machines.IInventoryMachine,Terraria.Item,Terraria.DataStructures.Point16,System.Int32@)">
             <summary>
             Whether <paramref name="import"/> can be imported into the inventory in <paramref name="machine"/>
             </summary>
             <param name="machine">The machine to process</param>
             <param name="import">The item to be imported</param>
+            <param name="subtile">
+            The sub-tile within this machine that the item would be imported to.<br/>
+            Set this parameter to <see cref="F:Terraria.DataStructures.Point16.NegativeOne"/> to indicate that the sub-tile cannot be determined.
+            </param>
             <param name="stackImported">How many items would be imported should the import be successful</param>
         </member>
-        <member name="M:SerousEnergyLib.API.Machines.IInventoryMachine.CheckItemImportPrediction(SerousEnergyLib.API.Machines.IInventoryMachine,SerousEnergyLib.Systems.Networks.ItemNetwork,Terraria.Item,System.Int32@)">
+        <member name="M:SerousEnergyLib.API.Machines.IInventoryMachine.CheckItemImportPrediction(SerousEnergyLib.API.Machines.IInventoryMachine,SerousEnergyLib.Systems.Networks.ItemNetwork,Terraria.Item,Terraria.DataStructures.Point16,System.Int32@)">
             <summary>
             Simulates importing <paramref name="item"/> and the items in <paramref name="network"/> into <paramref name="machine"/> and returns <see langword="true"/> if the import for <paramref name="item"/> would be successful
             </summary>
             <param name="machine">The machine instance</param>
             <param name="network">The item network</param>
             <param name="item">The item to import</param>
+            <param name="subtile">
+            The sub-tile within this machine that the item would be imported to.<br/>
+            Set this parameter to <see cref="F:Terraria.DataStructures.Point16.NegativeOne"/> to indicate that the sub-tile cannot be determined.
+            </param>
             <param name="stackImported">The quantity of <paramref name="item"/> that was imported into <paramref name="machine"/></param>
+        </member>
+        <member name="F:SerousEnergyLib.API.Machines.IInventoryMachine.blockSlotSyncing">
+            <summary>
+            Whether slot syncing should be permitted.  Defaults to <see langword="false"/>
+            </summary>
         </member>
         <member name="M:SerousEnergyLib.API.Machines.IInventoryMachine.ImportItemAtSlot(Terraria.Item,System.Int32)">
             <summary>
@@ -952,43 +1097,65 @@
             <param name="import">The item to import</param>
             <param name="slot">The slot in <see cref="P:SerousEnergyLib.API.Machines.IInventoryMachine.Inventory"/></param>
         </member>
-        <member name="M:SerousEnergyLib.API.Machines.IInventoryMachine.ImportItem(SerousEnergyLib.API.Machines.IInventoryMachine,Terraria.Item)">
+        <member name="M:SerousEnergyLib.API.Machines.IInventoryMachine.ImportItem(SerousEnergyLib.API.Machines.IInventoryMachine,Terraria.Item,Terraria.DataStructures.Point16)">
             <summary>
             Attempts to add <paramref name="import"/> to the inventory in <paramref name="machine"/>
             </summary>
             <param name="machine">The machine to process</param>
             <param name="import">The item to import.  Any leftover stack will be in this parameter after calling this method</param>
+            <param name="subtile">
+            The sub-tile within this machine that the item would be imported to.<br/>
+            Set this parameter to <see cref="F:Terraria.DataStructures.Point16.NegativeOne"/> to indicate that the sub-tile cannot be determined.
+            </param>
         </member>
         <member name="M:SerousEnergyLib.API.Machines.IInventoryMachine.GetExportSlots">
             <summary>
             Return the slots in <see cref="P:SerousEnergyLib.API.Machines.IInventoryMachine.Inventory"/> which can have items exported from them here, or <see langword="null"/> to indicate that all slots can be exported from.
             </summary>
         </member>
-        <member name="M:SerousEnergyLib.API.Machines.IInventoryMachine.CanExportItemAtSlot(System.Int32)">
+        <member name="M:SerousEnergyLib.API.Machines.IInventoryMachine.CanExportItemAtSlot(System.Int32,Terraria.DataStructures.Point16)">
             <summary>
             Whether the given <paramref name="slot"/> in <see cref="P:SerousEnergyLib.API.Machines.IInventoryMachine.Inventory"/> can be exported from
             </summary>
             <param name="slot">The slot in <see cref="P:SerousEnergyLib.API.Machines.IInventoryMachine.Inventory"/></param>
+            <param name="subtile">
+            The sub-tile within this machine that the item would be imported to.<br/>
+            This parameter will be <see cref="F:Terraria.DataStructures.Point16.NegativeOne"/> if the sub-tile could not be determined.
+            </param>
         </member>
-        <member name="M:SerousEnergyLib.API.Machines.IInventoryMachine.ExportItemAtSlot(SerousEnergyLib.Systems.Networks.ItemNetwork,System.Int32,System.Int32@,System.Boolean,SerousEnergyLib.API.InventoryExtractionResult@)">
+        <member name="M:SerousEnergyLib.API.Machines.IInventoryMachine.ExportItemAtSlot(SerousEnergyLib.Systems.Networks.ItemNetwork,System.Int32,Terraria.DataStructures.Point16,System.Int32@,System.Boolean,SerousEnergyLib.API.InventoryExtractionResult@)">
             <summary>
-            Attempt to extract an item at the given <paramref name="slot"/> in <see cref="P:SerousEnergyLib.API.Machines.IInventoryMachine.Inventory"/><br/>
-            By default, this method acts like extracting items from a chest
+            Attempt to extract an item at the given <paramref name="slot"/> in <see cref="P:SerousEnergyLib.API.Machines.IInventoryMachine.Inventory"/>
             </summary>
             <param name="network">The network to extract items to</param>
             <param name="slot">The slot in <see cref="P:SerousEnergyLib.API.Machines.IInventoryMachine.Inventory"/></param>
+            <param name="pathfindingStart">The starting tile for pathfinding to possible inventories</param>
             <param name="extractCount">The remaining count of items to extract from this machine</param>
             <param name="simulation">Whether to actually remove items from this inventory or just simulate the removal.</param>
             <param name="result">A valid extraction result if the extraction was successful, <see langword="default"/> otherwise.</param>
             <returns>Whether the extraction was successful</returns>
         </member>
-        <member name="M:SerousEnergyLib.API.Machines.IInventoryMachine.ExtractItems(SerousEnergyLib.API.Machines.IInventoryMachine,SerousEnergyLib.Systems.Networks.ItemNetwork,Terraria.DataStructures.Point16,System.Int32@,System.Boolean)">
+        <member name="M:SerousEnergyLib.API.Machines.IInventoryMachine.DefaultExportItemAtSlot(SerousEnergyLib.API.Machines.IInventoryMachine,SerousEnergyLib.Systems.Networks.ItemNetwork,System.Int32,Terraria.DataStructures.Point16,System.Int32@,System.Boolean,SerousEnergyLib.API.InventoryExtractionResult@)">
+            <summary>
+            This method executes the standard logic for <see cref="M:SerousEnergyLib.API.Machines.IInventoryMachine.ExportItemAtSlot(SerousEnergyLib.Systems.Networks.ItemNetwork,System.Int32,Terraria.DataStructures.Point16,System.Int32@,System.Boolean,SerousEnergyLib.API.InventoryExtractionResult@)"/>, where the inventory in <paramref name="machine"/> is treated like a chest inventory
+            </summary>
+            <param name="machine">The machine to process</param>
+            <param name="network">The network to extract items to</param>
+            <param name="slot">The slot in <see cref="P:SerousEnergyLib.API.Machines.IInventoryMachine.Inventory"/></param>
+            <param name="pathfindingStart">The starting tile for pathfinding to possible inventories</param>
+            <param name="extractCount">The remaining count of items to extract from this machine</param>
+            <param name="simulation">Whether to actually remove items from this inventory or just simulate the removal.</param>
+            <param name="result">A valid extraction result if the extraction was successful, <see langword="default"/> otherwise.</param>
+            <returns>Whether the extraction was successful</returns>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.IInventoryMachine.ExtractItems(SerousEnergyLib.API.Machines.IInventoryMachine,SerousEnergyLib.Systems.Networks.ItemNetwork,Terraria.DataStructures.Point16,Terraria.DataStructures.Point16,System.Int32@,System.Boolean)">
             <summary>
             Extracts items from <paramref name="machine"/> into <paramref name="network"/>
             </summary>
             <param name="machine">The machine to process</param>
             <param name="network">The item network to import the items into</param>
             <param name="inventoryTile">The sub-tile that the extraction is performed from</param>
+            <param name="pathfindingStart">The starting tile for pathfinding to possible inventories</param>
             <param name="extractCount">A counter for how many more items can be extracted from this machine</param>
             <param name="simulation">If <see langword="true"/>, items will not be removed from this machine</param>
             <returns>A list of extraction results for use in creating <see cref="T:SerousEnergyLib.Pathfinding.Objects.PipedItem"/> objects</returns>
@@ -1105,6 +1272,12 @@
         </member>
         <member name="M:SerousEnergyLib.API.Machines.IMachine.TryFindMachineExact``1(Terraria.DataStructures.Point16,``0@)">
             <inheritdoc cref="M:SerousEnergyLib.API.Machines.IMachine.TryFindMachineExact(Terraria.DataStructures.Point16,SerousEnergyLib.API.Machines.IMachine@)"/>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.IMachine.CanUpgradeApply(SerousEnergyLib.API.Upgrades.BaseUpgrade)">
+            <summary>
+            Return whether <paramref name="upgrade"/> can be applied to this machine
+            </summary>
+            <param name="upgrade">The upgrade instance</param>
         </member>
         <member name="M:SerousEnergyLib.API.Machines.IMachine.CalculateFromUpgrades``1(SerousEnergyLib.API.Machines.IMachine,``0,System.Func{SerousEnergyLib.API.Upgrades.BaseUpgrade,System.Int32,``0,``0})">
             <summary>
@@ -2364,6 +2537,21 @@
             <param name="y">The tile Y-coordinate</param>
             <exception cref="T:System.ObjectDisposedException"/>
         </member>
+        <member name="M:SerousEnergyLib.Systems.NetworkInstance.HasEntryAdjacentTo(Terraria.DataStructures.Point16)">
+            <summary>
+            Returns <see langword="true"/> if this network has a node adjacent to <paramref name="location"/>
+            </summary>
+            <param name="location">The center tile coordinate</param>
+            <exception cref="T:System.ObjectDisposedException"/>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.NetworkInstance.HasEntryAdjacentTo(System.Int32,System.Int32)">
+            <summary>
+            Returns <see langword="true"/> if this network has a node adjacent to location (<paramref name="x"/>, <paramref name="y"/>)
+            </summary>
+            <param name="x">The center tile X-coordinate</param>
+            <param name="y">The center tile Y-coordinate</param>
+            <exception cref="T:System.ObjectDisposedException"/>
+        </member>
         <member name="M:SerousEnergyLib.Systems.NetworkInstance.TryGetEntry(Terraria.DataStructures.Point16,SerousEnergyLib.Systems.NetworkInstanceNode@)">
             <summary>
             Attempts to find a node within this network
@@ -2542,29 +2730,50 @@
         </member>
         <member name="F:SerousEnergyLib.Systems.Networks.ItemNetwork.ignoredValidTargets">
             <summary>
-            The list of coordinates that <see cref="M:SerousEnergyLib.Systems.Networks.ItemNetwork.FindValidImportTarget(Terraria.Item,Terraria.DataStructures.Point16@,System.Int32@)"/> should ignore
+            The list of coordinates that <see cref="M:SerousEnergyLib.Systems.Networks.ItemNetwork.FindValidImportTargets(Terraria.Item,System.Collections.Generic.List{SerousEnergyLib.API.InventoryInsertionResult}@)"/> should ignore
             </summary>
         </member>
-        <member name="M:SerousEnergyLib.Systems.Networks.ItemNetwork.FindValidImportTarget(Terraria.Item,Terraria.DataStructures.Point16@,System.Int32@)">
+        <member name="M:SerousEnergyLib.Systems.Networks.ItemNetwork.FindValidImportTargets(Terraria.Item,System.Collections.Generic.List{SerousEnergyLib.API.InventoryInsertionResult}@)">
             <summary>
             Attempts to find a valid adjacent inventory that can have <paramref name="import"/> inserted into it.
             </summary>
             <param name="import">The item to attempt to insert.</param>
-            <param name="inventory">The location of the inventory's tile if one was found</param>
-            <param name="stackImported">The quantity of <paramref name="import"/> that can be inserted in the found target, or zero if no target was found</param>
+            <param name="inventories">A list of valid targets if any were found, or an empty list otherwise</param>
             <returns>Whether a valid inventory was found</returns>
         </member>
         <member name="F:SerousEnergyLib.Systems.Networks.ItemNetwork.pipedItemDirection">
             <summary>
-            This field is used to initialize the pathfinding for <see cref="M:SerousEnergyLib.Systems.Networks.ItemNetwork.AttemptToGeneratePathToInventoryTarget(Terraria.DataStructures.Point16,Terraria.DataStructures.Point16)"/>
+            This field is used to initialize the pathfinding for <see cref="M:SerousEnergyLib.Systems.Networks.ItemNetwork.AttemptToGeneratePathToInventoryTarget(Terraria.DataStructures.Point16,Terraria.DataStructures.Point16,System.Double@)"/>
             </summary>
         </member>
-        <member name="M:SerousEnergyLib.Systems.Networks.ItemNetwork.AttemptToGeneratePathToInventoryTarget(Terraria.DataStructures.Point16,Terraria.DataStructures.Point16)">
+        <member name="M:SerousEnergyLib.Systems.Networks.ItemNetwork.GetFastestPath(Terraria.DataStructures.Point16,System.Collections.Generic.List{Terraria.DataStructures.Point16},Terraria.DataStructures.Point16@,System.Nullable{Terraria.DataStructures.Point16})">
+            <summary>
+            This method attempts to the fastest path from <paramref name="start"/> to an inventory target in <paramref name="inventories"/>.
+            </summary>
+            <param name="start">The starting tile coordinate for pathfinding.</param>
+            <param name="inventories">The list of target inventories to try to pathfind to.</param>
+            <param name="chosenInventory">Which inventory in <paramref name="inventories"/> could be reached the fastest, or <see cref="F:Terraria.DataStructures.Point16.NegativeOne"/> if no path could be found.</param>
+            <param name="initialPathDirection">The intial direction to assign to the pathfinding algorithm.  If <see langword="null"/>, this parameter is ignored.</param>
+            <returns>The fastest path found, or <see langword="null"/> if no path could be found.</returns>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.Networks.ItemNetwork.GetFastestPath(Terraria.DataStructures.Point16,System.Collections.Generic.List{SerousEnergyLib.API.InventoryInsertionResult},Terraria.DataStructures.Point16@,System.Int32@,System.Nullable{Terraria.DataStructures.Point16})">
+            <summary>
+            This method attempts to the fastest path from <paramref name="start"/> to an inventory target in <paramref name="inventories"/>.
+            </summary>
+            <param name="start">The starting tile coordinate for pathfinding.</param>
+            <param name="inventories">The list of target inventories to try to pathfind to.</param>
+            <param name="chosenInventory">Which inventory in <paramref name="inventories"/> could be reached the fastest, or <see cref="F:Terraria.DataStructures.Point16.NegativeOne"/> if no path could be found.</param>
+            <param name="stackImported">The quantity of items to import, or zero if no path could be found.</param>
+            <param name="initialPathDirection">The intial direction to assign to the pathfinding algorithm.  If <see langword="null"/>, this parameter is ignored.</param>
+            <returns>The fastest path found, or <see langword="null"/> if no path could be found.</returns>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.Networks.ItemNetwork.AttemptToGeneratePathToInventoryTarget(Terraria.DataStructures.Point16,Terraria.DataStructures.Point16,System.Double@)">
             <summary>
             Attempts to generate a path from <paramref name="current"/> to <paramref name="inventory"/>
             </summary>
             <param name="current">The tile coordinate to start the pathfinding at</param>
             <param name="inventory">The tile coordinate to end the pathfinding at</param>
+            <param name="travelTime">The travel time for the chosen path, or <see cref="F:System.Double.PositiveInfinity"/> if no path could be found</param>
             <returns>A list of tile coordinates for pathfinding, or <see langword="null"/> if no path was found</returns>
         </member>
         <member name="T:SerousEnergyLib.Systems.Networks.PowerNetwork">
@@ -2912,6 +3121,13 @@
             <param name="x">The tile X-coordinate that the player clicked</param>
             <param name="y">The tile Y=coordinate that the player clicked</param>
             <returns><see langword="true"/> if the logic for opening this machine's UI should be blocked, <see langword="false"/> otherwise.</returns>
+        </member>
+        <member name="M:SerousEnergyLib.Tiles.IMachineTile.DefaultPreRightClick(SerousEnergyLib.API.Machines.IMachine)">
+            <summary>
+            This method executes the standard logic for trying to right click upgrades onto a machine
+            </summary>
+            <param name="machine">The entity to try to insert upgrades into</param>
+            <returns><see langword="true"/> if an upgrade was added to the machine, <see langword="false"/> otherwise.</returns>
         </member>
         <member name="M:SerousEnergyLib.Tiles.IMachineTile.MultitileDefaults(SerousEnergyLib.Tiles.IMachineTile,Microsoft.Xna.Framework.Color)">
             <summary>

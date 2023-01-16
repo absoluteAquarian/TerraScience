@@ -12,13 +12,16 @@ using System;
 using SerousEnergyLib.Tiles;
 using Terraria.ModLoader;
 using SerousEnergyLib.Common.Configs;
+using System.Linq;
 
 namespace TerraScience.Common {
 	public static class NetworkDrawing {
+		public const float GasColorTransparency = 0.65f;
+
 		public static void DrawFluid(SpriteBatch spriteBatch, Asset<Texture2D> texture, Point16 location, int columnsPerSet, int rowsPerSet) {
 			Tile tile = Main.tile[location.X, location.Y];
 
-			if (Network.GetFluidNetworkAt(location.X, location.Y) is FluidNetwork net) {
+			foreach (FluidNetwork net in Network.GetFluidNetworksAt(location.X, location.Y)) {
 				var storage = net.Storage;
 
 				if (storage.FluidType > FluidTypeID.None && !storage.IsEmpty) {
@@ -28,13 +31,14 @@ namespace TerraScience.Common {
 
 					double alpha = storage.FluidID.IsLiquid
 						? 1d
-						: 0.65 * factor;
+						: GasColorTransparency * factor;
 
 					if (alpha <= 0)
 						return;
 
 					Color color = storage.FluidID.FluidColor;
 
+					// TODO: TechMod.Sets for "glowing" fluids
 					color = new Color(Lighting.GetColor(location.X, location.Y).ToVector3() * color.ToVector3());
 
 					Vector2 offset = TileFunctions.GetLightingDrawOffset();
@@ -51,7 +55,7 @@ namespace TerraScience.Common {
 							y = 1;
 					}
 
-					Rectangle frame = texture.Frame(columnsPerSet, rowsPerSet, tile.TileFrameX / 18, y * rowsPerSet + tile.TileFrameY / 18);
+					Rectangle frame = texture.Frame(columnsPerSet, rowsPerSet * 4, tile.TileFrameX / 18, y * rowsPerSet + tile.TileFrameY / 18);
 
 					spriteBatch.Draw(texture.Value, location.ToWorldCoordinates(0, 0) + offset - Main.screenPosition, frame, color * (float)alpha, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0);
 				}

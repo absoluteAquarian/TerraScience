@@ -24,15 +24,15 @@ namespace TerraScience.Content.Tiles.Machines {
 			string path = TechMod.GetEffectPath<ReinforcedFurnace>("fuel_sheet");
 			Texture2D fuelSheet = ModContent.Request<Texture2D>(path, AssetRequestMode.ImmediateLoad).Value;
 
-			TechMod.Sets.ReinforcedFurnace.ItemInFurnace[ItemID.Wood] = new MachineSpriteEffectInformation(path, false, new Vector2(14), fuelSheet.Frame(1, 7, 0, 0), true);
-			TechMod.Sets.ReinforcedFurnace.ItemInFurnace[ItemID.BorealWood] = new MachineSpriteEffectInformation(path, false, new Vector2(14), fuelSheet.Frame(1, 7, 0, 1), true);
-			TechMod.Sets.ReinforcedFurnace.ItemInFurnace[ItemID.RichMahogany] = new MachineSpriteEffectInformation(path, false, new Vector2(14), fuelSheet.Frame(1, 7, 0, 2), true);
-			TechMod.Sets.ReinforcedFurnace.ItemInFurnace[ItemID.Ebonwood] = new MachineSpriteEffectInformation(path, false, new Vector2(14), fuelSheet.Frame(1, 7, 0, 3), true);
-			TechMod.Sets.ReinforcedFurnace.ItemInFurnace[ItemID.Shadewood] = new MachineSpriteEffectInformation(path, false, new Vector2(14), fuelSheet.Frame(1, 7, 0, 4), true);
-			TechMod.Sets.ReinforcedFurnace.ItemInFurnace[ItemID.PalmWood] = new MachineSpriteEffectInformation(path, false, new Vector2(14), fuelSheet.Frame(1, 7, 0, 5), true);
-			TechMod.Sets.ReinforcedFurnace.ItemInFurnace[ItemID.Pearlwood] = new MachineSpriteEffectInformation(path, false, new Vector2(14), fuelSheet.Frame(1, 7, 0, 6), true);
+			TechMod.Sets.ReinforcedFurnace.ItemInFurnace[ItemID.Wood] = new MachineSpriteEffectInformation(path, new Vector2(14), fuelSheet.Frame(1, 7, 0, 0), true);
+			TechMod.Sets.ReinforcedFurnace.ItemInFurnace[ItemID.BorealWood] = new MachineSpriteEffectInformation(path, new Vector2(14), fuelSheet.Frame(1, 7, 0, 1), true);
+			TechMod.Sets.ReinforcedFurnace.ItemInFurnace[ItemID.RichMahogany] = new MachineSpriteEffectInformation(path, new Vector2(14), fuelSheet.Frame(1, 7, 0, 2), true);
+			TechMod.Sets.ReinforcedFurnace.ItemInFurnace[ItemID.Ebonwood] = new MachineSpriteEffectInformation(path, new Vector2(14), fuelSheet.Frame(1, 7, 0, 3), true);
+			TechMod.Sets.ReinforcedFurnace.ItemInFurnace[ItemID.Shadewood] = new MachineSpriteEffectInformation(path, new Vector2(14), fuelSheet.Frame(1, 7, 0, 4), true);
+			TechMod.Sets.ReinforcedFurnace.ItemInFurnace[ItemID.PalmWood] = new MachineSpriteEffectInformation(path, new Vector2(14), fuelSheet.Frame(1, 7, 0, 5), true);
+			TechMod.Sets.ReinforcedFurnace.ItemInFurnace[ItemID.Pearlwood] = new MachineSpriteEffectInformation(path, new Vector2(14), fuelSheet.Frame(1, 7, 0, 6), true);
 
-			FireEffectSheet = new MachineSpriteEffectInformation(TechMod.GetEffectPath<ReinforcedFurnace>("fire"), false, new Vector2(10, 8), null, false);
+			FireEffectSheet = new MachineSpriteEffectInformation(TechMod.GetEffectPath<ReinforcedFurnace>("fire"), new Vector2(10, 8), null, false);
 		}
 
 		public override void GetMachineDimensions(out uint width, out uint height) {
