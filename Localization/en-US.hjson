@@ -14,13 +14,15 @@
 			MoreOutputUpgradeItem: "{$Mods.TerraScience.MachineUpgradeName.MoreOutputUpgrade}"
 			FluidTankItem: "Basic Fluid Tank"
 			CraftableFluidTankItem: "{$Mods.TerraScience.ItemName.FluidTankItem}"
+			FurnaceGeneratorItem: "Combustion Generator"
+			CraftableFurnaceGeneratorItem: "{$Mods.TerraScience.ItemName.FurnaceGeneratorItem}"
 		}
 
 		ItemTooltip: {
 			BasicTerraFluxWireItem:
 			'''
 			Used to connect machines to power sources
-			{$Mods.TerraScience.CommonFooter.Wires]
+			{$Mods.TerraScience.CommonFooter.Wires}
 			'''
 			BasicItemTransportItem:
 			'''
@@ -69,6 +71,13 @@
 			{$Mods.SerousEnergyLib.CommonMachineItemTooltipFooter}
 			'''
 			CraftableFluidTankItem: "{$Mods.TerraScience.ItemTooltip.FluidTankItem}"
+			FurnaceGeneratorItem:
+			'''
+			Burns wood and other materials to generate Terra Flux
+			Total power generated per item depends on the efficiency of the item
+			{$Mods.SerousEnergyLib.CommonMachineItemTooltipFooter}
+			'''
+			CraftableFurnaceGeneratorItem: "{$Mods.TerraScience.ItemTooltip.FurnaceGeneratorItem}"
 		}
 
 		CommonFooter: {
@@ -110,6 +119,7 @@
 			MachineWorkbench: "Machine Workbench"
 			ReinforcedFurnace: "Reinforced Furnace"
 			FluidTank: "Basic Fluid Tank"
+			FurnaceGenerator: "Combustion Generator"
 		}
 
 		MachineUpgradeName: {
@@ -127,6 +137,7 @@
 		UI: {
 			ThermostatHover: "Temperature: {0:0.###} C / {1:0.###} C"
 			FluidGaugeHover: "{0:0.###} L / {1:0.###} L"
+			PowerGaugeHover: "{0:0.###} {2} / {1:0.###} {2}"
 		}
 
 		MachineText: {
@@ -161,6 +172,14 @@
 
 				Page: {
 					Storage: "Storage"
+				}
+			}
+
+			FurnaceGenerator: {
+				Description: "Burns wood and other materials to generate Terra Flux"
+
+				Page: {
+					Generator: "Generator"
 				}
 			}
 		}

@@ -12,7 +12,6 @@ using System;
 using SerousEnergyLib.Tiles;
 using Terraria.ModLoader;
 using SerousEnergyLib.Common.Configs;
-using System.Linq;
 
 namespace TerraScience.Common {
 	public static class NetworkDrawing {

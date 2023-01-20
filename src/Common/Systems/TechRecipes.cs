@@ -1,4 +1,6 @@
 ﻿using SerousEnergyLib.API;
+using SerousEnergyLib.API.Energy.Default;
+using SerousEnergyLib.API.Fluid;
 using SerousEnergyLib.API.Fluid.Default;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,12 +10,14 @@ using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ModLoader.Core;
 using TerraScience.Content.Items.Materials;
+using TerraScience.Content.MachineEntities;
 using TerraScience.Content.Tiles.Machines;
 
 namespace TerraScience.Common.Systems {
 	public class TechRecipes : ModSystem {
 		public override void AddRecipeGroups() {
 			RegisterRecipeGroup(nameof(ItemID.CopperBar), ItemID.CopperBar, ItemID.TinBar);
+			RegisterRecipeGroup(nameof(ItemID.GoldBar), ItemID.GoldBar, ItemID.PlatinumBar);
 		}
 
 		public static void RegisterRecipeGroup(string groupName, params int[] validTypes) {
@@ -23,6 +27,11 @@ namespace TerraScience.Common.Systems {
 		}
 
 		public override void AddRecipes() {
+			Recipe.Create(ItemID.Torch, 8)
+				.AddIngredient<Charcoal>(1)
+				.AddRecipeGroup(RecipeGroupID.Wood, 1)
+				.Register();
+
 			LoaderUtils.ResetStaticMembers(typeof(Sets), true);
 
 			// ===== Reinforced Furnace recipes =====
@@ -36,30 +45,74 @@ namespace TerraScience.Common.Systems {
 				.CreateAndRegisterAllPossibleRecipes());
 
 			// ===== Fluid Tank recipes =====
-			Sets.FluidTank.Add(new MachineRecipe<FluidTank>()
-				.AddIngredient(ItemID.EmptyBucket)
-				.AddFluidIngredient<WaterFluidID>(1d)
-				.AddPossibleOutput(ItemID.WaterBucket)
-				.AddTimeRequirement(new Ticks(1))
-				.CreateAndRegisterAllPossibleRecipes());
+			for (int i = 0; i < ItemLoader.ItemCount; i++) {
+				var recipe = new MachineRecipe<FluidTank>()
+					.AddIngredient(i);
 
-			Sets.FluidTank.Add(new MachineRecipe<FluidTank>()
-				.AddIngredient(ItemID.EmptyBucket)
-				.AddFluidIngredient<LavaFluidID>(1d)
-				.AddPossibleOutput(ItemID.LavaBucket)
-				.AddTimeRequirement(new Ticks(1))
-				.CreateAndRegisterAllPossibleRecipes());
+				int leftover = TechMod.Sets.FluidTank.FluidImportLeftover[i];
 
-			Sets.FluidTank.Add(new MachineRecipe<FluidTank>()
-				.AddIngredient(ItemID.EmptyBucket)
-				.AddFluidIngredient<HoneyFluidID>(1d)
-				.AddPossibleOutput(ItemID.HoneyBucket)
-				.AddTimeRequirement(new Ticks(1))
-				.CreateAndRegisterAllPossibleRecipes());
+				if (leftover > ItemID.None)
+					recipe.AddPossibleOutput(leftover);
+
+				int fluid = TechMod.Sets.FluidTank.FluidImport[i];
+
+				if (fluid <= FluidTypeID.None)
+					continue;
+
+				// TODO: vials might not have 1 L
+				Sets.FluidTank.Add(recipe
+					.AddPossibleFluidOutput(fluid, 1d)
+					.AddTimeRequirement(new Ticks(1))
+					.CreateAndRegisterAllPossibleRecipes());
+			}
+
+			for (int i = 0; i < FluidLoader.Count; i++) {
+				int[] set = TechMod.Sets.FluidTank.FluidExportResult[i];
+
+				if (set is null)
+					continue;
+
+				for (int input = 0; input < set.Length; input++) {
+					int output = set[input];
+
+					if (output <= ItemID.None)
+						continue;
+
+					double quantity = TechMod.Sets.FluidTank.FluidExportQuantity[input];
+
+					if (quantity <= 0)
+						continue;
+
+					Sets.FluidTank.Add(new MachineRecipe<FluidTank>()
+						.AddIngredient(input)
+						.AddFluidIngredient(i, 1d)
+						.AddPossibleOutput(output)
+						.AddPossibleFluidOutput(i, quantity)
+						.AddTimeRequirement(new Ticks(1))
+						.CreateAndRegisterAllPossibleRecipes());
+				}
+			}
+
+			// ===== Combustion Generator recipes =====
+			for (int i = 0; i < ItemLoader.ItemCount; i++) {
+				Ticks duration = TechMod.Sets.FurnaceGenerator.BurnDuration[i];
+
+				if (duration <= 0)
+					continue;
+
+				double flux = FurnaceGeneratorEntity.ConstantGenerationPerTick * duration.ticks;
+
+				Sets.FurnaceGenerator.Add(new MachineRecipe<FurnaceGenerator>()
+					.AddIngredient(i)
+					.AddPossiblePowerOutput<TerraFluxTypeID>((int)flux)
+					.AddTimeRequirement(duration)
+					.CreateAndRegisterAllPossibleRecipes());
+			}
 		}
 
 		public override void Unload() {
 			Sets.ReinforcedFurnace = null;
+			Sets.FluidTank = null;
 		}
 
 		public static Item GetIngredientItem(Recipe recipe, int index) {
@@ -98,6 +151,7 @@ namespace TerraScience.Common.Systems {
 		public static class Sets {
 			public static List<MachineRecipe> ReinforcedFurnace = new();
 			public static List<MachineRecipe> FluidTank = new();
+			public static List<MachineRecipe> FurnaceGenerator = new();
 		}
 	}
 }

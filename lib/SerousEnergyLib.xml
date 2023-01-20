@@ -171,6 +171,11 @@
             The item ID to use when displaying this energy type in a recipe
             </summary>
         </member>
+        <member name="P:SerousEnergyLib.API.Energy.EnergyTypeID.Color">
+            <summary>
+            The color to use in UIs which render this energy type
+            </summary>
+        </member>
         <member name="M:SerousEnergyLib.API.Energy.EnergyTypeID.SetupContent">
             <inheritdoc cref="M:Terraria.ModLoader.ModType.SetupContent"/>
         </member>
@@ -668,16 +673,54 @@
             <summary>
             Adds a possible output to this recipe with the given item type, stack size and probability. Ex: <c>recipe.AddPossibleOutput(ItemID.IronAxe, 0.25)</c>
             </summary>
-            <param name="type">The item identifier.</param>
-            <param name="stack">The stack.</param>
+            <param name="type">The item identifier</param>
+            <param name="stack">The stack</param>
             <param name="chance">The chance displayed when viewing this recipe</param>
         </member>
         <member name="M:SerousEnergyLib.API.MachineRecipe.AddPossibleOutput``1(System.Int32,System.Double)">
             <summary>
             Adds a possible output to this recipe with the given item type, stack size and probability.
             </summary>
-            <param name="stack">The stack.</param>
+            <param name="stack">The stack</param>
             <param name="chance">The chance displayed when viewing this recipe</param>
+        </member>
+        <member name="M:SerousEnergyLib.API.MachineRecipe.AddPossibleFluidOutput(System.Int32,System.Double,System.Double)">
+            <summary>
+            Adds a possible fluid output to this recipe with the given fluid ID, quantity and probability
+            </summary>
+            <param name="fluidID">The <see cref="T:SerousEnergyLib.API.Fluid.FluidTypeID"/> identifier</param>
+            <param name="liters">The quantity</param>
+            <param name="chance">The chance displayed when viewing this recipe</param>
+            <exception cref="T:System.ArgumentException"/>
+            <exception cref="T:System.ArgumentOutOfRangeException"/>
+        </member>
+        <member name="M:SerousEnergyLib.API.MachineRecipe.AddPossibleFluidOutput``1(System.Double,System.Double)">
+            <summary>
+            Adds a possible fluid output to this recipe with the given fluid ID, quantity and probability
+            </summary>
+            <param name="liters">The quantity</param>
+            <param name="chance">The chance displayed when viewing this recipe</param>
+            <exception cref="T:System.ArgumentException"/>
+            <exception cref="T:System.ArgumentOutOfRangeException"/>
+        </member>
+        <member name="M:SerousEnergyLib.API.MachineRecipe.AddPossiblePowerOutput(System.Int32,System.Int32,System.Double)">
+            <summary>
+            Adds a possible power output to this recipe with the given energy ID, quantity and probability
+            </summary>
+            <param name="energyID">The <see cref="T:SerousEnergyLib.API.Energy.EnergyTypeID"/> identifier</param>
+            <param name="amount">The quantity</param>
+            <param name="chance">The chance displayed when viewing this recipe</param>
+            <exception cref="T:System.ArgumentException"/>
+            <exception cref="T:System.ArgumentOutOfRangeException"/>
+        </member>
+        <member name="M:SerousEnergyLib.API.MachineRecipe.AddPossiblePowerOutput``1(System.Int32,System.Double)">
+            <summary>
+            Adds a possible power output to this recipe with the given energy ID, quantity and probability
+            </summary>
+            <param name="amount">The quantity</param>
+            <param name="chance">The chance displayed when viewing this recipe</param>
+            <exception cref="T:System.ArgumentException"/>
+            <exception cref="T:System.ArgumentOutOfRangeException"/>
         </member>
         <member name="M:SerousEnergyLib.API.MachineRecipe.CreateAndRegisterAllPossibleRecipes">
             <summary>
@@ -874,8 +917,17 @@
         <member name="M:SerousEnergyLib.API.Machines.Default.BasePowerGeneratorEntity.CanUpgradeApply(SerousEnergyLib.API.Upgrades.BaseUpgrade)">
             <inheritdoc cref="M:SerousEnergyLib.API.Machines.IMachine.CanUpgradeApply(SerousEnergyLib.API.Upgrades.BaseUpgrade)"/>
         </member>
+        <member name="M:SerousEnergyLib.API.Machines.Default.BasePowerGeneratorEntity.GeneratorUpdate">
+            <summary>
+            A helper method for easily supporting <see cref="P:SerousEnergyLib.Systems.Network.UpdatingPowerGenerators"/> automatically.<br/>
+            If that property is <see langword="false"/>, this method will not execute.
+            </summary>
+        </member>
         <member name="M:SerousEnergyLib.API.Machines.Default.BasePowerGeneratorEntity.CanMergeWithWire(System.Int32,System.Int32,System.Int32,System.Int32)">
             <inheritdoc cref="M:SerousEnergyLib.API.Machines.IPoweredMachine.CanMergeWithWire(System.Int32,System.Int32,System.Int32,System.Int32)"/>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.Default.BasePowerGeneratorEntity.GetPowerGeneration(System.Double)">
+            <inheritdoc cref="M:SerousEnergyLib.API.Machines.IPowerGeneratorMachine.GetPowerGeneration(System.Double)"/>
         </member>
         <member name="T:SerousEnergyLib.API.Machines.Default.BasePowerStorageEntity">
             <summary>
@@ -1315,26 +1367,6 @@
             <param name="upgrade">The upgrade to add</param>
             <returns>Whether <paramref name="upgrade"/> could be added to <paramref name="machine"/></returns>
         </member>
-        <member name="T:SerousEnergyLib.API.Machines.IMachine.NetworkSearchResult">
-            <summary>
-            A struct representing a search result for an adjacent network
-            </summary>
-        </member>
-        <member name="F:SerousEnergyLib.API.Machines.IMachine.NetworkSearchResult.network">
-            <summary>
-            The adjacent network instance
-            </summary>
-        </member>
-        <member name="F:SerousEnergyLib.API.Machines.IMachine.NetworkSearchResult.tileInNetwork">
-            <summary>
-            The tile in the network that was adjacent to <see cref="F:SerousEnergyLib.API.Machines.IMachine.NetworkSearchResult.machineTileAdjacentToNetwork"/>
-            </summary>
-        </member>
-        <member name="F:SerousEnergyLib.API.Machines.IMachine.NetworkSearchResult.machineTileAdjacentToNetwork">
-            <summary>
-            The tile within this machine that is adjacent to the network
-            </summary>
-        </member>
         <member name="M:SerousEnergyLib.API.Machines.IMachine.GetAdjacentNetworks(SerousEnergyLib.API.Machines.IMachine,SerousEnergyLib.TileData.NetworkType,System.Boolean)">
             <summary>
             Returns an enumeration of the adjacent networks to <paramref name="machine"/> which satisfy the filter, <paramref name="type"/>
@@ -1669,6 +1701,26 @@
             The event that executes whenever this page is deselected
             </summary>
         </member>
+        <member name="T:SerousEnergyLib.API.NetworkSearchResult">
+            <summary>
+            A struct representing a search result for an adjacent network
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.API.NetworkSearchResult.network">
+            <summary>
+            The adjacent network instance
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.API.NetworkSearchResult.tileInNetwork">
+            <summary>
+            The tile in the network that was adjacent to <see cref="F:SerousEnergyLib.API.NetworkSearchResult.machineTileAdjacentToNetwork"/>
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.API.NetworkSearchResult.machineTileAdjacentToNetwork">
+            <summary>
+            The tile within this machine that is adjacent to the network
+            </summary>
+        </member>
         <member name="T:SerousEnergyLib.API.Sounds.MachineSounds">
             <summary>
             The central class for managing sound IDs used by certain <see cref="T:SerousEnergyLib.Systems.Netcode"/> packets
@@ -1942,12 +1994,14 @@
         </member>
         <member name="P:SerousEnergyLib.Items.BaseMachineItem.MachineUsesEnergyPerTick">
             <summary>
-            If this item's machine is an <see cref="T:SerousEnergyLib.API.Machines.IPoweredMachine"/>, this property indicates whether the tooltip line should be "per game tick" or "per operation"
+            If this item's machine is an <see cref="T:SerousEnergyLib.API.Machines.IPoweredMachine"/>, this property indicates whether the tooltip line should be "per game tick" or "per operation".<br/>
+            Defaults to <see langword="true"/>.
             </summary>
         </member>
         <member name="P:SerousEnergyLib.Items.BaseMachineItem.MachineGeneratesEnergyPerTick">
             <summary>
-            If this item's machine is an <see cref="T:SerousEnergyLib.API.Machines.IPowerGeneratorMachine"/>, this property indicates whether the tooltip line should be "per game tick" or "per operation"
+            If this item's machine is an <see cref="T:SerousEnergyLib.API.Machines.IPowerGeneratorMachine"/>, this property indicates whether the tooltip line should be "per game tick" or "per operation".<br/>
+            Defaults to <see langword="true"/>.
             </summary>
         </member>
         <member name="M:SerousEnergyLib.Items.BaseMachineItem.SafeSetDefaults">
@@ -2420,6 +2474,12 @@
             An abstraction over accessing and manipulating <see cref="T:SerousEnergyLib.TileData.NetworkInfo"/> data in tiles
             </summary>
         </member>
+        <member name="P:SerousEnergyLib.Systems.Network.UpdatingPowerGenerators">
+            <summary>
+            Whether an <see cref="T:SerousEnergyLib.API.Machines.IPowerGeneratorMachine"/> machine should update.
+            Use this property to prevent a generator machine from updating twice per game tick.
+            </summary>
+        </member>
         <member name="M:SerousEnergyLib.Systems.Network.PlaceEntry(System.Int32,System.Int32,SerousEnergyLib.TileData.NetworkType)">
             <summary>
             Updates the tile at position (<paramref name="x"/>, <paramref name="y"/>) and the 4 entries adjacent to it in the cardinal directions
@@ -2507,6 +2567,12 @@
             An object representing pathfinding trees in a network of <see cref="T:SerousEnergyLib.Tiles.BaseNetworkTile"/> tiles
             </summary>
         </member>
+        <member name="M:SerousEnergyLib.Systems.NetworkInstance.UpdateCoarseNode(Terraria.DataStructures.Point16)">
+            <summary>
+            Updates the paths within a coarse node at <paramref name="coarseLocation"/>
+            </summary>
+            <param name="coarseLocation">The "coarse location" for the node to update.  Nodes take up square areas of length <see cref="F:SerousEnergyLib.Pathfinding.Nodes.CoarseNode.Stride"/></param>
+        </member>
         <member name="P:SerousEnergyLib.Systems.NetworkInstance.Filter">
             <summary>
             Which type of network tiles this network can detect when performing pathfinding
@@ -2520,6 +2586,39 @@
         <member name="M:SerousEnergyLib.Systems.NetworkInstance.CopyExtraData(SerousEnergyLib.Systems.NetworkInstance)">
             <summary>
             Copy extra data from <paramref name="source"/> into this network here
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.NetworkInstance.OnEntryAdded(Terraria.DataStructures.Point16)">
+            <summary>
+            This method is called after am entry is added to this network
+            </summary>
+            <param name="location">The tile location of the entry</param>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.NetworkInstance.OnNetworkCloned(SerousEnergyLib.Systems.NetworkInstance)">
+            <summary>
+            This method is called after this network was cloned from another network and this network's nodes were updated
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.NetworkInstance.OnEntryRemoved(Terraria.DataStructures.Point16)">
+            <summary>
+            This method is called after an entry is removed from this network, but before its corresponding tile is destroyed
+            </summary>
+            <param name="location">The tile location of the entry to remove</param>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.NetworkInstance.OnNetworkReset">
+            <summary>
+            This method is called when the network is reset before recalulation of its paths begins
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.Systems.NetworkInstance.junctionDirectionRedirect">
+            <summary>
+            Indexed by <c>[mode, direction]</c><br/>
+            Mode = tile frame X / 18<br/>
+            Directions:<br/>
+            Left = 0<br/>
+            Down = 1<br/>
+            Right = 2<br/>
+            Up = 3<br/>
             </summary>
         </member>
         <member name="M:SerousEnergyLib.Systems.NetworkInstance.HasEntry(Terraria.DataStructures.Point16)">
@@ -2576,78 +2675,6 @@
             <param name="direction">The direction of the pump's head if one was found, <see cref="F:SerousEnergyLib.TileData.PumpDirection.Left"/> otherwise</param>
             <exception cref="T:System.ObjectDisposedException"/>
         </member>
-        <member name="M:SerousEnergyLib.Systems.NetworkInstance.OnEntryAdded(Terraria.DataStructures.Point16)">
-            <summary>
-            This method is called after am entry is added to this network
-            </summary>
-            <param name="location">The tile location of the entry</param>
-        </member>
-        <member name="M:SerousEnergyLib.Systems.NetworkInstance.OnNetworkCloned(SerousEnergyLib.Systems.NetworkInstance)">
-            <summary>
-            This method is called after this network was cloned from another network and this network's nodes were updated
-            </summary>
-        </member>
-        <member name="M:SerousEnergyLib.Systems.NetworkInstance.OnEntryRemoved(Terraria.DataStructures.Point16)">
-            <summary>
-            This method is called after an entry is removed from this network, but before its corresponding tile is destroyed
-            </summary>
-            <param name="location">The tile location of the entry to remove</param>
-        </member>
-        <member name="M:SerousEnergyLib.Systems.NetworkInstance.Recalculate(Terraria.DataStructures.Point16)">
-            <summary>
-            Completely recalculates the paths for this network instance.<br/>
-            Calling this method is <b>NOT</b> recommended when adding/removing entries from the network.  Use the appropriate methods for those instead.
-            </summary>
-            <param name="start">The first tile to process when recalculating the paths</param>
-        </member>
-        <member name="M:SerousEnergyLib.Systems.NetworkInstance.OnNetworkReset">
-            <summary>
-            This method is called when the network is reset before recalulation of its paths begins
-            </summary>
-        </member>
-        <member name="M:SerousEnergyLib.Systems.NetworkInstance.OnRecalculate(System.Collections.Generic.IReadOnlyDictionary{Terraria.DataStructures.Point16,SerousEnergyLib.Systems.NetworkInstanceNode})">
-            <summary>
-            This method is called after the network has recalculated its paths
-            </summary>
-            <param name="nodes">The collection of entries in the network, indexed by tile position</param>
-        </member>
-        <member name="M:SerousEnergyLib.Systems.NetworkInstance.UpdateCoarseNode(Terraria.DataStructures.Point16)">
-            <summary>
-            Updates the paths within a coarse node at <paramref name="coarseLocation"/>
-            </summary>
-            <param name="coarseLocation">The "coarse location" for the node to update.  Nodes take up square areas of length <see cref="F:SerousEnergyLib.Pathfinding.Nodes.CoarseNode.Stride"/></param>
-        </member>
-        <member name="M:SerousEnergyLib.Systems.NetworkInstance.GeneratePath(Terraria.DataStructures.Point16,Terraria.DataStructures.Point16,System.Double@)">
-            <summary>
-            Attempts to generate a path from <paramref name="start"/> to <paramref name="end"/>
-            </summary>
-            <param name="start">The starting tile location</param>
-            <param name="end">The final tile location</param>
-            <param name="travelTime">The "travel time" for the path if one was found</param>
-            <returns>A list of tile coordinates for pathfinding, or <see langword="null"/> if no path was found</returns>
-            <exception cref="T:System.ObjectDisposedException"/>
-        </member>
-        <member name="F:SerousEnergyLib.Systems.NetworkInstance.junctionDirectionRedirect">
-            <summary>
-            Indexed by <c>[mode, direction]</c><br/>
-            Mode = tile frame X / 18<br/>
-            Directions:<br/>
-            Left = 0<br/>
-            Down = 1<br/>
-            Right = 2<br/>
-            Up = 3<br/>
-            </summary>
-        </member>
-        <member name="M:SerousEnergyLib.Systems.NetworkInstance.SaveExtraData(Terraria.ModLoader.IO.TagCompound)">
-            <summary>
-            Save additional data to this network here
-            </summary>
-        </member>
-        <member name="M:SerousEnergyLib.Systems.NetworkInstance.LoadExtraData(Terraria.ModLoader.IO.TagCompound)">
-            <summary>
-            Load additional data from <paramref name="tag"/> to this network here
-            </summary>
-        </member>
         <member name="M:SerousEnergyLib.Systems.NetworkInstance.SendExtraData(System.IO.BinaryWriter)">
             <summary>
             This method is called when a network is going to be synced to a client
@@ -2659,6 +2686,39 @@
             This method is called when a network sync is being received by a client
             </summary>
             <param name="reader">The incoming data stream</param>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.NetworkInstance.GeneratePath(Terraria.DataStructures.Point16,Terraria.DataStructures.Point16,System.Double@)">
+            <summary>
+            Attempts to generate a path from <paramref name="start"/> to <paramref name="end"/>
+            </summary>
+            <param name="start">The starting tile location</param>
+            <param name="end">The final tile location</param>
+            <param name="travelTime">The "travel time" for the path if one was found</param>
+            <returns>A list of tile coordinates for pathfinding, or <see langword="null"/> if no path was found</returns>
+            <exception cref="T:System.ObjectDisposedException"/>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.NetworkInstance.Recalculate(Terraria.DataStructures.Point16)">
+            <summary>
+            Completely recalculates the paths for this network instance.<br/>
+            Calling this method is <b>NOT</b> recommended when adding/removing entries from the network.  Use the appropriate methods for those instead.
+            </summary>
+            <param name="start">The first tile to process when recalculating the paths</param>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.NetworkInstance.OnRecalculate(System.Collections.Generic.IReadOnlyDictionary{Terraria.DataStructures.Point16,SerousEnergyLib.Systems.NetworkInstanceNode})">
+            <summary>
+            This method is called after the network has recalculated its paths
+            </summary>
+            <param name="nodes">The collection of entries in the network, indexed by tile position</param>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.NetworkInstance.SaveExtraData(Terraria.ModLoader.IO.TagCompound)">
+            <summary>
+            Save additional data to this network here
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.Systems.NetworkInstance.LoadExtraData(Terraria.ModLoader.IO.TagCompound)">
+            <summary>
+            Load additional data from <paramref name="tag"/> to this network here
+            </summary>
         </member>
         <member name="T:SerousEnergyLib.Systems.NetworkInstanceNode">
             <summary>

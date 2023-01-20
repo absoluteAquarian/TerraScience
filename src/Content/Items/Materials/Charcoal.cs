@@ -11,6 +11,7 @@ namespace TerraScience.Content.Items.Materials {
 			Item.rare = ItemRarityID.Blue;
 			Item.maxStack = 999;
 			Item.value = 10;
+			Item.consumable = true;
 		}
 	}
 }

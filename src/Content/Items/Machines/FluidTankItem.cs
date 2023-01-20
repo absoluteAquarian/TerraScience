@@ -19,8 +19,6 @@ namespace TerraScience.Content.Items.Machines {
 
 	// This item places the tile, but the tile drops FluidTankItem instead since that item has a maxStack of 1 and needs to store the data in unique stacks
 	public class CraftableFluidTankItem : DatalessMachineItem<FluidTankItem, FluidTank> {
-		public override string Texture => base.Texture.Replace("Content", "Assets");
-
 		public override void AddRecipes() {
 			CreateRecipe()
 				.AddRecipeGroup(RecipeGroupID.IronBar, 12)

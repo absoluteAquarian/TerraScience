@@ -5,6 +5,7 @@ using SerousEnergyLib.API.Fluid.Default;
 using SerousEnergyLib.Tiles;
 using Terraria.ID;
 using Terraria.ModLoader;
+using TerraScience.Content.Items.Materials;
 using TerraScience.Content.MachineEntities;
 
 namespace TerraScience {
@@ -55,6 +56,8 @@ namespace TerraScience {
 					ItemID.LavaBucket,
 					ItemID.BottomlessLavaBucket,
 					ItemID.HoneyBucket);
+				// NOTE:  For futureproofing, the "can be placed" and "result" sets are separated.
+				//        If an item can be used, but produces no leftover, then it should only have an entry in the "can be placed" set
 
 				/// <summary>
 				/// When an item from <see cref="CanBePlacedInFluidImportSlot"/> has its fluid "removed", this is the item type that will be placed in the fluid insertion output item slot
@@ -101,6 +104,22 @@ namespace TerraScience {
 				/// </summary>
 				public static double[] FluidExportQuantity = Factory.CreateCustomSet(-1d,
 					ItemID.EmptyBucket, 1d);
+			}
+
+			public static class FurnaceGenerator {
+				/// <summary>
+				/// How long it takes for the Combustion Generator to burn an item
+				/// </summary>
+				public static Ticks[] BurnDuration = Factory.CreateCustomSet(Ticks.Zero,
+					ItemID.Gel, Ticks.FromSeconds(0.75),
+					ItemID.Wood, Ticks.FromSeconds(3),
+					ItemID.BorealWood, Ticks.FromSeconds(3.25),
+					ItemID.RichMahogany, Ticks.FromSeconds(2.8),
+					ItemID.Ebonwood, Ticks.FromSeconds(3),
+					ItemID.Shadewood, Ticks.FromSeconds(3),
+					ItemID.PalmWood, Ticks.FromSeconds(2.9),
+					ItemID.Pearlwood, Ticks.FromSeconds(3),
+					ModContent.ItemType<Charcoal>(), Ticks.FromSeconds(6));
 			}
 		}
 	}

@@ -59,8 +59,8 @@ namespace TerraScience.Common.UI.Elements {
 		}
 
 		private void SetDimensionsToAtLeast_WithoutRecalculate(float pixelWidth, float pixelHeight) {
-			int minPixelWidth = 6 * singleSegmentWidth;
-			int minPixelHeight = rowOneTwoSegmentHeight + rowOneTwoSegmentHeight + rowThreeSegmentHeight;
+			const int minPixelWidth = 6 * singleSegmentWidth;
+			const int minPixelHeight = rowOneTwoSegmentHeight + rowOneTwoSegmentHeight + rowThreeSegmentHeight;
 
 			if (pixelWidth < minPixelWidth)
 				throw new ArgumentOutOfRangeException(nameof(pixelWidth), "Pixel width must be greater than or equal to " + minPixelWidth + " pixels");

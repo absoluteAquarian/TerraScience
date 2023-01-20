@@ -10,6 +10,7 @@ using System;
 using System.IO;
 using Terraria;
 using Terraria.DataStructures;
+using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using TerraScience.Common.UI.Machines;
@@ -48,7 +49,7 @@ namespace TerraScience.Content.MachineEntities {
 				int fluid = TechMod.Sets.FluidTank.FluidImport[importInput.type];
 				int leftover = TechMod.Sets.FluidTank.FluidImportLeftover[importInput.type];
 
-				if (fluid > -1 && (importOutput.IsAir || leftover < 0 || (importOutput.type == leftover && importOutput.stack < importOutput.maxStack))) {
+				if (fluid > FluidTypeID.None && (importOutput.IsAir || leftover <= ItemID.None || (importOutput.type == leftover && importOutput.stack < importOutput.maxStack))) {
 					// Import the fluid
 					// TODO: vials might not have 1 L
 					double liters = 1d;
@@ -103,7 +104,7 @@ namespace TerraScience.Content.MachineEntities {
 					} else {
 						int export = GetFluidExportResult(exportInput.type, exportedType);
 
-						if (export > -1) {
+						if (export > ItemID.None) {
 							if (!exportOutput.IsAir && export != exportOutput.type) {
 								// Export failed
 								storage.Import(exportedType, ref liters);
@@ -122,6 +123,9 @@ namespace TerraScience.Content.MachineEntities {
 								Netcode.SyncMachineInventorySlot(this, 0);
 								Netcode.SyncMachineInventorySlot(this, 1);
 							}
+						} else {
+							// Export failed
+							storage.Import(exportedType, ref liters);
 						}
 					}
 				}

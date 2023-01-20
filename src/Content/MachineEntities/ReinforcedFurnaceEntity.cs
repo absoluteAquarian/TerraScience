@@ -47,10 +47,9 @@ namespace TerraScience.Content.MachineEntities {
 		/// </summary>
 		public const double Cool_K = 0.2631;
 		public const double Epsilon = 0.005;
+		#endregion
 
 		public CraftingProgress Progress { get; private set; } = new CraftingProgress();
-
-		#endregion
 
 		// Used to track when the input item's type has changed
 		private int oldItem;
@@ -133,15 +132,19 @@ namespace TerraScience.Content.MachineEntities {
 				activeRecipe = null;
 			} else if (CurrentTemperature >= requiredHeat) {
 				Ticks time = TechMod.Sets.ReinforcedFurnace.ConversionDuration[input.type];
+				if (time < 1)
+					time = new Ticks(1);
 
 				if (Progress.Step(1f / time.ticks)) {
 					// Conversion was completed
-					input.stack--;
+					if (input.consumable) {
+						input.stack--;
 
-					if (input.stack <= 0)
-						input.TurnToAir();
+						if (input.stack <= 0)
+							input.TurnToAir();
 
-					Netcode.SyncMachineInventorySlot(this, 0);
+						Netcode.SyncMachineInventorySlot(this, 0);
+					}
 
 					IItemOutputGeneratorMachine.AddRecipeOutputsToExportInventory(this, activeRecipe);
 
@@ -230,10 +233,7 @@ namespace TerraScience.Content.MachineEntities {
 			if (requiredHeat < 0)
 				return false;
 
-			if (activeRecipe is null) {
-				inv = new Item[] { input };
-				activeRecipe = TechRecipes.Sets.ReinforcedFurnace.Where(m => m.IngredientSetMatches(this)).FirstOrDefault();
-			}
+			activeRecipe ??= TechRecipes.Sets.ReinforcedFurnace.Where(m => m.IngredientSetMatches(this)).FirstOrDefault();
 
 			return activeRecipe is not null;
 		}
@@ -251,7 +251,7 @@ namespace TerraScience.Content.MachineEntities {
 			base.LoadData(tag);
 
 			CurrentTemperature = tag.GetDouble("temp");
-			if (tag.GetCompound("progress") is TagCompound progress)
+			if (tag.TryGet("progress", out TagCompound progress))
 				Progress.LoadData(progress);
 			else
 				Progress = new();
@@ -300,14 +300,7 @@ namespace TerraScience.Content.MachineEntities {
 		public void ReducedNetSend(BinaryWriter writer) {
 			writer.Write(CurrentTemperature);
 
-			var progress = Progress;
-			var speed = progress.SpeedFactor;
-
-			writer.Write(progress.Progress);
-			writer.Write(speed.Additive);
-			writer.Write(speed.Multiplicative);
-			writer.Write(speed.Flat);
-			writer.Write(speed.Base);
+			Progress.Send(writer);
 
 			writer.Write(oldItem);
 
@@ -317,16 +310,8 @@ namespace TerraScience.Content.MachineEntities {
 		public void ReducedNetReceive(BinaryReader reader) {
 			CurrentTemperature = reader.ReadDouble();
 
-			float progress = reader.ReadSingle();
-			float speedAdditive = reader.ReadSingle();
-			float speedMultiplicative = reader.ReadSingle();
-			float speedFlat = reader.ReadSingle();
-			float speedBase = reader.ReadSingle();
-
-			Progress = new CraftingProgress() {
-				Progress = progress,
-				SpeedFactor = new StatModifier(speedAdditive, speedMultiplicative, speedFlat, speedBase)
-			};
+			Progress ??= new();
+			Progress.Receive(reader);
 
 			oldItem = reader.ReadInt32();
 
