@@ -13,10 +13,12 @@ using System.IO;
 using Terraria;
 using Terraria.Audio;
 using Terraria.DataStructures;
+using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using TerraScience.Common;
 using TerraScience.Common.UI.Machines;
+using TerraScience.Content.Sounds;
 using TerraScience.Content.Tiles.Machines;
 
 namespace TerraScience.Content.MachineEntities {
@@ -54,13 +56,13 @@ namespace TerraScience.Content.MachineEntities {
 			return false;
 		}
 
-		public int[] GetExportSlots() => Array.Empty<int>();
+		public virtual int[] GetExportSlots() => Array.Empty<int>();
 
-		public int[] GetInputSlots() => new int[] { 0 };
+		public virtual int[] GetInputSlots() => new int[] { 0 };
 
-		public int[] GetInputSlotsForRecipes() => GetInputSlots();
+		public virtual int[] GetInputSlotsForRecipes() => GetInputSlots();
 
-		public void ImportItemAtSlot(Item import, int slot) => IInventoryMachine.DefaultImportItemAtSlot(this, import, slot);
+		public virtual void ImportItemAtSlot(Item import, int slot) => IInventoryMachine.DefaultImportItemAtSlot(this, import, slot);
 
 		public static readonly double ConstantGenerationPerTick = 50 / 60d;  // 50 TF over the course of 1 second
 
@@ -115,12 +117,40 @@ namespace TerraScience.Content.MachineEntities {
 
 				if (duration > 0) {
 					// Freeze the progress if the power storage is full
-					if (!PowerStorage.IsFull)
+					if (!PowerStorage.IsFull) {
 						Progress.Step(1f / duration.ticks);
+
+						if (TileLoader.GetTile(Main.tile[Position.X, Position.Y].TileType) is FurnaceGenerator furnace) {
+							furnace.GetMachineDimensions(out uint width, out uint height);
+							Vector2 soundPos = Position.ToWorldCoordinates(width * 8, height * 8);
+						
+							ISoundEmittingMachine.EmitSound(
+								emitter: this,
+								RegisteredSounds.Styles.FurnaceGenerator.Running,
+								NetcodeSoundMode.SendVolume | NetcodeSoundMode.SendPosition,
+								ref running,
+								ref servPlaying,
+								soundPos);
+						}
+					} else {
+						ISoundEmittingMachine.StopSound(
+							emitter: this,
+							RegisteredSounds.IDs.FurnaceGenerator.Running,
+							ref running,
+							ref servPlaying);
+					}
 				} else {
 					burningItem = -1;
 					Progress.Progress = 0;
 				}
+			}
+
+			if (burningItem < ItemID.None) {
+				ISoundEmittingMachine.StopSound(
+					emitter: this,
+					RegisteredSounds.IDs.FurnaceGenerator.Running,
+					ref running,
+					ref servPlaying);
 			}
 
 			Netcode.SendReducedData(this);
@@ -154,17 +184,45 @@ namespace TerraScience.Content.MachineEntities {
 				burningItem = -1;
 		}
 
+		public override void NetSend(BinaryWriter writer) {
+			base.NetSend(writer);
+			IInventoryMachine.NetSend(this, writer);
+			ReducedNetSend(writer);
+		}
+
+		public override void NetReceive(BinaryReader reader) {
+			base.NetReceive(reader);
+			IInventoryMachine.NetReceive(this, reader);
+			ReducedNetReceive(reader);
+		}
+
 		#region Implement ISoundEmittingMachine
+		private SlotId running = SlotId.Invalid;
+		private bool servPlaying;
+
 		public void OnSoundPlayingPacketReceived(in SlotId soundSlot, int id, int extraInformation) {
-			
+			if (id == RegisteredSounds.IDs.FurnaceGenerator.Running)
+				running = soundSlot;
 		}
 
 		public void OnSoundUpdatePacketReceived(int id, SoundStyle data, NetcodeSoundMode mode, Vector2? location, int extraInformation) {
-			
+			if (id == RegisteredSounds.IDs.FurnaceGenerator.Running) {
+				if (SoundEngine.TryGetActiveSound(running, out var activeSound)) {
+					if ((mode & NetcodeSoundMode.SendPosition) == NetcodeSoundMode.SendPosition)
+						activeSound.Position = location;
+					if ((mode & NetcodeSoundMode.SendVolume) == NetcodeSoundMode.SendVolume)
+						activeSound.Volume = data.Volume;
+				}
+			}
 		}
 
 		public void OnSoundStopPacketReceived(int id, int extraInformation) {
-			
+			if (id == RegisteredSounds.IDs.FurnaceGenerator.Running) {
+				if (SoundEngine.TryGetActiveSound(running, out var activeSound))
+					activeSound.Stop();
+
+				running = SlotId.Invalid;
+			}
 		}
 		#endregion
 

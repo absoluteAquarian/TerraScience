@@ -1,7 +1,7 @@
 ﻿using SerousEnergyLib.API;
+using SerousEnergyLib.API.Energy;
 using SerousEnergyLib.API.Energy.Default;
 using SerousEnergyLib.API.Fluid;
-using SerousEnergyLib.API.Fluid.Default;
 using System.Collections.Generic;
 using System.Linq;
 using Terraria;
@@ -67,9 +67,7 @@ namespace TerraScience.Common.Systems {
 			}
 
 			for (int i = 0; i < FluidLoader.Count; i++) {
-				int[] set = TechMod.Sets.FluidTank.FluidExportResult[i];
-
-				if (set is null)
+				if (!TechMod.Sets.FluidTank.FluidExportResult.TryGetValue(i, out int[] set) || set is not { Length: > 0 })
 					continue;
 
 				for (int input = 0; input < set.Length; input++) {
@@ -108,11 +106,42 @@ namespace TerraScience.Common.Systems {
 					.AddTimeRequirement(duration)
 					.CreateAndRegisterAllPossibleRecipes());
 			}
+
+			// ===== Greenhouse recipes =====
+			foreach (var soilDict in TechMod.Sets.Greenhouse.PlantGrowthInformation.Values) {
+				foreach (var modifierDict in soilDict.Values) {
+					foreach (var info in modifierDict.Values) {
+						var recipe = new MachineRecipe<Greenhouse>();
+
+						recipe.AddIngredient(info.soil);
+
+						if (info.modifier > ItemID.None)
+							recipe.AddIngredient(info.modifier);
+
+						recipe.AddIngredient(info.plant);
+						recipe.AddTimeRequirement(info.growthTime);
+
+						if (info.requiredFluid > FluidTypeID.None)
+							recipe.AddFluidIngredient(info.requiredFluid, info.requiredFluidQuantity);
+
+						recipe.AddPowerRequirement(new TerraFlux(GreenhouseEntity.EnergyConsumptionWhileActive * info.growthTime.ticks));
+
+						foreach (var output in info.possibleOutputs)
+							recipe.AddPossibleOutput(output.type, 1, output.chance);  // There's no good way to show a variable stack, so forcing it to 1 item will just have to suffice
+
+						recipe.CreateAndRegisterAllPossibleRecipes();
+						
+						Sets.Greenhouse.Add(recipe);
+					}
+				}
+			}
 		}
 
 		public override void Unload() {
 			Sets.ReinforcedFurnace = null;
 			Sets.FluidTank = null;
+			Sets.FurnaceGenerator = null;
+			Sets.Greenhouse = null;
 		}
 
 		public static Item GetIngredientItem(Recipe recipe, int index) {
@@ -152,6 +181,7 @@ namespace TerraScience.Common.Systems {
 			public static List<MachineRecipe> ReinforcedFurnace = new();
 			public static List<MachineRecipe> FluidTank = new();
 			public static List<MachineRecipe> FurnaceGenerator = new();
+			public static List<MachineRecipe> Greenhouse = new();
 		}
 	}
 }

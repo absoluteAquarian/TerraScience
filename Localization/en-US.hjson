@@ -16,6 +16,8 @@
 			CraftableFluidTankItem: "{$Mods.TerraScience.ItemName.FluidTankItem}"
 			FurnaceGeneratorItem: "Combustion Generator"
 			CraftableFurnaceGeneratorItem: "{$Mods.TerraScience.ItemName.FurnaceGeneratorItem}"
+			GreenhouseItem: "Greenhouse"
+			CraftableGreenhouseItem: "{$Mods.TerraScience.ItemName.GreenhouseItem}"
 		}
 
 		ItemTooltip: {
@@ -78,6 +80,13 @@
 			{$Mods.SerousEnergyLib.CommonMachineItemTooltipFooter}
 			'''
 			CraftableFurnaceGeneratorItem: "{$Mods.TerraScience.ItemTooltip.FurnaceGeneratorItem}"
+			GreenhouseItem:
+			'''
+			Consumes Terra Flux and fluids to grow various types of plants
+			Plants can only be grown on certain types of soil tiles and soil modifiers
+			{$Mods.SerousEnergyLib.CommonMachineItemTooltipFooter}
+			'''
+			CraftableGreenhouseItem: "{$Mods.TerraScience.ItemTooltip.GreenhouseItem}"
 		}
 
 		CommonFooter: {
@@ -120,6 +129,7 @@
 			ReinforcedFurnace: "Reinforced Furnace"
 			FluidTank: "Basic Fluid Tank"
 			FurnaceGenerator: "Combustion Generator"
+			Greenhouse: "Greenhouse"
 		}
 
 		MachineUpgradeName: {
@@ -135,9 +145,9 @@
 		}
 
 		UI: {
-			ThermostatHover: "Temperature: {0:0.###} C / {1:0.###} C"
-			FluidGaugeHover: "{0:0.###} L / {1:0.###} L"
-			PowerGaugeHover: "{0:0.###} {2} / {1:0.###} {2}"
+			ThermostatHover: "Temperature: {0:0.000} C / {1:0.000} C"
+			FluidGaugeHover: "{0:0.000} L / {1:0.000} L"
+			PowerGaugeHover: "{0:0.000} {2} / {1:0.000} {2}"
 		}
 
 		MachineText: {
@@ -157,6 +167,10 @@
 					Tiles: "Required Tiles: {0}"
 					Conditions: "Conditions: {0}"
 				}
+
+				SlotText: {
+					Input: "Place a machine in this slot to view information about it"
+				}
 			}
 
 			ReinforcedFurnace: {
@@ -173,6 +187,13 @@
 				Page: {
 					Storage: "Storage"
 				}
+
+				SlotText: {
+					ImportInput: "Import"
+					ImportOutput: "Import Leftover"
+					ExportInput: "Export"
+					ExportOutput: "Export Result"
+				}
 			}
 
 			FurnaceGenerator: {
@@ -180,6 +201,20 @@
 
 				Page: {
 					Generator: "Generator"
+				}
+			}
+
+			Greenhouse: {
+				Description: "Grows various types of plants"
+
+				Page: {
+					Greenhouse: "Greenhouse"
+				}
+
+				SlotText: {
+					Soil: "Soil"
+					Modifier: "Soil Modifier"
+					Plant: "Plant"
 				}
 			}
 		}

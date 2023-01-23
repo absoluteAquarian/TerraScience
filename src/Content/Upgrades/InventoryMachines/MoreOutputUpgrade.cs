@@ -1,6 +1,8 @@
-﻿using SerousEnergyLib.API.Machines;
+﻿using SerousEnergyLib.API;
+using SerousEnergyLib.API.Machines;
 using SerousEnergyLib.API.Upgrades;
 using System;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.ModLoader;
 
@@ -30,6 +32,11 @@ namespace TerraScience.Content.Upgrades.InventoryMachines {
 		public override StatModifier GetPowerConsumptionMultiplier(int upgradeStack) {
 			// Slight increase in power consumption
 			return new StatModifier(additive: 1.05f * upgradeStack, multiplicative: 1f);
+		}
+
+		public override void ModifyMachineRecipeIngredient(int upgradeStack, ref IMachineRecipeIngredient ingredient, IReadOnlyList<IMachineRecipeIngredient> defaultIngredients, IReadOnlyList<MachineRecipeOutput> possibleOutputs) {
+			if (ingredient is MachineRecipeInputPower power)
+				ingredient = new MachineRecipeInputPower(power.type, (int)GetPowerConsumptionMultiplier(upgradeStack).ApplyTo(power.amount));
 		}
 	}
 }

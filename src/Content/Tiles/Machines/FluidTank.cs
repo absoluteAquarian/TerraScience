@@ -23,6 +23,9 @@ namespace TerraScience.Content.Tiles.Machines {
 		private static Asset<Texture2D> FillAsset;
 
 		protected override void SafeSetStaticDefaults() {
+			if (Main.dedServ)
+				return;
+
 			FillEffectSprite = new MachineSpriteEffectInformation(TechMod.GetEffectPath<FluidTank>("fill"), new Vector2(6), null, true);
 		}
 

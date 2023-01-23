@@ -65,14 +65,14 @@ namespace TerraScience.Common.UI.Machines {
 				Append(thermostat);
 
 				inputSlot = new MachineInventoryItemSlot(0, context: ItemSlot.Context.BankItem);
-				inputSlot.HAlign = 0.5f;
 				inputSlot.Top.Set(65, 0f);
+				inputSlot.HAlign = 0.5f;
 				Append(inputSlot);
 
 				IInventoryMachine singleton = ModContent.GetInstance<ReinforcedFurnaceEntity>();
 				itemZone = new MachineInventoryItemSlotZone(singleton.GetExportSlotsOrDefault(), maxSlotsPerRow: 5, context: ItemSlot.Context.BankItem);
-				itemZone.HAlign = 0.5f;
 				itemZone.Top.Set(-15 - itemZone.Height.Pixels, 1f);
+				itemZone.HAlign = 0.5f;
 				Append(itemZone);
 
 				arrow = new BasicThinArrow(ArrowElementOrientation.Down, targetLength: 150);

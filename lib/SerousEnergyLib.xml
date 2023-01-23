@@ -1219,6 +1219,12 @@
             <param name="machine">The machine to process</param>
             <param name="item">The item to insert in the export slots of <paramref name="machine"/>.  Any leftover stack will be in this parameter after calling this method</param>
         </member>
+        <member name="M:SerousEnergyLib.API.Machines.IInventoryMachine.ExportInventoryIsFull(SerousEnergyLib.API.Machines.IInventoryMachine)">
+            <summary>
+            Returns whether all export slots in <paramref name="machine"/> are full
+            </summary>
+            <param name="machine">The machine to process</param>
+        </member>
         <member name="M:SerousEnergyLib.API.Machines.IInventoryMachine.GetAdjacentItemNetworks(SerousEnergyLib.API.Machines.IInventoryMachine)">
             <summary>
             Returns an enumeration of <see cref="T:SerousEnergyLib.Systems.Networks.ItemNetwork"/> instances that are adjacent to this machine
@@ -1525,7 +1531,7 @@
             <param name="id">The registered sound ID for the sound to update</param>
             <param name="data">The sound information sent by the sound packet</param>
             <param name="mode">The mode used when sending the sound to this client</param>
-            <param name="location">The world coordinates where to sound is playing</param>
+            <param name="location">The world coordinates where the sound is playing</param>
             <param name="extraInformation">Extra information sent by the sound packet</param>
         </member>
         <member name="M:SerousEnergyLib.API.Machines.ISoundEmittingMachine.OnSoundStopPacketReceived(System.Int32,System.Int32)">
@@ -1557,6 +1563,22 @@
             <param name="clientSoundSlot">The variable used to store the played sound on clients</param>
             <param name="serverPlayingFlag">The variable used to track if the sound is playing on the server</param>
             <param name="extraInformation">Extra information to sent to clients</param>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.ISoundEmittingMachine.RestartSound``1(``0,System.Int32,SerousEnergyLib.API.Sounds.NetcodeSoundMode,ReLogic.Utilities.SlotId@,System.Boolean@,System.Nullable{Terraria.Audio.SoundStyle},System.Nullable{Microsoft.Xna.Framework.Vector2},System.Int32,System.Int32,System.Boolean)">
+            <summary>
+            This method restarts a sound via the EmitSound and StopSound methods
+            </summary>
+            <param name="emitter">The machine that emitted the sound</param>
+            <param name="soundID">The registered sound ID created by <see cref="M:SerousEnergyLib.API.Sounds.MachineSounds.RegisterSound(Terraria.Audio.SoundStyle@)"/></param>
+            <param name="mode">The mode used when sending the sound to clients</param>
+            <param name="clientSoundSlot">The variable used to store the played sound on clients</param>
+            <param name="serverPlayingFlag">The variable used to track if the sound is playing on the server</param>
+            <param name="replacement">The new sound data to use, or <see langword="null"/> to use the default instance for <paramref name="soundID"/> registered in <see cref="T:SerousEnergyLib.API.Sounds.MachineSounds"/></param>
+            <param name="location">The location to play the sound at.  Defaults to <see langword="null"/>, which indicates a "directionless" sound</param>
+            <param name="extraEmittingInformation">Extra information to sent to clients when emitting the new sound</param>
+            <param name="extraStoppingInformation">Extra information to sent to clients when stopping the current sound</param>
+            <param name="allowClientsideSoundMuting">Whether clients should be able to mute the sound while their game window is inactive</param>
+            <exception cref="T:System.ArgumentException"/>
         </member>
         <member name="T:SerousEnergyLib.API.Machines.UI.BaseMachineUI">
             <summary>
@@ -1864,10 +1886,11 @@
             <param name="upgradeStack">How many instances of this upgrade are stored in the machine</param>
             <param name="itemType">The item type that the machine is trying to generate</param>
         </member>
-        <member name="M:SerousEnergyLib.API.Upgrades.BaseUpgrade.ModifyMachineRecipeIngredient(SerousEnergyLib.API.IMachineRecipeIngredient@,System.Collections.Generic.IReadOnlyList{SerousEnergyLib.API.IMachineRecipeIngredient},System.Collections.Generic.IReadOnlyList{SerousEnergyLib.API.MachineRecipeOutput})">
+        <member name="M:SerousEnergyLib.API.Upgrades.BaseUpgrade.ModifyMachineRecipeIngredient(System.Int32,SerousEnergyLib.API.IMachineRecipeIngredient@,System.Collections.Generic.IReadOnlyList{SerousEnergyLib.API.IMachineRecipeIngredient},System.Collections.Generic.IReadOnlyList{SerousEnergyLib.API.MachineRecipeOutput})">
             <summary>
             Modify the <paramref name="ingredient"/> within a <see cref="T:SerousEnergyLib.API.MachineRecipe"/> with the given <paramref name="possibleOutputs"/> here
             </summary>
+            <param name="upgradeStack">How many instances of this upgrade are stored in the machine</param>
             <param name="ingredient">The ingredient for the recipe</param>
             <param name="defaultIngredients">A collection of the original ingredients that the recipe contains</param>
             <param name="possibleOutputs">A collection of the possible outputs that the recipe contains</param>
@@ -3279,6 +3302,82 @@
             <summary>
             A tile representing a junction between two networks
             </summary>
+        </member>
+        <member name="T:SerousEnergyLib.TimeFunctions">
+            <summary>
+            A helper class containing constants and functions for checking and manipulating <see cref="F:Terraria.Main.time"/> and <see cref="F:Terraria.Main.dayTime"/>
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.TimeFunctions._4_30">
+            <summary>
+            4 hours, 30 minutes
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.TimeFunctions._7_30">
+            <summary>
+            7 hours, 30 minutes
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.TimeFunctions._12_00">
+            <summary>
+            12 hours
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.TimeFunctions._7_30PM_day">
+            <summary>
+            07:30 PM in daytime ticks
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.TimeFunctions._4_30AM_night">
+            <summary>
+            04:30 AM in nighttime ticks
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.TimeFunctions._12AM">
+            <summary>
+            12:00 AM
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.TimeFunctions._12PM">
+            <summary>
+            12:00 PM
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.TimeFunctions.FullDay">
+            <summary>
+            The total tick duration for one day and night
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.TimeFunctions.CurrentTotalTime">
+            <summary>
+            Gets <see cref="F:Terraria.Main.time"/> in absolute time from the start of a day
+            </summary>
+        </member>
+        <member name="M:SerousEnergyLib.TimeFunctions.GetCurrentTime(System.Int32@,System.Int32@,System.Double@)">
+            <summary>
+            Gets the current hour, minutes and seconds in absolute time
+            </summary>
+            <param name="hours">The hour</param>
+            <param name="minutes">The minute</param>
+            <param name="seconds">The second</param>
+        </member>
+        <member name="M:SerousEnergyLib.TimeFunctions.GetCurrentTerrariaTime(System.Int32@,System.Int32@,System.Double@,System.Boolean@)">
+            <summary>
+            Gets the current hour, minutes and seconds in ingame time
+            </summary>
+            <param name="hours">The hour</param>
+            <param name="minutes">The minute</param>
+            <param name="seconds">The second</param>
+            <param name="am">Whether the time is AM or PM</param>
+        </member>
+        <member name="M:SerousEnergyLib.TimeFunctions.ToTicks(System.Int32,System.Int32,System.Double)">
+            <summary>
+            Converts an hour, minute and seconds duration into time ticks
+            </summary>
+            <param name="hours">The hours</param>
+            <param name="minutes">The minutes</param>
+            <param name="seconds">The seconds</param>
+            <returns>The time ticks.  1 tick = 1 second</returns>
         </member>
     </members>
 </doc>

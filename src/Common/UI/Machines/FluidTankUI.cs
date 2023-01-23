@@ -70,7 +70,8 @@ namespace TerraScience.Common.UI.Machines {
 
 				fluidImportInput = new MachineInventoryItemSlot(0, ItemSlot.Context.BankItem) {
 					ValidItemFunc = static item => item.IsAir || FluidTankEntity.ItemIsValidForImport(UIHandler.ActiveMachine as FluidTankEntity, item, insertionSlot: true),
-					VAlign = 0.35f
+					VAlign = 0.35f,
+					hoverText = Language.GetTextValue("Mods.TerraScience.MachineText.FluidTank.SlotText.ImportInput")
 				};
 				fluidImportInput.OnUpdateItem += UpdateParent;
 
@@ -80,7 +81,8 @@ namespace TerraScience.Common.UI.Machines {
 
 				fluidImportOutput = new MachineInventoryItemSlot(1, ItemSlot.Context.BankItem) {
 					ValidItemFunc = static item => item.IsAir,
-					VAlign = 0.65f
+					VAlign = 0.65f,
+					hoverText = Language.GetTextValue("Mods.TerraScience.MachineText.FluidTank.SlotText.ImportOutput")
 				};
 				fluidImportOutput.OnUpdateItem += UpdateParent;
 
@@ -90,7 +92,8 @@ namespace TerraScience.Common.UI.Machines {
 
 				fluidExportInput = new MachineInventoryItemSlot(2, ItemSlot.Context.BankItem) {
 					ValidItemFunc = static item => item.IsAir || FluidTankEntity.ItemIsValidForImport(UIHandler.ActiveMachine as FluidTankEntity, item, insertionSlot: false),
-					VAlign = 0.35f
+					VAlign = 0.35f,
+					hoverText = Language.GetTextValue("Mods.TerraScience.MachineText.FluidTank.SlotText.ExportInput")
 				};
 				fluidExportInput.OnUpdateItem += UpdateParent;
 
@@ -100,7 +103,8 @@ namespace TerraScience.Common.UI.Machines {
 
 				fluidExportOutput = new MachineInventoryItemSlot(3, ItemSlot.Context.BankItem) {
 					ValidItemFunc = static item => item.IsAir,
-					VAlign = 0.65f
+					VAlign = 0.65f,
+					hoverText = Language.GetTextValue("Mods.TerraScience.MachineText.FluidTank.SlotText.ExportOutput")
 				};
 				fluidExportOutput.OnUpdateItem += UpdateParent;
 

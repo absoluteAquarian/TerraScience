@@ -177,7 +177,8 @@ namespace TerraScience.Content.MachineEntities {
 				&& (inv.IsAir || storage.IsEmpty || storage.FluidType == FluidTypeID.None || GetFluidExportResult(import.type, storage.FluidType) == inv.type);
 		}
 
-		public static int GetFluidExportResult(int itemType, int fluidType) => TechMod.Sets.FluidTank.FluidExportResult[fluidType]?[itemType] ?? -1;
+		public static int GetFluidExportResult(int itemType, int fluidType)
+			=> TechMod.Sets.FluidTank.FluidExportResult.TryGetValue(fluidType, out var itemTypes) ? itemTypes[itemType] : -1;
 
 		public virtual bool CanImportItemAtSlot(Item import, Point16 subtile, int slot, out int stackImported) {
 			stackImported = 0;
@@ -223,12 +224,14 @@ namespace TerraScience.Content.MachineEntities {
 			base.NetSend(writer);
 			IFluidMachine.NetSend(this, writer);
 			IInventoryMachine.NetSend(this, writer);
+			ReducedNetSend(writer);
 		}
 
 		public override void NetReceive(BinaryReader reader) {
 			base.NetReceive(reader);
 			IFluidMachine.NetReceive(this, reader);
 			IInventoryMachine.NetReceive(this, reader);
+			ReducedNetReceive(reader);
 		}
 
 		#region Implement IReducedNetcodeMachine

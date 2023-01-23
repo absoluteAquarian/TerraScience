@@ -17,6 +17,13 @@ namespace TerraScience.Content.Sounds {
 				SoundLimitBehavior = SoundLimitBehavior.IgnoreNew
 			};
 			IDs.ReinforcedFurnace.Output = MachineSounds.RegisterSound(Styles.ReinforcedFurnace.Output);
+
+			Styles.FurnaceGenerator.Running = new SoundStyle("TerraScience/Assets/Sounds/FX/hum") with {
+				Volume = 0.06f,
+				SoundLimitBehavior = SoundLimitBehavior.IgnoreNew,
+				IsLooped = true
+			};
+			IDs.FurnaceGenerator.Running = MachineSounds.RegisterSound(Styles.FurnaceGenerator.Running);
 		}
 
 		public static class IDs {
@@ -25,6 +32,10 @@ namespace TerraScience.Content.Sounds {
 
 				public static int Output { get; internal set; }
 			}
+
+			public static class FurnaceGenerator {
+				public static int Running { get; internal set; }
+			}
 		}
 
 		public static class Styles {
@@ -32,6 +43,10 @@ namespace TerraScience.Content.Sounds {
 				public static SoundStyle Burning { get; internal set; }
 
 				public static SoundStyle Output { get; internal set; }
+			}
+
+			public static class FurnaceGenerator {
+				public static SoundStyle Running { get; internal set; }
 			}
 		}
 	}

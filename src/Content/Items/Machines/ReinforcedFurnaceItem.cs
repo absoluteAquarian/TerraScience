@@ -12,7 +12,7 @@ namespace TerraScience.Content.Items.Machines {
 			Item.height = 24;
 			Item.scale = 0.82f;
 			Item.rare = ItemRarityID.Blue;
-			Item.value = Item.buyPrice(silver: 8, copper: 70);
+			Item.value = Item.buyPrice(silver: 1, copper: 20);
 		}
 	}
 

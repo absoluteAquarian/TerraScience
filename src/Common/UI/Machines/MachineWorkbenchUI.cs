@@ -110,7 +110,8 @@ namespace TerraScience.Common.UI.Machines {
 
 				// Initialize the item slot elements
 				machineSlot = new MachineInventoryItemSlot(0, context: ItemSlot.Context.BankItem) {
-					ValidItemFunc = static item => item.IsAir || item.ModItem is BaseMachineItem
+					ValidItemFunc = static item => item.IsAir || item.ModItem is BaseMachineItem,
+					hoverText = Language.GetTextValue("Mods.TerraScience.MachineText.MachineWorkbench.SlotText.Input")
 				};
 				machineSlot.OnUpdateItem += UpdateItemDisplay;
 				machineSlot.Left.Set(15, 0);

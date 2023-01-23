@@ -21,6 +21,11 @@ namespace TerraScience.Content.Tiles.Machines {
 		private static Asset<Texture2D> FireAsset;
 
 		protected override void SafeSetStaticDefaults() {
+			Main.tileLighted[Type] = true;
+
+			if (Main.dedServ)
+				return;
+
 			string path = TechMod.GetEffectPath<ReinforcedFurnace>("fuel_sheet");
 			Texture2D fuelSheet = ModContent.Request<Texture2D>(path, AssetRequestMode.ImmediateLoad).Value;
 
@@ -47,12 +52,18 @@ namespace TerraScience.Content.Tiles.Machines {
 		}
 
 		public override void ModifyLight(int i, int j, ref float r, ref float g, ref float b) {
-			if (IMachine.TryFindMachine(new Point16(i, j), out ReinforcedFurnaceEntity machine) && machine.IsActive(out double requiredHeat) && machine.CurrentTemperature >= requiredHeat) {
+			Point16 orig = new Point16(i, j);
+			Point16 topLeft = TileFunctions.GetTopLeftTileInMultitile(i, j);
+
+			bool flameTile = orig.X - topLeft.X == 1 && orig.Y == topLeft.Y;
+
+			if (flameTile && IMachine.TryFindMachine(new Point16(i, j), out ReinforcedFurnaceEntity machine) && machine.IsActive(out double requiredHeat) && machine.CurrentTemperature >= requiredHeat) {
 				// Entity is active and is actively "burning" items.  Emit light
-				Vector3 color = new Vector3(0xD5, 0x44, 0x00) * 2.35f;
-				r = color.X;
-				g = color.Y;
-				b = color.Z;
+				const float strength = 0.3f;
+
+				r = 0xd5 / 255f * strength;
+				g = 0x44 / 255f * strength;
+				b = 0x00 / 155f * strength;
 			}
 		}
 

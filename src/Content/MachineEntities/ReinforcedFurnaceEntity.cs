@@ -149,29 +149,23 @@ namespace TerraScience.Content.MachineEntities {
 					IItemOutputGeneratorMachine.AddRecipeOutputsToExportInventory(this, activeRecipe);
 
 					if (TileLoader.GetTile(Main.tile[Position.X, Position.Y].TileType) is ReinforcedFurnace furnace) {
-						ISoundEmittingMachine.StopSound(
-							emitter: this,
-							RegisteredSounds.IDs.ReinforcedFurnace.Output,
-							ref output,
-							ref servPlayingOutputSound);
-
 						furnace.GetMachineDimensions(out uint width, out uint height);
 						Vector2 outputSoundPos = Position.ToWorldCoordinates(width * 8, height * 8);
 
-						ISoundEmittingMachine.EmitSound(
+						ISoundEmittingMachine.RestartSound(
 							emitter: this,
-							RegisteredSounds.Styles.ReinforcedFurnace.Output,
-							NetcodeSoundMode.SendVolume,
+							RegisteredSounds.IDs.ReinforcedFurnace.Output,
+							NetcodeSoundMode.SendVolume | NetcodeSoundMode.SendPosition,
 							ref output,
 							ref servPlayingOutputSound,
-							outputSoundPos);
+							location: outputSoundPos);
 					}
 				}
 			}
 
-			Netcode.SendReducedData(this);
-
 			oldItem = input.type;
+
+			Netcode.SendReducedData(this);
 		}
 
 		private void DoHeatPhysics(bool increaseHeat, double k, double target, double deltaTime, double linearDeltaThresholdSlope) {
@@ -235,7 +229,7 @@ namespace TerraScience.Content.MachineEntities {
 
 			activeRecipe ??= TechRecipes.Sets.ReinforcedFurnace.Where(m => m.IngredientSetMatches(this)).FirstOrDefault();
 
-			return activeRecipe is not null;
+			return activeRecipe is not null && !IInventoryMachine.ExportInventoryIsFull(this);
 		}
 
 		public override void SaveData(TagCompound tag) {
@@ -255,6 +249,16 @@ namespace TerraScience.Content.MachineEntities {
 				Progress.LoadData(progress);
 			else
 				Progress = new();
+		}
+
+		public override void NetSend(BinaryWriter writer) {
+			base.NetSend(writer);
+			ReducedNetSend(writer);
+		}
+
+		public override void NetReceive(BinaryReader reader) {
+			base.NetReceive(reader);
+			ReducedNetReceive(reader);
 		}
 
 		#region Implement ISoundEmittingMachine

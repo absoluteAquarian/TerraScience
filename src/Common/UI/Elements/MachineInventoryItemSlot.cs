@@ -1,4 +1,5 @@
-﻿using SerousCommonLib.UI;
+﻿using Microsoft.Xna.Framework;
+using SerousCommonLib.UI;
 using SerousEnergyLib.API.Machines;
 using SerousEnergyLib.Systems;
 using Terraria;
@@ -8,6 +9,8 @@ namespace TerraScience.Common.UI.Elements {
 	public delegate void MachineInventorySlotUpdateItemDelegate(IInventoryMachine machine, Item oldItem, Item newItem);
 
 	public class MachineInventoryItemSlot : EnhancedItemSlot {
+		public string hoverText;
+
 		public override Item StoredItem => GetItemAtSlotInActiveMachine();
 
 		public MachineInventoryItemSlot(int slot, int context = ItemSlot.Context.InventoryItem, float scale = 1) : base(slot, context, scale) {
@@ -44,6 +47,13 @@ namespace TerraScience.Common.UI.Elements {
 			OnUpdateItem?.Invoke(machine, oldItem, storedItem);
 
 			Netcode.SyncMachineInventorySlot(machine, slot);
+		}
+
+		public override void Update(GameTime gameTime) {
+			base.Update(gameTime);
+
+			if (hoverText is not null && StoredItem.IsAir && ContainsPoint(Main.MouseScreen))
+				Main.instance.MouseText(hoverText);
 		}
 	}
 }
