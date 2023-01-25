@@ -7,7 +7,7 @@ using TerraScience.Content.Items.Networks.Power;
 using TerraScience.Content.Tiles.Machines;
 
 namespace TerraScience.Content.Items.Machines {
-	public class TrashMachineItem : BaseMachineItem<TrashMachine>, ICraftableMachineItem<CraftableTrashMachineItem> {
+	public class TrashMachineItem : BaseMachineItem<TrashMachine> {
 		public override string Texture => base.Texture.Replace("Content", "Assets");
 
 		public override void SafeSetDefaults() {
@@ -16,10 +16,10 @@ namespace TerraScience.Content.Items.Machines {
 			Item.scale = 0.82f;
 			Item.rare = ItemRarityID.Orange;
 			Item.value = Item.buyPrice(silver: 8, copper: 50);
+			// Item doesn't save any data, so this is fine
+			Item.maxStack = 999;
 		}
-	}
 
-	public class CraftableTrashMachineItem : DatalessMachineItem<TrashMachineItem, TrashMachine> {
 		public override void AddRecipes() {
 			CreateRecipe()
 				.AddIngredient(ItemID.TrashCan, 1)

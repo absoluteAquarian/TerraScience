@@ -14,6 +14,7 @@ using System.IO;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.ModLoader;
+using Terraria.ModLoader.IO;
 using TerraScience.Content.Tiles.Machines;
 
 namespace TerraScience.Content.MachineEntities {
@@ -95,6 +96,14 @@ namespace TerraScience.Content.MachineEntities {
 			IInventoryMachine.Update(this);
 			IFluidMachine.Update(this);
 			IPoweredMachine.Update(this);
+		}
+
+		public override void SaveData(TagCompound tag) {
+			// Force no data to save
+		}
+
+		public override void LoadData(TagCompound tag) {
+			// Force no data to load
 		}
 
 		#region Implement IReducedNetcodeMachine
