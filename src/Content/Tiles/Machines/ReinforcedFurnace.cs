@@ -12,6 +12,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using TerraScience.Content.Items.Machines;
 using TerraScience.Content.MachineEntities;
+using TerraScience.Content.Sounds;
 
 namespace TerraScience.Content.Tiles.Machines {
 	public class ReinforcedFurnace : BaseMachineTile<ReinforcedFurnaceEntity, ReinforcedFurnaceItem> {
@@ -47,8 +48,21 @@ namespace TerraScience.Content.Tiles.Machines {
 
 		public override MachineWorkbenchRegistry GetRegistry() {
 			return new(Type,
-				static tick => new MachineRegistryDisplayAnimationState("TerraScience/Assets/Machines/ReinforcedFurnace/Example_tile", 1, 1, 0, 0),
-				static tick => new MachineRegistryDisplayAnimationState("TerraScience/Assets/Machines/ReinforcedFurnace/Example_anim", 1, 4, 0, tick % 60 / 15));
+				static tick => new MachineRegistryDisplayAnimationState(TechMod.GetExamplePath<ReinforcedFurnace>("tile"), 1, 1, 0, 0),
+				static tick => new MachineRegistryDisplayAnimationState(TechMod.GetExamplePath<ReinforcedFurnace>("anim"), 1, 4, 0, tick % (4 * 15) / 15));
+		}
+
+		public override void KillMultiTile(int i, int j, int frameX, int frameY) {
+			// Kill the looping sound
+			if (IMachine.TryFindMachineExact(new Point16(i, j), out ReinforcedFurnaceEntity entity)) {
+				ISoundEmittingMachine.StopSound(
+					emitter: entity,
+					RegisteredSounds.IDs.ReinforcedFurnace.Burning,
+					ref entity.burning,
+					ref entity.servPlayingBurningSound);
+			}
+
+			base.KillMultiTile(i, j, frameX, frameY);
 		}
 
 		public override void ModifyLight(int i, int j, ref float r, ref float g, ref float b) {

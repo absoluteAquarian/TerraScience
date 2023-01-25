@@ -116,8 +116,6 @@ namespace TerraScience.Common.UI.Machines {
 			private void UpdateParent(IInventoryMachine machine, Item oldItem, Item newItem) => parentUI.NeedsToRecalculate = true;
 
 			public override void Update(GameTime gameTime) {
-				base.Update(gameTime);
-
 				if (UIHandler.ActiveMachine is FluidTankEntity entity) {
 					var storage = entity.FluidStorage[0];
 
@@ -127,6 +125,8 @@ namespace TerraScience.Common.UI.Machines {
 					if (!storage.IsEmpty && storage.FluidType != FluidTypeID.None)
 						gauge.Color = storage.FluidID.FluidColor;
 				}
+
+				base.Update(gameTime);
 			}
 		}
 	}

@@ -356,6 +356,8 @@ namespace TerraScience.Common.UI.Machines {
 					InitRecipeSlots(null);
 					list.Remove(panelDisplays);
 					activeRegistry = null;
+
+					base.Update(gameTime);
 					return;
 				}
 
@@ -378,6 +380,8 @@ namespace TerraScience.Common.UI.Machines {
 					} else
 						list.Remove(panelRecipe);  // No recipe
 				}
+
+				base.Update(gameTime);
 			}
 
 			private Recipe ChooseRandomRecipeExceptForCurrentRecipe(Recipe[] recipes) {

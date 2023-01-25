@@ -197,8 +197,8 @@ namespace TerraScience.Content.MachineEntities {
 		}
 
 		#region Implement ISoundEmittingMachine
-		private SlotId running = SlotId.Invalid;
-		private bool servPlaying;
+		internal SlotId running = SlotId.Invalid;
+		internal bool servPlaying;
 
 		public void OnSoundPlayingPacketReceived(in SlotId soundSlot, int id, int extraInformation) {
 			if (id == RegisteredSounds.IDs.FurnaceGenerator.Running)

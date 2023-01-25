@@ -35,7 +35,7 @@ namespace TerraScience.Content.Tiles.Machines {
 		}
 
 		public override MachineWorkbenchRegistry GetRegistry() {
-			return new(Type, static tick => new MachineRegistryDisplayAnimationState("TerraScience/Assets/Machines/FluidTank/Example_tile", 1, 1, 0, 0));
+			return new(Type, static tick => new MachineRegistryDisplayAnimationState(TechMod.GetExamplePath<FluidTank>("tile"), 1, 1, 0, 0));
 		}
 
 		public override bool PreRightClick(IMachine machine, int x, int y) {
@@ -90,8 +90,6 @@ namespace TerraScience.Content.Tiles.Machines {
 				if (!storage.IsEmpty && storage.FluidType != FluidTypeID.None) {
 					FillAsset ??= ModContent.Request<Texture2D>(FillEffectSprite.asset, AssetRequestMode.ImmediateLoad);
 
-					var fillSprite = FillEffectSprite;
-
 					double percent = storage.CurrentCapacity / storage.MaxCapacity;
 
 					// Get the fill height
@@ -101,7 +99,7 @@ namespace TerraScience.Content.Tiles.Machines {
 						height = 1;
 
 					// Initialize the sprite data
-					var sprite = fillSprite.GetDrawInformation();
+					var sprite = FillEffectSprite.GetDrawInformation();
 
 					int diff = assetHeight - height;
 					sprite.offset.Y += diff;

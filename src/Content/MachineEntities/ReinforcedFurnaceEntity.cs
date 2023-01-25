@@ -135,7 +135,7 @@ namespace TerraScience.Content.MachineEntities {
 				if (time < 1)
 					time = new Ticks(1);
 
-				if (Progress.Step(1f / time.ticks)) {
+				if (IMachine.ProgressStepWithUpgrades(this, Progress, time.ticks)) {
 					// Conversion was completed
 					if (input.consumable) {
 						input.stack--;
@@ -262,8 +262,8 @@ namespace TerraScience.Content.MachineEntities {
 		}
 
 		#region Implement ISoundEmittingMachine
-		private SlotId burning = SlotId.Invalid, output = SlotId.Invalid;
-		private bool servPlayingBurningSound, servPlayingOutputSound;
+		internal SlotId burning = SlotId.Invalid, output = SlotId.Invalid;
+		internal bool servPlayingBurningSound, servPlayingOutputSound;
 
 		public void OnSoundPlayingPacketReceived(in SlotId soundSlot, int id, int extraInformation) {
 			if (id == RegisteredSounds.IDs.ReinforcedFurnace.Burning)

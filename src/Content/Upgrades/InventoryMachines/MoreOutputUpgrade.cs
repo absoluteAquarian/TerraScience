@@ -31,7 +31,7 @@ namespace TerraScience.Content.Upgrades.InventoryMachines {
 
 		public override StatModifier GetPowerConsumptionMultiplier(int upgradeStack) {
 			// Slight increase in power consumption
-			return new StatModifier(additive: 1.05f * upgradeStack, multiplicative: 1f);
+			return new StatModifier(additive: 1f + 0.05f * upgradeStack, multiplicative: 1f);
 		}
 
 		public override void ModifyMachineRecipeIngredient(int upgradeStack, ref IMachineRecipeIngredient ingredient, IReadOnlyList<IMachineRecipeIngredient> defaultIngredients, IReadOnlyList<MachineRecipeOutput> possibleOutputs) {

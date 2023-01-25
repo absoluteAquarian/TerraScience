@@ -909,6 +909,9 @@
         <member name="P:SerousEnergyLib.API.Machines.Default.BasePowerGeneratorEntity.EnergyID">
             <inheritdoc cref="P:SerousEnergyLib.API.Machines.IPoweredMachine.EnergyID"/>
         </member>
+        <member name="P:SerousEnergyLib.API.Machines.Default.BasePowerGeneratorEntity.StorageExportMode">
+            <inheritdoc cref="P:SerousEnergyLib.API.Machines.IPowerGeneratorMachine.StorageExportMode"/>
+        </member>
         <member name="P:SerousEnergyLib.API.Machines.Default.BasePowerGeneratorEntity.IsDummyInstance">
             <summary>
             Whether this entity instance is a clone used for item tooltips
@@ -940,6 +943,9 @@
         <member name="P:SerousEnergyLib.API.Machines.Default.BasePowerStorageEntity.EnergyID">
             <inheritdoc cref="P:SerousEnergyLib.API.Machines.IPoweredMachine.EnergyID"/>
         </member>
+        <member name="P:SerousEnergyLib.API.Machines.Default.BasePowerStorageEntity.StorageExportMode">
+            <inheritdoc cref="P:SerousEnergyLib.API.Machines.IPowerStorageMachine.StorageExportMode"/>
+        </member>
         <member name="P:SerousEnergyLib.API.Machines.Default.BasePowerStorageEntity.IsDummyInstance">
             <summary>
             Whether this entity instance is a clone used for item tooltips
@@ -947,6 +953,12 @@
         </member>
         <member name="M:SerousEnergyLib.API.Machines.Default.BasePowerStorageEntity.CanUpgradeApply(SerousEnergyLib.API.Upgrades.BaseUpgrade)">
             <inheritdoc cref="M:SerousEnergyLib.API.Machines.IMachine.CanUpgradeApply(SerousEnergyLib.API.Upgrades.BaseUpgrade)"/>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.Default.BasePowerStorageEntity.StorageUpdate">
+            <summary>
+            A helper method for easily supporting <see cref="P:SerousEnergyLib.Systems.Network.UpdatingPowerStorages"/> automatically.<br/>
+            If that property is <see langword="false"/>, this method will not execute.
+            </summary>
         </member>
         <member name="M:SerousEnergyLib.API.Machines.Default.BasePowerStorageEntity.CanMergeWithWire(System.Int32,System.Int32,System.Int32,System.Int32)">
             <inheritdoc cref="M:SerousEnergyLib.API.Machines.IPoweredMachine.CanMergeWithWire(System.Int32,System.Int32,System.Int32,System.Int32)"/>
@@ -1365,6 +1377,24 @@
             <c>Main.rand.NextDouble() &lt; orig</c></param>
             <returns></returns>
         </member>
+        <member name="M:SerousEnergyLib.API.Machines.IMachine.ProgressStepWithUpgrades(SerousEnergyLib.API.Machines.IMachine,SerousEnergyLib.API.CraftingProgress,System.Single)">
+            <summary>
+            Applies <see cref="M:SerousEnergyLib.API.Upgrades.BaseUpgrade.GetProgressStepMultiplier(System.Int32)"/> to <paramref name="step"/>, then performs the progress step via <paramref name="progress"/>
+            </summary>
+            <param name="machine">The machine to process</param>
+            <param name="progress">The progress object</param>
+            <param name="step">The original step size</param>
+            <returns>The return value of <see cref="M:SerousEnergyLib.API.CraftingProgress.Step(System.Single)"/></returns>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.IMachine.ProgressStepWithUpgrades(SerousEnergyLib.API.Machines.IMachine,SerousEnergyLib.API.CraftingProgress,System.Int32)">
+            <summary>
+            Applies <see cref="M:SerousEnergyLib.API.Upgrades.BaseUpgrade.GetProgressTicksMultiplier(System.Int32)"/> to <paramref name="tickDuration"/>, then performs the progress step via <paramref name="progress"/>
+            </summary>
+            <param name="machine">The machine to process</param>
+            <param name="progress">The progress object</param>
+            <param name="tickDuration">The expected duration in ticks that the progress would take to complete</param>
+            <returns>The return value of <see cref="M:SerousEnergyLib.API.CraftingProgress.Step(System.Single)"/></returns>
+        </member>
         <member name="M:SerousEnergyLib.API.Machines.IMachine.AddUpgrade(SerousEnergyLib.API.Machines.IMachine,SerousEnergyLib.Items.BaseUpgradeItem)">
             <summary>
             Adds <paramref name="upgrade"/> to the upgrade collection in <paramref name="machine"/>
@@ -1396,7 +1426,7 @@
         </member>
         <member name="T:SerousEnergyLib.API.Machines.IPoweredMachine">
             <summary>
-            An interface containing methods used by machines that can store and/or use power
+            An interface containing methods used by machines that can consume power
             </summary>
         </member>
         <member name="P:SerousEnergyLib.API.Machines.IPoweredMachine.PowerStorage">
@@ -1455,6 +1485,19 @@
             <param name="exportTileLocation">The tile location of the <see cref="T:SerousEnergyLib.Tiles.IPowerTransportTile"/> being exported from</param>
             <param name="importSubtileLocation">The tile location of the sub-tile in <paramref name="machine"/> being imported into</param>
         </member>
+        <member name="M:SerousEnergyLib.API.Machines.IPoweredMachine.ExportPowerToAdjacentNetworks(SerousEnergyLib.API.Machines.IPoweredMachine,SerousEnergyLib.API.PowerExportPriority)">
+            <summary>
+            Exports power from the flux storage in <paramref name="machine"/> to all adjacent <see cref="T:SerousEnergyLib.Systems.Networks.PowerNetwork"/> instances
+            </summary>
+            <param name="machine">The machine to process</param>
+            <param name="mode">The mode used to select the order in which the adjacent networks are processed</param>
+        </member>
+        <member name="M:SerousEnergyLib.API.Machines.IPoweredMachine.ImportPowerFromAdjacentNetworks(SerousEnergyLib.API.Machines.IPoweredMachine)">
+            <summary>
+            Imports power from all adjacent <see cref="T:SerousEnergyLib.Systems.Networks.PowerNetwork"/> instances to the flux storage in <paramref name="machine"/>
+            </summary>
+            <param name="machine">The machine to process</param>
+        </member>
         <member name="M:SerousEnergyLib.API.Machines.IPoweredMachine.Update(SerousEnergyLib.API.Machines.IPoweredMachine)">
             <summary>
             This method applies the upgrades in <paramref name="machine"/> to <see cref="P:SerousEnergyLib.API.Machines.IPoweredMachine.PowerStorage"/>.MaxCapacity
@@ -1463,7 +1506,13 @@
         </member>
         <member name="T:SerousEnergyLib.API.Machines.IPowerGeneratorMachine">
             <summary>
-            An interface containing methods used by machines that can generate power
+            An interface containing methods used by machines that can generate and export power<br/>
+            <b>NOTE:</b> This interface should NOT be used with <see cref="T:SerousEnergyLib.API.Machines.IPowerStorageMachine"/>
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.API.Machines.IPowerGeneratorMachine.StorageExportMode">
+            <summary>
+            The mode used when attempting to export power from this machine
             </summary>
         </member>
         <member name="M:SerousEnergyLib.API.Machines.IPowerGeneratorMachine.GetPowerGeneration(System.Double)">
@@ -1485,15 +1534,15 @@
             </summary>
             <param name="machine">The machine to process</param>
         </member>
-        <member name="M:SerousEnergyLib.API.Machines.IPowerGeneratorMachine.ExportPowerToAdjacentNetworks(SerousEnergyLib.API.Machines.IPowerGeneratorMachine)">
-            <summary>
-            Exports power from the flux storage in <paramref name="machine"/> to all adjacent <see cref="T:SerousEnergyLib.Systems.Networks.PowerNetwork"/> instances
-            </summary>
-            <param name="machine">The machine to process</param>
-        </member>
         <member name="T:SerousEnergyLib.API.Machines.IPowerStorageMachine">
             <summary>
-            An interface representing an <see cref="T:SerousEnergyLib.API.Machines.IPoweredMachine"/> that cannot consume power
+            An interface representing an <see cref="T:SerousEnergyLib.API.Machines.IPoweredMachine"/> that can export and import power, but does not consume power by default<br/>
+            <b>NOTE:</b> This interface should NOT be used with <see cref="T:SerousEnergyLib.API.Machines.IPowerGeneratorMachine"/>
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.API.Machines.IPowerStorageMachine.StorageExportMode">
+            <summary>
+            The mode used when attempting to export power from this machine
             </summary>
         </member>
         <member name="T:SerousEnergyLib.API.Machines.IReducedNetcodeMachine">
@@ -1743,6 +1792,37 @@
             The tile within this machine that is adjacent to the network
             </summary>
         </member>
+        <member name="T:SerousEnergyLib.API.PowerExportPriority">
+            <summary>
+            A collection of constants dicating how an <see cref="T:SerousEnergyLib.API.Machines.IPowerGeneratorMachine"/> or <see cref="T:SerousEnergyLib.API.Machines.IPowerStorageMachine"/> should export power to adjacent networks
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.API.PowerExportPriority.FirstComeFirstServe">
+            <summary>
+            Whichever network ends up first in the "adjacent networks" enumeration gets power exported to it first
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.API.PowerExportPriority.LastComeFirstServe">
+            <summary>
+            Whichever network ends up last in the "adjacent networks" enumeration gets power exported to it first
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.API.PowerExportPriority.LowestPower">
+            <summary>
+            Whichever network has the lowest current capacity in the "adjacent networks" enumeration gets power exported to it first
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.API.PowerExportPriority.HighestPower">
+            <summary>
+            Whichever network has the highest current capacity in the "adjacent networks" enumeration gets power exported to it first
+            </summary>
+        </member>
+        <member name="F:SerousEnergyLib.API.PowerExportPriority.SplitEvenly">
+            <summary>
+            The current capacity in the machine is split for each network in the "adjacent networks" enumeration<br/>
+            If a network doesn't completely consume its slice of the current capacity, the leftovers are split amongst the remaining networks until all networks in the "adjacent networks" enumeration are processed
+            </summary>
+        </member>
         <member name="T:SerousEnergyLib.API.Sounds.MachineSounds">
             <summary>
             The central class for managing sound IDs used by certain <see cref="T:SerousEnergyLib.Systems.Netcode"/> packets
@@ -1829,6 +1909,14 @@
             Automatically sets certain static defaults. Override this if you do not want the properties to be set for you.
             </summary>
         </member>
+        <member name="M:SerousEnergyLib.API.Upgrades.BaseUpgrade.GetUpgradeFactor(System.Int32,System.Double)">
+            <summary>
+            Returns the standard factor for upgrade performance via <see cref="P:SerousEnergyLib.Configs.MachineConfig.UpgradeFactor"/> and <see cref="P:SerousEnergyLib.API.Upgrades.BaseUpgrade.MaxUpgradesPerMachine"/>
+            </summary>
+            <param name="upgradeStack">The upgrade quantity</param>
+            <param name="exponentFactor">The factor applied to the upgrade quantity factor</param>
+            <returns><c>Math.Pow(UpgradeFactor, exponentFactor * upgradeStack / MaxUpgradesPerMachine)</c></returns>
+        </member>
         <member name="M:SerousEnergyLib.API.Upgrades.BaseUpgrade.CanApplyTo(SerousEnergyLib.API.Machines.IMachine)">
             <summary>
             Whether this upgrade can be applied to the specified machine
@@ -1895,6 +1983,22 @@
             <param name="defaultIngredients">A collection of the original ingredients that the recipe contains</param>
             <param name="possibleOutputs">A collection of the possible outputs that the recipe contains</param>
         </member>
+        <member name="M:SerousEnergyLib.API.Upgrades.BaseUpgrade.GetProgressStepMultiplier(System.Int32)">
+            <summary>
+            Return a modifier for how much a <see cref="T:SerousEnergyLib.API.CraftingProgress"/> would step by<br/>
+            Bigger multiplier = shorter duration<br/>
+            This method is the inverse of <see cref="M:SerousEnergyLib.API.Upgrades.BaseUpgrade.GetProgressTicksMultiplier(System.Int32)"/>
+            </summary>
+            <param name="upgradeStack">How many instances of this upgrade are stored in the machine</param>
+        </member>
+        <member name="M:SerousEnergyLib.API.Upgrades.BaseUpgrade.GetProgressTicksMultiplier(System.Int32)">
+            <summary>
+            Return a modifier for the denominator for the fractional step that a <see cref="T:SerousEnergyLib.API.CraftingProgress"/> would step by<br/>
+            Bigger multiplier = longer duration<br/>
+            This method is the inverse of <see cref="M:SerousEnergyLib.API.Upgrades.BaseUpgrade.GetProgressStepMultiplier(System.Int32)"/>
+            </summary>
+            <param name="upgradeStack">How many instances of this upgrade are stored in the machine</param>
+        </member>
         <member name="T:SerousEnergyLib.API.Upgrades.UpgradeLoader">
             <summary>
             The centeral class for loading <see cref="T:SerousEnergyLib.API.Upgrades.BaseUpgrade"/> instnaces
@@ -1912,17 +2016,22 @@
             <param name="value">The value</param>
             <param name="length">The length of the array</param>
         </member>
-        <member name="T:SerousEnergyLib.Common.Configs.RenderingConfig">
+        <member name="T:SerousEnergyLib.Configs.MachineConfig">
+            <summary>
+            The configuration for handling machines and their upgrades
+            </summary>
+        </member>
+        <member name="T:SerousEnergyLib.Configs.RenderingConfig">
             <summary>
             The configuration for handling rendering in this mod
             </summary>
         </member>
-        <member name="P:SerousEnergyLib.Common.Configs.RenderingConfig.PlayPumpAnimations">
+        <member name="P:SerousEnergyLib.Configs.RenderingConfig.PlayPumpAnimations">
             <summary>
             Whether item/fluid pump tiles should animate
             </summary>
         </member>
-        <member name="P:SerousEnergyLib.Common.Configs.RenderingConfig.RenderItemsInPipes">
+        <member name="P:SerousEnergyLib.Configs.RenderingConfig.RenderItemsInPipes">
             <summary>
             Whether items moving in item networks should be rendered
             </summary>
@@ -2501,6 +2610,12 @@
             <summary>
             Whether an <see cref="T:SerousEnergyLib.API.Machines.IPowerGeneratorMachine"/> machine should update.
             Use this property to prevent a generator machine from updating twice per game tick.
+            </summary>
+        </member>
+        <member name="P:SerousEnergyLib.Systems.Network.UpdatingPowerStorages">
+            <summary>
+            Whether an <see cref="T:SerousEnergyLib.API.Machines.IPowerStorageMachine"/> machine should update.
+            Use this property to prevent a storage machine from udpating twice per game tick.
             </summary>
         </member>
         <member name="M:SerousEnergyLib.Systems.Network.PlaceEntry(System.Int32,System.Int32,SerousEnergyLib.TileData.NetworkType)">

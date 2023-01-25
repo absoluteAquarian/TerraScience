@@ -131,8 +131,6 @@ namespace TerraScience.Common.UI.Machines {
 			}
 
 			public override void Update(GameTime gameTime) {
-				base.Update(gameTime);
-
 				if (UIHandler.ActiveMachine is GreenhouseEntity entity) {
 					// Update the fluid tank element
 					var fluidStorage = entity.FluidStorage[0];
@@ -156,6 +154,8 @@ namespace TerraScience.Common.UI.Machines {
 						powerGauge.Color = type.Color;
 					}
 				}
+
+				base.Update(gameTime);
 			}
 		}
 	}

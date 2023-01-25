@@ -31,7 +31,7 @@ namespace TerraScience.Content.Tiles.Machines {
 
 		public override MachineWorkbenchRegistry GetRegistry() {
 			return new(Type,
-				static tick => new MachineRegistryDisplayAnimationState("TerraScience/Assets/Machines/Greenhouse/Example_tile", 1, 1, 0, 0),
+				static tick => new MachineRegistryDisplayAnimationState(TechMod.GetExamplePath<Greenhouse>("tile"), 1, 1, 0, 0),
 				GetSecondAnimation);
 		}
 
@@ -41,7 +41,7 @@ namespace TerraScience.Content.Tiles.Machines {
 				FrameDelay = 36;
 			}
 
-			return new MachineRegistryDisplayAnimationState("TerraScience/Assets/Machines/Greenhouse/Example_plants", 7, 6, CurrentFrame % 7, CurrentFrame / 7, -2, -2);
+			return new MachineRegistryDisplayAnimationState(TechMod.GetExamplePath<Greenhouse>("plants"), 7, 6, CurrentFrame % 7, CurrentFrame / 7, -2, -2);
 		}
 
 		public override void ModifyLight(int i, int j, ref float r, ref float g, ref float b) {
@@ -78,10 +78,10 @@ namespace TerraScience.Content.Tiles.Machines {
 			if (firstTile && IMachine.TryFindMachineExact(topLeft, out GreenhouseEntity machine)) {
 				float progress = machine.Progress.Progress;
 
-				if (machine.MightBeAbleToGrowAPlant(out var info) && TechMod.Sets.Greenhouse.TryGetSoilSprite(info.soil, info.modifier, out var soilSprite) && TechMod.Sets.Greenhouse.TryGetPlantSprites(info.soil, info.modifier, info.plant, out var spriteInfo)) {
-					// Render the plant
-					MachineSpriteEffectData sprite;
+				MachineSpriteEffectData sprite;
 
+				if (machine.MightBeAbleToGrowAPlant(out var info) && TechMod.Sets.Greenhouse.TryGetPlantSprites(info.soil, info.modifier, info.plant, out var spriteInfo)) {
+					// Render the plant
 					if (progress < 0.45f) {
 						sprite = spriteInfo.immature.GetDrawInformation();
 
@@ -102,7 +102,9 @@ namespace TerraScience.Content.Tiles.Machines {
 							sprite.Draw(spriteBatch, topLeft);
 						}
 					}
-
+				}
+				
+				if (machine.IsSoilRenderableWithoutAPlant(out MachineSpriteEffectInformation soilSprite)) {
 					// Render the soil
 					sprite = soilSprite.GetDrawInformation();
 

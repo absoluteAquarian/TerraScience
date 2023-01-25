@@ -82,8 +82,6 @@ namespace TerraScience.Common.UI.Machines {
 			}
 
 			public override void Update(GameTime gameTime) {
-				base.Update(gameTime);
-
 				if (UIHandler.ActiveMachine is ReinforcedFurnaceEntity furnace) {
 					arrow.FillPercentage = furnace.Progress.Progress;
 
@@ -92,6 +90,8 @@ namespace TerraScience.Common.UI.Machines {
 					thermostat.CurrentTemperature = furnace.CurrentTemperature;
 					thermostat.SetTemperatureBounds(min, max);
 				}
+
+				base.Update(gameTime);
 			}
 		}
 	}

@@ -1,11 +1,9 @@
-﻿using Microsoft.Xna.Framework;
-using SerousEnergyLib;
+﻿using SerousEnergyLib;
 using SerousEnergyLib.API;
 using SerousEnergyLib.API.Fluid;
 using SerousEnergyLib.API.Fluid.Default;
 using SerousEnergyLib.Tiles;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using Terraria.ID;
 using Terraria.ModLoader;
 using TerraScience.API;
@@ -18,6 +16,10 @@ namespace TerraScience {
 
 		public static string GetEffectPath<T>(string effect) where T : ModTile, IMachineTile {
 			return $"TerraScience/Assets/Tiles/Machines/Effects/Effect_{typeof(T).Name}_{effect}";
+		}
+
+		public static string GetExamplePath<T>(string example) where T : ModTile, IMachineTile {
+			return $"TerraScience/Assets/Machines/{typeof(T).Name}/Example_{example}";
 		}
 
 		public static class Sets {

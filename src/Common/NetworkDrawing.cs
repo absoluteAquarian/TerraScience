@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
 using SerousEnergyLib.API.Fluid;
+using SerousEnergyLib.Configs;
 using SerousEnergyLib.Systems.Networks;
 using SerousEnergyLib.Systems;
 using SerousEnergyLib;
@@ -11,7 +12,6 @@ using SerousEnergyLib.TileData;
 using System;
 using SerousEnergyLib.Tiles;
 using Terraria.ModLoader;
-using SerousEnergyLib.Common.Configs;
 
 namespace TerraScience.Common {
 	public static class NetworkDrawing {

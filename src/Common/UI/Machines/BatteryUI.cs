@@ -1,18 +1,17 @@
-﻿using Microsoft.Xna.Framework;
-using SerousEnergyLib.API.Energy;
-using SerousEnergyLib.API.Machines;
+﻿using SerousEnergyLib.API.Machines;
 using SerousEnergyLib.API.Machines.UI;
 using SerousEnergyLib.Systems;
-using System;
 using System.Collections.Generic;
+using System;
 using Terraria.Localization;
-using Terraria.UI;
 using TerraScience.Common.UI.Elements;
+using Microsoft.Xna.Framework;
 using TerraScience.Content.MachineEntities;
+using SerousEnergyLib.API.Energy;
 
 namespace TerraScience.Common.UI.Machines {
-	public class FurnaceGeneratorUI : BaseMachineUI {
-		public override string DefaultPage => "Generator";
+	public class BatteryUI : BaseMachineUI {
+		public override string DefaultPage => "Storage";
 
 		public override bool IsUpgradesPageOpen => CurrentPage is BasicUpgradesPage;
 
@@ -20,17 +19,17 @@ namespace TerraScience.Common.UI.Machines {
 			if (key == "Upgrades")
 				return Language.GetText("Mods.TerraScience.MachineText.DefaultPage.Upgrades");
 
-			return Language.GetText("Mods.TerraScience.MachineText.FurnaceGenerator.Page." + key);
+			return Language.GetText("Mods.TerraScience.MachineText.Battery.Page." + key);
 		}
 
 		protected override IEnumerable<string> GetMenuOptions() {
-			yield return "Generator";
+			yield return "Storage";
 			yield return "Upgrades";
 		}
 
 		protected override BaseMachineUIPage InitPage(string page) {
 			return page switch {
-				"Generator" => new MainPage(this),
+				"Storage" => new MainPage(this),
 				"Upgrades" => new BasicUpgradesPage(this),
 				_ => throw new ArgumentException("Unknown page: " + page, nameof(page))
 			};
@@ -45,42 +44,27 @@ namespace TerraScience.Common.UI.Machines {
 		}
 
 		public override void GetDefaultPanelDimensions(out int width, out int height) {
-			width = 350;
-			height = 300;
+			width = 400;
+			height = 250;
 		}
 
 		public class MainPage : BaseMachineUIPage {
-			public MachineInventoryItemSlot input;
-
-			public BasicThinArrow arrow;
-
 			public PowerGauge gauge;
 
-			public MainPage(BaseMachineUI parent) : base(parent, "Generator") { }
+			public MainPage(BaseMachineUI parent) : base(parent, "Storage") { }
 
 			public override void OnInitialize() {
-				input = new MachineInventoryItemSlot(0, context: ItemSlot.Context.BankItem);
-				input.Left.Set(10, 0f);
-				input.VAlign = 0.5f;
-				Append(input);
-
-				arrow = new BasicThinArrow(ArrowElementOrientation.Right, targetLength: 180);
-				arrow.HAlign = 0.5f;
-				arrow.VAlign = 0.5f;
-				Append(arrow);
-
-				gauge = new PowerGauge(1, 200);
-				gauge.Left.Set(-40, 1f);
-				gauge.VAlign = 0.5f;
+				gauge = new PowerGauge(1, 180);
+				gauge.Top.Set(20, 0f);
+				gauge.HAlign = 0.5f;
 				Append(gauge);
 			}
 
 			public override void Update(GameTime gameTime) {
-				if (UIHandler.ActiveMachine is FurnaceGeneratorEntity entity) {
-					arrow.FillPercentage = entity.Progress.Progress;
-
-					var storage = entity.PowerStorage;
-					var id = entity.EnergyID;
+				if (UIHandler.ActiveMachine is BatteryEntity machine) {
+					// Update the power gauge
+					var storage = machine.PowerStorage;
+					var id = machine.EnergyID;
 
 					if (EnergyConversions.Get(id) is EnergyTypeID type) {
 						gauge.CurrentPower = EnergyConversions.ConvertFromTerraFlux(storage.CurrentCapacity, id);

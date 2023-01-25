@@ -92,7 +92,17 @@ namespace TerraScience.Content.MachineEntities {
 
 		public virtual int SelectFluidImportDestination(Point16 pipe, Point16 subtile) => 0;
 
-		public virtual int SelectFluidImportDestinationFromType(int fluidType) => 0;
+		public virtual int SelectFluidImportDestinationFromType(int fluidType) {
+			var storage = FluidStorage[0];
+
+			if (storage.FluidType <= FluidTypeID.None || storage.IsEmpty)
+				return 0;
+
+			if (storage.FluidType == fluidType)
+				return 0;
+
+			return -1;
+		}
 
 		private int oldSoil = -1, oldModifier = -1, oldPlant = -1;
 
@@ -117,7 +127,7 @@ namespace TerraScience.Content.MachineEntities {
 				if (IPoweredMachine.AttemptToConsumePower(this)) {
 					Ticks duration = recipe.growthTime;
 
-					if (Progress.Step(1f / duration.ticks)) {
+					if (IMachine.ProgressStepWithUpgrades(this, Progress, duration.ticks)) {
 						ConsumeInputFluid(recipe);
 						GenerateOutputs(recipe);
 					}
@@ -140,6 +150,13 @@ namespace TerraScience.Content.MachineEntities {
 			ref Item plant = ref Inventory[2];
 
 			return TechMod.Sets.Greenhouse.TryGetPlantInformation(soil.type, modifier.type, plant.type, out info);
+		}
+
+		public bool IsSoilRenderableWithoutAPlant(out MachineSpriteEffectInformation info) {
+			ref Item soil = ref Inventory[0];
+			ref Item modifier = ref Inventory[1];
+
+			return TechMod.Sets.Greenhouse.TryGetSoilSprite(soil.type, modifier.type, out info);
 		}
 
 		private bool HasEnoughInputFluid(GreenhouseInputInformation info) {
@@ -179,6 +196,10 @@ namespace TerraScience.Content.MachineEntities {
 
 					IInventoryMachine.AddItemToExportInventory(this, item);
 				}
+
+				// No more room to put items inside of
+				if (IInventoryMachine.ExportInventoryIsFull(this))
+					break;
 			}
 		}
 

@@ -13,7 +13,7 @@ namespace TerraScience.Content.Tiles.Machines {
 		}
 
 		public override MachineWorkbenchRegistry GetRegistry() {
-			return new(Type, static tick => new MachineRegistryDisplayAnimationState("TerraScience/Assets/Machines/MachineWorkbench/Example_tile", 1, 1, 0, 0));
+			return new(Type, static tick => new MachineRegistryDisplayAnimationState(TechMod.GetExamplePath<MachineWorkbench>("tile"), 1, 1, 0, 0));
 		}
 	}
 }

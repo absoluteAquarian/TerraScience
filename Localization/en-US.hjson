@@ -18,6 +18,14 @@
 			CraftableFurnaceGeneratorItem: "{$Mods.TerraScience.ItemName.FurnaceGeneratorItem}"
 			GreenhouseItem: "Greenhouse"
 			CraftableGreenhouseItem: "{$Mods.TerraScience.ItemName.GreenhouseItem}"
+			WindTurbineItem: "Basic Wind Turbine"
+			CraftableWindTurbineItem: "{$Mods.TerraScience.ItemName.WindTurbineItem}"
+			TrashMachineItem: "Trash Machine"
+			CraftableTrashMachineItem: "{$Mods.TerraScience.ItemName.TrashMachineItem}"
+			FasterProcessingUpgradeItem: "{$Mods.TerraScience.MachineUpgradeName.FasterProcessingUpgrade}"
+			IncreasedPowerStorageUpgradeItem: "{$Mods.TerraScience.MachineUpgradeName.IncreasedPowerStorageUpgrade}"
+			BatteryItem: "Basic Battery"
+			CraftableBatteryItem: "{$Mods.TerraScience.ItemName.BatteryItem}"
 		}
 
 		ItemTooltip: {
@@ -87,6 +95,25 @@
 			{$Mods.SerousEnergyLib.CommonMachineItemTooltipFooter}
 			'''
 			CraftableGreenhouseItem: "{$Mods.TerraScience.ItemTooltip.GreenhouseItem}"
+			WindTurbineItem:
+			'''
+			Generates Terra Flux depending on the current weather and wind speed
+			{$Mods.SerousEnergyLib.CommonMachineItemTooltipFooter}
+			'''
+			CraftableWindTurbineItem: "{$Mods.TerraScience.ItemTooltip.WindTurbineItem}"
+			TrashMachineItem:
+			'''
+			Destroys all items, fluids and power that get imported into it
+			'''
+			CraftableTrashMachineItem: "{$Mods.TerraScience.ItemTooltip.TrashMachineItem}"
+			FasterProcessingUpgradeItem: "{$Mods.TerraScience.MachineUpgradeTooltip.FasterProcessingUpgrade}"
+			IncreasedPowerStorageUpgradeItem: "{$Mods.TerraScience.MachineUpgradeTooltip.IncreasedPowerStorageUpgrade}"
+			BatteryItem:
+			'''
+			Stores 30,000 TF
+			{$Mods.SerousEnergyLib.CommonMachineItemTooltipFooter}
+			'''
+			CraftableBatteryItem: "{$Mods.TerraScience.ItemTooltip.BatteryItem}"
 		}
 
 		CommonFooter: {
@@ -130,10 +157,15 @@
 			FluidTank: "Basic Fluid Tank"
 			FurnaceGenerator: "Combustion Generator"
 			Greenhouse: "Greenhouse"
+			WindTurbine: "Basic Wind Turbine"
+			TrashMachine: "Trash Machine"
+			Battery: "Battery"
 		}
 
 		MachineUpgradeName: {
-			MoreOutputUpgrade: "Basic Duplication Matrix Upgrade"
+			MoreOutputUpgrade: "Duplication Matrix Upgrade"
+			FasterProcessingUpgrade: "Processing Speed Upgrade"
+			IncreasedPowerStorageUpgrade: "Power Capacity Upgrade"
 		}
 
 		MachineUpgradeTooltip: {
@@ -141,6 +173,14 @@
 			'''
 			Causes a machine to have a low chance to produce extra outputs
 			Slightly increases power consumption when placed in powered machines
+			'''
+			FasterProcessingUpgrade:
+			'''
+			Increases processing speed and power consumption
+			'''
+			IncreasedPowerStorageUpgrade:
+			'''
+			Increases power capacity and decreases power consumption
 			'''
 		}
 
@@ -215,6 +255,37 @@
 					Soil: "Soil"
 					Modifier: "Soil Modifier"
 					Plant: "Plant"
+				}
+			}
+
+			WindTurbine: {
+				Description: "Wind spins the blades on this machine to generate Terra Flux"
+
+				Page: {
+					Turbine: "Turbine"
+				}
+
+				BoostText: {
+					None: "None"
+					Rain: "Rain"
+					Storm: "Storming"
+					Sandstorm: "Sandstorm"
+					Blizzard: "Blizzard"
+
+					Boosts: "Boosts: {0}"
+					BoostPower: "Boost Strength: +{0:0.###}% increase & +{1:0.###} TF/gt"
+				}
+			}
+
+			TrashMachine: {
+				Description: "Destroys all items, fluids and power that get imported into it"
+			}
+
+			Battery: {
+				Description: "Stores a moderate amount of Terra Flux"
+
+				Page: {
+					Storage: "Storage"
 				}
 			}
 		}
