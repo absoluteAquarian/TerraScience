@@ -3240,8 +3240,7 @@
         </member>
         <member name="T:SerousEnergyLib.Tiles.BaseNetworkTile">
             <summary>
-            The base type for a 1x1 network tile<br/>
-            <b>NOTE:</b> The <see cref="F:Terraria.Main.tileSolid"/> index for this type will be modified during runtime!
+            The base type for a 1x1 network tile
             </summary>
         </member>
         <member name="P:SerousEnergyLib.Tiles.BaseNetworkTile.NetworkTypeToPlace">
