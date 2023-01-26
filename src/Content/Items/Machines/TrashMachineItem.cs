@@ -15,7 +15,7 @@ namespace TerraScience.Content.Items.Machines {
 			Item.height = 48;
 			Item.scale = 0.82f;
 			Item.rare = ItemRarityID.Orange;
-			Item.value = Item.buyPrice(silver: 8, copper: 50);
+			Item.value = Item.buyPrice(silver: 3, copper: 20);
 			// Item doesn't save any data, so this is fine
 			Item.maxStack = 999;
 		}
