@@ -669,6 +669,29 @@
             Adds a variable time requirement to this recipe
             </summary>
         </member>
+        <member name="M:SerousEnergyLib.API.MachineRecipe.AddConditionTextLiteral(System.String)">
+            <summary>
+            Adds a text string as a "requirement" for this recipe<br/>
+            The generated <see cref="T:Terraria.Recipe.Condition"/> objects are purely aesthetic and will always return <see langword="false"/>
+            </summary>
+            <param name="text">The text literal</param>
+        </member>
+        <member name="M:SerousEnergyLib.API.MachineRecipe.AddConditionTextLocalized(System.String,System.Object[])">
+            <summary>
+            Adds a text string as a "requirement" for this recipe<br/>
+            The generated <see cref="T:Terraria.Recipe.Condition"/> objects are purely aesthetic and will always return <see langword="false"/>
+            </summary>
+            <param name="localizationKey">The localization key</param>
+            <param name="args">An optional collection of objects used when displaying the localized text</param>
+        </member>
+        <member name="M:SerousEnergyLib.API.MachineRecipe.AddConditionTextFormattable(System.String,System.Object[])">
+            <summary>
+            Adds a text string as a "requirement" for this recipe<br/>
+            The generated <see cref="T:Terraria.Recipe.Condition"/> objects are purely aesthetic and will always return <see langword="false"/>
+            </summary>
+            <param name="text">The text literal</param>
+            <param name="args">An optional collection of objects used when displaying the formatted text</param>
+        </member>
         <member name="M:SerousEnergyLib.API.MachineRecipe.AddPossibleOutput(System.Int32,System.Int32,System.Double)">
             <summary>
             Adds a possible output to this recipe with the given item type, stack size and probability. Ex: <c>recipe.AddPossibleOutput(ItemID.IronAxe, 0.25)</c>

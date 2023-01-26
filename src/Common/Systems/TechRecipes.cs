@@ -135,6 +135,13 @@ namespace TerraScience.Common.Systems {
 					}
 				}
 			}
+
+			// ===== Wind Turbine recipes =====
+			Sets.WindTurbine.Add(new MachineRecipe<WindTurbine>()
+				.AddConditionTextLocalized("Mods.TerraScience.MachineText.WindTurbine.Weather")
+				.AddPossiblePowerOutput<TerraFluxTypeID>(1)
+				.AddTimeRequirement(new Ticks(1))
+				.CreateAndRegisterAllPossibleRecipes());
 		}
 
 		public override void Unload() {
@@ -182,6 +189,7 @@ namespace TerraScience.Common.Systems {
 			public static List<MachineRecipe> FluidTank = new();
 			public static List<MachineRecipe> FurnaceGenerator = new();
 			public static List<MachineRecipe> Greenhouse = new();
+			public static List<MachineRecipe> WindTurbine = new();
 		}
 	}
 }

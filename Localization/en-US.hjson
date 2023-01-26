@@ -260,6 +260,7 @@
 
 			WindTurbine: {
 				Description: "Wind spins the blades on this machine to generate Terra Flux"
+				Weather: "Wind & Weather"
 
 				Page: {
 					Turbine: "Turbine"
